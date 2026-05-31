@@ -1,0 +1,144 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-admin-agent"
+dynamic = ["version"]
+description = "An always-present chat-agent sidebar in the Django admin, powered by django-ag-ui."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Artur Veres", email = "artur8118@gmail.com" },
+]
+keywords = ["django", "django-admin", "ag-ui", "pydantic-ai", "agent", "llm", "ai", "copilot"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "django>=4.2",
+    "django-ag-ui>=0.1",
+]
+
+[project.optional-dependencies]
+# Also expose the admin tools as an MCP server over HTTP via the user's
+# djangorestframework-mcp-server stack.
+mcp = ["djangorestframework-mcp-server>=0.5"]
+
+[project.urls]
+Homepage = "https://github.com/Artui/django-admin-agent"
+Repository = "https://github.com/Artui/django-admin-agent"
+Issues = "https://github.com/Artui/django-admin-agent/issues"
+
+[tool.hatch.version]
+path = "django_admin_agent/version.py"
+pattern = "^__version__(?:\\s*:\\s*[A-Za-z][A-Za-z0-9_]*)?\\s*=\\s*[\"'](?P<version>[^\"']+)[\"']"
+
+[tool.hatch.build.targets.wheel]
+packages = ["django_admin_agent"]
+
+# Local development: resolve django-ag-ui from the sibling checkout rather than
+# PyPI. Released wheels keep the plain version pin above.
+[tool.uv.sources]
+django-ag-ui = { path = "../django-ag-ui", editable = true }
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9.0",
+    "ty>=0.0.32",
+    "pre-commit>=3.8.0",
+    "pytest>=8.0",
+    "pytest-django>=4.11.1",
+    "pytest-cov>=5.0",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.27",
+    "flake8-tidy-imports>=4.12.0",
+    "django-stubs>=5.0",
+]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.25",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.conftest_settings"
+asyncio_mode = "auto"
+addopts = "--cov=django_admin_agent --cov-report=term-missing --cov-fail-under=100"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["django_admin_agent"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 100
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "SIM", "I", "TID"]
+ignore = ["E203", "E501", "E231", "F811", "E722", "E741"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["django_admin_agent"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ty.environment]
+root = ["./django_admin_agent"]
+
+[tool.bumpversion]
+current_version = "0.1.0"
+allow_dirty = false
+commit = false
+tag = false
+
+[[tool.bumpversion.files]]
+filename = "django_admin_agent/version.py"
+search = '__version__: str = "{current_version}"'
+replace = '__version__: str = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "CHANGELOG.md"
+search = "## [Unreleased]"
+replace = """## [Unreleased]
+
+## [{new_version}] — {now:%Y-%m-%d}"""
+
+[[tool.bumpversion.files]]
+filename = "CHANGELOG.md"
+search = "[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v{current_version}...HEAD"
+replace = """[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v{new_version}...HEAD
+[{new_version}]: https://github.com/Artui/django-admin-agent/compare/v{current_version}...v{new_version}"""
