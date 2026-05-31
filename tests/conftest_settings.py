@@ -13,7 +13,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django_admin_agent",
+    "tests.testapp",
 ]
+
+ROOT_URLCONF = "tests.testapp.urls"
 
 DATABASES = {
     "default": {
