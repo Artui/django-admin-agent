@@ -23,10 +23,15 @@ The design is at `/Users/arturveres/code/opensource/docs/plans/django-ag-ui-plan
 
 ## Local development
 
-`django-ag-ui` is resolved from the sibling checkout `../django-ag-ui` via
-`[tool.uv.sources]` in `pyproject.toml` (editable). Released wheels keep the
-plain `django-ag-ui>=0.1` pin. After changing the sibling, `make init` (or
-`uv sync`) picks it up.
+`django-ag-ui` is resolved from PyPI via the plain `django-ag-ui>=0.1` pin in
+`pyproject.toml` (so CI, which has no sibling checkout, syncs cleanly). To
+develop both packages together against a local checkout, add a `[tool.uv.sources]`
+override *locally* (do not commit it) and `uv sync`:
+
+```toml
+[tool.uv.sources]
+django-ag-ui = { path = "../django-ag-ui", editable = true }
+```
 
 ### The vendored web-component bundle
 
@@ -129,7 +134,7 @@ mutables; initialise in `__init__`. A project may mount more than one sidebar.
 | --- | --- | --- |
 | Python | 3.10 | 3.10–3.14 |
 | Django | 4.2 LTS | 4.2, 5.0, 5.1, 5.2, 6.0 |
-| django-ag-ui | 0.1 | sibling checkout in dev |
+| django-ag-ui | 0.1 | from PyPI (`>=0.1`) |
 | Django Unfold (supported, optional) | 0.40 | latest in matrix |
 
 ## Branching & releases
