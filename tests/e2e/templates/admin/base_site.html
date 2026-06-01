@@ -1,0 +1,7 @@
+{% extends "admin/base.html" %}
+{% load django_admin_agent %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">E2E admin</a></h1>
+{% django_admin_agent_sidebar %}
+{% endblock %}

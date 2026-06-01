@@ -80,12 +80,20 @@ docs = [
     "mkdocs-material>=9.5",
     "mkdocstrings[python]>=0.25",
 ]
+e2e = [
+    "django-unfold>=0.81.0",
+    "playwright>=1.60.0",
+    "pytest-playwright>=0.8.0",
+]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "tests.conftest_settings"
 asyncio_mode = "auto"
-addopts = "--cov=django_admin_agent --cov-report=term-missing --cov-fail-under=100"
+# The default suite is the fast, 100%-covered unit tests. The browser e2e
+# suite (tests/e2e) runs separately via `make test-e2e` with its own settings.
+addopts = "--cov=django_admin_agent --cov-report=term-missing --cov-fail-under=100 --ignore=tests/e2e"
 testpaths = ["tests"]
+markers = ["e2e: browser end-to-end tests (Playwright + live server)"]
 
 [tool.coverage.run]
 branch = true

@@ -26,6 +26,11 @@ init:
 test:
 	uv run pytest
 
+# Browser end-to-end suite: Playwright drives a live admin through the sidebar.
+# Separate settings + no coverage gate (it exercises JS + the server over HTTP).
+test-e2e:
+	DJANGO_ALLOW_ASYNC_UNSAFE=1 uv run pytest tests/e2e --ds=tests.e2e.settings -o addopts="" -p no:cacheprovider
+
 lint:
 	uv run ruff check .
 	uv run ty check django_admin_agent
