@@ -21,6 +21,7 @@
 
 import {
   X_DESTRUCTIVE_KEY,
+  X_NAVIGATES_KEY,
   clickElement,
   fillField,
   setControlValue,
@@ -33,13 +34,34 @@ const SUBMIT_NAMES = {
   save_and_add_another: "_addanother",
 };
 
-/** Build a JSON-Schema for a tool's parameters, tagging destructive ones. */
-function schema(properties, required = [], destructive = false) {
+/** Build a JSON-Schema for a tool's parameters, tagging destructive/navigating. */
+function schema(properties, required = [], destructive = false, navigates = false) {
   const params = { type: "object", properties, required };
   if (destructive) {
     params[X_DESTRUCTIVE_KEY] = true;
   }
+  if (navigates) {
+    // Tells <ag-ui-chat> to checkpoint + resume across the page reload this
+    // tool triggers, so the agent's turn survives the navigation.
+    params[X_NAVIGATES_KEY] = true;
+  }
   return params;
+}
+
+/**
+ * The result a navigating tool resumes with after the reload, read off the
+ * page we landed on: the URL, title, and any Django validation errors (e.g.
+ * after a failed submit_form the change form re-renders with `.errorlist`).
+ */
+function landedPage() {
+  return {
+    navigated: true,
+    url: window.location.href,
+    title: document.title,
+    errors: [...document.querySelectorAll(".errorlist li")].map((li) =>
+      (li.textContent ?? "").trim(),
+    ),
+  };
 }
 
 const str = { type: "string" };
@@ -275,7 +297,12 @@ export function registerAdminTools(el) {
       name: "submit_form",
       description:
         'Submit the change form: action is "save", "save_and_continue" or "save_and_add_another".',
-      parameters: schema({ action: { type: "string", enum: Object.keys(SUBMIT_NAMES) } }, [], true),
+      parameters: schema(
+        { action: { type: "string", enum: Object.keys(SUBMIT_NAMES) } },
+        [],
+        true,
+        true,
+      ),
       handler: async ({ action = "save" }) => {
         const name = SUBMIT_NAMES[action];
         if (name === undefined) {
@@ -292,7 +319,7 @@ export function registerAdminTools(el) {
     {
       name: "apply_filter",
       description: "Apply a changelist sidebar filter; navigates with the filter applied.",
-      parameters: schema({ filter_name: str, value: str }, ["filter_name", "value"], true),
+      parameters: schema({ filter_name: str, value: str }, ["filter_name", "value"], true, true),
       handler: ({ filter_name, value }) => {
         const link = [...document.querySelectorAll("#changelist-filter a")].find(
           (anchor) => (anchor.textContent ?? "").trim().toLowerCase() === value.toLowerCase(),
@@ -330,7 +357,7 @@ export function registerAdminTools(el) {
     {
       name: "run_admin_action",
       description: "Run the changelist's bulk action by name (selects it, then clicks Go).",
-      parameters: schema({ action_name: str }, ["action_name"], true),
+      parameters: schema({ action_name: str }, ["action_name"], true, true),
       handler: async ({ action_name }) => {
         const select = document.querySelector('select[name="action"]');
         if (select === null) {
@@ -387,6 +414,8 @@ export function registerAdminTools(el) {
       parameters: schema(
         { app_label: str, model: str, filters: { type: "object" } },
         ["app_label", "model"],
+        false,
+        true,
       ),
       handler: ({ app_label, model, filters }) => {
         const url = adminPath(adminBase, app_label, model) + queryString(filters);
@@ -400,6 +429,8 @@ export function registerAdminTools(el) {
       parameters: schema(
         { app_label: str, model: str, pk: { type: ["string", "number", "null"] } },
         ["app_label", "model"],
+        false,
+        true,
       ),
       handler: ({ app_label, model, pk }) => {
         const base = adminPath(adminBase, app_label, model);
@@ -411,7 +442,7 @@ export function registerAdminTools(el) {
     {
       name: "navigate_to",
       description: "Navigate the browser to an arbitrary URL (fallback).",
-      parameters: schema({ url: str }, ["url"]),
+      parameters: schema({ url: str }, ["url"], false, true),
       handler: ({ url }) => {
         window.location.assign(url);
         return { ok: true, url };
@@ -422,4 +453,9 @@ export function registerAdminTools(el) {
   for (const tool of tools) {
     el.registerTool(tool);
   }
+
+  // After a navigating tool reloads the page, the resumed run completes that
+  // tool's call with a snapshot of the page we landed on (URL + validation
+  // errors), so the agent can react to where it ended up.
+  el.navigationResult = landedPage;
 }
