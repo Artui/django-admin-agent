@@ -23,3 +23,6 @@ def test_tag_renders_web_component_markup() -> None:
     assert 'endpoint="/admin-agent/agent/"' in rendered
     assert 'data-admin-base="/admin/"' in rendered
     assert "admin_agent.js" in rendered
+    # The route manifest is embedded as a safe JSON script the bootstrap reads.
+    assert 'id="django-admin-agent-routes"' in rendered
+    assert "testapp.author.changelist" in rendered

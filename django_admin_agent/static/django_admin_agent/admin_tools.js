@@ -149,6 +149,38 @@ function queryString(params) {
   return encoded ? `?${encoded}` : "";
 }
 
+/** List actionable buttons/links, assigning each a fresh opaque handle. */
+function readButtons(buttonHandles) {
+  buttonHandles.clear();
+  const nodes = document.querySelectorAll(
+    "button, input[type=submit], a.button, .submit-row [type=submit]",
+  );
+  return [...nodes].map((node, index) => {
+    const handle = `btn-${index}`;
+    buttonHandles.set(handle, node);
+    const label =
+      (node.textContent ?? "").trim() ||
+      node.value ||
+      node.getAttribute("aria-label") ||
+      node.name ||
+      "";
+    return { handle, label, tag: node.tagName.toLowerCase() };
+  });
+}
+
+/** A compact snapshot of the current page's fields + buttons (no values). */
+function compactPageMap(buttonHandles) {
+  const fields = [
+    ...document.querySelectorAll('form [id^="id_"]:is(input, select, textarea)'),
+  ].map((node) => ({
+    name: node.name || node.id.replace(/^id_/, ""),
+    type: controlType(node),
+    label: labelFor(node),
+  }));
+  const buttons = readButtons(buttonHandles).map(({ handle, label }) => ({ handle, label }));
+  return { path: window.location.pathname, fields, buttons };
+}
+
 /**
  * Register every admin frontend tool on `el`.
  *
@@ -207,23 +239,7 @@ export function registerAdminTools(el) {
       description:
         "List actionable buttons/links, each with an opaque handle for click_button.",
       parameters: schema({}),
-      handler: () => {
-        buttonHandles.clear();
-        const nodes = document.querySelectorAll(
-          "button, input[type=submit], a.button, .submit-row [type=submit]",
-        );
-        return [...nodes].map((node, index) => {
-          const handle = `btn-${index}`;
-          buttonHandles.set(handle, node);
-          const label =
-            (node.textContent ?? "").trim() ||
-            node.value ||
-            node.getAttribute("aria-label") ||
-            node.name ||
-            "";
-          return { handle, label, tag: node.tagName.toLowerCase() };
-        });
-      },
+      handler: () => readButtons(buttonHandles),
     },
     {
       name: "get_page_snapshot",
@@ -458,4 +474,9 @@ export function registerAdminTools(el) {
   // tool's call with a snapshot of the page we landed on (URL + validation
   // errors), so the agent can react to where it ended up.
   el.navigationResult = landedPage;
+
+  // Auto-inject a compact map of the current page (fields + buttons, no
+  // values) into every run's context, so the agent knows the page's surface
+  // without first calling get_form_state / get_visible_buttons.
+  el.getPageMap = () => compactPageMap(buttonHandles);
 }

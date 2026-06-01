@@ -17,6 +17,20 @@ function readCsrfToken() {
   return match ? decodeURIComponent(match[1]) : "";
 }
 
+// The navigable route manifest the server embedded (admin changelists/add
+// pages), driving the component's list_routes / navigate_to_route tools.
+function readRouteMap() {
+  const node = document.getElementById("django-admin-agent-routes");
+  if (node === null) {
+    return [];
+  }
+  try {
+    return JSON.parse(node.textContent);
+  } catch {
+    return [];
+  }
+}
+
 function bootstrap() {
   defineAgUiChat();
   const el = document.querySelector("ag-ui-chat#django-admin-agent");
@@ -25,6 +39,7 @@ function bootstrap() {
   }
   el.headers = { "X-CSRFToken": readCsrfToken() };
   el.autoConfirm = el.getAttribute("data-auto-confirm") === "true";
+  el.routeMap = readRouteMap();
   registerAdminTools(el);
 }
 

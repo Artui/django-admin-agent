@@ -12,6 +12,8 @@ def test_context_keys_and_values() -> None:
     assert context["auto_confirm"] is False
     assert context["bootstrap_url"].endswith("django_admin_agent/admin_agent.js")
     assert context["admin_base_url"] == "/admin/"
+    route_ids = {r["id"] for r in context["route_map"]}
+    assert "testapp.author.changelist" in route_ids
 
 
 @override_settings(DJANGO_ADMIN_AGENT={"TITLE": "Helper", "AUTO_CONFIRM": True})

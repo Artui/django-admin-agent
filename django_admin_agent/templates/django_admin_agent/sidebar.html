@@ -5,4 +5,5 @@
   title-text="{{ title }}"
   data-auto-confirm="{{ auto_confirm|yesno:'true,false' }}"
   data-admin-base="{{ admin_base_url }}"></ag-ui-chat>
+{{ route_map|json_script:"django-admin-agent-routes" }}
 <script type="module" src="{{ bootstrap_url }}"></script>

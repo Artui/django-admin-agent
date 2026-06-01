@@ -5,6 +5,7 @@ from typing import Any
 from django.templatetags.static import static
 from django.urls import NoReverseMatch, reverse
 
+from django_admin_agent.admin.build_route_map import build_route_map
 from django_admin_agent.conf import get_settings
 
 _BUNDLE_PATH = "django_admin_agent/admin_agent.js"
@@ -28,6 +29,7 @@ def build_sidebar_context() -> dict[str, Any]:
         "auto_confirm": config.auto_confirm,
         "bootstrap_url": static(_BUNDLE_PATH),
         "admin_base_url": _admin_base_url(),
+        "route_map": build_route_map(),
     }
 
 
