@@ -3,4 +3,6 @@ from __future__ import annotations
 from django.contrib import admin
 from django.urls import path
 
-urlpatterns = [path("admin/", admin.site.urls)]
+from django_admin_agent import get_urls
+
+urlpatterns = [path("admin/", admin.site.urls), *get_urls()]

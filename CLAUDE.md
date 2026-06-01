@@ -28,9 +28,29 @@ The design is at `/Users/arturveres/code/opensource/docs/plans/django-ag-ui-plan
 plain `django-ag-ui>=0.1` pin. After changing the sibling, `make init` (or
 `uv sync`) picks it up.
 
-The vendored web-component bundle in `static/` is a built artefact copied from
-`../ag-ui-web-component/dist/ag-ui-web-component.bundle.js`. Re-vendor it
-(`make vendor-bundle`, once that target exists) when the component changes.
+### The vendored web-component bundle
+
+`django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js` is
+a **build artefact**, not hand-written — it is esbuild's minified output from
+`@artooi/ag-ui-web-component` (TypeScript source), with `@ag-ui/*` inlined.
+
+The bundle is **version-pinned** in the `Makefile` (`WEB_COMPONENT_VERSION`).
+That pin is the source of truth:
+
+- **Release** re-vendors the pinned published version. `make
+  release-publish-prepare` runs `make vendor-bundle-release` (which `npm pack`s
+  `@artooi/ag-ui-web-component@$(WEB_COMPONENT_VERSION)` and copies its built
+  bundle) *before* building the wheel. So a released wheel always ships exactly
+  the pinned bundle — ongoing web-component changes can never retroactively
+  break a released `django-admin-agent`, and bumping the bundle is a deliberate
+  `WEB_COMPONENT_VERSION` change + release.
+- **Dev** uses `make vendor-bundle` to copy from the sibling
+  `../ag-ui-web-component/dist/` checkout. The committed copy is a convenience
+  (so `git clone` + `runserver` works) and may drift; the release re-vendor is
+  the authoritative refresh.
+
+To adopt a new web-component version: bump `WEB_COMPONENT_VERSION`, run `make
+vendor-bundle-release` (or `vendor-bundle` in dev), commit, release.
 
 ## Commands
 

@@ -1,0 +1,8 @@
+{% load static %}
+<ag-ui-chat
+  id="django-admin-agent"
+  endpoint="{{ endpoint }}"
+  title-text="{{ title }}"
+  data-auto-confirm="{{ auto_confirm|yesno:'true,false' }}"
+  data-admin-base="{{ admin_base_url }}"></ag-ui-chat>
+<script type="module" src="{{ bootstrap_url }}"></script>

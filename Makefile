@@ -1,4 +1,4 @@
-.PHONY: help init test lint lint-fix format format-check type-check deps-bump docs-serve docs-build vendor-bundle release-bump release-publish release-publish-prepare release-publish-finalize
+.PHONY: help init test lint lint-fix format format-check type-check deps-bump docs-serve docs-build vendor-bundle vendor-bundle-release release-bump release-publish release-publish-prepare release-publish-finalize
 
 help:
 	@echo "Available targets:"
@@ -12,6 +12,8 @@ help:
 	@echo "  deps-bump        Upgrade pinned dependencies"
 	@echo "  docs-serve       Live-reload docs at http://localhost:8000 (needs mkdocs.yml)"
 	@echo "  docs-build       Build docs into ./site (strict — fails on broken links)"
+	@echo "  vendor-bundle    Copy the web-component bundle from the sibling checkout (dev)"
+	@echo "  vendor-bundle-release  Vendor the PINNED published web-component bundle (release)"
 	@echo "  release-bump     Bump version files + CHANGELOG. Usage: make release-bump VERSION=X.Y.Z"
 	@echo "  release-publish  prepare → uv publish → finalize (workstation release)"
 	@echo "  release-publish-prepare   Run by release.yml on push to main (no-op unless bumped)"
@@ -49,12 +51,33 @@ docs-serve:
 docs-build:
 	uv run --group docs mkdocs build --strict
 
-# Re-vendor the built web-component bundle from the sibling checkout. Run
-# `make build` in ../ag-ui-web-component first.
+# The web-component bundle is a vendored build artefact. The PINNED version
+# below is the single source of truth: a release re-vendors exactly this
+# version (see release-publish-prepare), so a published wheel never depends on
+# the live web-component source and ongoing component changes cannot
+# retroactively affect a released django-admin-agent.
+WEB_COMPONENT_PKG := @artooi/ag-ui-web-component
+WEB_COMPONENT_VERSION := 0.1.0
+BUNDLE_DEST := django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js
+
+# Dev: copy the locally-built bundle from the sibling checkout (run
+# `make build` in ../ag-ui-web-component first). Convenient, may drift — the
+# release re-vendor is the authoritative refresh.
 vendor-bundle:
-	cp ../ag-ui-web-component/dist/ag-ui-web-component.bundle.js \
-		django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js
-	@echo "Vendored ag-ui-web-component.bundle.js into static/"
+	cp ../ag-ui-web-component/dist/ag-ui-web-component.bundle.js $(BUNDLE_DEST)
+	@echo "Vendored ag-ui-web-component.bundle.js from the sibling checkout (dev)."
+
+# Release: fetch the PINNED published version and vendor its built bundle. Run
+# automatically by release-publish-prepare so every wheel ships exactly
+# $(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION). Fails loudly if the pinned
+# version cannot be fetched — better than shipping a stale bundle.
+vendor-bundle-release:
+	@set -e; tmp="$$(mktemp -d)"; \
+	( cd "$$tmp" && npm pack "$(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION)" >/dev/null ); \
+	tar -xzf "$$tmp"/*.tgz -C "$$tmp"; \
+	cp "$$tmp/package/dist/ag-ui-web-component.bundle.js" "$(BUNDLE_DEST)"; \
+	rm -rf "$$tmp"; \
+	echo "Vendored $(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION) bundle (release)."
 
 release-bump:
 	@if [ -z "$(VERSION)" ]; then \
@@ -70,12 +93,14 @@ release-bump:
 RELEASE_PACKAGE_NAME := django-admin-agent
 RELEASE_VERSION_FILES := django_admin_agent/version.py|^__version__[^=]*= *
 
-release-publish:
+release-publish: vendor-bundle-release
 	@PACKAGE_NAME='$(RELEASE_PACKAGE_NAME)' \
 	VERSION_FILES="$$(printf '$(RELEASE_VERSION_FILES)')" \
 		bash scripts/release-publish.sh all
 
-release-publish-prepare:
+# Re-vendor the pinned bundle BEFORE the script builds the wheel, so the
+# published artefact always carries a fresh, version-pinned bundle.
+release-publish-prepare: vendor-bundle-release
 	@PACKAGE_NAME='$(RELEASE_PACKAGE_NAME)' \
 	VERSION_FILES="$$(printf '$(RELEASE_VERSION_FILES)')" \
 		bash scripts/release-publish.sh prepare
