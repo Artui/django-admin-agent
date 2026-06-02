@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-06-02
+
 ### Added
 - `DJANGO_ADMIN_AGENT["TOOL_DISPLAY"]` setting (default `"compact"`), passed to
   the Web Component as `data-tool-display` to control how much tool-call detail
@@ -54,5 +56,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Artui/django-admin-agent/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Artui/django-admin-agent/releases/tag/v0.1.0
