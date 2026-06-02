@@ -7,6 +7,7 @@ from django.urls import NoReverseMatch, reverse
 
 from django_admin_agent.admin.build_route_map import build_route_map
 from django_admin_agent.admin.build_skills import build_skills
+from django_admin_agent.admin.build_tool_summaries import build_tool_summaries
 from django_admin_agent.conf import get_settings
 
 _BUNDLE_PATH = "django_admin_agent/admin_agent.js"
@@ -30,6 +31,9 @@ def build_sidebar_context() -> dict[str, Any]:
         "auto_confirm": config.auto_confirm,
         "tool_display": config.tool_display,
         "skills": config.skills if config.skills is not None else build_skills(),
+        "tool_summaries": (
+            config.tool_summaries if config.tool_summaries is not None else build_tool_summaries()
+        ),
         "theme": config.theme,
         "density": config.density,
         "placement": config.placement,

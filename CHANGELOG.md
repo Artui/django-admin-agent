@@ -29,15 +29,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   an attribute when set.
 - `x-summary` labels on the destructive `submit_form` ("Submit form") and
   `run_admin_action` ("Run bulk action") tools.
+- **Friendly card labels for the server-side tools** (`shell.*` / `introspect.*`),
+  whose schema never reaches the browser: a built-in name → label map is embedded
+  and set as the Web Component's `toolSummaries` (e.g. `query_model` → "Query
+  records"). Override the whole map with `DJANGO_ADMIN_AGENT["TOOL_SUMMARIES"]`.
 
 ### Changed
-- Vendored the `@artooi/ag-ui-web-component` bundle at **0.2.1** (markdown/HTML
+- Vendored the `@artooi/ag-ui-web-component` bundle at **0.2.2** (markdown/HTML
   rendering, pending indicator, new-chat + collapse, inline confirmation card,
-  tool-display modes, richer animations, dynamic routes, skills — plus 0.2.1's
-  server-side tool results shown in the card, tool cards/results surviving a page
-  refresh, and the pending-indicator fix). Requires `django-ag-ui>=0.2`, so it
-  also picks up 0.2.1's drf-mcp full-schema bridge and `build_model` provider
-  resolution.
+  tool-display modes, richer animations, dynamic routes, skills; 0.2.1's
+  server-side tool results in the card + tool activity surviving a page refresh +
+  the pending-indicator fix; and 0.2.2's friendlier tool-call labels, the
+  "No result returned." honesty fix, and the text-animation double-fire fixes).
+  Requires `django-ag-ui>=0.2`, so it also picks up the drf-mcp full-schema +
+  in-process-execution fixes and `build_model` provider resolution.
 - Admin DOM tools now use the Web Component's animated primitives:
   `select_option` / `toggle_checkbox` animate the control, and buttons
   (`click_button`, `submit_form`, `run_admin_action`) use the "press" animation.

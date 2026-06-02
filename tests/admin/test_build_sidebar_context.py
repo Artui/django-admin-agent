@@ -12,6 +12,8 @@ def test_context_keys_and_values() -> None:
     assert context["auto_confirm"] is False
     assert context["tool_display"] == "compact"
     assert {s["name"] for s in context["skills"]} >= {"summarize-changelist"}
+    # Server-tool card labels default to the built-in map.
+    assert context["tool_summaries"]["query_model"] == "Query records"
     # Styling knobs default to None (the component default applies).
     assert context["theme"] is None
     assert context["density"] is None
@@ -35,6 +37,11 @@ def test_context_reflects_settings() -> None:
 )
 def test_skills_override_replaces_the_default_catalog() -> None:
     assert build_sidebar_context()["skills"] == [{"name": "only", "title": "Only", "prompt": "p"}]
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"TOOL_SUMMARIES": {"query_model": "Run a query"}})
+def test_tool_summaries_override_replaces_the_default_map() -> None:
+    assert build_sidebar_context()["tool_summaries"] == {"query_model": "Run a query"}
 
 
 @override_settings(ROOT_URLCONF="tests.admin.urls_no_admin")

@@ -44,6 +44,21 @@ function readSkills() {
   }
 }
 
+// Friendly card labels (tool name → label) for the server-side tools, whose
+// schema never reaches the browser. Embedded by the server; set as the
+// element's `toolSummaries`.
+function readToolSummaries() {
+  const node = document.getElementById("django-admin-agent-tool-summaries");
+  if (node === null) {
+    return {};
+  }
+  try {
+    return JSON.parse(node.textContent);
+  } catch {
+    return {};
+  }
+}
+
 // Values for a skill prompt's {placeholders}, derived from the current admin
 // page. The built-in skills are placeholder-free, but a project's custom
 // skills can reference e.g. {path} or {selected_ids}.
@@ -68,6 +83,7 @@ function bootstrap() {
   el.routeMap = readRouteMap();
   el.setSkills(readSkills());
   el.skillContext = skillContext;
+  el.toolSummaries = readToolSummaries();
   registerAdminTools(el);
 }
 

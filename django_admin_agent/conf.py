@@ -38,6 +38,11 @@ class AdminAgentSettings:
     """Optional override for the skill catalog (client ``Skill`` dicts). ``None``
     uses the built-in admin catalog (:func:`build_skills`)."""
 
+    tool_summaries: dict[str, str] | None
+    """Optional override for the server-tool card labels (tool name → label).
+    Passed to the Web Component as ``toolSummaries``. ``None`` uses the built-in
+    map (:func:`build_tool_summaries`)."""
+
     theme: str | None
     """Web Component theme: ``"light"`` / ``"dark"`` / ``"auto"`` / ``"code"``.
     ``None`` leaves the component default (light)."""
@@ -63,6 +68,7 @@ def get_settings() -> AdminAgentSettings:
         endpoint_url_name=raw.get("ENDPOINT_URL_NAME", "django_admin_agent_endpoint"),
         tool_display=raw.get("TOOL_DISPLAY", "compact"),
         skills=raw.get("SKILLS"),
+        tool_summaries=raw.get("TOOL_SUMMARIES"),
         theme=raw.get("THEME"),
         density=raw.get("DENSITY"),
         placement=raw.get("PLACEMENT"),
