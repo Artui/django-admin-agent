@@ -29,6 +29,30 @@ class AdminAgentSettings:
     :func:`django_admin_agent.get_urls` (which names it
     ``django_admin_agent_endpoint``)."""
 
+    tool_display: str
+    """How much detail tool-call cards show: ``"minimal"``, ``"compact"``, or
+    ``"full"``. Passed to the Web Component as the ``data-tool-display``
+    attribute; defaults to ``"compact"`` for a dense admin sidebar."""
+
+    skills: list[dict[str, Any]] | None
+    """Optional override for the skill catalog (client ``Skill`` dicts). ``None``
+    uses the built-in admin catalog (:func:`build_skills`)."""
+
+    theme: str | None
+    """Web Component theme: ``"light"`` / ``"dark"`` / ``"auto"`` / ``"code"``.
+    ``None`` leaves the component default (light)."""
+
+    density: str | None
+    """``"comfortable"`` / ``"compact"``. ``None`` leaves the default."""
+
+    placement: str | None
+    """``"bottom-left"`` / ``"side"`` / ``"full"`` / ``"embedded"`` (or unset for
+    the default floating bottom-right)."""
+
+    text_animation: str | None
+    """Incoming-text animation: ``"none"`` / ``"fade"`` / ``"word"``. ``None``
+    leaves the default (none)."""
+
 
 def get_settings() -> AdminAgentSettings:
     """Read the active ``DJANGO_ADMIN_AGENT`` settings dict."""
@@ -37,6 +61,12 @@ def get_settings() -> AdminAgentSettings:
         title=raw.get("TITLE", "Admin Copilot"),
         auto_confirm=bool(raw.get("AUTO_CONFIRM", False)),
         endpoint_url_name=raw.get("ENDPOINT_URL_NAME", "django_admin_agent_endpoint"),
+        tool_display=raw.get("TOOL_DISPLAY", "compact"),
+        skills=raw.get("SKILLS"),
+        theme=raw.get("THEME"),
+        density=raw.get("DENSITY"),
+        placement=raw.get("PLACEMENT"),
+        text_animation=raw.get("TEXT_ANIMATION"),
     )
 
 

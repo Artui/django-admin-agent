@@ -116,17 +116,36 @@ tool covers the element.
 | `navigate_to` | Navigate to an arbitrary URL (fallback). **Navigates.** |
 
 `nav.*` builds admin URLs from the `data-admin-base` attribute the server
-injects, so the browser never has to reverse named routes.
+injects, so the browser never has to reverse named routes. Alongside these,
+the agent can jump to a server-built [route map](admin-wiring.md#the-route-map)
+via the component's `list_routes` / `navigate_to_route`. The map now includes a
+**dynamic change route** per model — its `path` is templated as
+`/admin/app/model/:pk/change/`, and `navigate_to_route`'s `params` fill the
+`:pk` segment — so the agent can edit a specific record by intent.
 
 ## Destructive confirmation
 
-AG-UI has no built-in risk flag, so destructive tools carry an `x-destructive`
-JSON-Schema extension. The Web Component reads it client-side and shows a
-confirmation modal **before** dispatching to the local handler. Accepting runs
-the handler with its animation; rejecting posts a "user declined" tool result
-so the agent acknowledges it on its next turn. Setting
-[`AUTO_CONFIRM`](configuration.md) to `True` skips the modal — the autopilot
-toggle.
+AG-UI has no built-in risk flag, so destructive tools carry JSON-Schema
+extensions that this package attaches when it builds each tool's parameter
+schema. The `schema()` helper in `admin_tools.js` takes six arguments —
+`(properties, required, destructive, navigates, confirm, summary)` — and emits
+the matching extension keys:
+
+| Argument | Schema key | Effect in the Web Component |
+| --- | --- | --- |
+| `destructive` | `x-destructive` | Gates the call behind a confirmation card. |
+| `navigates` | `x-navigates` | Marks the call as triggering a reload (see below). |
+| `confirm` | `x-confirm` | Human-readable prompt the inline confirmation card shows for the action. |
+| `summary` | `x-summary` | Friendly label shown on the tool-call card instead of the raw tool name. |
+
+The Web Component reads `x-destructive` client-side and shows an **inline
+confirmation card** *before* dispatching to the local handler; when `x-confirm`
+is present it uses that wording. Accepting runs the handler with its animation;
+rejecting posts a "user declined" tool result so the agent acknowledges it on
+its next turn. `x-summary` (when set) gives the tool-call card a readable title.
+The two highest-stakes admin tools, `submit_form` and `run_admin_action`, set
+both `confirm` and `summary`. Setting [`AUTO_CONFIRM`](configuration.md) to
+`True` skips the confirmation — the autopilot toggle.
 
 ## Navigating tools and the resumable loop
 

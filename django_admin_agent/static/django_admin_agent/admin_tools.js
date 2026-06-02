@@ -20,11 +20,16 @@
 // globals — so a page may mount more than one sidebar safely.
 
 import {
+  X_CONFIRM_KEY,
   X_DESTRUCTIVE_KEY,
   X_NAVIGATES_KEY,
+  X_SUMMARY_KEY,
   clickElement,
   fillField,
+  pressButton,
+  selectControl,
   setControlValue,
+  toggleCheckbox,
 } from "./ag-ui-web-component.bundle.js";
 import { activateTabForField, revealActionButton } from "./unfold_shim.js";
 
@@ -35,7 +40,14 @@ const SUBMIT_NAMES = {
 };
 
 /** Build a JSON-Schema for a tool's parameters, tagging destructive/navigating. */
-function schema(properties, required = [], destructive = false, navigates = false) {
+function schema(
+  properties,
+  required = [],
+  destructive = false,
+  navigates = false,
+  confirm = null,
+  summary = null,
+) {
   const params = { type: "object", properties, required };
   if (destructive) {
     params[X_DESTRUCTIVE_KEY] = true;
@@ -44,6 +56,14 @@ function schema(properties, required = [], destructive = false, navigates = fals
     // Tells <ag-ui-chat> to checkpoint + resume across the page reload this
     // tool triggers, so the agent's turn survives the navigation.
     params[X_NAVIGATES_KEY] = true;
+  }
+  if (confirm !== null) {
+    // Human-readable prompt the inline confirmation card shows for this action.
+    params[X_CONFIRM_KEY] = confirm;
+  }
+  if (summary !== null) {
+    // Friendly label shown on the tool-call card instead of the raw tool name.
+    params[X_SUMMARY_KEY] = summary;
   }
   return params;
 }
@@ -96,11 +116,15 @@ function isCheckbox(el) {
   return el.tagName === "INPUT" && el.type === "checkbox";
 }
 
-/** Type into / set a control depending on its kind, animating text inputs. */
+/** Type into / set a control depending on its kind, animating each kind. */
 async function writeControl(el, value) {
   activateTabForField(el);
-  if (el.tagName === "SELECT" || isCheckbox(el)) {
-    setControlValue(el, value);
+  if (el.tagName === "SELECT") {
+    await selectControl(el, String(value));
+    return;
+  }
+  if (isCheckbox(el)) {
+    await toggleCheckbox(el, Boolean(value));
     return;
   }
   await fillField(el, String(value));
@@ -271,13 +295,10 @@ export function registerAdminTools(el) {
       name: "select_option",
       description: "Choose an option in a <select> by its value or visible text.",
       parameters: schema({ field_name: str, value: str }, ["field_name", "value"], true),
-      handler: ({ field_name, value }) => {
+      handler: async ({ field_name, value }) => {
         const el = requireField(field_name);
         activateTabForField(el);
-        const option = [...el.options].find(
-          (opt) => opt.value === value || (opt.textContent ?? "").trim() === value,
-        );
-        setControlValue(el, option ? option.value : value);
+        await selectControl(el, value);
         return { ok: true, field: field_name, value };
       },
     },
@@ -289,10 +310,10 @@ export function registerAdminTools(el) {
         ["field_name", "checked"],
         true,
       ),
-      handler: ({ field_name, checked }) => {
+      handler: async ({ field_name, checked }) => {
         const el = requireField(field_name);
         activateTabForField(el);
-        setControlValue(el, Boolean(checked));
+        await toggleCheckbox(el, Boolean(checked));
         return { ok: true, field: field_name, checked: Boolean(checked) };
       },
     },
@@ -305,7 +326,7 @@ export function registerAdminTools(el) {
         if (node === undefined) {
           throw new Error(`unknown button handle "${handle}" — call get_visible_buttons first`);
         }
-        await clickElement(node);
+        await pressButton(node);
         return { ok: true, handle };
       },
     },
@@ -318,6 +339,8 @@ export function registerAdminTools(el) {
         [],
         true,
         true,
+        "Submit this form?",
+        "Submit form",
       ),
       handler: async ({ action = "save" }) => {
         const name = SUBMIT_NAMES[action];
@@ -328,7 +351,7 @@ export function registerAdminTools(el) {
         if (button === null) {
           throw new Error(`no submit button named "${name}" on this form`);
         }
-        await clickElement(button);
+        await pressButton(button);
         return { ok: true, action };
       },
     },
@@ -373,19 +396,26 @@ export function registerAdminTools(el) {
     {
       name: "run_admin_action",
       description: "Run the changelist's bulk action by name (selects it, then clicks Go).",
-      parameters: schema({ action_name: str }, ["action_name"], true, true),
+      parameters: schema(
+        { action_name: str },
+        ["action_name"],
+        true,
+        true,
+        "Run this bulk action on the selected rows?",
+        "Run bulk action",
+      ),
       handler: async ({ action_name }) => {
         const select = document.querySelector('select[name="action"]');
         if (select === null) {
           throw new Error("no bulk-action <select> on this changelist");
         }
-        setControlValue(select, action_name);
+        await selectControl(select, action_name);
         revealActionButton(select);
         const go = document.querySelector('[name="index"], .actions button[type="submit"]');
         if (go === null) {
           throw new Error('no action "Go" button on this changelist');
         }
-        await clickElement(go);
+        await pressButton(go);
         return { ok: true, action: action_name };
       },
     },

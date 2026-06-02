@@ -16,11 +16,20 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `TITLE` | `"Admin Copilot"` | Header text shown on the sidebar chat panel. |
 | `AUTO_CONFIRM` | `False` | When `True`, destructive frontend tools run without the confirmation modal. Passed to the Web Component as `autoConfirm`. |
 | `ENDPOINT_URL_NAME` | `"django_admin_agent_endpoint"` | URL name the sidebar reverses to find the AG-UI endpoint. Override only if you mount the endpoint under a different name. |
+| `TOOL_DISPLAY` | `"compact"` | How much detail tool-call cards show: `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. |
+| `THEME` | _unset_ | Web Component theme: `"light"`, `"dark"`, `"auto"`, or `"code"`. Rendered as the `theme` attribute; left off (component default, light) when unset. |
+| `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |
+| `PLACEMENT` | _unset_ | Where the panel sits: `"bottom-left"`, `"side"`, `"full"`, or `"embedded"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. |
+| `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
+| `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
 
 ```python title="settings.py"
 DJANGO_ADMIN_AGENT = {
     "TITLE": "Acme Copilot",
     "AUTO_CONFIRM": False,
+    "TOOL_DISPLAY": "compact",
+    "THEME": "auto",
+    "DENSITY": "compact",
 }
 ```
 
@@ -28,6 +37,74 @@ DJANGO_ADMIN_AGENT = {
     With `AUTO_CONFIRM = True`, the agent can fill and submit forms, run bulk
     actions, and apply filters without pausing for a confirmation click. Leave
     it `False` (the default) unless you trust the agent to act unattended.
+
+### Presentation
+
+`TOOL_DISPLAY`, `THEME`, `DENSITY`, `PLACEMENT`, and `TEXT_ANIMATION` all flow
+straight through `build_sidebar_context()` onto the `<ag-ui-chat>` element as
+attributes; the Web Component reads them. Their accepted values mirror the
+component's own attribute values:
+
+| Setting | Attribute | Values | Default |
+| --- | --- | --- | --- |
+| `TOOL_DISPLAY` | `data-tool-display` | `minimal` · `compact` · `full` | `compact` |
+| `THEME` | `theme` | `light` · `dark` · `auto` · `code` | _component default (light)_ |
+| `DENSITY` | `density` | `comfortable` · `compact` | _component default_ |
+| `PLACEMENT` | `placement` | `bottom-left` · `side` · `full` · `embedded` | _floating bottom-right_ |
+| `TEXT_ANIMATION` | `data-text-animation` | `none` · `fade` · `word` | `none` |
+
+`TOOL_DISPLAY` always renders (it defaults to `"compact"`); the other four are
+rendered only when set, so leaving them unset keeps the component's own
+defaults. `data-slash-commands="true"` is always emitted, enabling the skill
+palette.
+
+### Skills
+
+The sidebar ships a small catalog of pre-defined prompts surfaced as **chips**
+above the composer and in the `/`-command **palette**. They are embedded into
+the page as a `json_script` block (`#django-admin-agent-skills`) and read by the
+bootstrap module, which calls `el.setSkills(...)`. This needs no server-side
+Skills endpoint — the catalog is purely client-side.
+
+Each skill is a plain dict in the client `Skill` shape (camelCase-free here —
+the keys are `name`, `title`, `description`, `prompt`):
+
+```python
+{
+    "name": "summarize-page",
+    "title": "Summarize this page",
+    "description": "Recap what's currently shown.",
+    "prompt": "Summarize what's shown on the current admin page.",
+}
+```
+
+The built-in catalog (`django_admin_agent.admin.build_skills.build_skills()`)
+ships four placeholder-free skills: **Summarize this page**, **Summarize this
+changelist**, **Draft a description**, and **Explain this model**.
+
+A skill `prompt` may contain `{placeholder}` tokens. The bootstrap module
+supplies a `skillContext` provider derived from the current admin page —
+`{path}` (the current pathname) and `{selected_ids}` (the comma-joined pks of
+ticked changelist rows) — which the Web Component substitutes before sending.
+The built-in skills are placeholder-free so they work on any page.
+
+Override the whole catalog with the `SKILLS` setting:
+
+```python title="settings.py"
+DJANGO_ADMIN_AGENT = {
+    "SKILLS": [
+        {
+            "name": "triage-orders",
+            "title": "Triage open orders",
+            "description": "Group the visible orders by status.",
+            "prompt": "On {path}, group the visible orders by status and flag any stuck ones.",
+        },
+    ],
+}
+```
+
+Setting `SKILLS` to an empty list (`[]`) ships no skills; leaving it unset uses
+the built-in catalog.
 
 ## Inherited `DJANGO_AG_UI`
 
