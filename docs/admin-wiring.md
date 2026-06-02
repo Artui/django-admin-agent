@@ -16,6 +16,7 @@ navigate, and the two attachment paths.
 | `tool_display` | `DJANGO_ADMIN_AGENT["TOOL_DISPLAY"]` | The `data-tool-display` attribute (`minimal` / `compact` / `full`). |
 | `theme`, `density`, `placement`, `text_animation` | the matching `DJANGO_ADMIN_AGENT` keys | Themeable presentation attributes (`theme` / `density` / `placement` / `data-text-animation`), rendered only when set. See [Configuration → Presentation](configuration.md#presentation). |
 | `skills` | `DJANGO_ADMIN_AGENT["SKILLS"]` or `build_skills()` | The skill catalog (chips + `/`-command palette), embedded as a `json_script`. See [Configuration → Skills](configuration.md#skills). |
+| `tool_summaries` | `DJANGO_ADMIN_AGENT["TOOL_SUMMARIES"]` or `build_tool_summaries()` | The server-tool card labels (`{ tool_name: label }`), embedded as a `json_script` and set as the component's `toolSummaries`. See [Configuration → `DJANGO_ADMIN_AGENT`](configuration.md). |
 | `bootstrap_url` | `static("django_admin_agent/admin_agent.js")` | The ES-module entry point. |
 | `admin_base_url` | `reverse("admin:index")` (or `/`) | Lets the frontend `nav.*` tools build changelist / changeform URLs without reversing named routes in the browser. |
 | `route_map` | `build_route_map()` | The navigable-route manifest (see below). |
@@ -29,18 +30,23 @@ identical whichever you choose.
 element with the endpoint, title, auto-confirm, tool-display, and admin-base
 data attributes (plus `data-slash-commands="true"`, and the optional `theme` /
 `density` / `placement` / `data-text-animation` attributes when their settings
-are set); embeds the route map and the skill catalog as two `json_script`
-blocks; and loads the bootstrap module. The bootstrap
+are set); embeds the route map, the skill catalog, and the tool-summary map as
+three `json_script` blocks (`#django-admin-agent-routes`,
+`#django-admin-agent-skills`, `#django-admin-agent-tool-summaries`); and loads
+the bootstrap module. The bootstrap
 (`static/django_admin_agent/admin_agent.js`) then:
 
 1. Defines the `<ag-ui-chat>` custom element from the vendored bundle.
 2. Attaches the CSRF token as an `X-CSRFToken` header so the endpoint accepts
    POSTs under the logged-in admin session.
-3. Reads the auto-confirm flag and the route map off the element / page.
+3. Reads the auto-confirm flag and the route map off the element / page, setting
+   `el.routeMap`.
 4. Reads the embedded skill catalog and calls `el.setSkills(...)`, and sets
    `el.skillContext` to a provider that derives `{path}` / `{selected_ids}`
    placeholder values from the current page.
-5. Calls `registerAdminTools(el)` to register the
+5. Reads the embedded tool-summary map and sets `el.toolSummaries`, so server
+   tool-call cards show friendly labels (their schema never reaches the browser).
+6. Calls `registerAdminTools(el)` to register the
    [frontend tools](tools.md#frontend-tools).
 
 The themeable attributes (`theme` / `density` / `placement` /
