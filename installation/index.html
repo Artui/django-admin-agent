@@ -751,7 +751,7 @@ admin sidebar.</p>
 <div class="admonition info">
 <p class="admonition-title">Compatibility floor</p>
 <p>Python 3.10+ (tested 3.10–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
-5.2, 6.0), <code>django-ag-ui&gt;=0.1</code>, and — optionally — Django Unfold 0.40+.</p>
+5.2, 6.0), <code>django-ag-ui&gt;=0.2</code>, and — optionally — Django Unfold 0.40+.</p>
 </div>
 <h2 id="1-add-to-installed_apps">1. Add to <code>INSTALLED_APPS</code><a class="headerlink" href="#1-add-to-installed_apps" title="Permanent link">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span>
@@ -808,8 +808,10 @@ app's copy, and drop the inclusion tag into the branding block:</p>
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
 </span></code></pre></div>
 <p>The tag is self-contained: it computes its own context (endpoint URL, title,
-auto-confirm flag, bootstrap module URL, admin base URL, and route map), so the
-admin site does not need swapping.</p>
+auto-confirm flag, presentation settings, skill catalog, bootstrap module URL,
+admin base URL, and route map), so the admin site does not need swapping. See
+<a href="../configuration/">Configuration</a> for the theming, tool-display, and skills
+settings.</p>
 <h3 id="option-b-sidebaradminsite">Option B — <code>SidebarAdminSite</code><a class="headerlink" href="#option-b-sidebaradminsite" title="Permanent link">&para;</a></h3>
 <p>If you prefer to swap the admin site, subclass (or instantiate)
 <code>SidebarAdminSite</code>. It adds the sidebar context to <code>each_context</code> under the

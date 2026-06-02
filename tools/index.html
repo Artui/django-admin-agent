@@ -1039,15 +1039,57 @@ tool covers the element.</p>
 </tbody>
 </table>
 <p><code>nav.*</code> builds admin URLs from the <code>data-admin-base</code> attribute the server
-injects, so the browser never has to reverse named routes.</p>
+injects, so the browser never has to reverse named routes. Alongside these,
+the agent can jump to a server-built <a href="../admin-wiring/#the-route-map">route map</a>
+via the component's <code>list_routes</code> / <code>navigate_to_route</code>. The map now includes a
+<strong>dynamic change route</strong> per model — its <code>path</code> is templated as
+<code>/admin/app/model/:pk/change/</code>, and <code>navigate_to_route</code>'s <code>params</code> fill the
+<code>:pk</code> segment — so the agent can edit a specific record by intent.</p>
 <h2 id="destructive-confirmation">Destructive confirmation<a class="headerlink" href="#destructive-confirmation" title="Permanent link">&para;</a></h2>
-<p>AG-UI has no built-in risk flag, so destructive tools carry an <code>x-destructive</code>
-JSON-Schema extension. The Web Component reads it client-side and shows a
-confirmation modal <strong>before</strong> dispatching to the local handler. Accepting runs
-the handler with its animation; rejecting posts a "user declined" tool result
-so the agent acknowledges it on its next turn. Setting
-<a href="../configuration/"><code>AUTO_CONFIRM</code></a> to <code>True</code> skips the modal — the autopilot
-toggle.</p>
+<p>AG-UI has no built-in risk flag, so destructive tools carry JSON-Schema
+extensions that this package attaches when it builds each tool's parameter
+schema. The <code>schema()</code> helper in <code>admin_tools.js</code> takes six arguments —
+<code>(properties, required, destructive, navigates, confirm, summary)</code> — and emits
+the matching extension keys:</p>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Schema key</th>
+<th>Effect in the Web Component</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>destructive</code></td>
+<td><code>x-destructive</code></td>
+<td>Gates the call behind a confirmation card.</td>
+</tr>
+<tr>
+<td><code>navigates</code></td>
+<td><code>x-navigates</code></td>
+<td>Marks the call as triggering a reload (see below).</td>
+</tr>
+<tr>
+<td><code>confirm</code></td>
+<td><code>x-confirm</code></td>
+<td>Human-readable prompt the inline confirmation card shows for the action.</td>
+</tr>
+<tr>
+<td><code>summary</code></td>
+<td><code>x-summary</code></td>
+<td>Friendly label shown on the tool-call card instead of the raw tool name.</td>
+</tr>
+</tbody>
+</table>
+<p>The Web Component reads <code>x-destructive</code> client-side and shows an <strong>inline
+confirmation card</strong> <em>before</em> dispatching to the local handler; when <code>x-confirm</code>
+is present it uses that wording. Accepting runs the handler with its animation;
+rejecting posts a "user declined" tool result so the agent acknowledges it on
+its next turn. <code>x-summary</code> (when set) gives the tool-call card a readable title.
+The two highest-stakes admin tools, <code>submit_form</code> and <code>run_admin_action</code>, set
+both <code>confirm</code> and <code>summary</code>. Setting <a href="../configuration/"><code>AUTO_CONFIRM</code></a> to
+<code>True</code> skips the confirmation — the autopilot toggle.</p>
 <h2 id="navigating-tools-and-the-resumable-loop">Navigating tools and the resumable loop<a class="headerlink" href="#navigating-tools-and-the-resumable-loop" title="Permanent link">&para;</a></h2>
 <p>The Django admin is a multi-page application: a save, filter, or navigation is a
 full page reload. An agent turn is a <em>client-side loop</em> whose message history

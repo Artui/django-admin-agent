@@ -610,6 +610,83 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.tool_display" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tool_display
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.tool_summaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tool_summaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.theme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        theme
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.density" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        density
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.placement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        placement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.text_animation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        text_animation
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -653,6 +730,17 @@
     <span class="md-ellipsis">
       
         build_route_map
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#django_admin_agent.admin.build_skills.build_skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_skills
       
     </span>
   </a>
@@ -992,6 +1080,83 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.tool_display" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tool_display
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.tool_summaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tool_summaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.theme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        theme
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.density" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        density
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.placement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        placement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.text_animation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        text_animation
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1035,6 +1200,17 @@
     <span class="md-ellipsis">
       
         build_route_map
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#django_admin_agent.admin.build_skills.build_skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_skills
       
     </span>
   </a>
@@ -1485,6 +1661,182 @@ Passed to the Web Component as <code>autoConfirm</code>.</p>
 
 </div>
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.tool_display" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">tool_display</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.tool_display" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">tool_display</span><span class="p">:</span> <span class="nb">str</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>How much detail tool-call cards show: <code>"minimal"</code>, <code>"compact"</code>, or
+<code>"full"</code>. Passed to the Web Component as the <code>data-tool-display</code>
+attribute; defaults to <code>"compact"</code> for a dense admin sidebar.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.skills" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">skills</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.skills" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">skills</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Optional override for the skill catalog (client <code>Skill</code> dicts). <code>None</code>
+uses the built-in admin catalog (:func:<code>build_skills</code>).</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.tool_summaries" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">tool_summaries</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.tool_summaries" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">tool_summaries</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Optional override for the server-tool card labels (tool name → label).
+Passed to the Web Component as <code>toolSummaries</code>. <code>None</code> uses the built-in
+map (:func:<code>build_tool_summaries</code>).</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.theme" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">theme</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.theme" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">theme</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Web Component theme: <code>"light"</code> / <code>"dark"</code> / <code>"auto"</code> / <code>"code"</code>.
+<code>None</code> leaves the component default (light).</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.density" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">density</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.density" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">density</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p><code>"comfortable"</code> / <code>"compact"</code>. <code>None</code> leaves the default.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.placement" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">placement</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.placement" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">placement</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p><code>"bottom-left"</code> / <code>"side"</code> / <code>"full"</code> / <code>"embedded"</code> (or unset for
+the default floating bottom-right).</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.text_animation" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">text_animation</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.text_animation" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">text_animation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Incoming-text animation: <code>"none"</code> / <code>"fade"</code> / <code>"word"</code>. <code>None</code>
+leaves the default (none).</p>
+
+    </div>
+
+</div>
+
 
 
 
@@ -1562,6 +1914,26 @@ the <code>{% django_admin_agent_sidebar %}</code> template tag and the
 model, shaped for the Web Component's <code>routeMap</code> — <code>{id, path, title,
 group}</code>. The agent calls <code>list_routes</code> to discover destinations and
 <code>navigate_to_route</code> to jump to one, instead of guessing admin URLs.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="django_admin_agent.admin.build_skills.build_skills" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">build_skills</span>
+
+
+<a href="#django_admin_agent.admin.build_skills.build_skills" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">build_skills</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>The built-in admin skill catalog (client <code>Skill</code> dicts).</p>
 
 
     </div>

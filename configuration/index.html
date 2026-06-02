@@ -391,6 +391,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="DJANGO_ADMIN_AGENT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#presentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Presentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -583,6 +611,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="DJANGO_ADMIN_AGENT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#presentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Presentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -682,12 +738,50 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <td><code>"django_admin_agent_endpoint"</code></td>
 <td>URL name the sidebar reverses to find the AG-UI endpoint. Override only if you mount the endpoint under a different name.</td>
 </tr>
+<tr>
+<td><code>TOOL_DISPLAY</code></td>
+<td><code>"compact"</code></td>
+<td>How much detail tool-call cards show: <code>"minimal"</code>, <code>"compact"</code>, or <code>"full"</code>. Rendered as the <code>data-tool-display</code> attribute.</td>
+</tr>
+<tr>
+<td><code>THEME</code></td>
+<td><em>unset</em></td>
+<td>Web Component theme: <code>"light"</code>, <code>"dark"</code>, <code>"auto"</code>, or <code>"code"</code>. Rendered as the <code>theme</code> attribute; left off (component default, light) when unset.</td>
+</tr>
+<tr>
+<td><code>DENSITY</code></td>
+<td><em>unset</em></td>
+<td>Layout density: <code>"comfortable"</code> or <code>"compact"</code>. Rendered as the <code>density</code> attribute; left off when unset.</td>
+</tr>
+<tr>
+<td><code>PLACEMENT</code></td>
+<td><em>unset</em></td>
+<td>Where the panel sits: <code>"bottom-left"</code>, <code>"side"</code>, <code>"full"</code>, or <code>"embedded"</code>. Rendered as the <code>placement</code> attribute; left off for the default floating bottom-right.</td>
+</tr>
+<tr>
+<td><code>TEXT_ANIMATION</code></td>
+<td><em>unset</em></td>
+<td>Incoming-text animation: <code>"none"</code>, <code>"fade"</code>, or <code>"word"</code>. Rendered as the <code>data-text-animation</code> attribute; left off (default <code>none</code>) when unset.</td>
+</tr>
+<tr>
+<td><code>SKILLS</code></td>
+<td><em>unset</em></td>
+<td>Override for the slash-command / chip catalog (a list of <code>Skill</code> dicts). Leave unset to use the built-in admin catalog. See <a href="#skills">Skills</a>.</td>
+</tr>
+<tr>
+<td><code>TOOL_SUMMARIES</code></td>
+<td><em>unset</em></td>
+<td>Override for the server-tool card labels (a <code>{ tool_name: label }</code> map), set as the Web Component's <code>toolSummaries</code>. Leave unset to use the built-in map (e.g. <code>query_model</code> → "Query records"). Client tools carry their own <code>x-summary</code>.</td>
+</tr>
 </tbody>
 </table>
 <div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s2">&quot;TITLE&quot;</span><span class="p">:</span> <span class="s2">&quot;Acme Copilot&quot;</span><span class="p">,</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="s2">&quot;AUTO_CONFIRM&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">}</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="s2">&quot;TOOL_DISPLAY&quot;</span><span class="p">:</span> <span class="s2">&quot;compact&quot;</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="s2">&quot;THEME&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="s2">&quot;DENSITY&quot;</span><span class="p">:</span> <span class="s2">&quot;compact&quot;</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">}</span>
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">AUTO_CONFIRM is the autopilot toggle</p>
@@ -695,6 +789,94 @@ access, so test overrides and runtime changes take effect immediately.</p>
 actions, and apply filters without pausing for a confirmation click. Leave
 it <code>False</code> (the default) unless you trust the agent to act unattended.</p>
 </div>
+<h3 id="presentation">Presentation<a class="headerlink" href="#presentation" title="Permanent link">&para;</a></h3>
+<p><code>TOOL_DISPLAY</code>, <code>THEME</code>, <code>DENSITY</code>, <code>PLACEMENT</code>, and <code>TEXT_ANIMATION</code> all flow
+straight through <code>build_sidebar_context()</code> onto the <code>&lt;ag-ui-chat&gt;</code> element as
+attributes; the Web Component reads them. Their accepted values mirror the
+component's own attribute values:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Attribute</th>
+<th>Values</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TOOL_DISPLAY</code></td>
+<td><code>data-tool-display</code></td>
+<td><code>minimal</code> · <code>compact</code> · <code>full</code></td>
+<td><code>compact</code></td>
+</tr>
+<tr>
+<td><code>THEME</code></td>
+<td><code>theme</code></td>
+<td><code>light</code> · <code>dark</code> · <code>auto</code> · <code>code</code></td>
+<td><em>component default (light)</em></td>
+</tr>
+<tr>
+<td><code>DENSITY</code></td>
+<td><code>density</code></td>
+<td><code>comfortable</code> · <code>compact</code></td>
+<td><em>component default</em></td>
+</tr>
+<tr>
+<td><code>PLACEMENT</code></td>
+<td><code>placement</code></td>
+<td><code>bottom-left</code> · <code>side</code> · <code>full</code> · <code>embedded</code></td>
+<td><em>floating bottom-right</em></td>
+</tr>
+<tr>
+<td><code>TEXT_ANIMATION</code></td>
+<td><code>data-text-animation</code></td>
+<td><code>none</code> · <code>fade</code> · <code>word</code></td>
+<td><code>none</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>TOOL_DISPLAY</code> always renders (it defaults to <code>"compact"</code>); the other four are
+rendered only when set, so leaving them unset keeps the component's own
+defaults. <code>data-slash-commands="true"</code> is always emitted, enabling the skill
+palette.</p>
+<h3 id="skills">Skills<a class="headerlink" href="#skills" title="Permanent link">&para;</a></h3>
+<p>The sidebar ships a small catalog of pre-defined prompts surfaced as <strong>chips</strong>
+above the composer and in the <code>/</code>-command <strong>palette</strong>. They are embedded into
+the page as a <code>json_script</code> block (<code>#django-admin-agent-skills</code>) and read by the
+bootstrap module, which calls <code>el.setSkills(...)</code>. This needs no server-side
+Skills endpoint — the catalog is purely client-side.</p>
+<p>Each skill is a plain dict in the client <code>Skill</code> shape (camelCase-free here —
+the keys are <code>name</code>, <code>title</code>, <code>description</code>, <code>prompt</code>):</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;summarize-page&quot;</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Summarize this page&quot;</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Recap what&#39;s currently shown.&quot;</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Summarize what&#39;s shown on the current admin page.&quot;</span><span class="p">,</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>The built-in catalog (<code>django_admin_agent.admin.build_skills.build_skills()</code>)
+ships four placeholder-free skills: <strong>Summarize this page</strong>, <strong>Summarize this
+changelist</strong>, <strong>Draft a description</strong>, and <strong>Explain this model</strong>.</p>
+<p>A skill <code>prompt</code> may contain <code>{placeholder}</code> tokens. The bootstrap module
+supplies a <code>skillContext</code> provider derived from the current admin page —
+<code>{path}</code> (the current pathname) and <code>{selected_ids}</code> (the comma-joined pks of
+ticked changelist rows) — which the Web Component substitutes before sending.
+The built-in skills are placeholder-free so they work on any page.</p>
+<p>Override the whole catalog with the <code>SKILLS</code> setting:</p>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="s2">&quot;SKILLS&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="p">{</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;triage-orders&quot;</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Triage open orders&quot;</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Group the visible orders by status.&quot;</span><span class="p">,</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>            <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;On </span><span class="si">{path}</span><span class="s2">, group the visible orders by status and flag any stuck ones.&quot;</span><span class="p">,</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="p">},</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="p">],</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Setting <code>SKILLS</code> to an empty list (<code>[]</code>) ships no skills; leaving it unset uses
+the built-in catalog.</p>
 <h2 id="inherited-django_ag_ui">Inherited <code>DJANGO_AG_UI</code><a class="headerlink" href="#inherited-django_ag_ui" title="Permanent link">&para;</a></h2>
 <p>The agent model, persistence, and toolset composition are configured on
 <code>django-ag-ui</code>'s settings dict. The sidebar inherits all of it. The keys most
@@ -740,11 +922,11 @@ relevant to the admin sidebar:</p>
 </tr>
 </tbody>
 </table>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="s2">&quot;MODEL&quot;</span><span class="p">:</span> <span class="s2">&quot;anthropic:claude-sonnet-4.6&quot;</span><span class="p">,</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="c1"># Persist conversations server-side, per admin user, across tabs and reloads:</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="s2">&quot;CONVERSATION_STORE&quot;</span><span class="p">:</span> <span class="s2">&quot;django_ag_ui.persistence.django_session_conversation_store.DjangoSessionConversationStore&quot;</span><span class="p">,</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="s2">&quot;MODEL&quot;</span><span class="p">:</span> <span class="s2">&quot;anthropic:claude-sonnet-4.6&quot;</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="c1"># Persist conversations server-side, per admin user, across tabs and reloads:</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="s2">&quot;CONVERSATION_STORE&quot;</span><span class="p">:</span> <span class="s2">&quot;django_ag_ui.persistence.django_session_conversation_store.DjangoSessionConversationStore&quot;</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="conversation_store-and-the-reload-model"><code>CONVERSATION_STORE</code> and the reload model<a class="headerlink" href="#conversation_store-and-the-reload-model" title="Permanent link">&para;</a></h3>
 <p>Because the Django admin reloads the whole page on every save, filter, and
