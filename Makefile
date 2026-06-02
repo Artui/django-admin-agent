@@ -62,7 +62,7 @@ docs-build:
 # the live web-component source and ongoing component changes cannot
 # retroactively affect a released django-admin-agent.
 WEB_COMPONENT_PKG := @artooi/ag-ui-web-component
-WEB_COMPONENT_VERSION := 0.2.0
+WEB_COMPONENT_VERSION := 0.2.1
 BUNDLE_DEST := django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js
 
 # Dev: copy the locally-built bundle from the sibling checkout (run
