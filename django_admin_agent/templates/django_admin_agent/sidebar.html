@@ -4,6 +4,14 @@
   endpoint="{{ endpoint }}"
   title-text="{{ title }}"
   data-auto-confirm="{{ auto_confirm|yesno:'true,false' }}"
+  data-tool-display="{{ tool_display }}"
+  data-slash-commands="true"
+  {% if theme %}theme="{{ theme }}"{% endif %}
+  {% if density %}density="{{ density }}"{% endif %}
+  {% if placement %}placement="{{ placement }}"{% endif %}
+  {% if text_animation %}data-text-animation="{{ text_animation }}"{% endif %}
   data-admin-base="{{ admin_base_url }}"></ag-ui-chat>
 {{ route_map|json_script:"django-admin-agent-routes" }}
+{{ skills|json_script:"django-admin-agent-skills" }}
+{{ tool_summaries|json_script:"django-admin-agent-tool-summaries" }}
 <script type="module" src="{{ bootstrap_url }}"></script>

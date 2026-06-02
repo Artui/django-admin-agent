@@ -10,6 +10,15 @@ def test_context_keys_and_values() -> None:
     assert context["endpoint"] == "/admin-agent/agent/"
     assert context["title"] == "Admin Copilot"
     assert context["auto_confirm"] is False
+    assert context["tool_display"] == "compact"
+    assert {s["name"] for s in context["skills"]} >= {"summarize-changelist"}
+    # Server-tool card labels default to the built-in map.
+    assert context["tool_summaries"]["query_model"] == "Query records"
+    # Styling knobs default to None (the component default applies).
+    assert context["theme"] is None
+    assert context["density"] is None
+    assert context["placement"] is None
+    assert context["text_animation"] is None
     assert context["bootstrap_url"].endswith("django_admin_agent/admin_agent.js")
     assert context["admin_base_url"] == "/admin/"
     route_ids = {r["id"] for r in context["route_map"]}
@@ -21,6 +30,18 @@ def test_context_reflects_settings() -> None:
     context = build_sidebar_context()
     assert context["title"] == "Helper"
     assert context["auto_confirm"] is True
+
+
+@override_settings(
+    DJANGO_ADMIN_AGENT={"SKILLS": [{"name": "only", "title": "Only", "prompt": "p"}]},
+)
+def test_skills_override_replaces_the_default_catalog() -> None:
+    assert build_sidebar_context()["skills"] == [{"name": "only", "title": "Only", "prompt": "p"}]
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"TOOL_SUMMARIES": {"query_model": "Run a query"}})
+def test_tool_summaries_override_replaces_the_default_map() -> None:
+    assert build_sidebar_context()["tool_summaries"] == {"query_model": "Run a query"}
 
 
 @override_settings(ROOT_URLCONF="tests.admin.urls_no_admin")

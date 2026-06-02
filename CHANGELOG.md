@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-06-02
+
+### Added
+- `DJANGO_ADMIN_AGENT["TOOL_DISPLAY"]` setting (default `"compact"`), passed to
+  the Web Component as `data-tool-display` to control how much tool-call detail
+  the sidebar shows.
+- Dynamic per-model **change route** in the navigable route map
+  (`/admin/<app>/<model>/:pk/change/`), filled by the agent via
+  `navigate_to_route` params.
+- `x-confirm` confirmation prompts on the destructive `submit_form` and
+  `run_admin_action` tools.
+- **Skills** — a built-in catalog of pre-defined prompts (e.g. "Summarize this
+  changelist"), embedded via `build_sidebar_context` and surfaced in the
+  sidebar's `/`-command palette (enabled by default). Override the catalog with
+  `DJANGO_ADMIN_AGENT["SKILLS"]`; the bootstrap also wires a page-derived
+  `skillContext` for `{placeholder}` prompts.
+- **Styling settings** — `THEME` (light/dark/auto/code), `DENSITY`
+  (comfortable/compact), `PLACEMENT` (bottom-left/side/full/embedded), and
+  `TEXT_ANIMATION` (none/fade/word), each passed through to the Web Component as
+  an attribute when set.
+- `x-summary` labels on the destructive `submit_form` ("Submit form") and
+  `run_admin_action` ("Run bulk action") tools.
+- **Friendly card labels for the server-side tools** (`shell.*` / `introspect.*`),
+  whose schema never reaches the browser: a built-in name → label map is embedded
+  and set as the Web Component's `toolSummaries` (e.g. `query_model` → "Query
+  records"). Override the whole map with `DJANGO_ADMIN_AGENT["TOOL_SUMMARIES"]`.
+
+### Changed
+- Vendored the `@artooi/ag-ui-web-component` bundle at **0.2.2** (markdown/HTML
+  rendering, pending indicator, new-chat + collapse, inline confirmation card,
+  tool-display modes, richer animations, dynamic routes, skills; 0.2.1's
+  server-side tool results in the card + tool activity surviving a page refresh +
+  the pending-indicator fix; and 0.2.2's friendlier tool-call labels, the
+  "No result returned." honesty fix, and the text-animation double-fire fixes).
+  Requires `django-ag-ui>=0.2`, so it also picks up the drf-mcp full-schema +
+  in-process-execution fixes and `build_model` provider resolution.
+- Admin DOM tools now use the Web Component's animated primitives:
+  `select_option` / `toggle_checkbox` animate the control, and buttons
+  (`click_button`, `submit_form`, `run_admin_action`) use the "press" animation.
+
 ## [0.1.0] — 2026-06-01
 
 ### Added
@@ -25,5 +65,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Artui/django-admin-agent/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Artui/django-admin-agent/releases/tag/v0.1.0

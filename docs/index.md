@@ -43,6 +43,11 @@ It is the admin-facing consumer in a three-package stack:
 5. **Works on vanilla Django admin and [Django Unfold](https://github.com/unfoldadmin/django-unfold)**
    through one shared DOM driver plus a tiny runtime-detected
    [Unfold shim](unfold.md).
+6. **Themeable, with skills.** The panel's theme (light / dark / auto / code),
+   density, placement, text animation, and tool-call display mode are all
+   configurable from settings, and a catalog of one-click **skills** appears as
+   composer chips and a `/`-command palette. See
+   [Configuration](configuration.md).
 
 ## Get started
 

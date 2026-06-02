@@ -18,6 +18,16 @@ def test_route_map_has_changelist_and_add_per_model() -> None:
     assert add["title"] == "Add author"
 
 
+def test_route_map_has_a_dynamic_change_route_per_model() -> None:
+    by_id = {r["id"]: r for r in build_route_map()}
+
+    change = by_id["testapp.author.change"]
+    # A `:pk` template the Web Component fills via navigate_to_route params.
+    assert change["path"] == "/admin/testapp/author/:pk/change/"
+    assert change["title"] == "Edit author"
+    assert change["group"] == "testapp"
+
+
 @override_settings(ROOT_URLCONF="tests.admin.urls_no_admin")
 def test_route_map_is_empty_when_admin_urls_are_unmounted() -> None:
     # Models are still registered, but their admin URLs don't reverse, so every

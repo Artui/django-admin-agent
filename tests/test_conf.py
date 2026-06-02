@@ -12,6 +12,13 @@ def test_defaults_when_setting_absent() -> None:
     assert config.title == "Admin Copilot"
     assert config.auto_confirm is False
     assert config.endpoint_url_name == "django_admin_agent_endpoint"
+    assert config.tool_display == "compact"
+    assert config.skills is None
+    assert config.tool_summaries is None
+    assert config.theme is None
+    assert config.density is None
+    assert config.placement is None
+    assert config.text_animation is None
 
 
 @override_settings(
@@ -19,6 +26,13 @@ def test_defaults_when_setting_absent() -> None:
         "TITLE": "Helper",
         "AUTO_CONFIRM": True,
         "ENDPOINT_URL_NAME": "custom_endpoint",
+        "TOOL_DISPLAY": "full",
+        "SKILLS": [{"name": "x", "title": "X", "prompt": "p"}],
+        "TOOL_SUMMARIES": {"query_model": "Run a query"},
+        "THEME": "dark",
+        "DENSITY": "compact",
+        "PLACEMENT": "side",
+        "TEXT_ANIMATION": "fade",
     },
 )
 def test_reads_overrides() -> None:
@@ -26,6 +40,13 @@ def test_reads_overrides() -> None:
     assert config.title == "Helper"
     assert config.auto_confirm is True
     assert config.endpoint_url_name == "custom_endpoint"
+    assert config.tool_display == "full"
+    assert config.skills == [{"name": "x", "title": "X", "prompt": "p"}]
+    assert config.tool_summaries == {"query_model": "Run a query"}
+    assert config.theme == "dark"
+    assert config.density == "compact"
+    assert config.placement == "side"
+    assert config.text_animation == "fade"
 
 
 @override_settings(DJANGO_ADMIN_AGENT={"AUTO_CONFIRM": 1})

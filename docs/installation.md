@@ -19,7 +19,7 @@ pip install django-admin-agent[mcp]
 
 !!! info "Compatibility floor"
     Python 3.10+ (tested 3.10–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
-    5.2, 6.0), `django-ag-ui>=0.1`, and — optionally — Django Unfold 0.40+.
+    5.2, 6.0), `django-ag-ui>=0.2`, and — optionally — Django Unfold 0.40+.
 
 ## 1. Add to `INSTALLED_APPS`
 
@@ -89,8 +89,10 @@ app's copy, and drop the inclusion tag into the branding block:
 ```
 
 The tag is self-contained: it computes its own context (endpoint URL, title,
-auto-confirm flag, bootstrap module URL, admin base URL, and route map), so the
-admin site does not need swapping.
+auto-confirm flag, presentation settings, skill catalog, bootstrap module URL,
+admin base URL, and route map), so the admin site does not need swapping. See
+[Configuration](configuration.md) for the theming, tool-display, and skills
+settings.
 
 ### Option B — `SidebarAdminSite`
 

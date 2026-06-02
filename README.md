@@ -32,6 +32,11 @@ install. Works with the vanilla Django admin and with
   Schema are intercepted by a confirmation modal before they run.
 - **Drop-in sidebar** — a `{% django_admin_agent_sidebar %}` template tag (no
   admin-site swap) or a `SidebarAdminSite` for those who prefer to subclass.
+- **Themeable, with skills** — configure the theme (light / dark / auto / code),
+  density, placement, text animation, and tool-call display mode from
+  `DJANGO_ADMIN_AGENT`, and surface a catalog of one-click skills as composer
+  chips and a `/`-command palette. Built on `django-ag-ui>=0.2` and the matching
+  `@artooi/ag-ui-web-component`.
 - **Unfold-aware** — a runtime JS shim adapts the sidebar to Unfold's chrome;
   any Python Unfold introspection is lazy and guarded, so Unfold stays optional.
 - **100% test coverage**, type-checked, Python 3.10–3.14, Django 4.2–6.0.
