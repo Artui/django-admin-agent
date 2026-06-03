@@ -16,7 +16,7 @@ navigate, and the two attachment paths.
 | `tool_display` | `DJANGO_ADMIN_AGENT["TOOL_DISPLAY"]` | The `data-tool-display` attribute (`minimal` / `compact` / `full`). |
 | `theme`, `density`, `placement`, `text_animation` | the matching `DJANGO_ADMIN_AGENT` keys | Themeable presentation attributes (`theme` / `density` / `placement` / `data-text-animation`), rendered only when set. See [Configuration → Presentation](configuration.md#presentation). |
 | `skills` | `DJANGO_ADMIN_AGENT["SKILLS"]` or `build_skills()` | The skill catalog (chips + `/`-command palette), embedded as a `json_script`. See [Configuration → Skills](configuration.md#skills). |
-| `tool_summaries` | `DJANGO_ADMIN_AGENT["TOOL_SUMMARIES"]` or `build_tool_summaries()` | The server-tool card labels (`{ tool_name: label }`), embedded as a `json_script` and set as the component's `toolSummaries`. See [Configuration → `DJANGO_ADMIN_AGENT`](configuration.md). |
+| `tools_url` | `reverse("django_admin_agent_tools")` (or `None`) | URL of the server-tool label catalog, rendered as `data-tools-url`; the component fetches it to label server-tool cards. `None` when the endpoint wasn't mounted via `get_urls`. |
 | `bootstrap_url` | `static("django_admin_agent/admin_agent.js")` | The ES-module entry point. |
 | `admin_base_url` | `reverse("admin:index")` (or `/`) | Lets the frontend `nav.*` tools build changelist / changeform URLs without reversing named routes in the browser. |
 | `route_map` | `build_route_map()` | The navigable-route manifest (see below). |
@@ -30,11 +30,11 @@ identical whichever you choose.
 element with the endpoint, title, auto-confirm, tool-display, and admin-base
 data attributes (plus `data-slash-commands="true"`, and the optional `theme` /
 `density` / `placement` / `data-text-animation` attributes when their settings
-are set); embeds the route map, the skill catalog, and the tool-summary map as
-three `json_script` blocks (`#django-admin-agent-routes`,
-`#django-admin-agent-skills`, `#django-admin-agent-tool-summaries`); and loads
-the bootstrap module. The bootstrap
-(`static/django_admin_agent/admin_agent.js`) then:
+are set, plus `data-tools-url` when the catalog endpoint is mounted); embeds the
+route map and the skill catalog as two `json_script` blocks
+(`#django-admin-agent-routes`, `#django-admin-agent-skills`); and loads the
+bootstrap module. The bootstrap (`static/django_admin_agent/admin_agent.js`)
+then:
 
 1. Defines the `<ag-ui-chat>` custom element from the vendored bundle.
 2. Attaches the CSRF token as an `X-CSRFToken` header so the endpoint accepts
@@ -44,10 +44,14 @@ the bootstrap module. The bootstrap
 4. Reads the embedded skill catalog and calls `el.setSkills(...)`, and sets
    `el.skillContext` to a provider that derives `{path}` / `{selected_ids}`
    placeholder values from the current page.
-5. Reads the embedded tool-summary map and sets `el.toolSummaries`, so server
-   tool-call cards show friendly labels (their schema never reaches the browser).
-6. Calls `registerAdminTools(el)` to register the
+5. Calls `registerAdminTools(el)` to register the
    [frontend tools](tools.md#frontend-tools).
+
+Server-tool card labels are **not** embedded — the component fetches them from
+`data-tools-url` (the [`<prefix>agent/tools/` catalog endpoint][catalog], named
+`django_admin_agent_tools`), whose labels come from each tool's `@tool(summary=)`.
+
+[catalog]: https://artui.github.io/django-ag-ui/concepts/#tool-metadata-catalog
 
 The themeable attributes (`theme` / `density` / `placement` /
 `data-text-animation`) and `data-tool-display` are read by the Web Component

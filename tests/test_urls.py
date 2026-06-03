@@ -8,12 +8,16 @@ from django_admin_agent.urls import get_urls
 
 def test_default_prefix_and_name() -> None:
     patterns = get_urls()
-    assert len(patterns) == 1
-    pattern = patterns[0]
-    assert isinstance(pattern, URLPattern)
-    assert pattern.name == "django_admin_agent_endpoint"
-    assert str(pattern.pattern) == "admin-agent/agent/"
-    assert isinstance(pattern.callback, DjangoAGUIView)
+    assert [p.name for p in patterns] == [
+        "django_admin_agent_endpoint",
+        "django_admin_agent_tools",
+    ]
+    endpoint = patterns[0]
+    assert isinstance(endpoint, URLPattern)
+    assert str(endpoint.pattern) == "admin-agent/agent/"
+    assert isinstance(endpoint.callback, DjangoAGUIView)
+    # The tool catalog is mounted alongside, for the sidebar's data-tools-url.
+    assert str(patterns[1].pattern) == "admin-agent/agent/tools/"
 
 
 def test_custom_prefix() -> None:

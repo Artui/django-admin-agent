@@ -23,6 +23,8 @@ def test_register_shell_tools_with_category() -> None:
     for binding in reg:
         assert binding.spec.category is ToolCategory.SHELL
         assert binding.spec.destructive is False
+    # Friendly labels live on the tool (served by the catalog endpoint).
+    assert reg.get("query_model").spec.summary == "Query records"
 
 
 def test_register_introspect_tools_with_category() -> None:
@@ -39,6 +41,7 @@ def test_register_introspect_tools_with_category() -> None:
     }
     for binding in reg:
         assert binding.spec.category is ToolCategory.INTROSPECT
+    assert reg.get("inspect_modeladmin").spec.summary == "Inspect admin"
 
 
 def test_build_default_registry_has_all_eleven() -> None:

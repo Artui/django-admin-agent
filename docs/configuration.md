@@ -22,7 +22,6 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `PLACEMENT` | _unset_ | Where the panel sits: `"bottom-left"`, `"side"`, `"full"`, or `"embedded"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. |
 | `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
 | `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
-| `TOOL_SUMMARIES` | _unset_ | Override for the server-tool card labels (a `{ tool_name: label }` map), set as the Web Component's `toolSummaries`. Leave unset to use the built-in map (e.g. `query_model` → "Query records"). Client tools carry their own `x-summary`. |
 
 ```python title="settings.py"
 DJANGO_ADMIN_AGENT = {

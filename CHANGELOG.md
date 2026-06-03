@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Server-tool card labels via the catalog endpoint.** `get_urls()` now also
+  mounts django-ag-ui's tool catalog at `<prefix>agent/tools/` (named
+  `django_admin_agent_tools`), and the sidebar passes it to the Web Component as
+  `data-tools-url`. The labels live on each tool's `@tool(summary=…)` (e.g.
+  `query_model` → "Query records", `inspect_modeladmin` → "Inspect admin") — a
+  single server-side source, fetched by the component.
+
+### Changed
+- Vendored bundle → **`@artooi/ag-ui-web-component` 0.3.0** (`data-tools-url`
+  catalog fetch). Pins `django-ag-ui>=0.3` (the catalog endpoint / `ToolsView`)
+  and `djangorestframework-mcp-server>=0.6.1`.
+
+### Removed
+- The static `DJANGO_ADMIN_AGENT["TOOL_SUMMARIES"]` setting + `build_tool_summaries`
+  map + the embedded `tool-summaries` `json_script` — superseded by the fetched
+  catalog (no per-tool client duplication). Labels now live on `@tool(summary=…)`.
+
 ## [0.2.0] — 2026-06-02
 
 ### Added
