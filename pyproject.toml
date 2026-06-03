@@ -43,7 +43,7 @@ dependencies = [
 [project.optional-dependencies]
 # Also expose the admin tools as an MCP server over HTTP via the user's
 # djangorestframework-mcp-server stack.
-mcp = ["djangorestframework-mcp-server>=0.5"]
+mcp = ["djangorestframework-mcp-server>=0.6.1"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"

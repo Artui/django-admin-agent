@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- The `[mcp]` extra now requires `djangorestframework-mcp-server>=0.6.1`
+  (additive 0.5.1 → 0.6.1; pulls `djangorestframework-services>=0.15.0`). No
+  code change — the admin tool set and sidebar wiring are unaffected.
+
+### Docs
+- Synced `admin-wiring.md` + `reference.md` with the `toolSummaries` wiring
+  (the docs PR merged earlier; this release deploys them to gh-pages).
+
 ## [0.2.0] — 2026-06-02
 
 ### Added
