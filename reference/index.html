@@ -633,17 +633,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#django_admin_agent.conf.AdminAgentSettings.tool_summaries" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        tool_summaries
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#django_admin_agent.conf.AdminAgentSettings.theme" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1103,17 +1092,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#django_admin_agent.conf.AdminAgentSettings.tool_summaries" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        tool_summaries
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#django_admin_agent.conf.AdminAgentSettings.theme" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1446,9 +1424,11 @@
 <p>Builds a :class:<code>~django_ag_ui.DjangoAGUIView</code> over the default
 server-side admin tool registry (or a registry you pass) and mounts it
 at <code>&lt;prefix&gt;agent/</code> named <code>django_admin_agent_endpoint</code> — the name
-the sidebar reverses. Extra keyword arguments (<code>model</code>,
-<code>instructions</code>, <code>audit_logger</code>, <code>csrf_exempt</code>) pass through to the
-view.</p>
+the sidebar reverses. Also mounts the server-tool label catalog at
+<code>&lt;prefix&gt;agent/tools/</code> (named <code>django_admin_agent_tools</code>) which the
+sidebar passes to the Web Component as <code>data-tools-url</code>. Extra keyword
+arguments (<code>model</code>, <code>instructions</code>, <code>audit_logger</code>, <code>csrf_exempt</code>)
+pass through to the view.</p>
 <p>Include the result from your project's root URLconf::</p>
 <div class="language-text highlight"><pre><span></span><code>urlpatterns = [
     path(&quot;admin/&quot;, admin.site.urls),
@@ -1707,32 +1687,6 @@ attribute; defaults to <code>"compact"</code> for a dense admin sidebar.</p>
 
         <p>Optional override for the skill catalog (client <code>Skill</code> dicts). <code>None</code>
 uses the built-in admin catalog (:func:<code>build_skills</code>).</p>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-attribute">
-
-
-
-<h3 id="django_admin_agent.conf.AdminAgentSettings.tool_summaries" class="doc doc-heading">
-            <span class="doc doc-object-name doc-attribute-name">tool_summaries</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
-  </span>
-
-<a href="#django_admin_agent.conf.AdminAgentSettings.tool_summaries" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">tool_summaries</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Optional override for the server-tool card labels (tool name → label).
-Passed to the Web Component as <code>toolSummaries</code>. <code>None</code> uses the built-in
-map (:func:<code>build_tool_summaries</code>).</p>
 
     </div>
 

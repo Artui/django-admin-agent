@@ -768,11 +768,6 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <td><em>unset</em></td>
 <td>Override for the slash-command / chip catalog (a list of <code>Skill</code> dicts). Leave unset to use the built-in admin catalog. See <a href="#skills">Skills</a>.</td>
 </tr>
-<tr>
-<td><code>TOOL_SUMMARIES</code></td>
-<td><em>unset</em></td>
-<td>Override for the server-tool card labels (a <code>{ tool_name: label }</code> map), set as the Web Component's <code>toolSummaries</code>. Leave unset to use the built-in map (e.g. <code>query_model</code> → "Query records"). Client tools carry their own <code>x-summary</code>.</td>
-</tr>
 </tbody>
 </table>
 <div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span>

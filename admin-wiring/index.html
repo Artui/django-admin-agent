@@ -783,6 +783,11 @@ navigate, and the two attachment paths.</p>
 <td>The skill catalog (chips + <code>/</code>-command palette), embedded as a <code>json_script</code>. See <a href="../configuration/#skills">Configuration → Skills</a>.</td>
 </tr>
 <tr>
+<td><code>tools_url</code></td>
+<td><code>reverse("django_admin_agent_tools")</code> (or <code>None</code>)</td>
+<td>URL of the server-tool label catalog, rendered as <code>data-tools-url</code>; the component fetches it to label server-tool cards. <code>None</code> when the endpoint wasn't mounted via <code>get_urls</code>.</td>
+</tr>
+<tr>
 <td><code>bootstrap_url</code></td>
 <td><code>static("django_admin_agent/admin_agent.js")</code></td>
 <td>The ES-module entry point.</td>
@@ -806,20 +811,26 @@ identical whichever you choose.</p>
 element with the endpoint, title, auto-confirm, tool-display, and admin-base
 data attributes (plus <code>data-slash-commands="true"</code>, and the optional <code>theme</code> /
 <code>density</code> / <code>placement</code> / <code>data-text-animation</code> attributes when their settings
-are set); embeds the route map and the skill catalog as two <code>json_script</code>
-blocks; and loads the bootstrap module. The bootstrap
-(<code>static/django_admin_agent/admin_agent.js</code>) then:</p>
+are set, plus <code>data-tools-url</code> when the catalog endpoint is mounted); embeds the
+route map and the skill catalog as two <code>json_script</code> blocks
+(<code>#django-admin-agent-routes</code>, <code>#django-admin-agent-skills</code>); and loads the
+bootstrap module. The bootstrap (<code>static/django_admin_agent/admin_agent.js</code>)
+then:</p>
 <ol>
 <li>Defines the <code>&lt;ag-ui-chat&gt;</code> custom element from the vendored bundle.</li>
 <li>Attaches the CSRF token as an <code>X-CSRFToken</code> header so the endpoint accepts
    POSTs under the logged-in admin session.</li>
-<li>Reads the auto-confirm flag and the route map off the element / page.</li>
+<li>Reads the auto-confirm flag and the route map off the element / page, setting
+   <code>el.routeMap</code>.</li>
 <li>Reads the embedded skill catalog and calls <code>el.setSkills(...)</code>, and sets
    <code>el.skillContext</code> to a provider that derives <code>{path}</code> / <code>{selected_ids}</code>
    placeholder values from the current page.</li>
 <li>Calls <code>registerAdminTools(el)</code> to register the
    <a href="../tools/#frontend-tools">frontend tools</a>.</li>
 </ol>
+<p>Server-tool card labels are <strong>not</strong> embedded — the component fetches them from
+<code>data-tools-url</code> (the <a href="https://artui.github.io/django-ag-ui/concepts/#tool-metadata-catalog"><code>&lt;prefix&gt;agent/tools/</code> catalog endpoint</a>, named
+<code>django_admin_agent_tools</code>), whose labels come from each tool's <code>@tool(summary=)</code>.</p>
 <p>The themeable attributes (<code>theme</code> / <code>density</code> / <code>placement</code> /
 <code>data-text-animation</code>) and <code>data-tool-display</code> are read by the Web Component
 itself; this template is the seam where the <code>DJANGO_ADMIN_AGENT</code> settings become
