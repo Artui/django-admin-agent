@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-06-03
+
 ### Changed
 - The `[mcp]` extra now requires `djangorestframework-mcp-server>=0.6.1`
   (additive 0.5.1 → 0.6.1; pulls `djangorestframework-services>=0.15.0`). No
@@ -74,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/Artui/django-admin-agent/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Artui/django-admin-agent/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Artui/django-admin-agent/releases/tag/v0.1.0
