@@ -10,10 +10,12 @@ from django_admin_agent.tools.shell.query_model import query_model
 
 def register_shell_tools(registry: ToolRegistry) -> None:
     """Register the read-only ORM/shell tool set on ``registry``."""
-    tool(registry, category=ToolCategory.SHELL)(query_model)
-    tool(registry, category=ToolCategory.SHELL)(get_model_instance)
-    tool(registry, category=ToolCategory.SHELL)(count_model)
-    tool(registry, category=ToolCategory.SHELL)(inspect_model_schema)
+    tool(registry, category=ToolCategory.SHELL, summary="Query records")(query_model)
+    tool(registry, category=ToolCategory.SHELL, summary="Fetch a record")(get_model_instance)
+    tool(registry, category=ToolCategory.SHELL, summary="Count records")(count_model)
+    tool(registry, category=ToolCategory.SHELL, summary="Inspect model schema")(
+        inspect_model_schema
+    )
 
 
 __all__ = ["register_shell_tools"]

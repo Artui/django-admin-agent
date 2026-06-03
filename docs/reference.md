@@ -28,8 +28,6 @@ The public Python surface re-exported from `django_admin_agent`.
 
 ::: django_admin_agent.admin.build_skills.build_skills
 
-::: django_admin_agent.admin.build_tool_summaries.build_tool_summaries
-
 ::: django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite
 
 ## Server-side tools

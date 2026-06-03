@@ -13,13 +13,13 @@ from django_admin_agent.tools.introspect.list_urls import list_urls
 
 def register_introspect_tools(registry: ToolRegistry) -> None:
     """Register the read-only Django-introspection tool set on ``registry``."""
-    tool(registry, category=ToolCategory.INTROSPECT)(list_installed_apps)
-    tool(registry, category=ToolCategory.INTROSPECT)(list_models)
-    tool(registry, category=ToolCategory.INTROSPECT)(list_urls)
-    tool(registry, category=ToolCategory.INTROSPECT)(list_signals)
-    tool(registry, category=ToolCategory.INTROSPECT)(get_settings_summary)
-    tool(registry, category=ToolCategory.INTROSPECT)(list_admin_models)
-    tool(registry, category=ToolCategory.INTROSPECT)(inspect_modeladmin)
+    tool(registry, category=ToolCategory.INTROSPECT, summary="List apps")(list_installed_apps)
+    tool(registry, category=ToolCategory.INTROSPECT, summary="List models")(list_models)
+    tool(registry, category=ToolCategory.INTROSPECT, summary="List URLs")(list_urls)
+    tool(registry, category=ToolCategory.INTROSPECT, summary="List signals")(list_signals)
+    tool(registry, category=ToolCategory.INTROSPECT, summary="Read settings")(get_settings_summary)
+    tool(registry, category=ToolCategory.INTROSPECT, summary="List admin models")(list_admin_models)
+    tool(registry, category=ToolCategory.INTROSPECT, summary="Inspect admin")(inspect_modeladmin)
 
 
 __all__ = ["register_introspect_tools"]
