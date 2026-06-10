@@ -19,7 +19,7 @@ This package adds: server-side admin tools (`shell.*` / `introspect.*` /
 `SidebarAdminSite` / `each_context` / template-tag plumbing, and an Unfold
 compatibility shim.
 
-The design is at `/Users/arturveres/code/opensource/docs/plans/django-ag-ui-plan.md`.
+The AG-UI stack design doc (`django-ag-ui-plan.md`) lives in the private ecosystem planning workspace, outside this repo.
 
 ## Local development
 
