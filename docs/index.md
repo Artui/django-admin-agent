@@ -16,8 +16,8 @@ It is the admin-facing consumer in a three-package stack:
   Component. Its built bundle is vendored into
   `django_admin_agent/static/django_admin_agent/` and loaded from the admin
   templates. It owns the chat UI, the DOM-driver primitives, the
-  destructive-action confirmation modal, and the resumable run loop that
-  survives admin page reloads.
+  destructive-action confirmation modal, the **Stop** control for cancelling a
+  run mid-stream, and the resumable run loop that survives admin page reloads.
 - **`django-admin-agent`** (this package) — contributes the admin-specific
   server-side tools (`shell.*` / `introspect.*`), the admin-aware frontend tool
   handlers (`ui_read.*` / `ui_write.*` / `ui_generic.*` / `nav.*`), the
@@ -48,6 +48,13 @@ It is the admin-facing consumer in a three-package stack:
    configurable from settings, and a catalog of one-click **skills** appears as
    composer chips and a `/`-command palette. See
    [Configuration](configuration.md).
+7. **Stops on demand.** While the agent is working, the composer's Send button
+   becomes a **Stop** button — click it or press <kbd>Escape</kbd> (or start a
+   new chat) to cancel the run mid-stream. Stopping aborts the streaming
+   request, dismisses any open confirmation, and keeps the partial reply under a
+   muted "⏹ Stopped" note. The bundled `django-ag-ui` (≥ 0.4) tears the
+   model-provider request down server-side, so a stopped run doesn't keep
+   generating in the background.
 
 ## Get started
 

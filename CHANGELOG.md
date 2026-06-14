@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Stop a run from the sidebar.** While the agent is working, the composer's
+  Send button becomes a **Stop** button (or press <kbd>Escape</kbd>); starting a
+  new chat also stops an in-flight run. Stopping aborts the streaming request,
+  dismisses any open destructive-confirmation modal, and keeps the partial reply
+  under a muted "⏹ Stopped" note. This rides the vendored web-component 0.4.0.
+
+### Changed
+- Vendored bundle → **`@artooi/ag-ui-web-component` 0.4.0** (cancel / Stop
+  control, `onCancelled`, Escape-to-stop, confirmation dismissal).
+- Pins **`django-ag-ui>=0.4,<0.5`** (was `>=0.3`): its guarded stream guarantees
+  the Pydantic-AI / model-provider request is torn down when a run is stopped —
+  no orphaned generation or runaway token spend — persists the partial
+  conversation when a conversation store is configured, and records a run-level
+  cancellation audit event.
+
 ## [0.3.0] — 2026-06-03
 
 ### Added
