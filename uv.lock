@@ -434,7 +434,7 @@ e2e = [
 [package.metadata]
 requires-dist = [
     { name = "django", specifier = ">=4.2" },
-    { name = "django-ag-ui", specifier = ">=0.3" },
+    { name = "django-ag-ui", specifier = ">=0.4,<0.5" },
     { name = "djangorestframework-mcp-server", marker = "extra == 'mcp'", specifier = ">=0.6.1" },
 ]
 provides-extras = ["mcp"]
@@ -465,16 +465,16 @@ e2e = [
 
 [[package]]
 name = "django-ag-ui"
-version = "0.3.0"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django", version = "5.2.14", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.0.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pydantic-ai-slim", extra = ["ag-ui"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b9/bd/b7dd299d84e56321f60cbce0375fb1f8144547195303171d890e1a073e0e/django_ag_ui-0.3.0.tar.gz", hash = "sha256:a98dfe5ba173b585d1d52fdc45a192e41b182e13d167c1d13becdc911c2dcbd1", size = 190396, upload-time = "2026-06-03T12:47:49.312Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/5e/94f9a8aaf133a06b651cb93d5419caabc99e5abc1c85172470b8580c0f32/django_ag_ui-0.4.0.tar.gz", hash = "sha256:1239c5add145c3277e4ab3f17fb0c88da29c4ac64e2fef1f715a96b424006914", size = 206572, upload-time = "2026-06-14T10:45:28.351Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7f/9b/39f5db83bb3b8a33e9c23ad42541db7bf69bb8f44182d96836b8dbc325da/django_ag_ui-0.3.0-py3-none-any.whl", hash = "sha256:b100fed8346de5f06a56f5e2de759c2ed6751f056b26e50f43c3ebd00ca436a3", size = 43491, upload-time = "2026-06-03T12:47:48.019Z" },
+    { url = "https://files.pythonhosted.org/packages/35/1c/0c046a27452b0484d0310399372243ce842a6fc4b4c341b847d242818a4b/django_ag_ui-0.4.0-py3-none-any.whl", hash = "sha256:0bd72d4b3557cde38b802e94d80180009da734bc749b1cc53a2447a59dff7680", size = 52269, upload-time = "2026-06-14T10:45:27Z" },
 ]
 
 [[package]]
