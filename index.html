@@ -607,8 +607,8 @@ pages — with visible animations and a confirmation modal on destructive action
   Component. Its built bundle is vendored into
   <code>django_admin_agent/static/django_admin_agent/</code> and loaded from the admin
   templates. It owns the chat UI, the DOM-driver primitives, the
-  destructive-action confirmation modal, and the resumable run loop that
-  survives admin page reloads.</li>
+  destructive-action confirmation modal, the <strong>Stop</strong> control for cancelling a
+  run mid-stream, and the resumable run loop that survives admin page reloads.</li>
 <li><strong><code>django-admin-agent</code></strong> (this package) — contributes the admin-specific
   server-side tools (<code>shell.*</code> / <code>introspect.*</code>), the admin-aware frontend tool
   handlers (<code>ui_read.*</code> / <code>ui_write.*</code> / <code>ui_generic.*</code> / <code>nav.*</code>), the
@@ -639,6 +639,13 @@ pages — with visible animations and a confirmation modal on destructive action
    configurable from settings, and a catalog of one-click <strong>skills</strong> appears as
    composer chips and a <code>/</code>-command palette. See
    <a href="configuration/">Configuration</a>.</li>
+<li><strong>Stops on demand.</strong> While the agent is working, the composer's Send button
+   becomes a <strong>Stop</strong> button — click it or press <kbd>Escape</kbd> (or start a
+   new chat) to cancel the run mid-stream. Stopping aborts the streaming
+   request, dismisses any open confirmation, and keeps the partial reply under a
+   muted "⏹ Stopped" note. The bundled <code>django-ag-ui</code> (≥ 0.4) tears the
+   model-provider request down server-side, so a stopped run doesn't keep
+   generating in the background.</li>
 </ol>
 <h2 id="get-started">Get started<a class="headerlink" href="#get-started" title="Permanent link">&para;</a></h2>
 <ul>
