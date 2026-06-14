@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-06-14
+
 ### Added
 - **Stop a run from the sidebar.** While the agent is working, the composer's
   Send button becomes a **Stop** button (or press <kbd>Escape</kbd>); starting a
@@ -101,7 +103,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Artui/django-admin-agent/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Artui/django-admin-agent/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Artui/django-admin-agent/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Artui/django-admin-agent/releases/tag/v0.1.0
