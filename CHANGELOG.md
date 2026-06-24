@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Chat-history drawer in the sidebar.** The chat header gains a history toggle
+  (☰) that opens a slide-over listing past conversations (title · relative time ·
+  preview) with select · new chat · inline rename · delete-with-confirm. Riding
+  the vendored web-component 0.5.0, it is wired to the server thread index below,
+  so an admin user sees their durable history and can switch between threads.
 - **Server-side thread index for the chat-history drawer.** `get_urls` now mounts
   the owner-scoped thread endpoints at `<prefix>agent/threads/` (list) and
   `<prefix>agent/threads/<id>/` (load / rename / delete), and the sidebar passes
@@ -19,11 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   drawer falls back to the client's per-tab threads.
 
 ### Changed
+- Vendored bundle → **`@artooi/ag-ui-web-component` 0.5.0** (the chat-history
+  drawer, `RemoteConversationStore`, and the `data-threads-url` wiring).
 - Bumped the `django-ag-ui` pin to `>=0.6,<0.7` (for the thread-index API).
-
-> **Note:** the history-drawer **UI** activates once the vendored web-component
-> bundle is re-vendored to a build that includes it; the server endpoints above
-> ship now and degrade gracefully until then.
 
 ## [0.4.0] — 2026-06-14
 
