@@ -31,6 +31,7 @@ def build_sidebar_context() -> dict[str, Any]:
         "tool_display": config.tool_display,
         "skills": config.skills if config.skills is not None else build_skills(),
         "tools_url": _tools_url(),
+        "threads_url": _threads_url(),
         "theme": config.theme,
         "density": config.density,
         "placement": config.placement,
@@ -54,6 +55,15 @@ def _tools_url() -> str | None:
     when the agent endpoint wasn't mounted with :func:`get_urls`."""
     try:
         return reverse("django_admin_agent_tools")
+    except NoReverseMatch:
+        return None
+
+
+def _threads_url() -> str | None:
+    """Resolve the thread-index URL the Web Component's history drawer fetches,
+    or ``None`` when the agent endpoint wasn't mounted with :func:`get_urls`."""
+    try:
+        return reverse("django_admin_agent_threads")
     except NoReverseMatch:
         return None
 

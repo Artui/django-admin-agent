@@ -144,6 +144,22 @@ For admin deployments, where users are always authenticated and sessions exist,
 durability). Leaving `CONVERSATION_STORE` unset keeps the server stateless; the
 client store still provides single-tab continuity.
 
+For **durable, cross-device** history, opt into django-ag-ui's reference store
+instead: add `"django_ag_ui.contrib.store"` to `INSTALLED_APPS`, run `migrate`,
+and set `CONVERSATION_STORE` to
+`django_ag_ui.contrib.store.default_conversation_store.DefaultConversationStore`.
+
+### The chat-history drawer
+
+`get_urls` also mounts an owner-scoped **thread index** at `<prefix>agent/threads/`
+(list) and `<prefix>agent/threads/<id>/` (load / rename / delete), and the
+sidebar passes its URL to the Web Component as `data-threads-url` — the data
+behind a chat-history drawer of the admin user's past conversations. The index
+uses whatever `CONVERSATION_STORE` resolves to (pass an explicit store with
+`get_urls(conversation_store=...)` to override). With a durable store configured,
+the drawer lists server-backed threads; without one it falls back to the client's
+per-tab `sessionStorage` threads.
+
 ### `DRF_MCP_SERVER` and the `[mcp]` extra
 
 Installing `django-admin-agent[mcp]` and pointing `DRF_MCP_SERVER` at a

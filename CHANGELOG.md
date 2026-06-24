@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Server-side thread index for the chat-history drawer.** `get_urls` now mounts
+  the owner-scoped thread endpoints at `<prefix>agent/threads/` (list) and
+  `<prefix>agent/threads/<id>/` (load / rename / delete), and the sidebar passes
+  their URL to the Web Component as `data-threads-url`. They use the same
+  `CONVERSATION_STORE` the agent endpoint persists to (override with the new
+  `get_urls(conversation_store=...)` argument). To get **durable, cross-device,
+  per-admin-user history**, set `DJANGO_AG_UI["CONVERSATION_STORE"]` to
+  django-ag-ui's reference store (`django_ag_ui.contrib.store`); without one, the
+  drawer falls back to the client's per-tab threads.
+
+### Changed
+- Bumped the `django-ag-ui` pin to `>=0.6,<0.7` (for the thread-index API).
+
+> **Note:** the history-drawer **UI** activates once the vendored web-component
+> bundle is re-vendored to a build that includes it; the server endpoints above
+> ship now and degrade gracefully until then.
+
 ## [0.4.0] — 2026-06-14
 
 ### Added
