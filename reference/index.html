@@ -1414,8 +1414,9 @@
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;admin-agent/&quot;</span><span class="p">,</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="o">*</span><span class="p">,</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">registry</span><span class="p">:</span> <span class="n">ToolRegistry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="o">**</span><span class="n">view_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">URLPattern</span><span class="p">]</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">conversation_store</span><span class="p">:</span> <span class="n">ConversationStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">**</span><span class="n">view_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">URLPattern</span><span class="p">]</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents first">
@@ -1424,11 +1425,21 @@
 <p>Builds a :class:<code>~django_ag_ui.DjangoAGUIView</code> over the default
 server-side admin tool registry (or a registry you pass) and mounts it
 at <code>&lt;prefix&gt;agent/</code> named <code>django_admin_agent_endpoint</code> — the name
-the sidebar reverses. Also mounts the server-tool label catalog at
-<code>&lt;prefix&gt;agent/tools/</code> (named <code>django_admin_agent_tools</code>) which the
-sidebar passes to the Web Component as <code>data-tools-url</code>. Extra keyword
-arguments (<code>model</code>, <code>instructions</code>, <code>audit_logger</code>, <code>csrf_exempt</code>)
-pass through to the view.</p>
+the sidebar reverses. Also mounts:</p>
+<ul>
+<li>the server-tool label catalog at <code>&lt;prefix&gt;agent/tools/</code> (named
+  <code>django_admin_agent_tools</code>), passed to the Web Component as
+  <code>data-tools-url</code>;</li>
+<li>the <strong>thread index</strong> for the chat-history drawer at <code>&lt;prefix&gt;agent/threads/</code>
+  and <code>&lt;prefix&gt;agent/threads/&lt;id&gt;/</code> (named <code>django_admin_agent_threads</code> /
+  <code>django_admin_agent_thread</code>), passed as <code>data-threads-url</code>. It uses the
+  same store the agent endpoint persists to — the one configured by
+  <code>DJANGO_AG_UI["CONVERSATION_STORE"]</code> (a <code>NullConversationStore</code> until you
+  set one, in which case the drawer falls back to the client's per-tab
+  threads) — or the <code>conversation_store</code> you pass here.</li>
+</ul>
+<p>Extra keyword arguments (<code>model</code>, <code>instructions</code>, <code>audit_logger</code>,
+<code>csrf_exempt</code>) pass through to the view.</p>
 <p>Include the result from your project's root URLconf::</p>
 <div class="language-text highlight"><pre><span></span><code>urlpatterns = [
     path(&quot;admin/&quot;, admin.site.urls),

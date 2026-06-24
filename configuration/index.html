@@ -445,6 +445,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#the-chat-history-drawer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The chat-history drawer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#drf_mcp_server-and-the-mcp-extra" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -658,6 +669,17 @@
     <span class="md-ellipsis">
       
         CONVERSATION_STORE and the reload model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-chat-history-drawer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The chat-history drawer
       
     </span>
   </a>
@@ -935,6 +957,19 @@ derivable from the stored history.</p>
 <code>DjangoSessionConversationStore</code> is the natural choice (no migration, per-user
 durability). Leaving <code>CONVERSATION_STORE</code> unset keeps the server stateless; the
 client store still provides single-tab continuity.</p>
+<p>For <strong>durable, cross-device</strong> history, opt into django-ag-ui's reference store
+instead: add <code>"django_ag_ui.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>,
+and set <code>CONVERSATION_STORE</code> to
+<code>django_ag_ui.contrib.store.default_conversation_store.DefaultConversationStore</code>.</p>
+<h3 id="the-chat-history-drawer">The chat-history drawer<a class="headerlink" href="#the-chat-history-drawer" title="Permanent link">&para;</a></h3>
+<p><code>get_urls</code> also mounts an owner-scoped <strong>thread index</strong> at <code>&lt;prefix&gt;agent/threads/</code>
+(list) and <code>&lt;prefix&gt;agent/threads/&lt;id&gt;/</code> (load / rename / delete), and the
+sidebar passes its URL to the Web Component as <code>data-threads-url</code> — the data
+behind a chat-history drawer of the admin user's past conversations. The index
+uses whatever <code>CONVERSATION_STORE</code> resolves to (pass an explicit store with
+<code>get_urls(conversation_store=...)</code> to override). With a durable store configured,
+the drawer lists server-backed threads; without one it falls back to the client's
+per-tab <code>sessionStorage</code> threads.</p>
 <h3 id="drf_mcp_server-and-the-mcp-extra"><code>DRF_MCP_SERVER</code> and the <code>[mcp]</code> extra<a class="headerlink" href="#drf_mcp_server-and-the-mcp-extra" title="Permanent link">&para;</a></h3>
 <p>Installing <code>django-admin-agent[mcp]</code> and pointing <code>DRF_MCP_SERVER</code> at a
 <code>djangorestframework-mcp-server</code> <code>MCPServer</code> instance exposes that server's
