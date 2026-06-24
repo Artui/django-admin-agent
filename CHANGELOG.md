@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-06-24
+
+### Added
+- **Chat-history drawer in the sidebar.** The chat header gains a history toggle
+  (☰) that opens a slide-over listing past conversations (title · relative time ·
+  preview) with select · new chat · inline rename · delete-with-confirm. Riding
+  the vendored web-component 0.5.0, it is wired to the server thread index below,
+  so an admin user sees their durable history and can switch between threads.
+- **Server-side thread index for the chat-history drawer.** `get_urls` now mounts
+  the owner-scoped thread endpoints at `<prefix>agent/threads/` (list) and
+  `<prefix>agent/threads/<id>/` (load / rename / delete), and the sidebar passes
+  their URL to the Web Component as `data-threads-url`. They use the same
+  `CONVERSATION_STORE` the agent endpoint persists to (override with the new
+  `get_urls(conversation_store=...)` argument). To get **durable, cross-device,
+  per-admin-user history**, set `DJANGO_AG_UI["CONVERSATION_STORE"]` to
+  django-ag-ui's reference store (`django_ag_ui.contrib.store`); without one, the
+  drawer falls back to the client's per-tab threads.
+
+### Changed
+- Vendored bundle → **`@artooi/ag-ui-web-component` 0.5.0** (the chat-history
+  drawer, `RemoteConversationStore`, and the `data-threads-url` wiring).
+- Bumped the `django-ag-ui` pin to `>=0.6,<0.7` (for the thread-index API).
+
 ## [0.4.0] — 2026-06-14
 
 ### Added
@@ -103,7 +126,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Artui/django-admin-agent/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Artui/django-admin-agent/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Artui/django-admin-agent/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Artui/django-admin-agent/compare/v0.1.0...v0.2.0

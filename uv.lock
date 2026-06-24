@@ -434,7 +434,7 @@ e2e = [
 [package.metadata]
 requires-dist = [
     { name = "django", specifier = ">=4.2" },
-    { name = "django-ag-ui", specifier = ">=0.4,<0.5" },
+    { name = "django-ag-ui", specifier = ">=0.6,<0.7" },
     { name = "djangorestframework-mcp-server", marker = "extra == 'mcp'", specifier = ">=0.6.1" },
 ]
 provides-extras = ["mcp"]
@@ -465,16 +465,16 @@ e2e = [
 
 [[package]]
 name = "django-ag-ui"
-version = "0.4.0"
+version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django", version = "5.2.14", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.0.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pydantic-ai-slim", extra = ["ag-ui"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f3/5e/94f9a8aaf133a06b651cb93d5419caabc99e5abc1c85172470b8580c0f32/django_ag_ui-0.4.0.tar.gz", hash = "sha256:1239c5add145c3277e4ab3f17fb0c88da29c4ac64e2fef1f715a96b424006914", size = 206572, upload-time = "2026-06-14T10:45:28.351Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f5/c4/1425807b1f9b3d0f090bc83bd11abd14391aca7636a883bebc5bb62c8fdb/django_ag_ui-0.6.0.tar.gz", hash = "sha256:ccedf41408ba937a6f224cd99e92ff99d37a839e6c86e6aabe2a574de4c4dd8e", size = 216184, upload-time = "2026-06-24T12:37:22.643Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/35/1c/0c046a27452b0484d0310399372243ce842a6fc4b4c341b847d242818a4b/django_ag_ui-0.4.0-py3-none-any.whl", hash = "sha256:0bd72d4b3557cde38b802e94d80180009da734bc749b1cc53a2447a59dff7680", size = 52269, upload-time = "2026-06-14T10:45:27Z" },
+    { url = "https://files.pythonhosted.org/packages/77/d8/a373c6742ee95c11e97e8e72342dbef7fe98a9ac15300a6e8290d6a59914/django_ag_ui-0.6.0-py3-none-any.whl", hash = "sha256:40c985d8c172b69e627a8364c253f9e1af4035f8db4ca42aee0243dcb013621c", size = 60867, upload-time = "2026-06-24T12:37:21.436Z" },
 ]
 
 [[package]]

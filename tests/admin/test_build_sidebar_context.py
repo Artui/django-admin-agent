@@ -14,6 +14,8 @@ def test_context_keys_and_values() -> None:
     assert {s["name"] for s in context["skills"]} >= {"summarize-changelist"}
     # The server-tool catalog URL the Web Component fetches (data-tools-url).
     assert context["tools_url"] == "/admin-agent/agent/tools/"
+    # The thread-index URL the history drawer fetches (data-threads-url).
+    assert context["threads_url"] == "/admin-agent/agent/threads/"
     # Styling knobs default to None (the component default applies).
     assert context["theme"] is None
     assert context["density"] is None
@@ -48,3 +50,9 @@ def test_admin_base_url_falls_back_without_admin() -> None:
 def test_tools_url_is_none_when_the_catalog_is_not_mounted() -> None:
     # Endpoint mounted by hand (not via get_urls) → no catalog route to reverse.
     assert build_sidebar_context()["tools_url"] is None
+
+
+@override_settings(ROOT_URLCONF="tests.admin.urls_endpoint_only")
+def test_threads_url_is_none_when_not_mounted() -> None:
+    # Endpoint mounted by hand → no thread-index route to reverse.
+    assert build_sidebar_context()["threads_url"] is None
