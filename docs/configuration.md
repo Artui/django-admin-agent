@@ -117,6 +117,8 @@ relevant to the admin sidebar:
 | `MODEL` | _unset_ | Pydantic-AI model string, e.g. `"anthropic:claude-sonnet-4.6"`. Can instead be passed per-mount as `get_urls(model=...)`. |
 | `AUTO_CONFIRM` | `False` | The `django-ag-ui`-level destructive-confirmation flag surfaced to the frontend. |
 | `CONVERSATION_STORE` | `None` (stateless) | Dotted path to a `ConversationStore` for server-side conversation persistence. See below. |
+| `ATTACHMENT_STORE` | `None` (uploads off) | Dotted path to an `AttachmentStore` for file uploads. See below. |
+| `ATTACHMENT_MAX_BYTES` / `ATTACHMENT_ALLOWED_TYPES` | 10 MiB / any | Server-side upload size cap and content-type allowlist (enforced by `AttachmentsView`). |
 | `DRF_MCP_SERVER` | `None` | Dotted path to a `djangorestframework-mcp-server` `MCPServer` instance whose tools are exposed to the agent in-process (requires the `[mcp]` extra). |
 | `AUDIT_LOGGER` | _package default_ | Dotted path to an `AuditLogger` implementation. |
 | `MODEL_SETTINGS`, `RETRIES`, `AGENT_FACTORY`, `TOOLSETS`, `CAPABILITIES` | — | Advanced Pydantic-AI configuration; see the `django-ag-ui` docs. |
@@ -159,6 +161,37 @@ uses whatever `CONVERSATION_STORE` resolves to (pass an explicit store with
 `get_urls(conversation_store=...)` to override). With a durable store configured,
 the drawer lists server-backed threads; without one it falls back to the client's
 per-tab `sessionStorage` threads.
+
+### File uploads
+
+`get_urls` also mounts an owner-scoped **upload endpoint** at
+`<prefix>agent/attachments/` (`POST` upload) and `<prefix>agent/attachments/<id>/`
+(`GET` download, `DELETE`), and the sidebar passes its URL to the Web Component as
+`data-attachments-url` — so the composer gains a 📎 picker + drag-and-drop. Files
+upload out-of-band and travel as lightweight refs; the agent reads their contents
+server-side via the built-in `read_attachment` tool (the AG-UI message stream
+stays free of file bytes).
+
+Uploads are **disabled by default** (a `NullAttachmentStore` answers `410`). Turn
+them on by pointing `ATTACHMENT_STORE` at a store — for **durable, per-admin-user**
+files, opt into django-ag-ui's reference store: add `"django_ag_ui.contrib.store"`
+to `INSTALLED_APPS`, run `migrate`, and set
+
+```python title="settings.py"
+DJANGO_AG_UI = {
+    "ATTACHMENT_STORE": "django_ag_ui.contrib.store.default_attachment_store.DefaultAttachmentStore",
+    # Optional server-side guards (the client mirrors these for instant feedback):
+    "ATTACHMENT_MAX_BYTES": 10 * 1024 * 1024,
+    "ATTACHMENT_ALLOWED_TYPES": ["image/png", "image/jpeg", "application/pdf", "text/plain"],
+}
+```
+
+The reference store keeps bytes in Django `Storage` (filesystem by default; point
+`STORAGES`/`DEFAULT_FILE_STORAGE` at S3/GCS for production) and metadata in a row,
+scoped to the admin user — one admin never sees another's files. Pass an explicit
+store with `get_urls(attachment_store=...)` to override. Validation is
+server-authoritative: oversize → `413`, disallowed type → `415`, and downloads
+stream through the owner-checked `GET` (never a guessable public URL).
 
 ### `DRF_MCP_SERVER` and the `[mcp]` extra
 

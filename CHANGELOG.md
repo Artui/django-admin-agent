@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **File uploads in the sidebar.** `get_urls` now mounts django-ag-ui's
+  `AttachmentsView` at `<prefix>agent/attachments/[<id>/]` (named
+  `django_admin_agent_attachments` / `django_admin_agent_attachment`), and
+  `build_sidebar_context` passes its URL to the Web Component as
+  `data-attachments-url` — so an admin can attach files to a message (📎 +
+  drag-and-drop) and the agent reads them via the `read_attachment` tool.
+  Owner-scoped to the admin user; CSRF rides the bootstrap's existing
+  `el.headers`. Uploads are disabled by default (a `NullAttachmentStore` → `410`)
+  until `DJANGO_AG_UI["ATTACHMENT_STORE"]` is set (e.g. the opt-in
+  `DefaultAttachmentStore`), or an `attachment_store=` is passed to `get_urls`.
+
+### Changed
+- **Bumped the `django-ag-ui` pin to `>=0.7,<0.8`** (for `AttachmentStore` /
+  `AttachmentsView` / `read_attachment`) and re-vendored the
+  `@artooi/ag-ui-web-component@0.6.0` bundle (the upload tray + `uploadHandler`).
+
 ## [0.5.0] — 2026-06-24
 
 ### Added

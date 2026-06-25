@@ -32,6 +32,7 @@ def build_sidebar_context() -> dict[str, Any]:
         "skills": config.skills if config.skills is not None else build_skills(),
         "tools_url": _tools_url(),
         "threads_url": _threads_url(),
+        "attachments_url": _attachments_url(),
         "theme": config.theme,
         "density": config.density,
         "placement": config.placement,
@@ -64,6 +65,15 @@ def _threads_url() -> str | None:
     or ``None`` when the agent endpoint wasn't mounted with :func:`get_urls`."""
     try:
         return reverse("django_admin_agent_threads")
+    except NoReverseMatch:
+        return None
+
+
+def _attachments_url() -> str | None:
+    """Resolve the file-upload URL the Web Component's composer posts to, or
+    ``None`` when the agent endpoint wasn't mounted with :func:`get_urls`."""
+    try:
+        return reverse("django_admin_agent_attachments")
     except NoReverseMatch:
         return None
 
