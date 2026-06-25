@@ -22,6 +22,8 @@ def test_tag_renders_web_component_markup() -> None:
     assert 'id="django-admin-agent"' in rendered
     assert 'endpoint="/admin-agent/agent/"' in rendered
     assert 'data-admin-base="/admin/"' in rendered
+    # The composer's upload endpoint reaches the Web Component as data-attachments-url.
+    assert 'data-attachments-url="/admin-agent/agent/attachments/"' in rendered
     assert "admin_agent.js" in rendered
     # The route manifest is embedded as a safe JSON script the bootstrap reads.
     assert 'id="django-admin-agent-routes"' in rendered

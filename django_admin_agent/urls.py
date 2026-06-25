@@ -4,11 +4,14 @@ from typing import Any
 
 from django.urls import URLPattern, path
 from django_ag_ui import (
+    AttachmentStore,
+    AttachmentsView,
     ConversationStore,
     DjangoAGUIView,
     ThreadsView,
     ToolRegistry,
     ToolsView,
+    resolve_attachment_store,
     resolve_conversation_store,
 )
 from django_ag_ui import get_settings as get_ag_ui_settings
@@ -21,6 +24,7 @@ def get_urls(
     *,
     registry: ToolRegistry | None = None,
     conversation_store: ConversationStore | None = None,
+    attachment_store: AttachmentStore | None = None,
     **view_kwargs: Any,
 ) -> list[URLPattern]:
     """Return URL patterns mounting the admin agent's AG-UI endpoint.
@@ -40,6 +44,13 @@ def get_urls(
       ``DJANGO_AG_UI["CONVERSATION_STORE"]`` (a ``NullConversationStore`` until you
       set one, in which case the drawer falls back to the client's per-tab
       threads) — or the ``conversation_store`` you pass here.
+    - the **file-upload endpoint** for the composer at ``<prefix>agent/attachments/``
+      and ``<prefix>agent/attachments/<id>/`` (named ``django_admin_agent_attachments``
+      / ``django_admin_agent_attachment``), passed as ``data-attachments-url``. It
+      uses the store configured by ``DJANGO_AG_UI["ATTACHMENT_STORE"]`` (a
+      ``NullAttachmentStore`` — uploads disabled, ``410`` — until you set one, e.g.
+      the opt-in ``DefaultAttachmentStore``) — or the ``attachment_store`` you pass
+      here. Owner-scoped to the admin user, so an admin only sees their own files.
 
     Extra keyword arguments (``model``, ``instructions``, ``audit_logger``,
     ``csrf_exempt``) pass through to the view.
@@ -59,6 +70,12 @@ def get_urls(
         else resolve_conversation_store(get_ag_ui_settings().conversation_store)
     )
     threads_view = ThreadsView(store)
+    attachments = (
+        attachment_store
+        if attachment_store is not None
+        else resolve_attachment_store(get_ag_ui_settings().attachment_store)
+    )
+    attachments_view = AttachmentsView(attachments)
     return [
         path(f"{prefix}agent/", view, name="django_admin_agent_endpoint"),
         path(f"{prefix}agent/tools/", ToolsView(registry), name="django_admin_agent_tools"),
@@ -67,6 +84,16 @@ def get_urls(
             f"{prefix}agent/threads/<str:thread_id>/",
             threads_view,
             name="django_admin_agent_thread",
+        ),
+        path(
+            f"{prefix}agent/attachments/",
+            attachments_view,
+            name="django_admin_agent_attachments",
+        ),
+        path(
+            f"{prefix}agent/attachments/<str:attachment_id>/",
+            attachments_view,
+            name="django_admin_agent_attachment",
         ),
     ]
 

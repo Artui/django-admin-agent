@@ -434,7 +434,7 @@ e2e = [
 [package.metadata]
 requires-dist = [
     { name = "django", specifier = ">=4.2" },
-    { name = "django-ag-ui", specifier = ">=0.6,<0.7" },
+    { name = "django-ag-ui", specifier = ">=0.7,<0.8" },
     { name = "djangorestframework-mcp-server", marker = "extra == 'mcp'", specifier = ">=0.6.1" },
 ]
 provides-extras = ["mcp"]
@@ -465,16 +465,16 @@ e2e = [
 
 [[package]]
 name = "django-ag-ui"
-version = "0.6.0"
+version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django", version = "5.2.14", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.0.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pydantic-ai-slim", extra = ["ag-ui"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f5/c4/1425807b1f9b3d0f090bc83bd11abd14391aca7636a883bebc5bb62c8fdb/django_ag_ui-0.6.0.tar.gz", hash = "sha256:ccedf41408ba937a6f224cd99e92ff99d37a839e6c86e6aabe2a574de4c4dd8e", size = 216184, upload-time = "2026-06-24T12:37:22.643Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/a0/2dfe1a35e3a7643ea8211fba2c1cc65e23e1eda093e8d6d36715929a15b2/django_ag_ui-0.7.0.tar.gz", hash = "sha256:3bf1e2af61dff8468abf30ddd9596a47442b0ade9f9092f687e8e5e68d6ac81a", size = 231197, upload-time = "2026-06-25T08:42:10.571Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/77/d8/a373c6742ee95c11e97e8e72342dbef7fe98a9ac15300a6e8290d6a59914/django_ag_ui-0.6.0-py3-none-any.whl", hash = "sha256:40c985d8c172b69e627a8364c253f9e1af4035f8db4ca42aee0243dcb013621c", size = 60867, upload-time = "2026-06-24T12:37:21.436Z" },
+    { url = "https://files.pythonhosted.org/packages/ea/65/a15f2bb309b094b76bae4481efac863cdcc6644654abf98b644e123bd7d0/django_ag_ui-0.7.0-py3-none-any.whl", hash = "sha256:c4304e00252fc7f3088b0cfb6e22a3727df76851345e13e7b1e4d02ec79e5ee5", size = 74281, upload-time = "2026-06-25T08:42:08.979Z" },
 ]
 
 [[package]]
