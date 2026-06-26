@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from django.templatetags.static import static
@@ -7,7 +8,7 @@ from django.urls import NoReverseMatch, reverse
 
 from django_admin_agent.admin.build_route_map import build_route_map
 from django_admin_agent.admin.build_skills import build_skills
-from django_admin_agent.conf import get_settings
+from django_admin_agent.conf import AdminAgentSettings, get_settings
 
 _BUNDLE_PATH = "django_admin_agent/admin_agent.js"
 
@@ -37,10 +38,22 @@ def build_sidebar_context() -> dict[str, Any]:
         "density": config.density,
         "placement": config.placement,
         "text_animation": config.text_animation,
+        "strings_json": _strings_json(config),
+        "icon_url": config.icon_url,
+        "side": config.side,
         "bootstrap_url": static(_BUNDLE_PATH),
         "admin_base_url": _admin_base_url(),
         "route_map": build_route_map(),
     }
+
+
+def _strings_json(config: AdminAgentSettings) -> str | None:
+    """Serialize the localized UI-string overrides for the ``data-strings``
+    attribute, or ``None`` when unset. ``default=str`` resolves ``gettext_lazy``
+    proxies against the active language at render time."""
+    if config.strings is None:
+        return None
+    return json.dumps(config.strings, default=str)
 
 
 def _admin_base_url() -> str:

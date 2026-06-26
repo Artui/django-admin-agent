@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Re-vendored the `@artooi/ag-ui-web-component` bundle to 0.7.0**
+  (`WEB_COMPONENT_VERSION`), activating its UI-customization, localization, and
+  page-action features in the admin sidebar, plus the mid-run "connection lost"
+  reliability fix.
+
+### Added
+- **Localized sidebar strings.** `DJANGO_ADMIN_AGENT["STRINGS"]` is passed
+  through to the Web Component as its `data-strings` table (a partial override of
+  the English defaults). Wrap values in `gettext_lazy` and the sidebar follows
+  the admin's active language.
+- **Sidebar branding & docking.** `ICON_URL` surfaces a header/launcher icon
+  (`data-icon-url`); `SIDE` (`"left"` / `"right"`) sets the dock edge
+  (`data-side`) for the new `PLACEMENT = "sidebar"` (a full-height docked panel
+  that collapses to an icon rail).
+
 ## [0.6.0] — 2026-06-25
 
 ### Added
