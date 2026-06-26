@@ -676,6 +676,39 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.strings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        strings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.icon_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        icon_url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        side
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1129,6 +1162,39 @@
     <span class="md-ellipsis">
       
         text_animation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.strings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        strings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.icon_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        icon_url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        side
       
     </span>
   </a>
@@ -1778,8 +1844,10 @@ uses the built-in admin catalog (:func:<code>build_skills</code>).</p>
 
     <div class="doc doc-contents ">
 
-        <p><code>"bottom-left"</code> / <code>"side"</code> / <code>"full"</code> / <code>"embedded"</code> (or unset for
-the default floating bottom-right).</p>
+        <p><code>"bottom-left"</code> / <code>"side"</code> / <code>"sidebar"</code> / <code>"full"</code> / <code>"embedded"</code>
+(or unset for the default floating bottom-right). <code>"sidebar"</code> is a
+full-height docked panel that collapses to an icon rail; pair it with
+:attr:<code>side</code>.</p>
 
     </div>
 
@@ -1805,6 +1873,83 @@ the default floating bottom-right).</p>
 
         <p>Incoming-text animation: <code>"none"</code> / <code>"fade"</code> / <code>"word"</code>. <code>None</code>
 leaves the default (none).</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.strings" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">strings</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.strings" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">strings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Localized UI strings for the Web Component, passed through as its
+<code>data-strings</code> table (a partial override merged over the English defaults).
+Wrap values in <code>gettext_lazy</code> so the sidebar follows the admin's active
+language. <code>None</code> leaves the component's English defaults.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.icon_url" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">icon_url</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.icon_url" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">icon_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>URL of a header/launcher icon image, passed through as <code>data-icon-url</code>.
+<code>None</code> leaves the sidebar icon-less.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.side" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">side</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.side" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>For <code>placement="sidebar"</code>: which edge it docks to — <code>"left"</code> /
+<code>"right"</code> (<code>data-side</code>). <code>None</code> leaves the component default (right).</p>
 
     </div>
 
