@@ -46,12 +46,28 @@ class AdminAgentSettings:
     """``"comfortable"`` / ``"compact"``. ``None`` leaves the default."""
 
     placement: str | None
-    """``"bottom-left"`` / ``"side"`` / ``"full"`` / ``"embedded"`` (or unset for
-    the default floating bottom-right)."""
+    """``"bottom-left"`` / ``"side"`` / ``"sidebar"`` / ``"full"`` / ``"embedded"``
+    (or unset for the default floating bottom-right). ``"sidebar"`` is a
+    full-height docked panel that collapses to an icon rail; pair it with
+    :attr:`side`."""
 
     text_animation: str | None
     """Incoming-text animation: ``"none"`` / ``"fade"`` / ``"word"``. ``None``
     leaves the default (none)."""
+
+    strings: dict[str, Any] | None
+    """Localized UI strings for the Web Component, passed through as its
+    ``data-strings`` table (a partial override merged over the English defaults).
+    Wrap values in ``gettext_lazy`` so the sidebar follows the admin's active
+    language. ``None`` leaves the component's English defaults."""
+
+    icon_url: str | None
+    """URL of a header/launcher icon image, passed through as ``data-icon-url``.
+    ``None`` leaves the sidebar icon-less."""
+
+    side: str | None
+    """For ``placement="sidebar"``: which edge it docks to — ``"left"`` /
+    ``"right"`` (``data-side``). ``None`` leaves the component default (right)."""
 
 
 def get_settings() -> AdminAgentSettings:
@@ -67,6 +83,9 @@ def get_settings() -> AdminAgentSettings:
         density=raw.get("DENSITY"),
         placement=raw.get("PLACEMENT"),
         text_animation=raw.get("TEXT_ANIMATION"),
+        strings=raw.get("STRINGS"),
+        icon_url=raw.get("ICON_URL"),
+        side=raw.get("SIDE"),
     )
 
 

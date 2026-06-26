@@ -18,6 +18,9 @@ def test_defaults_when_setting_absent() -> None:
     assert config.density is None
     assert config.placement is None
     assert config.text_animation is None
+    assert config.strings is None
+    assert config.icon_url is None
+    assert config.side is None
 
 
 @override_settings(
@@ -29,8 +32,11 @@ def test_defaults_when_setting_absent() -> None:
         "SKILLS": [{"name": "x", "title": "X", "prompt": "p"}],
         "THEME": "dark",
         "DENSITY": "compact",
-        "PLACEMENT": "side",
+        "PLACEMENT": "sidebar",
         "TEXT_ANIMATION": "fade",
+        "STRINGS": {"send": "Senden"},
+        "ICON_URL": "/static/logo.png",
+        "SIDE": "left",
     },
 )
 def test_reads_overrides() -> None:
@@ -42,8 +48,11 @@ def test_reads_overrides() -> None:
     assert config.skills == [{"name": "x", "title": "X", "prompt": "p"}]
     assert config.theme == "dark"
     assert config.density == "compact"
-    assert config.placement == "side"
+    assert config.placement == "sidebar"
     assert config.text_animation == "fade"
+    assert config.strings == {"send": "Senden"}
+    assert config.icon_url == "/static/logo.png"
+    assert config.side == "left"
 
 
 @override_settings(DJANGO_ADMIN_AGENT={"AUTO_CONFIRM": 1})
