@@ -69,6 +69,11 @@ class AdminAgentSettings:
     """For ``placement="sidebar"``: which edge it docks to — ``"left"`` /
     ``"right"`` (``data-side``). ``None`` leaves the component default (right)."""
 
+    theme_toggle: bool
+    """When ``True``, show the Web Component's built-in light⇄dark header toggle
+    (``data-theme-toggle``), which flips :attr:`theme` and persists per tab.
+    Defaults to ``False`` — the admin's own theme usually governs."""
+
 
 def get_settings() -> AdminAgentSettings:
     """Read the active ``DJANGO_ADMIN_AGENT`` settings dict."""
@@ -86,6 +91,7 @@ def get_settings() -> AdminAgentSettings:
         strings=raw.get("STRINGS"),
         icon_url=raw.get("ICON_URL"),
         side=raw.get("SIDE"),
+        theme_toggle=bool(raw.get("THEME_TOGGLE", False)),
     )
 
 

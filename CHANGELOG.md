@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-06-30
+
+### Added
+
+- **Re-vendored the 0.9.0 web-component bundle** (`WEB_COMPONENT_VERSION`) and
+  bumped the `django-ag-ui` pin to `>=0.8,<0.9`, adopting Wave 14's rich-turn UI:
+  the per-turn answer well, inline tool-display mode + themeable status icons, and
+  — for a reasoning model — a collapsible streamed **thoughts** region (no admin
+  wiring needed; it appears whenever `DJANGO_AG_UI["MODEL_SETTINGS"]` enables
+  thinking).
+- **Voice input.** `get_urls` now also mounts a transcription endpoint at
+  `<prefix>agent/transcribe/` (named `django_admin_agent_transcribe`) and the
+  sidebar passes its URL as `data-transcribe-url`, so the composer gains a 🎤 mic
+  button. Voice is off until `DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]` is set (or a
+  backend is passed via `get_urls(transcription_backend=...)`); django-ag-ui's
+  opt-in `OpenAITranscriptionBackend` is the batteries-included option.
+- **`THEME_TOGGLE` setting** → `data-theme-toggle`: opt into the web component's
+  built-in light⇄dark header toggle (off by default).
+
 ## [0.7.0] — 2026-06-26
 
 ### Changed
@@ -163,7 +182,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/Artui/django-admin-agent/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/Artui/django-admin-agent/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Artui/django-admin-agent/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Artui/django-admin-agent/compare/v0.4.0...v0.5.0

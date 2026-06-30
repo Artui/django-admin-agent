@@ -34,6 +34,8 @@ def build_sidebar_context() -> dict[str, Any]:
         "tools_url": _tools_url(),
         "threads_url": _threads_url(),
         "attachments_url": _attachments_url(),
+        "transcribe_url": _transcribe_url(),
+        "theme_toggle": config.theme_toggle,
         "theme": config.theme,
         "density": config.density,
         "placement": config.placement,
@@ -87,6 +89,15 @@ def _attachments_url() -> str | None:
     ``None`` when the agent endpoint wasn't mounted with :func:`get_urls`."""
     try:
         return reverse("django_admin_agent_attachments")
+    except NoReverseMatch:
+        return None
+
+
+def _transcribe_url() -> str | None:
+    """Resolve the voice-transcription URL the Web Component's mic posts to, or
+    ``None`` when the agent endpoint wasn't mounted with :func:`get_urls`."""
+    try:
+        return reverse("django_admin_agent_transcribe")
     except NoReverseMatch:
         return None
 

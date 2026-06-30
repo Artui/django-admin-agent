@@ -6,8 +6,10 @@ from django_ag_ui import (
     DjangoAGUIView,
     NullAttachmentStore,
     NullConversationStore,
+    NullTranscriptionBackend,
     ThreadsView,
     ToolRegistry,
+    TranscribeView,
 )
 
 from django_admin_agent.urls import get_urls
@@ -22,6 +24,7 @@ def test_default_prefix_and_name() -> None:
         "django_admin_agent_thread",
         "django_admin_agent_attachments",
         "django_admin_agent_attachment",
+        "django_admin_agent_transcribe",
     ]
     endpoint = patterns[0]
     assert isinstance(endpoint, URLPattern)
@@ -41,6 +44,9 @@ def test_default_prefix_and_name() -> None:
     assert isinstance(patterns[4].callback, AttachmentsView)
     # Both attachment routes share one view instance.
     assert patterns[4].callback is patterns[5].callback
+    # The voice-transcription endpoint for the sidebar's data-transcribe-url.
+    assert str(patterns[6].pattern) == "admin-agent/agent/transcribe/"
+    assert isinstance(patterns[6].callback, TranscribeView)
 
 
 def test_conversation_store_override_is_used() -> None:
@@ -55,6 +61,13 @@ def test_attachment_store_override_is_used() -> None:
     attachments_view = get_urls(attachment_store=store)[4].callback
     assert isinstance(attachments_view, AttachmentsView)
     assert attachments_view._store is store
+
+
+def test_transcription_backend_override_is_used() -> None:
+    backend = NullTranscriptionBackend()
+    transcribe_view = get_urls(transcription_backend=backend)[6].callback
+    assert isinstance(transcribe_view, TranscribeView)
+    assert transcribe_view._backend is backend
 
 
 def test_custom_prefix() -> None:

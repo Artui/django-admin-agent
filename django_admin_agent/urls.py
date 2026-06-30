@@ -11,8 +11,11 @@ from django_ag_ui import (
     ThreadsView,
     ToolRegistry,
     ToolsView,
+    TranscribeView,
+    TranscriptionBackend,
     resolve_attachment_store,
     resolve_conversation_store,
+    resolve_transcription_backend,
 )
 from django_ag_ui import get_settings as get_ag_ui_settings
 
@@ -25,6 +28,7 @@ def get_urls(
     registry: ToolRegistry | None = None,
     conversation_store: ConversationStore | None = None,
     attachment_store: AttachmentStore | None = None,
+    transcription_backend: TranscriptionBackend | None = None,
     **view_kwargs: Any,
 ) -> list[URLPattern]:
     """Return URL patterns mounting the admin agent's AG-UI endpoint.
@@ -51,6 +55,13 @@ def get_urls(
       ``NullAttachmentStore`` — uploads disabled, ``410`` — until you set one, e.g.
       the opt-in ``DefaultAttachmentStore``) — or the ``attachment_store`` you pass
       here. Owner-scoped to the admin user, so an admin only sees their own files.
+    - the **voice-transcription endpoint** for the composer's mic at
+      ``<prefix>agent/transcribe/`` (named ``django_admin_agent_transcribe``),
+      passed as ``data-transcribe-url``. It uses the backend configured by
+      ``DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]`` (a ``NullTranscriptionBackend`` —
+      voice disabled, ``410`` — until you set one, e.g. the opt-in
+      ``OpenAITranscriptionBackend``) — or the ``transcription_backend`` you pass
+      here.
 
     Extra keyword arguments (``model``, ``instructions``, ``audit_logger``,
     ``csrf_exempt``) pass through to the view.
@@ -76,6 +87,11 @@ def get_urls(
         else resolve_attachment_store(get_ag_ui_settings().attachment_store)
     )
     attachments_view = AttachmentsView(attachments)
+    transcribe = (
+        transcription_backend
+        if transcription_backend is not None
+        else resolve_transcription_backend(get_ag_ui_settings().transcription_backend)
+    )
     return [
         path(f"{prefix}agent/", view, name="django_admin_agent_endpoint"),
         path(f"{prefix}agent/tools/", ToolsView(registry), name="django_admin_agent_tools"),
@@ -94,6 +110,11 @@ def get_urls(
             f"{prefix}agent/attachments/<str:attachment_id>/",
             attachments_view,
             name="django_admin_agent_attachment",
+        ),
+        path(
+            f"{prefix}agent/transcribe/",
+            TranscribeView(transcribe),
+            name="django_admin_agent_transcribe",
         ),
     ]
 

@@ -21,6 +21,10 @@ def test_context_keys_and_values() -> None:
     assert context["threads_url"] == "/admin-agent/agent/threads/"
     # The file-upload URL the composer posts to (data-attachments-url).
     assert context["attachments_url"] == "/admin-agent/agent/attachments/"
+    # The voice-transcription URL the mic posts to (data-transcribe-url).
+    assert context["transcribe_url"] == "/admin-agent/agent/transcribe/"
+    # The built-in theme toggle is off unless opted in.
+    assert context["theme_toggle"] is False
     # Styling knobs default to None (the component default applies).
     assert context["theme"] is None
     assert context["density"] is None
@@ -56,6 +60,7 @@ def test_skills_override_replaces_the_default_catalog() -> None:
         "SIDE": "left",
         "ICON_URL": "/static/logo.png",
         "STRINGS": {"send": "Senden"},
+        "THEME_TOGGLE": True,
     },
 )
 def test_context_surfaces_customization_seams() -> None:
@@ -65,6 +70,7 @@ def test_context_surfaces_customization_seams() -> None:
     assert context["icon_url"] == "/static/logo.png"
     # data-strings is serialized JSON the Web Component parses.
     assert json.loads(context["strings_json"]) == {"send": "Senden"}
+    assert context["theme_toggle"] is True
 
 
 @override_settings(DJANGO_ADMIN_AGENT={"STRINGS": {"send": gettext_lazy("Send")}})
@@ -94,3 +100,9 @@ def test_threads_url_is_none_when_not_mounted() -> None:
 def test_attachments_url_is_none_when_not_mounted() -> None:
     # Endpoint mounted by hand → no upload route to reverse.
     assert build_sidebar_context()["attachments_url"] is None
+
+
+@override_settings(ROOT_URLCONF="tests.admin.urls_endpoint_only")
+def test_transcribe_url_is_none_when_not_mounted() -> None:
+    # Endpoint mounted by hand → no transcription route to reverse.
+    assert build_sidebar_context()["transcribe_url"] is None
