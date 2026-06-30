@@ -709,6 +709,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.theme_toggle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        theme_toggle
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1201,6 +1212,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.theme_toggle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        theme_toggle
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1482,8 +1504,9 @@
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">registry</span><span class="p">:</span> <span class="n">ToolRegistry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">conversation_store</span><span class="p">:</span> <span class="n">ConversationStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">attachment_store</span><span class="p">:</span> <span class="n">AttachmentStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="o">**</span><span class="n">view_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">URLPattern</span><span class="p">]</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">transcription_backend</span><span class="p">:</span> <span class="n">TranscriptionBackend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="o">**</span><span class="n">view_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">URLPattern</span><span class="p">]</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents first">
@@ -1511,6 +1534,13 @@ the sidebar reverses. Also mounts:</p>
   <code>NullAttachmentStore</code> — uploads disabled, <code>410</code> — until you set one, e.g.
   the opt-in <code>DefaultAttachmentStore</code>) — or the <code>attachment_store</code> you pass
   here. Owner-scoped to the admin user, so an admin only sees their own files.</li>
+<li>the <strong>voice-transcription endpoint</strong> for the composer's mic at
+  <code>&lt;prefix&gt;agent/transcribe/</code> (named <code>django_admin_agent_transcribe</code>),
+  passed as <code>data-transcribe-url</code>. It uses the backend configured by
+  <code>DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]</code> (a <code>NullTranscriptionBackend</code> —
+  voice disabled, <code>410</code> — until you set one, e.g. the opt-in
+  <code>OpenAITranscriptionBackend</code>) — or the <code>transcription_backend</code> you pass
+  here.</li>
 </ul>
 <p>Extra keyword arguments (<code>model</code>, <code>instructions</code>, <code>audit_logger</code>,
 <code>csrf_exempt</code>) pass through to the view.</p>
@@ -1950,6 +1980,32 @@ language. <code>None</code> leaves the component's English defaults.</p>
 
         <p>For <code>placement="sidebar"</code>: which edge it docks to — <code>"left"</code> /
 <code>"right"</code> (<code>data-side</code>). <code>None</code> leaves the component default (right).</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.theme_toggle" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">theme_toggle</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.theme_toggle" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">theme_toggle</span><span class="p">:</span> <span class="nb">bool</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>When <code>True</code>, show the Web Component's built-in light⇄dark header toggle
+(<code>data-theme-toggle</code>), which flips :attr:<code>theme</code> and persists per tab.
+Defaults to <code>False</code> — the admin's own theme usually governs.</p>
 
     </div>
 

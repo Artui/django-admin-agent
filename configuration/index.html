@@ -467,6 +467,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#voice-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Voice input
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#drf_mcp_server-and-the-mcp-extra" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -709,6 +720,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#voice-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Voice input
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#drf_mcp_server-and-the-mcp-extra" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -873,9 +895,17 @@ component's own attribute values:</p>
 <td><code>none</code> · <code>fade</code> · <code>word</code></td>
 <td><code>none</code></td>
 </tr>
+<tr>
+<td><code>THEME_TOGGLE</code></td>
+<td><code>data-theme-toggle</code></td>
+<td><code>True</code> · <code>False</code></td>
+<td><code>False</code></td>
+</tr>
 </tbody>
 </table>
-<p><code>TOOL_DISPLAY</code> always renders (it defaults to <code>"compact"</code>); the other four are
+<p><code>THEME_TOGGLE</code> adds the Web Component's built-in light⇄dark header toggle (it
+flips <code>theme</code> and persists per tab) — off by default, since the admin's own theme
+usually governs. <code>TOOL_DISPLAY</code> always renders (it defaults to <code>"compact"</code>); the other four are
 rendered only when set, so leaving them unset keeps the component's own
 defaults. <code>data-slash-commands="true"</code> is always emitted, enabling the skill
 palette.</p>
@@ -1027,6 +1057,26 @@ scoped to the admin user — one admin never sees another's files. Pass an expli
 store with <code>get_urls(attachment_store=...)</code> to override. Validation is
 server-authoritative: oversize → <code>413</code>, disallowed type → <code>415</code>, and downloads
 stream through the owner-checked <code>GET</code> (never a guessable public URL).</p>
+<h3 id="voice-input">Voice input<a class="headerlink" href="#voice-input" title="Permanent link">&para;</a></h3>
+<p><code>get_urls</code> also mounts a <strong>transcription endpoint</strong> at <code>&lt;prefix&gt;agent/transcribe/</code>
+(<code>POST</code> an audio clip → <code>{"text": ...}</code>), and the sidebar passes its URL as
+<code>data-transcribe-url</code> — so the composer gains a 🎤 mic button (record, then drop
+the transcript into the input). Voice is <strong>off by default</strong> (a
+<code>NullTranscriptionBackend</code> answers <code>410</code>); enable it by pointing
+<code>DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]</code> at a backend — django-ag-ui ships an opt-in
+<code>OpenAITranscriptionBackend</code> over any OpenAI-compatible endpoint (the <code>[openai]</code>
+extra):</p>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="s2">&quot;TRANSCRIPTION_BACKEND&quot;</span><span class="p">:</span> <span class="p">(</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="s2">&quot;django_ag_ui.contrib.transcription.openai_transcription_backend&quot;</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="s2">&quot;.OpenAITranscriptionBackend&quot;</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="p">),</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Pass an explicit backend with <code>get_urls(transcription_backend=...)</code> to override.
+Model <strong>reasoning</strong> needs no admin wiring: when <code>DJANGO_AG_UI["MODEL_SETTINGS"]</code>
+enables a thinking budget, the sidebar renders the streamed chain-of-thought in a
+collapsible "thoughts" region automatically.</p>
 <h3 id="drf_mcp_server-and-the-mcp-extra"><code>DRF_MCP_SERVER</code> and the <code>[mcp]</code> extra<a class="headerlink" href="#drf_mcp_server-and-the-mcp-extra" title="Permanent link">&para;</a></h3>
 <p>Installing <code>django-admin-agent[mcp]</code> and pointing <code>DRF_MCP_SERVER</code> at a
 <code>djangorestframework-mcp-server</code> <code>MCPServer</code> instance exposes that server's
