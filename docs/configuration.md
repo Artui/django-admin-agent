@@ -52,8 +52,11 @@ component's own attribute values:
 | `DENSITY` | `density` | `comfortable` · `compact` | _component default_ |
 | `PLACEMENT` | `placement` | `bottom-left` · `side` · `full` · `embedded` | _floating bottom-right_ |
 | `TEXT_ANIMATION` | `data-text-animation` | `none` · `fade` · `word` | `none` |
+| `THEME_TOGGLE` | `data-theme-toggle` | `True` · `False` | `False` |
 
-`TOOL_DISPLAY` always renders (it defaults to `"compact"`); the other four are
+`THEME_TOGGLE` adds the Web Component's built-in light⇄dark header toggle (it
+flips `theme` and persists per tab) — off by default, since the admin's own theme
+usually governs. `TOOL_DISPLAY` always renders (it defaults to `"compact"`); the other four are
 rendered only when set, so leaving them unset keeps the component's own
 defaults. `data-slash-commands="true"` is always emitted, enabling the skill
 palette.
@@ -192,6 +195,31 @@ scoped to the admin user — one admin never sees another's files. Pass an expli
 store with `get_urls(attachment_store=...)` to override. Validation is
 server-authoritative: oversize → `413`, disallowed type → `415`, and downloads
 stream through the owner-checked `GET` (never a guessable public URL).
+
+### Voice input
+
+`get_urls` also mounts a **transcription endpoint** at `<prefix>agent/transcribe/`
+(`POST` an audio clip → `{"text": ...}`), and the sidebar passes its URL as
+`data-transcribe-url` — so the composer gains a 🎤 mic button (record, then drop
+the transcript into the input). Voice is **off by default** (a
+`NullTranscriptionBackend` answers `410`); enable it by pointing
+`DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]` at a backend — django-ag-ui ships an opt-in
+`OpenAITranscriptionBackend` over any OpenAI-compatible endpoint (the `[openai]`
+extra):
+
+```python title="settings.py"
+DJANGO_AG_UI = {
+    "TRANSCRIPTION_BACKEND": (
+        "django_ag_ui.contrib.transcription.openai_transcription_backend"
+        ".OpenAITranscriptionBackend"
+    ),
+}
+```
+
+Pass an explicit backend with `get_urls(transcription_backend=...)` to override.
+Model **reasoning** needs no admin wiring: when `DJANGO_AG_UI["MODEL_SETTINGS"]`
+enables a thinking budget, the sidebar renders the streamed chain-of-thought in a
+collapsible "thoughts" region automatically.
 
 ### `DRF_MCP_SERVER` and the `[mcp]` extra
 
