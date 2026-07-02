@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] — 2026-07-02
+
+### Security
+
+- **The mounted routes are now fail-closed (breaking: anonymous access
+  removed).** `get_urls` previously mounted the agent endpoint and its
+  companions (tool catalog, thread index, uploads, transcription) **open** — an
+  unauthenticated visitor could drive the agent and, via `shell.query_model`,
+  stream model rows including `auth.User` password hashes back over SSE. Every
+  route now defaults to `require_authenticated=True` (401 for anonymous) **and**
+  `authorize=staff_required` (403 for a non-staff user), returning JSON rather
+  than an HTML login redirect (so `admin_view()` is not used), and the agent
+  endpoint defaults to `csrf_exempt=False` (the sidebar bootstrap already sends
+  the token). Relax deliberately via `get_urls(require_authenticated=..., authorize=..., csrf_exempt=...)`.
+  Pins `django-ag-ui>=0.10,<0.11` (the release that added the `authorize=` seam).
+- **Sensitive fields are redacted from the shell tools.** `shell.query_model` /
+  `shell.get_model_instance` now redact any field whose name matches
+  `DJANGO_ADMIN_AGENT["SHELL_FIELD_REDACTION"]` (default
+  `password|token|secret|key|hash`, case-insensitive) before the row reaches the
+  model — even a legitimate staff query shouldn't ship a password hash to a
+  third-party LLM. Set `False` to disable, or a regex `str` to override the
+  denylist. New export: `django_admin_agent.urls.staff_required`.
+
 ## [0.8.0] — 2026-06-30
 
 ### Added
@@ -182,7 +205,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/Artui/django-admin-agent/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/Artui/django-admin-agent/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/Artui/django-admin-agent/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Artui/django-admin-agent/compare/v0.5.0...v0.6.0

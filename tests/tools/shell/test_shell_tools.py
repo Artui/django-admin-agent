@@ -6,6 +6,7 @@ from django_admin_agent.tools.shell.count_model import count_model
 from django_admin_agent.tools.shell.get_model_instance import get_model_instance
 from django_admin_agent.tools.shell.inspect_model_schema import inspect_model_schema
 from django_admin_agent.tools.shell.query_model import query_model
+from django_admin_agent.tools.shell.redact_sensitive_fields import REDACTED
 from tests.testapp.models import Author, Book
 
 
@@ -67,6 +68,27 @@ def test_get_model_instance_select_related_branch() -> None:
 def test_query_model_without_order_by() -> None:
     Author.objects.create(name="Solo")
     assert query_model("testapp", "Author", fields=["name"]) == [{"name": "Solo"}]
+
+
+@pytest.mark.django_db
+def test_query_model_redacts_sensitive_fields() -> None:
+    # The blast-radius scenario: a User row must never ship its password hash.
+    from django.contrib.auth.models import User
+
+    User.objects.create_user(username="staffer", password="s3cret")
+    rows = query_model("auth", "User", filter={"username": "staffer"})
+    assert rows[0]["username"] == "staffer"
+    assert rows[0]["password"] == REDACTED
+
+
+@pytest.mark.django_db
+def test_get_model_instance_redacts_sensitive_fields() -> None:
+    from django.contrib.auth.models import User
+
+    user = User.objects.create_user(username="staffer2", password="s3cret")
+    row = get_model_instance("auth", "User", pk=user.pk)
+    assert row is not None
+    assert row["password"] == REDACTED
 
 
 @pytest.mark.django_db
