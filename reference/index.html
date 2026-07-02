@@ -720,6 +720,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.shell_field_redaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shell_field_redaction
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1223,6 +1234,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.shell_field_redaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shell_field_redaction
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1505,13 +1527,25 @@
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">conversation_store</span><span class="p">:</span> <span class="n">ConversationStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">attachment_store</span><span class="p">:</span> <span class="n">AttachmentStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">transcription_backend</span><span class="p">:</span> <span class="n">TranscriptionBackend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="o">**</span><span class="n">view_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">URLPattern</span><span class="p">]</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">require_authenticated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">authorize</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">HttpRequest</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">staff_required</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">csrf_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="o">**</span><span class="n">view_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">URLPattern</span><span class="p">]</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents first">
 
         <p>Return URL patterns mounting the admin agent's AG-UI endpoint.</p>
+<p><strong>Fail-closed by default.</strong> Every mounted route requires an authenticated,
+active <strong>staff</strong> user: <code>require_authenticated=True</code> gives <code>401</code> for an
+anonymous request and <code>authorize=staff_required</code> gives <code>403</code> for a
+non-staff one (JSON, not an HTML login redirect), and the agent endpoint is
+CSRF-protected (<code>csrf_exempt=False</code> — the sidebar bootstrap already sends
+the token). Without this an unauthenticated visitor could drive the agent and
+stream model data (e.g. <code>auth.User</code> rows) back over SSE. Relax it
+deliberately — e.g. <code>authorize=lambda r: r.user.is_superuser</code> to tighten,
+or <code>require_authenticated=False</code> to open it — but the default is locked.</p>
 <p>Builds a :class:<code>~django_ag_ui.DjangoAGUIView</code> over the default
 server-side admin tool registry (or a registry you pass) and mounts it
 at <code>&lt;prefix&gt;agent/</code> named <code>django_admin_agent_endpoint</code> — the name
@@ -1543,7 +1577,8 @@ the sidebar reverses. Also mounts:</p>
   here.</li>
 </ul>
 <p>Extra keyword arguments (<code>model</code>, <code>instructions</code>, <code>audit_logger</code>,
-<code>csrf_exempt</code>) pass through to the view.</p>
+<code>get_user</code>) pass through to the agent view. <code>require_authenticated</code> /
+<code>authorize</code> / <code>csrf_exempt</code> are applied to the mounted routes as above.</p>
 <p>Include the result from your project's root URLconf::</p>
 <div class="language-text highlight"><pre><span></span><code>urlpatterns = [
     path(&quot;admin/&quot;, admin.site.urls),
@@ -2011,6 +2046,36 @@ Defaults to <code>False</code> — the admin's own theme usually governs.</p>
 
 </div>
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.shell_field_redaction" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">shell_field_redaction</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.shell_field_redaction" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">shell_field_redaction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Sensitive-field redaction for the <code>shell.query_model</code> /
+<code>shell.get_model_instance</code> tools. <code>True</code> (default) redacts any field
+whose name matches the built-in denylist pattern
+(<code>password|token|secret|key|hash</code>, case-insensitive) before the row
+reaches the LLM — even legitimate staff use shouldn't stream <code>auth.User</code>
+password hashes to a third-party model. <code>False</code> disables redaction; a
+regex <code>str</code> replaces the built-in pattern with your own.</p>
+
+    </div>
+
+</div>
+
 
 
 
@@ -2196,7 +2261,8 @@ the more common path and does not require swapping the admin site.</p>
 <p><code>filter</code> and <code>exclude</code> accept ORM lookup kwargs (e.g.
 <code>{"email__icontains": "@foo"}</code>). <code>fields</code> projects via
 <code>.values()</code>; if omitted, every concrete field is returned.
-<code>limit</code> is hard-capped at 1000 to keep responses bounded.</p>
+<code>limit</code> is hard-capped at 1000 to keep responses bounded. Sensitive fields
+(name matching the <code>SHELL_FIELD_REDACTION</code> denylist) are redacted.</p>
 
 
     </div>
@@ -2223,6 +2289,8 @@ the more common path and does not require swapping the admin site.</p>
     <div class="doc doc-contents first">
 
         <p>Fetch a single row by primary key. Returns <code>None</code> when not found.</p>
+<p>Sensitive fields (name matching the <code>SHELL_FIELD_REDACTION</code> denylist) are
+redacted before the row is returned.</p>
 
 
     </div>

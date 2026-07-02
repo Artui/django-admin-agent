@@ -422,6 +422,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access control
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Access control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sensitive-field-redaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sensitive-field redaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inherited-django_ag_ui" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -675,6 +703,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access control
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Access control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sensitive-field-redaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sensitive-field redaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inherited-django_ag_ui" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -834,6 +890,11 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <td><em>unset</em></td>
 <td>Override for the slash-command / chip catalog (a list of <code>Skill</code> dicts). Leave unset to use the built-in admin catalog. See <a href="#skills">Skills</a>.</td>
 </tr>
+<tr>
+<td><code>SHELL_FIELD_REDACTION</code></td>
+<td><code>True</code></td>
+<td>Redact sensitive fields in <code>shell.query_model</code> / <code>shell.get_model_instance</code> output. <code>True</code> uses the built-in denylist (<code>password\|token\|secret\|key\|hash</code>); <code>False</code> disables it; a regex <code>str</code> overrides the pattern. See <a href="#access-control">Access control</a>.</td>
+</tr>
 </tbody>
 </table>
 <div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span>
@@ -946,6 +1007,39 @@ The built-in skills are placeholder-free so they work on any page.</p>
 </span></code></pre></div>
 <p>Setting <code>SKILLS</code> to an empty list (<code>[]</code>) ships no skills; leaving it unset uses
 the built-in catalog.</p>
+<h2 id="access-control">Access control<a class="headerlink" href="#access-control" title="Permanent link">&para;</a></h2>
+<p><code>get_urls</code> is <strong>fail-closed by default</strong>: every mounted route (the agent
+endpoint, the tool catalog, the thread index, uploads, and transcription)
+requires an authenticated, active <strong>staff</strong> user, and the agent endpoint is
+CSRF-protected.</p>
+<ul>
+<li><code>require_authenticated=True</code> (default) → an anonymous request gets <strong>401</strong>.</li>
+<li><code>authorize=staff_required</code> (default) → a non-staff user gets <strong>403</strong>. Both are
+  JSON, not an HTML login redirect (which would corrupt an SSE stream or a JSON
+  fetch), so <code>admin_view()</code> is deliberately <em>not</em> used.</li>
+<li><code>csrf_exempt=False</code> (default) → the agent POST is CSRF-checked; the sidebar
+  bootstrap already sends the token.</li>
+</ul>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_urls</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent.urls</span><span class="w"> </span><span class="kn">import</span> <span class="n">staff_required</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">&quot;admin/&quot;</span><span class="p">,</span> <span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="c1"># Locked to staff by default; tighten or relax deliberately:</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="o">*</span><span class="n">get_urls</span><span class="p">(</span><span class="n">authorize</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_superuser</span><span class="p">),</span>  <span class="c1"># superusers only</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="c1"># *get_urls(require_authenticated=False, authorize=None),  # fully open (not advised)</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">]</span>
+</span></code></pre></div>
+<p>Without this an unauthenticated visitor could drive the agent and, via the
+<code>shell.query_model</code> tool, stream model rows — including <code>auth.User</code> password
+hashes — back over SSE.</p>
+<h3 id="sensitive-field-redaction">Sensitive-field redaction<a class="headerlink" href="#sensitive-field-redaction" title="Permanent link">&para;</a></h3>
+<p>Independently of who is calling, the <code>shell.query_model</code> and
+<code>shell.get_model_instance</code> tools <strong>redact</strong> any field whose name matches
+<code>SHELL_FIELD_REDACTION</code> (default <code>password|token|secret|key|hash</code>,
+case-insensitive) before the row reaches the model — even a legitimate staff
+query shouldn't ship a password hash to a third-party LLM. Set it to <code>False</code> to
+disable, or to a regex <code>str</code> to use your own denylist.</p>
 <h2 id="inherited-django_ag_ui">Inherited <code>DJANGO_AG_UI</code><a class="headerlink" href="#inherited-django_ag_ui" title="Permanent link">&para;</a></h2>
 <p>The agent model, persistence, and toolset composition are configured on
 <code>django-ag-ui</code>'s settings dict. The sidebar inherits all of it. The keys most
@@ -1001,11 +1095,11 @@ relevant to the admin sidebar:</p>
 </tr>
 </tbody>
 </table>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="s2">&quot;MODEL&quot;</span><span class="p">:</span> <span class="s2">&quot;anthropic:claude-sonnet-4.6&quot;</span><span class="p">,</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="c1"># Persist conversations server-side, per admin user, across tabs and reloads:</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="s2">&quot;CONVERSATION_STORE&quot;</span><span class="p">:</span> <span class="s2">&quot;django_ag_ui.persistence.django_session_conversation_store.DjangoSessionConversationStore&quot;</span><span class="p">,</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="s2">&quot;MODEL&quot;</span><span class="p">:</span> <span class="s2">&quot;anthropic:claude-sonnet-4.6&quot;</span><span class="p">,</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="c1"># Persist conversations server-side, per admin user, across tabs and reloads:</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="s2">&quot;CONVERSATION_STORE&quot;</span><span class="p">:</span> <span class="s2">&quot;django_ag_ui.persistence.django_session_conversation_store.DjangoSessionConversationStore&quot;</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="conversation_store-and-the-reload-model"><code>CONVERSATION_STORE</code> and the reload model<a class="headerlink" href="#conversation_store-and-the-reload-model" title="Permanent link">&para;</a></h3>
 <p>Because the Django admin reloads the whole page on every save, filter, and
@@ -1015,7 +1109,8 @@ out of the box. Setting <code>CONVERSATION_STORE</code> adds <strong>server-side
 top — keyed by AG-UI <code>thread_id</code>, owner-scoped per user — so a conversation
 durably survives across tabs and devices, and the resume checkpoint becomes
 derivable from the stored history.</p>
-<p>For admin deployments, where users are always authenticated and sessions exist,
+<p>For admin deployments — where <a href="#access-control"><code>get_urls</code></a> requires an
+authenticated staff user, so sessions always exist —
 <code>DjangoSessionConversationStore</code> is the natural choice (no migration, per-user
 durability). Leaving <code>CONVERSATION_STORE</code> unset keeps the server stateless; the
 client store still provides single-tab continuity.</p>
@@ -1044,12 +1139,12 @@ stays free of file bytes).</p>
 them on by pointing <code>ATTACHMENT_STORE</code> at a store — for <strong>durable, per-admin-user</strong>
 files, opt into django-ag-ui's reference store: add <code>"django_ag_ui.contrib.store"</code>
 to <code>INSTALLED_APPS</code>, run <code>migrate</code>, and set</p>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="s2">&quot;ATTACHMENT_STORE&quot;</span><span class="p">:</span> <span class="s2">&quot;django_ag_ui.contrib.store.default_attachment_store.DefaultAttachmentStore&quot;</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="c1"># Optional server-side guards (the client mirrors these for instant feedback):</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="s2">&quot;ATTACHMENT_MAX_BYTES&quot;</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="s2">&quot;ATTACHMENT_ALLOWED_TYPES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;image/png&quot;</span><span class="p">,</span> <span class="s2">&quot;image/jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">],</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="s2">&quot;ATTACHMENT_STORE&quot;</span><span class="p">:</span> <span class="s2">&quot;django_ag_ui.contrib.store.default_attachment_store.DefaultAttachmentStore&quot;</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="c1"># Optional server-side guards (the client mirrors these for instant feedback):</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="s2">&quot;ATTACHMENT_MAX_BYTES&quot;</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="s2">&quot;ATTACHMENT_ALLOWED_TYPES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;image/png&quot;</span><span class="p">,</span> <span class="s2">&quot;image/jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">],</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>The reference store keeps bytes in Django <code>Storage</code> (filesystem by default; point
 <code>STORAGES</code>/<code>DEFAULT_FILE_STORAGE</code> at S3/GCS for production) and metadata in a row,
@@ -1066,12 +1161,12 @@ the transcript into the input). Voice is <strong>off by default</strong> (a
 <code>DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]</code> at a backend — django-ag-ui ships an opt-in
 <code>OpenAITranscriptionBackend</code> over any OpenAI-compatible endpoint (the <code>[openai]</code>
 extra):</p>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="s2">&quot;TRANSCRIPTION_BACKEND&quot;</span><span class="p">:</span> <span class="p">(</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="s2">&quot;django_ag_ui.contrib.transcription.openai_transcription_backend&quot;</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="s2">&quot;.OpenAITranscriptionBackend&quot;</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="p">),</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="s2">&quot;TRANSCRIPTION_BACKEND&quot;</span><span class="p">:</span> <span class="p">(</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        <span class="s2">&quot;django_ag_ui.contrib.transcription.openai_transcription_backend&quot;</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="s2">&quot;.OpenAITranscriptionBackend&quot;</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="p">),</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Pass an explicit backend with <code>get_urls(transcription_backend=...)</code> to override.
 Model <strong>reasoning</strong> needs no admin wiring: when <code>DJANGO_AG_UI["MODEL_SETTINGS"]</code>
