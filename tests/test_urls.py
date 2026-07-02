@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
+from django.test import RequestFactory
 from django.urls import URLPattern
 from django_ag_ui import (
     AttachmentsView,
@@ -12,7 +15,7 @@ from django_ag_ui import (
     TranscribeView,
 )
 
-from django_admin_agent.urls import get_urls
+from django_admin_agent.urls import get_urls, staff_required
 
 
 def test_default_prefix_and_name() -> None:
@@ -85,3 +88,38 @@ def test_supplied_registry_is_used() -> None:
 def test_view_kwargs_pass_through() -> None:
     view = get_urls(csrf_exempt=False)[0].callback
     assert view.csrf_exempt is False
+
+
+def test_mounted_routes_are_staff_gated_and_csrf_protected_by_default() -> None:
+    patterns = get_urls()
+    # Every route (agent + tools + threads + attachments + transcribe) carries
+    # the require_authenticated (401) + staff (403) gate.
+    for pattern in patterns:
+        view = pattern.callback
+        assert view._require_authenticated is True
+        assert view._authorize_predicate is staff_required
+    # The agent endpoint is CSRF-protected by default.
+    assert patterns[0].callback.csrf_exempt is False
+
+
+def test_auth_can_be_relaxed_deliberately() -> None:
+    view = get_urls(require_authenticated=False, authorize=None)[0].callback
+    assert view._require_authenticated is False
+    assert view._authorize_predicate is None
+
+
+def test_staff_required_allows_active_staff_only() -> None:
+    request = RequestFactory().post("/admin-agent/agent/")
+    request.user = SimpleNamespace(is_active=True, is_staff=True)  # type: ignore[attr-defined]
+    assert staff_required(request) is True
+
+    request.user = SimpleNamespace(is_active=True, is_staff=False)  # type: ignore[attr-defined]
+    assert staff_required(request) is False
+
+    request.user = SimpleNamespace(is_active=False, is_staff=True)  # type: ignore[attr-defined]
+    assert staff_required(request) is False
+
+
+def test_staff_required_denies_anonymous() -> None:
+    # No ``user`` attribute at all (unauthenticated / no middleware).
+    assert staff_required(RequestFactory().post("/admin-agent/agent/")) is False

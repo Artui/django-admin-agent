@@ -74,6 +74,15 @@ class AdminAgentSettings:
     (``data-theme-toggle``), which flips :attr:`theme` and persists per tab.
     Defaults to ``False`` — the admin's own theme usually governs."""
 
+    shell_field_redaction: bool | str
+    """Sensitive-field redaction for the ``shell.query_model`` /
+    ``shell.get_model_instance`` tools. ``True`` (default) redacts any field
+    whose name matches the built-in denylist pattern
+    (``password|token|secret|key|hash``, case-insensitive) before the row
+    reaches the LLM — even legitimate staff use shouldn't stream ``auth.User``
+    password hashes to a third-party model. ``False`` disables redaction; a
+    regex ``str`` replaces the built-in pattern with your own."""
+
 
 def get_settings() -> AdminAgentSettings:
     """Read the active ``DJANGO_ADMIN_AGENT`` settings dict."""
@@ -92,6 +101,7 @@ def get_settings() -> AdminAgentSettings:
         icon_url=raw.get("ICON_URL"),
         side=raw.get("SIDE"),
         theme_toggle=bool(raw.get("THEME_TOGGLE", False)),
+        shell_field_redaction=raw.get("SHELL_FIELD_REDACTION", True),
     )
 
 

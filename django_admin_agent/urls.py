@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
+from django.http import HttpRequest
 from django.urls import URLPattern, path
 from django_ag_ui import (
     AttachmentStore,
@@ -22,6 +24,17 @@ from django_ag_ui import get_settings as get_ag_ui_settings
 from django_admin_agent.tools.register import build_default_registry
 
 
+def staff_required(request: HttpRequest) -> bool:
+    """The default authorization gate: an active, staff user.
+
+    The mounted routes are JSON / SSE endpoints, so this returns a bool the
+    views turn into a ``403`` — unlike ``admin_view()``, whose HTML login
+    redirect would corrupt an SSE stream or a JSON fetch.
+    """
+    user = getattr(request, "user", None)
+    return bool(getattr(user, "is_active", False) and getattr(user, "is_staff", False))
+
+
 def get_urls(
     prefix: str = "admin-agent/",
     *,
@@ -29,9 +42,22 @@ def get_urls(
     conversation_store: ConversationStore | None = None,
     attachment_store: AttachmentStore | None = None,
     transcription_backend: TranscriptionBackend | None = None,
+    require_authenticated: bool = True,
+    authorize: Callable[[HttpRequest], bool] | None = staff_required,
+    csrf_exempt: bool = False,
     **view_kwargs: Any,
 ) -> list[URLPattern]:
     """Return URL patterns mounting the admin agent's AG-UI endpoint.
+
+    **Fail-closed by default.** Every mounted route requires an authenticated,
+    active **staff** user: ``require_authenticated=True`` gives ``401`` for an
+    anonymous request and ``authorize=staff_required`` gives ``403`` for a
+    non-staff one (JSON, not an HTML login redirect), and the agent endpoint is
+    CSRF-protected (``csrf_exempt=False`` — the sidebar bootstrap already sends
+    the token). Without this an unauthenticated visitor could drive the agent and
+    stream model data (e.g. ``auth.User`` rows) back over SSE. Relax it
+    deliberately — e.g. ``authorize=lambda r: r.user.is_superuser`` to tighten,
+    or ``require_authenticated=False`` to open it — but the default is locked.
 
     Builds a :class:`~django_ag_ui.DjangoAGUIView` over the default
     server-side admin tool registry (or a registry you pass) and mounts it
@@ -64,7 +90,8 @@ def get_urls(
       here.
 
     Extra keyword arguments (``model``, ``instructions``, ``audit_logger``,
-    ``csrf_exempt``) pass through to the view.
+    ``get_user``) pass through to the agent view. ``require_authenticated`` /
+    ``authorize`` / ``csrf_exempt`` are applied to the mounted routes as above.
 
     Include the result from your project's root URLconf::
 
@@ -74,19 +101,21 @@ def get_urls(
         ]
     """
     registry = registry if registry is not None else build_default_registry()
-    view = DjangoAGUIView(registry, **view_kwargs)
+    # The shared auth gate applied to every mounted route.
+    auth: dict[str, Any] = {"require_authenticated": require_authenticated, "authorize": authorize}
+    view = DjangoAGUIView(registry, csrf_exempt=csrf_exempt, **auth, **view_kwargs)
     store = (
         conversation_store
         if conversation_store is not None
         else resolve_conversation_store(get_ag_ui_settings().conversation_store)
     )
-    threads_view = ThreadsView(store)
+    threads_view = ThreadsView(store, **auth)
     attachments = (
         attachment_store
         if attachment_store is not None
         else resolve_attachment_store(get_ag_ui_settings().attachment_store)
     )
-    attachments_view = AttachmentsView(attachments)
+    attachments_view = AttachmentsView(attachments, **auth)
     transcribe = (
         transcription_backend
         if transcription_backend is not None
@@ -94,7 +123,11 @@ def get_urls(
     )
     return [
         path(f"{prefix}agent/", view, name="django_admin_agent_endpoint"),
-        path(f"{prefix}agent/tools/", ToolsView(registry), name="django_admin_agent_tools"),
+        path(
+            f"{prefix}agent/tools/",
+            ToolsView(registry, **auth),
+            name="django_admin_agent_tools",
+        ),
         path(f"{prefix}agent/threads/", threads_view, name="django_admin_agent_threads"),
         path(
             f"{prefix}agent/threads/<str:thread_id>/",
@@ -113,10 +146,10 @@ def get_urls(
         ),
         path(
             f"{prefix}agent/transcribe/",
-            TranscribeView(transcribe),
+            TranscribeView(transcribe, **auth),
             name="django_admin_agent_transcribe",
         ),
     ]
 
 
-__all__ = ["get_urls"]
+__all__ = ["get_urls", "staff_required"]

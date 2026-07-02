@@ -22,6 +22,7 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `PLACEMENT` | _unset_ | Where the panel sits: `"bottom-left"`, `"side"`, `"full"`, or `"embedded"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. |
 | `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
 | `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
+| `SHELL_FIELD_REDACTION` | `True` | Redact sensitive fields in `shell.query_model` / `shell.get_model_instance` output. `True` uses the built-in denylist (`password\|token\|secret\|key\|hash`); `False` disables it; a regex `str` overrides the pattern. See [Access control](#access-control). |
 
 ```python title="settings.py"
 DJANGO_ADMIN_AGENT = {
@@ -109,6 +110,45 @@ DJANGO_ADMIN_AGENT = {
 Setting `SKILLS` to an empty list (`[]`) ships no skills; leaving it unset uses
 the built-in catalog.
 
+## Access control
+
+`get_urls` is **fail-closed by default**: every mounted route (the agent
+endpoint, the tool catalog, the thread index, uploads, and transcription)
+requires an authenticated, active **staff** user, and the agent endpoint is
+CSRF-protected.
+
+- `require_authenticated=True` (default) → an anonymous request gets **401**.
+- `authorize=staff_required` (default) → a non-staff user gets **403**. Both are
+  JSON, not an HTML login redirect (which would corrupt an SSE stream or a JSON
+  fetch), so `admin_view()` is deliberately *not* used.
+- `csrf_exempt=False` (default) → the agent POST is CSRF-checked; the sidebar
+  bootstrap already sends the token.
+
+```python
+from django_admin_agent import get_urls
+from django_admin_agent.urls import staff_required
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    # Locked to staff by default; tighten or relax deliberately:
+    *get_urls(authorize=lambda r: r.user.is_superuser),  # superusers only
+    # *get_urls(require_authenticated=False, authorize=None),  # fully open (not advised)
+]
+```
+
+Without this an unauthenticated visitor could drive the agent and, via the
+`shell.query_model` tool, stream model rows — including `auth.User` password
+hashes — back over SSE.
+
+### Sensitive-field redaction
+
+Independently of who is calling, the `shell.query_model` and
+`shell.get_model_instance` tools **redact** any field whose name matches
+`SHELL_FIELD_REDACTION` (default `password|token|secret|key|hash`,
+case-insensitive) before the row reaches the model — even a legitimate staff
+query shouldn't ship a password hash to a third-party LLM. Set it to `False` to
+disable, or to a regex `str` to use your own denylist.
+
 ## Inherited `DJANGO_AG_UI`
 
 The agent model, persistence, and toolset composition are configured on
@@ -144,7 +184,8 @@ top — keyed by AG-UI `thread_id`, owner-scoped per user — so a conversation
 durably survives across tabs and devices, and the resume checkpoint becomes
 derivable from the stored history.
 
-For admin deployments, where users are always authenticated and sessions exist,
+For admin deployments — where [`get_urls`](#access-control) requires an
+authenticated staff user, so sessions always exist —
 `DjangoSessionConversationStore` is the natural choice (no migration, per-user
 durability). Leaving `CONVERSATION_STORE` unset keeps the server stateless; the
 client store still provides single-tab continuity.
