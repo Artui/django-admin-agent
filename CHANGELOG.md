@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Re-vendored the 0.10.0 web-component bundle** (`WEB_COMPONENT_VERSION`),
+  adopting its client-lifecycle hardening — no new admin settings and no
+  `django-ag-ui` pin change. The sidebar now: ignores Enter while a run is
+  streaming (no second concurrent run); on teardown (sidebar removed / route
+  swapped) cancels the run, aborts in-flight uploads, and releases the mic;
+  presents the chat-history drawer as a focus-trapped, Escape-closable modal
+  dialog; scopes its stored collapsed/theme/thread state per instance so two
+  sidebars on one origin no longer clobber each other (existing state migrates
+  automatically); and hardens history replay against a thread-switch race, a
+  malformed thread response, unparseable timestamps, and corrupt attachment
+  refs.
+
 ## [0.9.0] — 2026-07-02
 
 ### Security
