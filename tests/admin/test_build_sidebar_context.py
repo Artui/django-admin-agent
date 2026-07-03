@@ -21,6 +21,11 @@ def test_context_keys_and_values() -> None:
     assert context["threads_url"] == "/admin-agent/agent/threads/"
     # The file-upload URL the composer posts to (data-attachments-url).
     assert context["attachments_url"] == "/admin-agent/agent/attachments/"
+    # The client-side upload guards mirror django-ag-ui's server limits. With no
+    # DJANGO_AG_UI overrides: the 10 MiB default cap surfaces; the type
+    # allowlist is empty (any type) so accept stays None.
+    assert context["attachment_max_bytes"] == 10 * 1024 * 1024
+    assert context["attachment_accept"] is None
     # The voice-transcription URL the mic posts to (data-transcribe-url).
     assert context["transcribe_url"] == "/admin-agent/agent/transcribe/"
     # The built-in theme toggle is off unless opted in.
@@ -100,6 +105,38 @@ def test_threads_url_is_none_when_not_mounted() -> None:
 def test_attachments_url_is_none_when_not_mounted() -> None:
     # Endpoint mounted by hand → no upload route to reverse.
     assert build_sidebar_context()["attachments_url"] is None
+
+
+@override_settings(ROOT_URLCONF="tests.admin.urls_endpoint_only")
+def test_attachment_limits_absent_when_uploads_are_not_mounted() -> None:
+    # No upload route → no client guards to mirror.
+    context = build_sidebar_context()
+    assert context["attachment_max_bytes"] is None
+    assert context["attachment_accept"] is None
+
+
+@override_settings(
+    DJANGO_AG_UI={
+        "ATTACHMENT_MAX_BYTES": 2 * 1024 * 1024,
+        "ATTACHMENT_ALLOWED_TYPES": ["image/png", "application/pdf"],
+    },
+)
+def test_attachment_limits_mirror_the_server_side_guards() -> None:
+    # With uploads mounted (default urlconf), the server-authoritative cap and
+    # type allowlist surface for the composer to enforce before upload.
+    context = build_sidebar_context()
+    assert context["attachment_max_bytes"] == 2 * 1024 * 1024
+    assert context["attachment_accept"] == "image/png,application/pdf"
+
+
+@override_settings(
+    DJANGO_AG_UI={"ATTACHMENT_MAX_BYTES": 0, "ATTACHMENT_ALLOWED_TYPES": []},
+)
+def test_attachment_limits_are_none_when_unset() -> None:
+    # An unset cap (0) and an empty allowlist mean no client-side guard at all.
+    context = build_sidebar_context()
+    assert context["attachment_max_bytes"] is None
+    assert context["attachment_accept"] is None
 
 
 @override_settings(ROOT_URLCONF="tests.admin.urls_endpoint_only")

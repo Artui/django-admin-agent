@@ -23,7 +23,7 @@ The AG-UI stack design doc (`django-ag-ui-plan.md`) lives in the private ecosyst
 
 ## Local development
 
-`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.8,<0.9` pin in
+`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.10,<0.11` pin in
 `pyproject.toml` (so CI, which has no sibling checkout, syncs cleanly). To
 develop both packages together against a local checkout, add a `[tool.uv.sources]`
 override *locally* (do not commit it) and `uv sync`:
@@ -134,7 +134,7 @@ mutables; initialise in `__init__`. A project may mount more than one sidebar.
 | --- | --- | --- |
 | Python | 3.10 | 3.10–3.14 |
 | Django | 4.2 LTS | 4.2, 5.0, 5.1, 5.2, 6.0 |
-| django-ag-ui | 0.8 | from PyPI (`>=0.8,<0.9`) |
+| django-ag-ui | 0.10 | from PyPI (`>=0.10,<0.11`) |
 | Django Unfold (supported, optional) | 0.40 | latest in matrix |
 
 ## Branching & releases

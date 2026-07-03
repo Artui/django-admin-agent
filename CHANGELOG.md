@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The admin sidebar now forwards the configured upload guards to the browser.**
+  When uploads are mounted, `build_sidebar_context()` mirrors django-ag-ui's
+  server-side `ATTACHMENT_MAX_BYTES` / `ATTACHMENT_ALLOWED_TYPES` onto the
+  `<ag-ui-chat>` element as `data-attachment-max-bytes` / `data-attachment-accept`,
+  so the composer can reject oversized or wrong-type files before upload. The
+  server stays authoritative; this is instant client-side feedback only.
+- **Documentation:** documented the sidebar customization settings the code
+  already reads (`STRINGS`, `ICON_URL`, `SIDE`, `THEME_TOGGLE`) and the
+  `sidebar` placement value; refreshed the admin-wiring context table; and
+  corrected the stale `django-ag-ui` version floor in the README and docs to the
+  real `>=0.10,<0.11` pin.
+- **Vendored bundle:** stripped the trailing `sourceMappingURL` pointer from the
+  vendored web-component bundle (the `.map` is not shipped), so admin pages no
+  longer 404 for a missing source map; the `Makefile` re-vendor targets strip it
+  on every refresh.
+
 ## [0.10.0] — 2026-07-02
 
 ### Changed
@@ -51,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Re-vendored the 0.9.0 web-component bundle** (`WEB_COMPONENT_VERSION`) and
-  bumped the `django-ag-ui` pin to `>=0.8,<0.9`, adopting Wave 14's rich-turn UI:
+  bumped the `django-ag-ui` pin to `>=0.8,<0.9`, adopting the rich-turn UI:
   the per-turn answer well, inline tool-display mode + themeable status icons, and
   — for a reasoning model — a collapsible streamed **thoughts** region (no admin
   wiring needed; it appears whenever `DJANGO_AG_UI["MODEL_SETTINGS"]` enables
