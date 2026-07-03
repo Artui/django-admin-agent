@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1] — 2026-07-03
+
 ### Changed
 
 - **The admin sidebar now forwards the configured upload guards to the browser.**
@@ -19,11 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   already reads (`STRINGS`, `ICON_URL`, `SIDE`, `THEME_TOGGLE`) and the
   `sidebar` placement value; refreshed the admin-wiring context table; and
   corrected the stale `django-ag-ui` version floor in the README and docs to the
-  real `>=0.10,<0.11` pin.
+  current `>=0.10,<0.12` pin.
 - **Vendored bundle:** stripped the trailing `sourceMappingURL` pointer from the
   vendored web-component bundle (the `.map` is not shipped), so admin pages no
   longer 404 for a missing source map; the `Makefile` re-vendor targets strip it
   on every refresh.
+- **Dependency:** widened the `django-ag-ui` pin to `>=0.10,<0.12` to allow the
+  published 0.11.x line (CI-validated against 0.11.x).
 
 ## [0.10.0] — 2026-07-02
 
@@ -239,7 +243,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.10.1...HEAD
+[0.10.1]: https://github.com/Artui/django-admin-agent/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Artui/django-admin-agent/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/Artui/django-admin-agent/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/Artui/django-admin-agent/compare/v0.7.0...v0.8.0
