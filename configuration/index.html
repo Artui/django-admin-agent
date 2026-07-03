@@ -878,12 +878,32 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <tr>
 <td><code>PLACEMENT</code></td>
 <td><em>unset</em></td>
-<td>Where the panel sits: <code>"bottom-left"</code>, <code>"side"</code>, <code>"full"</code>, or <code>"embedded"</code>. Rendered as the <code>placement</code> attribute; left off for the default floating bottom-right.</td>
+<td>Where the panel sits: <code>"bottom-left"</code>, <code>"side"</code>, <code>"sidebar"</code>, <code>"full"</code>, or <code>"embedded"</code>. Rendered as the <code>placement</code> attribute; left off for the default floating bottom-right. <code>"sidebar"</code> is a full-height docked panel that collapses to an icon rail (pair it with <code>SIDE</code>).</td>
 </tr>
 <tr>
 <td><code>TEXT_ANIMATION</code></td>
 <td><em>unset</em></td>
 <td>Incoming-text animation: <code>"none"</code>, <code>"fade"</code>, or <code>"word"</code>. Rendered as the <code>data-text-animation</code> attribute; left off (default <code>none</code>) when unset.</td>
+</tr>
+<tr>
+<td><code>SIDE</code></td>
+<td><em>unset</em></td>
+<td>For <code>PLACEMENT="sidebar"</code>: which edge it docks to — <code>"left"</code> or <code>"right"</code>. Rendered as the <code>data-side</code> attribute; left off (component default, right) when unset.</td>
+</tr>
+<tr>
+<td><code>THEME_TOGGLE</code></td>
+<td><code>False</code></td>
+<td>Show the Web Component's built-in light⇄dark header toggle (it flips <code>theme</code> and persists per tab). Rendered as the <code>data-theme-toggle</code> attribute. Off by default, since the admin's own theme usually governs.</td>
+</tr>
+<tr>
+<td><code>ICON_URL</code></td>
+<td><em>unset</em></td>
+<td>URL of a header/launcher icon image. Rendered as the <code>data-icon-url</code> attribute; left off (icon-less) when unset.</td>
+</tr>
+<tr>
+<td><code>STRINGS</code></td>
+<td><em>unset</em></td>
+<td>Localized UI-string overrides for the Web Component (a partial dict merged over its English defaults). Rendered as the <code>data-strings</code> attribute (serialized JSON). Wrap values in <code>gettext_lazy</code> so the sidebar follows the admin's active language; left off when unset.</td>
 </tr>
 <tr>
 <td><code>SKILLS</code></td>
@@ -947,7 +967,7 @@ component's own attribute values:</p>
 <tr>
 <td><code>PLACEMENT</code></td>
 <td><code>placement</code></td>
-<td><code>bottom-left</code> · <code>side</code> · <code>full</code> · <code>embedded</code></td>
+<td><code>bottom-left</code> · <code>side</code> · <code>sidebar</code> · <code>full</code> · <code>embedded</code></td>
 <td><em>floating bottom-right</em></td>
 </tr>
 <tr>
@@ -1141,10 +1161,13 @@ files, opt into django-ag-ui's reference store: add <code>"django_ag_ui.contrib.
 to <code>INSTALLED_APPS</code>, run <code>migrate</code>, and set</p>
 <div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="s2">&quot;ATTACHMENT_STORE&quot;</span><span class="p">:</span> <span class="s2">&quot;django_ag_ui.contrib.store.default_attachment_store.DefaultAttachmentStore&quot;</span><span class="p">,</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="c1"># Optional server-side guards (the client mirrors these for instant feedback):</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="s2">&quot;ATTACHMENT_MAX_BYTES&quot;</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="s2">&quot;ATTACHMENT_ALLOWED_TYPES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;image/png&quot;</span><span class="p">,</span> <span class="s2">&quot;image/jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">],</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">}</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="c1"># Optional server-side guards. When uploads are mounted the admin sidebar</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="c1"># forwards these to the composer (data-attachment-max-bytes /</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="c1"># data-attachment-accept) so oversized or wrong-type files are rejected</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="c1"># before upload — the server stays authoritative:</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="s2">&quot;ATTACHMENT_MAX_BYTES&quot;</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="s2">&quot;ATTACHMENT_ALLOWED_TYPES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;image/png&quot;</span><span class="p">,</span> <span class="s2">&quot;image/jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">],</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>The reference store keeps bytes in Django <code>Storage</code> (filesystem by default; point
 <code>STORAGES</code>/<code>DEFAULT_FILE_STORAGE</code> at S3/GCS for production) and metadata in a row,

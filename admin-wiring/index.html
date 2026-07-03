@@ -778,6 +778,26 @@ navigate, and the two attachment paths.</p>
 <td>Themeable presentation attributes (<code>theme</code> / <code>density</code> / <code>placement</code> / <code>data-text-animation</code>), rendered only when set. See <a href="../configuration/#presentation">Configuration → Presentation</a>.</td>
 </tr>
 <tr>
+<td><code>theme_toggle</code></td>
+<td><code>DJANGO_ADMIN_AGENT["THEME_TOGGLE"]</code></td>
+<td>The <code>data-theme-toggle</code> attribute — opts into the built-in light⇄dark header toggle (off by default).</td>
+</tr>
+<tr>
+<td><code>side</code></td>
+<td><code>DJANGO_ADMIN_AGENT["SIDE"]</code></td>
+<td>The <code>data-side</code> attribute for <code>placement="sidebar"</code> (<code>left</code> / <code>right</code>), rendered only when set.</td>
+</tr>
+<tr>
+<td><code>icon_url</code></td>
+<td><code>DJANGO_ADMIN_AGENT["ICON_URL"]</code></td>
+<td>The <code>data-icon-url</code> attribute (header/launcher icon), rendered only when set.</td>
+</tr>
+<tr>
+<td><code>strings_json</code></td>
+<td><code>DJANGO_ADMIN_AGENT["STRINGS"]</code></td>
+<td>Localized UI-string overrides serialized to JSON for the <code>data-strings</code> attribute, rendered only when set.</td>
+</tr>
+<tr>
 <td><code>skills</code></td>
 <td><code>DJANGO_ADMIN_AGENT["SKILLS"]</code> or <code>build_skills()</code></td>
 <td>The skill catalog (chips + <code>/</code>-command palette), embedded as a <code>json_script</code>. See <a href="../configuration/#skills">Configuration → Skills</a>.</td>
@@ -786,6 +806,26 @@ navigate, and the two attachment paths.</p>
 <td><code>tools_url</code></td>
 <td><code>reverse("django_admin_agent_tools")</code> (or <code>None</code>)</td>
 <td>URL of the server-tool label catalog, rendered as <code>data-tools-url</code>; the component fetches it to label server-tool cards. <code>None</code> when the endpoint wasn't mounted via <code>get_urls</code>.</td>
+</tr>
+<tr>
+<td><code>threads_url</code></td>
+<td><code>reverse("django_admin_agent_threads")</code> (or <code>None</code>)</td>
+<td>URL of the owner-scoped thread index, rendered as <code>data-threads-url</code>; the component's history drawer fetches it. <code>None</code> when the endpoint wasn't mounted via <code>get_urls</code>.</td>
+</tr>
+<tr>
+<td><code>attachments_url</code></td>
+<td><code>reverse("django_admin_agent_attachments")</code> (or <code>None</code>)</td>
+<td>URL of the upload endpoint, rendered as <code>data-attachments-url</code>; the composer posts files to it. <code>None</code> when the endpoint wasn't mounted via <code>get_urls</code>.</td>
+</tr>
+<tr>
+<td><code>attachment_max_bytes</code>, <code>attachment_accept</code></td>
+<td><code>DJANGO_AG_UI</code> upload guards</td>
+<td>When uploads are mounted, the server-side <code>ATTACHMENT_MAX_BYTES</code> / <code>ATTACHMENT_ALLOWED_TYPES</code> mirrored onto <code>data-attachment-max-bytes</code> / <code>data-attachment-accept</code> so the composer can reject files before upload. <code>None</code> (attribute omitted) when the corresponding limit is unset.</td>
+</tr>
+<tr>
+<td><code>transcribe_url</code></td>
+<td><code>reverse("django_admin_agent_transcribe")</code> (or <code>None</code>)</td>
+<td>URL of the transcription endpoint, rendered as <code>data-transcribe-url</code>; the mic button posts audio to it. <code>None</code> when the endpoint wasn't mounted via <code>get_urls</code>.</td>
 </tr>
 <tr>
 <td><code>bootstrap_url</code></td>
