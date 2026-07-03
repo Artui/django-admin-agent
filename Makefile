@@ -70,6 +70,7 @@ BUNDLE_DEST := django_admin_agent/static/django_admin_agent/ag-ui-web-component.
 # release re-vendor is the authoritative refresh.
 vendor-bundle:
 	cp ../ag-ui-web-component/dist/ag-ui-web-component.bundle.js $(BUNDLE_DEST)
+	sed -e '/sourceMappingURL/d' "$(BUNDLE_DEST)" > "$(BUNDLE_DEST).tmp" && mv "$(BUNDLE_DEST).tmp" "$(BUNDLE_DEST)"
 	@echo "Vendored ag-ui-web-component.bundle.js from the sibling checkout (dev)."
 
 # Release: fetch the PINNED published version and vendor its built bundle. Run
@@ -81,6 +82,7 @@ vendor-bundle-release:
 	( cd "$$tmp" && npm pack "$(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION)" >/dev/null ); \
 	tar -xzf "$$tmp"/*.tgz -C "$$tmp"; \
 	cp "$$tmp/package/dist/ag-ui-web-component.bundle.js" "$(BUNDLE_DEST)"; \
+	sed -e '/sourceMappingURL/d' "$(BUNDLE_DEST)" > "$(BUNDLE_DEST).tmp" && mv "$(BUNDLE_DEST).tmp" "$(BUNDLE_DEST)"; \
 	rm -rf "$$tmp"; \
 	echo "Vendored $(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION) bundle (release)."
 

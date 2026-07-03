@@ -19,8 +19,12 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `TOOL_DISPLAY` | `"compact"` | How much detail tool-call cards show: `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. |
 | `THEME` | _unset_ | Web Component theme: `"light"`, `"dark"`, `"auto"`, or `"code"`. Rendered as the `theme` attribute; left off (component default, light) when unset. |
 | `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |
-| `PLACEMENT` | _unset_ | Where the panel sits: `"bottom-left"`, `"side"`, `"full"`, or `"embedded"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. |
+| `PLACEMENT` | _unset_ | Where the panel sits: `"bottom-left"`, `"side"`, `"sidebar"`, `"full"`, or `"embedded"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. `"sidebar"` is a full-height docked panel that collapses to an icon rail (pair it with `SIDE`). |
 | `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
+| `SIDE` | _unset_ | For `PLACEMENT="sidebar"`: which edge it docks to — `"left"` or `"right"`. Rendered as the `data-side` attribute; left off (component default, right) when unset. |
+| `THEME_TOGGLE` | `False` | Show the Web Component's built-in light⇄dark header toggle (it flips `theme` and persists per tab). Rendered as the `data-theme-toggle` attribute. Off by default, since the admin's own theme usually governs. |
+| `ICON_URL` | _unset_ | URL of a header/launcher icon image. Rendered as the `data-icon-url` attribute; left off (icon-less) when unset. |
+| `STRINGS` | _unset_ | Localized UI-string overrides for the Web Component (a partial dict merged over its English defaults). Rendered as the `data-strings` attribute (serialized JSON). Wrap values in `gettext_lazy` so the sidebar follows the admin's active language; left off when unset. |
 | `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
 | `SHELL_FIELD_REDACTION` | `True` | Redact sensitive fields in `shell.query_model` / `shell.get_model_instance` output. `True` uses the built-in denylist (`password\|token\|secret\|key\|hash`); `False` disables it; a regex `str` overrides the pattern. See [Access control](#access-control). |
 
@@ -51,7 +55,7 @@ component's own attribute values:
 | `TOOL_DISPLAY` | `data-tool-display` | `minimal` · `compact` · `full` | `compact` |
 | `THEME` | `theme` | `light` · `dark` · `auto` · `code` | _component default (light)_ |
 | `DENSITY` | `density` | `comfortable` · `compact` | _component default_ |
-| `PLACEMENT` | `placement` | `bottom-left` · `side` · `full` · `embedded` | _floating bottom-right_ |
+| `PLACEMENT` | `placement` | `bottom-left` · `side` · `sidebar` · `full` · `embedded` | _floating bottom-right_ |
 | `TEXT_ANIMATION` | `data-text-animation` | `none` · `fade` · `word` | `none` |
 | `THEME_TOGGLE` | `data-theme-toggle` | `True` · `False` | `False` |
 
@@ -224,7 +228,10 @@ to `INSTALLED_APPS`, run `migrate`, and set
 ```python title="settings.py"
 DJANGO_AG_UI = {
     "ATTACHMENT_STORE": "django_ag_ui.contrib.store.default_attachment_store.DefaultAttachmentStore",
-    # Optional server-side guards (the client mirrors these for instant feedback):
+    # Optional server-side guards. When uploads are mounted the admin sidebar
+    # forwards these to the composer (data-attachment-max-bytes /
+    # data-attachment-accept) so oversized or wrong-type files are rejected
+    # before upload — the server stays authoritative:
     "ATTACHMENT_MAX_BYTES": 10 * 1024 * 1024,
     "ATTACHMENT_ALLOWED_TYPES": ["image/png", "image/jpeg", "application/pdf", "text/plain"],
 }

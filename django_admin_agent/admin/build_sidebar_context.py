@@ -5,6 +5,7 @@ from typing import Any
 
 from django.templatetags.static import static
 from django.urls import NoReverseMatch, reverse
+from django_ag_ui import get_settings as get_ag_ui_settings
 
 from django_admin_agent.admin.build_route_map import build_route_map
 from django_admin_agent.admin.build_skills import build_skills
@@ -25,6 +26,8 @@ def build_sidebar_context() -> dict[str, Any]:
     ``each_context`` hook.
     """
     config = get_settings()
+    attachments_url = _attachments_url()
+    attachment_max_bytes, attachment_accept = _attachment_limits(attachments_url)
     return {
         "endpoint": reverse(config.endpoint_url_name),
         "title": config.title,
@@ -33,7 +36,9 @@ def build_sidebar_context() -> dict[str, Any]:
         "skills": config.skills if config.skills is not None else build_skills(),
         "tools_url": _tools_url(),
         "threads_url": _threads_url(),
-        "attachments_url": _attachments_url(),
+        "attachments_url": attachments_url,
+        "attachment_max_bytes": attachment_max_bytes,
+        "attachment_accept": attachment_accept,
         "transcribe_url": _transcribe_url(),
         "theme_toggle": config.theme_toggle,
         "theme": config.theme,
@@ -47,6 +52,27 @@ def build_sidebar_context() -> dict[str, Any]:
         "admin_base_url": _admin_base_url(),
         "route_map": build_route_map(),
     }
+
+
+def _attachment_limits(attachments_url: str | None) -> tuple[int | None, str | None]:
+    """Mirror django-ag-ui's server-side upload guards for the client composer.
+
+    When uploads are mounted (``attachments_url`` is set), read the
+    server-authoritative limits from ``DJANGO_AG_UI`` so the Web Component can
+    reject oversized or wrong-type files *before* upload (the server stays the
+    authority). Returns ``(max_bytes, accept)`` where each is ``None`` when the
+    corresponding limit is unset (no cap / any type) or uploads are off.
+
+    ``accept`` is an HTML ``accept``-style comma-joined string built from
+    ``ATTACHMENT_ALLOWED_TYPES``.
+    """
+    if attachments_url is None:
+        return None, None
+    ag_ui = get_ag_ui_settings()
+    max_bytes = ag_ui.attachment_max_bytes or None
+    allowed_types = ag_ui.attachment_allowed_types
+    accept = ",".join(allowed_types) if allowed_types else None
+    return max_bytes, accept
 
 
 def _strings_json(config: AdminAgentSettings) -> str | None:

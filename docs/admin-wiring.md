@@ -15,8 +15,16 @@ navigate, and the two attachment paths.
 | `auto_confirm` | `DJANGO_ADMIN_AGENT["AUTO_CONFIRM"]` | Surfaced to the component as `autoConfirm`. |
 | `tool_display` | `DJANGO_ADMIN_AGENT["TOOL_DISPLAY"]` | The `data-tool-display` attribute (`minimal` / `compact` / `full`). |
 | `theme`, `density`, `placement`, `text_animation` | the matching `DJANGO_ADMIN_AGENT` keys | Themeable presentation attributes (`theme` / `density` / `placement` / `data-text-animation`), rendered only when set. See [Configuration → Presentation](configuration.md#presentation). |
+| `theme_toggle` | `DJANGO_ADMIN_AGENT["THEME_TOGGLE"]` | The `data-theme-toggle` attribute — opts into the built-in light⇄dark header toggle (off by default). |
+| `side` | `DJANGO_ADMIN_AGENT["SIDE"]` | The `data-side` attribute for `placement="sidebar"` (`left` / `right`), rendered only when set. |
+| `icon_url` | `DJANGO_ADMIN_AGENT["ICON_URL"]` | The `data-icon-url` attribute (header/launcher icon), rendered only when set. |
+| `strings_json` | `DJANGO_ADMIN_AGENT["STRINGS"]` | Localized UI-string overrides serialized to JSON for the `data-strings` attribute, rendered only when set. |
 | `skills` | `DJANGO_ADMIN_AGENT["SKILLS"]` or `build_skills()` | The skill catalog (chips + `/`-command palette), embedded as a `json_script`. See [Configuration → Skills](configuration.md#skills). |
 | `tools_url` | `reverse("django_admin_agent_tools")` (or `None`) | URL of the server-tool label catalog, rendered as `data-tools-url`; the component fetches it to label server-tool cards. `None` when the endpoint wasn't mounted via `get_urls`. |
+| `threads_url` | `reverse("django_admin_agent_threads")` (or `None`) | URL of the owner-scoped thread index, rendered as `data-threads-url`; the component's history drawer fetches it. `None` when the endpoint wasn't mounted via `get_urls`. |
+| `attachments_url` | `reverse("django_admin_agent_attachments")` (or `None`) | URL of the upload endpoint, rendered as `data-attachments-url`; the composer posts files to it. `None` when the endpoint wasn't mounted via `get_urls`. |
+| `attachment_max_bytes`, `attachment_accept` | `DJANGO_AG_UI` upload guards | When uploads are mounted, the server-side `ATTACHMENT_MAX_BYTES` / `ATTACHMENT_ALLOWED_TYPES` mirrored onto `data-attachment-max-bytes` / `data-attachment-accept` so the composer can reject files before upload. `None` (attribute omitted) when the corresponding limit is unset. |
+| `transcribe_url` | `reverse("django_admin_agent_transcribe")` (or `None`) | URL of the transcription endpoint, rendered as `data-transcribe-url`; the mic button posts audio to it. `None` when the endpoint wasn't mounted via `get_urls`. |
 | `bootstrap_url` | `static("django_admin_agent/admin_agent.js")` | The ES-module entry point. |
 | `admin_base_url` | `reverse("admin:index")` (or `/`) | Lets the frontend `nav.*` tools build changelist / changeform URLs without reversing named routes in the browser. |
 | `route_map` | `build_route_map()` | The navigable-route manifest (see below). |
