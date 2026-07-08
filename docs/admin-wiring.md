@@ -10,7 +10,7 @@ navigate, and the two attachment paths.
 
 | Key | Source | Used for |
 | --- | --- | --- |
-| `endpoint` | `reverse(ENDPOINT_URL_NAME)` | The AG-UI endpoint the chat POSTs to. |
+| `endpoint` | `reverse("<URL_NAMESPACE>:endpoint")` | The AG-UI endpoint the chat POSTs to. |
 | `title` | `DJANGO_ADMIN_AGENT["TITLE"]` | The chat panel header. |
 | `auto_confirm` | `DJANGO_ADMIN_AGENT["AUTO_CONFIRM"]` | Surfaced to the component as `autoConfirm`. |
 | `tool_display` | `DJANGO_ADMIN_AGENT["TOOL_DISPLAY"]` | The `data-tool-display` attribute (`minimal` / `compact` / `full`). |
@@ -20,11 +20,11 @@ navigate, and the two attachment paths.
 | `icon_url` | `DJANGO_ADMIN_AGENT["ICON_URL"]` | The `data-icon-url` attribute (header/launcher icon), rendered only when set. |
 | `strings_json` | `DJANGO_ADMIN_AGENT["STRINGS"]` | Localized UI-string overrides serialized to JSON for the `data-strings` attribute, rendered only when set. |
 | `skills` | `DJANGO_ADMIN_AGENT["SKILLS"]` or `build_skills()` | The skill catalog (chips + `/`-command palette), embedded as a `json_script`. See [Configuration → Skills](configuration.md#skills). |
-| `tools_url` | `reverse("django_admin_agent_tools")` (or `None`) | URL of the server-tool label catalog, rendered as `data-tools-url`; the component fetches it to label server-tool cards. `None` when the endpoint wasn't mounted via `get_urls`. |
-| `threads_url` | `reverse("django_admin_agent_threads")` (or `None`) | URL of the owner-scoped thread index, rendered as `data-threads-url`; the component's history drawer fetches it. `None` when the endpoint wasn't mounted via `get_urls`. |
-| `attachments_url` | `reverse("django_admin_agent_attachments")` (or `None`) | URL of the upload endpoint, rendered as `data-attachments-url`; the composer posts files to it. `None` when the endpoint wasn't mounted via `get_urls`. |
+| `tools_url` | `reverse("<URL_NAMESPACE>:tools")` (or `None`) | URL of the server-tool label catalog, rendered as `data-tools-url`; the component fetches it to label server-tool cards. `None` when the server wasn't mounted. |
+| `threads_url` | `reverse("<URL_NAMESPACE>:threads")` (or `None`) | URL of the owner-scoped thread index, rendered as `data-threads-url`; the component's history drawer fetches it. `None` when no conversation store is configured (the sub-view is unmounted). |
+| `attachments_url` | `reverse("<URL_NAMESPACE>:attachments")` (or `None`) | URL of the upload endpoint, rendered as `data-attachments-url`; the composer posts files to it. `None` when no attachment store is configured (the sub-view is unmounted). |
 | `attachment_max_bytes`, `attachment_accept` | `DJANGO_AG_UI` upload guards | When uploads are mounted, the server-side `ATTACHMENT_MAX_BYTES` / `ATTACHMENT_ALLOWED_TYPES` mirrored onto `data-attachment-max-bytes` / `data-attachment-accept` so the composer can reject files before upload. `None` (attribute omitted) when the corresponding limit is unset. |
-| `transcribe_url` | `reverse("django_admin_agent_transcribe")` (or `None`) | URL of the transcription endpoint, rendered as `data-transcribe-url`; the mic button posts audio to it. `None` when the endpoint wasn't mounted via `get_urls`. |
+| `transcribe_url` | `reverse("<URL_NAMESPACE>:transcribe")` (or `None`) | URL of the transcription endpoint, rendered as `data-transcribe-url`; the mic button posts audio to it. `None` when no transcription backend is configured (the sub-view is unmounted). |
 | `bootstrap_url` | `static("django_admin_agent/admin_agent.js")` | The ES-module entry point. |
 | `admin_base_url` | `reverse("admin:index")` (or `/`) | Lets the frontend `nav.*` tools build changelist / changeform URLs without reversing named routes in the browser. |
 | `route_map` | `build_route_map()` | The navigable-route manifest (see below). |
@@ -56,8 +56,8 @@ then:
    [frontend tools](tools.md#frontend-tools).
 
 Server-tool card labels are **not** embedded — the component fetches them from
-`data-tools-url` (the [`<prefix>agent/tools/` catalog endpoint][catalog], named
-`django_admin_agent_tools`), whose labels come from each tool's `@tool(summary=)`.
+`data-tools-url` (the [`<prefix>tools/` catalog endpoint][catalog], named
+`<URL_NAMESPACE>:tools`), whose labels come from each tool's `@tool(summary=)`.
 
 [catalog]: https://artui.github.io/django-ag-ui/concepts/#tool-metadata-catalog
 

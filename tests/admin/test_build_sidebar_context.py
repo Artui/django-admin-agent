@@ -10,24 +10,22 @@ from django_admin_agent.admin.build_sidebar_context import build_sidebar_context
 
 def test_context_keys_and_values() -> None:
     context = build_sidebar_context()
-    assert context["endpoint"] == "/admin-agent/agent/"
+    # AdminAgentServer mounts at "admin-agent/"; the endpoint sits at the root.
+    assert context["endpoint"] == "/admin-agent/"
     assert context["title"] == "Admin Copilot"
     assert context["auto_confirm"] is False
     assert context["tool_display"] == "compact"
     assert {s["name"] for s in context["skills"]} >= {"summarize-changelist"}
     # The server-tool catalog URL the Web Component fetches (data-tools-url).
-    assert context["tools_url"] == "/admin-agent/agent/tools/"
-    # The thread-index URL the history drawer fetches (data-threads-url).
-    assert context["threads_url"] == "/admin-agent/agent/threads/"
-    # The file-upload URL the composer posts to (data-attachments-url).
-    assert context["attachments_url"] == "/admin-agent/agent/attachments/"
-    # The client-side upload guards mirror django-ag-ui's server limits. With no
-    # DJANGO_AG_UI overrides: the 10 MiB default cap surfaces; the type
-    # allowlist is empty (any type) so accept stays None.
-    assert context["attachment_max_bytes"] == 10 * 1024 * 1024
+    assert context["tools_url"] == "/admin-agent/tools/"
+    # No stores are configured in the test settings, so the persistence
+    # sub-views are unmounted and their URLs fall back to None (the drawer then
+    # uses the client's local per-tab threads; no upload / mic affordances).
+    assert context["threads_url"] is None
+    assert context["attachments_url"] is None
+    assert context["attachment_max_bytes"] is None
     assert context["attachment_accept"] is None
-    # The voice-transcription URL the mic posts to (data-transcribe-url).
-    assert context["transcribe_url"] == "/admin-agent/agent/transcribe/"
+    assert context["transcribe_url"] is None
     # The built-in theme toggle is off unless opted in.
     assert context["theme_toggle"] is False
     # Styling knobs default to None (the component default applies).
@@ -89,9 +87,20 @@ def test_admin_base_url_falls_back_without_admin() -> None:
     assert build_sidebar_context()["admin_base_url"] == "/"
 
 
+@override_settings(ROOT_URLCONF="tests.admin.urls_full")
+def test_store_backed_urls_resolve_when_the_sub_views_are_mounted() -> None:
+    # A fully-configured AdminAgentServer mounts the thread / upload / mic
+    # sub-views, so their URLs resolve for the Web Component's data-* attributes.
+    context = build_sidebar_context()
+    assert context["threads_url"] == "/admin-agent/threads/"
+    assert context["attachments_url"] == "/admin-agent/attachments/"
+    assert context["transcribe_url"] == "/admin-agent/transcribe/"
+
+
 @override_settings(ROOT_URLCONF="tests.admin.urls_endpoint_only")
 def test_tools_url_is_none_when_the_catalog_is_not_mounted() -> None:
-    # Endpoint mounted by hand (not via get_urls) → no catalog route to reverse.
+    # Only the endpoint mounted by hand (not via AdminAgentServer) → no catalog
+    # route to reverse.
     assert build_sidebar_context()["tools_url"] is None
 
 
@@ -116,20 +125,22 @@ def test_attachment_limits_absent_when_uploads_are_not_mounted() -> None:
 
 
 @override_settings(
+    ROOT_URLCONF="tests.admin.urls_full",
     DJANGO_AG_UI={
         "ATTACHMENT_MAX_BYTES": 2 * 1024 * 1024,
         "ATTACHMENT_ALLOWED_TYPES": ["image/png", "application/pdf"],
     },
 )
 def test_attachment_limits_mirror_the_server_side_guards() -> None:
-    # With uploads mounted (default urlconf), the server-authoritative cap and
-    # type allowlist surface for the composer to enforce before upload.
+    # With uploads mounted, the server-authoritative cap and type allowlist
+    # surface for the composer to enforce before upload.
     context = build_sidebar_context()
     assert context["attachment_max_bytes"] == 2 * 1024 * 1024
     assert context["attachment_accept"] == "image/png,application/pdf"
 
 
 @override_settings(
+    ROOT_URLCONF="tests.admin.urls_full",
     DJANGO_AG_UI={"ATTACHMENT_MAX_BYTES": 0, "ATTACHMENT_ALLOWED_TYPES": []},
 )
 def test_attachment_limits_are_none_when_unset() -> None:

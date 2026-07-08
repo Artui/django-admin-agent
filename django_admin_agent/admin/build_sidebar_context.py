@@ -26,20 +26,21 @@ def build_sidebar_context() -> dict[str, Any]:
     ``each_context`` hook.
     """
     config = get_settings()
-    attachments_url = _attachments_url()
+    namespace = config.url_namespace
+    attachments_url = _attachments_url(namespace)
     attachment_max_bytes, attachment_accept = _attachment_limits(attachments_url)
     return {
-        "endpoint": reverse(config.endpoint_url_name),
+        "endpoint": reverse(f"{namespace}:endpoint"),
         "title": config.title,
         "auto_confirm": config.auto_confirm,
         "tool_display": config.tool_display,
         "skills": config.skills if config.skills is not None else build_skills(),
-        "tools_url": _tools_url(),
-        "threads_url": _threads_url(),
+        "tools_url": _tools_url(namespace),
+        "threads_url": _threads_url(namespace),
         "attachments_url": attachments_url,
         "attachment_max_bytes": attachment_max_bytes,
         "attachment_accept": attachment_accept,
-        "transcribe_url": _transcribe_url(),
+        "transcribe_url": _transcribe_url(namespace),
         "theme_toggle": config.theme_toggle,
         "theme": config.theme,
         "density": config.density,
@@ -92,38 +93,38 @@ def _admin_base_url() -> str:
         return "/"
 
 
-def _tools_url() -> str | None:
+def _tools_url(namespace: str) -> str | None:
     """Resolve the server-tool catalog URL the Web Component fetches, or ``None``
-    when the agent endpoint wasn't mounted with :func:`get_urls`."""
+    when the agent server wasn't mounted."""
     try:
-        return reverse("django_admin_agent_tools")
+        return reverse(f"{namespace}:tools")
     except NoReverseMatch:
         return None
 
 
-def _threads_url() -> str | None:
-    """Resolve the thread-index URL the Web Component's history drawer fetches,
-    or ``None`` when the agent endpoint wasn't mounted with :func:`get_urls`."""
+def _threads_url(namespace: str) -> str | None:
+    """Resolve the thread-index URL the Web Component's history drawer fetches, or
+    ``None`` when no conversation store is configured (so the sub-view is unmounted)."""
     try:
-        return reverse("django_admin_agent_threads")
+        return reverse(f"{namespace}:threads")
     except NoReverseMatch:
         return None
 
 
-def _attachments_url() -> str | None:
+def _attachments_url(namespace: str) -> str | None:
     """Resolve the file-upload URL the Web Component's composer posts to, or
-    ``None`` when the agent endpoint wasn't mounted with :func:`get_urls`."""
+    ``None`` when no attachment store is configured (so the sub-view is unmounted)."""
     try:
-        return reverse("django_admin_agent_attachments")
+        return reverse(f"{namespace}:attachments")
     except NoReverseMatch:
         return None
 
 
-def _transcribe_url() -> str | None:
+def _transcribe_url(namespace: str) -> str | None:
     """Resolve the voice-transcription URL the Web Component's mic posts to, or
-    ``None`` when the agent endpoint wasn't mounted with :func:`get_urls`."""
+    ``None`` when no transcription backend is configured (so the sub-view is unmounted)."""
     try:
-        return reverse("django_admin_agent_transcribe")
+        return reverse(f"{namespace}:transcribe")
     except NoReverseMatch:
         return None
 
