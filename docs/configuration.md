@@ -15,12 +15,16 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | --- | --- | --- |
 | `TITLE` | `"Admin Copilot"` | Header text shown on the sidebar chat panel. |
 | `AUTO_CONFIRM` | `False` | When `True`, destructive frontend tools run without the confirmation modal. Passed to the Web Component as `autoConfirm`. |
-| `ENDPOINT_URL_NAME` | `"django_admin_agent_endpoint"` | URL name the sidebar reverses to find the AG-UI endpoint. Override only if you mount the endpoint under a different name. |
+| `URL_NAMESPACE` | `"admin_agent"` | The URL namespace the mounted [`AdminAgentServer`](#access-control) uses; the sidebar reverses `<namespace>:endpoint`, `<namespace>:tools`, … within it. Override only if you mount the server with a non-default `namespace=`. |
 | `TOOL_DISPLAY` | `"compact"` | How much detail tool-call cards show: `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. |
 | `THEME` | _unset_ | Web Component theme: `"light"`, `"dark"`, `"auto"`, or `"code"`. Rendered as the `theme` attribute; left off (component default, light) when unset. |
 | `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |
-| `PLACEMENT` | _unset_ | Where the panel sits: `"bottom-left"`, `"side"`, `"full"`, or `"embedded"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. |
+| `PLACEMENT` | _unset_ | Where the panel sits: `"bottom-left"`, `"side"`, `"sidebar"`, `"full"`, or `"embedded"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. `"sidebar"` is a full-height docked panel that collapses to an icon rail (pair it with `SIDE`). |
 | `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
+| `SIDE` | _unset_ | For `PLACEMENT="sidebar"`: which edge it docks to — `"left"` or `"right"`. Rendered as the `data-side` attribute; left off (component default, right) when unset. |
+| `THEME_TOGGLE` | `False` | Show the Web Component's built-in light⇄dark header toggle (it flips `theme` and persists per tab). Rendered as the `data-theme-toggle` attribute. Off by default, since the admin's own theme usually governs. |
+| `ICON_URL` | _unset_ | URL of a header/launcher icon image. Rendered as the `data-icon-url` attribute; left off (icon-less) when unset. |
+| `STRINGS` | _unset_ | Localized UI-string overrides for the Web Component (a partial dict merged over its English defaults). Rendered as the `data-strings` attribute (serialized JSON). Wrap values in `gettext_lazy` so the sidebar follows the admin's active language; left off when unset. |
 | `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
 | `SHELL_FIELD_REDACTION` | `True` | Redact sensitive fields in `shell.query_model` / `shell.get_model_instance` output. `True` uses the built-in denylist (`password\|token\|secret\|key\|hash`); `False` disables it; a regex `str` overrides the pattern. See [Access control](#access-control). |
 
@@ -51,7 +55,7 @@ component's own attribute values:
 | `TOOL_DISPLAY` | `data-tool-display` | `minimal` · `compact` · `full` | `compact` |
 | `THEME` | `theme` | `light` · `dark` · `auto` · `code` | _component default (light)_ |
 | `DENSITY` | `density` | `comfortable` · `compact` | _component default_ |
-| `PLACEMENT` | `placement` | `bottom-left` · `side` · `full` · `embedded` | _floating bottom-right_ |
+| `PLACEMENT` | `placement` | `bottom-left` · `side` · `sidebar` · `full` · `embedded` | _floating bottom-right_ |
 | `TEXT_ANIMATION` | `data-text-animation` | `none` · `fade` · `word` | `none` |
 | `THEME_TOGGLE` | `data-theme-toggle` | `True` · `False` | `False` |
 
@@ -112,10 +116,10 @@ the built-in catalog.
 
 ## Access control
 
-`get_urls` is **fail-closed by default**: every mounted route (the agent
-endpoint, the tool catalog, the thread index, uploads, and transcription)
-requires an authenticated, active **staff** user, and the agent endpoint is
-CSRF-protected.
+[`AdminAgentServer`](reference.md) is **fail-closed by default**: every mounted
+route (the agent endpoint, the tool catalog, and — when configured — the thread
+index, uploads, and transcription) requires an authenticated, active **staff**
+user, and the agent endpoint is CSRF-protected.
 
 - `require_authenticated=True` (default) → an anonymous request gets **401**.
 - `authorize=staff_required` (default) → a non-staff user gets **403**. Both are
@@ -125,16 +129,18 @@ CSRF-protected.
   bootstrap already sends the token.
 
 ```python
-from django_admin_agent import get_urls
-from django_admin_agent.urls import staff_required
+from django_admin_agent import AdminAgentServer
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     # Locked to staff by default; tighten or relax deliberately:
-    *get_urls(authorize=lambda r: r.user.is_superuser),  # superusers only
-    # *get_urls(require_authenticated=False, authorize=None),  # fully open (not advised)
+    path("admin-agent/", AdminAgentServer(authorize=lambda r: r.user.is_superuser).urls),  # superusers only
+    # path("admin-agent/", AdminAgentServer(require_authenticated=False, authorize=None).urls),  # fully open (not advised)
 ]
 ```
+
+The default `authorize` gate is [`staff_required`](reference.md), importable from
+`django_admin_agent` if you want to compose it.
 
 Without this an unauthenticated visitor could drive the agent and, via the
 `shell.query_model` tool, stream model rows — including `auth.User` password
@@ -157,7 +163,7 @@ relevant to the admin sidebar:
 
 | Key | Default | Purpose |
 | --- | --- | --- |
-| `MODEL` | _unset_ | Pydantic-AI model string, e.g. `"anthropic:claude-sonnet-4.6"`. Can instead be passed per-mount as `get_urls(model=...)`. |
+| `MODEL` | _unset_ | Pydantic-AI model string, e.g. `"anthropic:claude-sonnet-4.6"`. Can instead be passed per-mount as `AdminAgentServer(model=...)`. |
 | `AUTO_CONFIRM` | `False` | The `django-ag-ui`-level destructive-confirmation flag surfaced to the frontend. |
 | `CONVERSATION_STORE` | `None` (stateless) | Dotted path to a `ConversationStore` for server-side conversation persistence. See below. |
 | `ATTACHMENT_STORE` | `None` (uploads off) | Dotted path to an `AttachmentStore` for file uploads. See below. |
@@ -184,7 +190,7 @@ top — keyed by AG-UI `thread_id`, owner-scoped per user — so a conversation
 durably survives across tabs and devices, and the resume checkpoint becomes
 derivable from the stored history.
 
-For admin deployments — where [`get_urls`](#access-control) requires an
+For admin deployments — where [`AdminAgentServer`](#access-control) requires an
 authenticated staff user, so sessions always exist —
 `DjangoSessionConversationStore` is the natural choice (no migration, per-user
 durability). Leaving `CONVERSATION_STORE` unset keeps the server stateless; the
@@ -197,34 +203,39 @@ and set `CONVERSATION_STORE` to
 
 ### The chat-history drawer
 
-`get_urls` also mounts an owner-scoped **thread index** at `<prefix>agent/threads/`
-(list) and `<prefix>agent/threads/<id>/` (load / rename / delete), and the
-sidebar passes its URL to the Web Component as `data-threads-url` — the data
-behind a chat-history drawer of the admin user's past conversations. The index
-uses whatever `CONVERSATION_STORE` resolves to (pass an explicit store with
-`get_urls(conversation_store=...)` to override). With a durable store configured,
-the drawer lists server-backed threads; without one it falls back to the client's
-per-tab `sessionStorage` threads.
+When a conversation store is configured, `AdminAgentServer` mounts an
+owner-scoped **thread index** at `<prefix>threads/` (list) and
+`<prefix>threads/<id>/` (load / rename / delete), and the sidebar passes its URL
+to the Web Component as `data-threads-url` — the data behind a chat-history drawer
+of the admin user's past conversations. The index uses whatever
+`CONVERSATION_STORE` resolves to (pass an explicit store with
+`AdminAgentServer(conversation_store=...)` to override). **Without a store the
+sub-view isn't mounted** and the drawer falls back to the client's per-tab
+`sessionStorage` threads; configure a durable store to list server-backed threads.
 
 ### File uploads
 
-`get_urls` also mounts an owner-scoped **upload endpoint** at
-`<prefix>agent/attachments/` (`POST` upload) and `<prefix>agent/attachments/<id>/`
-(`GET` download, `DELETE`), and the sidebar passes its URL to the Web Component as
-`data-attachments-url` — so the composer gains a 📎 picker + drag-and-drop. Files
-upload out-of-band and travel as lightweight refs; the agent reads their contents
-server-side via the built-in `read_attachment` tool (the AG-UI message stream
-stays free of file bytes).
+When an attachment store is configured, `AdminAgentServer` mounts an owner-scoped
+**upload endpoint** at `<prefix>attachments/` (`POST` upload) and
+`<prefix>attachments/<id>/` (`GET` download, `DELETE`), and the sidebar passes its
+URL to the Web Component as `data-attachments-url` — so the composer gains a 📎
+picker + drag-and-drop. Files upload out-of-band and travel as lightweight refs;
+the agent reads their contents server-side via the built-in `read_attachment` tool
+(the AG-UI message stream stays free of file bytes).
 
-Uploads are **disabled by default** (a `NullAttachmentStore` answers `410`). Turn
-them on by pointing `ATTACHMENT_STORE` at a store — for **durable, per-admin-user**
+Uploads are **off by default** — with no `ATTACHMENT_STORE` the sub-view isn't
+mounted (no 📎 affordance). Turn them on by pointing `ATTACHMENT_STORE` at a store
+— for **durable, per-admin-user**
 files, opt into django-ag-ui's reference store: add `"django_ag_ui.contrib.store"`
 to `INSTALLED_APPS`, run `migrate`, and set
 
 ```python title="settings.py"
 DJANGO_AG_UI = {
     "ATTACHMENT_STORE": "django_ag_ui.contrib.store.default_attachment_store.DefaultAttachmentStore",
-    # Optional server-side guards (the client mirrors these for instant feedback):
+    # Optional server-side guards. When uploads are mounted the admin sidebar
+    # forwards these to the composer (data-attachment-max-bytes /
+    # data-attachment-accept) so oversized or wrong-type files are rejected
+    # before upload — the server stays authoritative:
     "ATTACHMENT_MAX_BYTES": 10 * 1024 * 1024,
     "ATTACHMENT_ALLOWED_TYPES": ["image/png", "image/jpeg", "application/pdf", "text/plain"],
 }
@@ -233,17 +244,18 @@ DJANGO_AG_UI = {
 The reference store keeps bytes in Django `Storage` (filesystem by default; point
 `STORAGES`/`DEFAULT_FILE_STORAGE` at S3/GCS for production) and metadata in a row,
 scoped to the admin user — one admin never sees another's files. Pass an explicit
-store with `get_urls(attachment_store=...)` to override. Validation is
+store with `AdminAgentServer(attachment_store=...)` to override. Validation is
 server-authoritative: oversize → `413`, disallowed type → `415`, and downloads
 stream through the owner-checked `GET` (never a guessable public URL).
 
 ### Voice input
 
-`get_urls` also mounts a **transcription endpoint** at `<prefix>agent/transcribe/`
-(`POST` an audio clip → `{"text": ...}`), and the sidebar passes its URL as
-`data-transcribe-url` — so the composer gains a 🎤 mic button (record, then drop
-the transcript into the input). Voice is **off by default** (a
-`NullTranscriptionBackend` answers `410`); enable it by pointing
+When a transcription backend is configured, `AdminAgentServer` mounts a
+**transcription endpoint** at `<prefix>transcribe/` (`POST` an audio clip →
+`{"text": ...}`), and the sidebar passes its URL as `data-transcribe-url` — so the
+composer gains a 🎤 mic button (record, then drop the transcript into the input).
+Voice is **off by default** — with no `TRANSCRIPTION_BACKEND` the sub-view isn't
+mounted (no mic affordance); enable it by pointing
 `DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]` at a backend — django-ag-ui ships an opt-in
 `OpenAITranscriptionBackend` over any OpenAI-compatible endpoint (the `[openai]`
 extra):
@@ -257,7 +269,7 @@ DJANGO_AG_UI = {
 }
 ```
 
-Pass an explicit backend with `get_urls(transcription_backend=...)` to override.
+Pass an explicit backend with `AdminAgentServer(transcription_backend=...)` to override.
 Model **reasoning** needs no admin wiring: when `DJANGO_AG_UI["MODEL_SETTINGS"]`
 enables a thinking budget, the sidebar renders the streamed chain-of-thought in a
 collapsible "thoughts" region automatically.

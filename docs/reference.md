@@ -4,7 +4,9 @@ The public Python surface re-exported from `django_admin_agent`.
 
 ## Package entry points
 
-::: django_admin_agent.urls.get_urls
+::: django_admin_agent.admin_agent_server.AdminAgentServer
+
+::: django_admin_agent.staff_required.staff_required
 
 ::: django_admin_agent.tools.register.build_default_registry
 

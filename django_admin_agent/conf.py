@@ -24,10 +24,12 @@ class AdminAgentSettings:
     """When ``True``, destructive UI tools run without a confirmation modal.
     Passed to the Web Component as ``autoConfirm``."""
 
-    endpoint_url_name: str
-    """URL name to reverse for the AG-UI endpoint. Mount it with
-    :func:`django_admin_agent.get_urls` (which names it
-    ``django_admin_agent_endpoint``)."""
+    url_namespace: str
+    """The URL namespace the mounted :class:`~django_admin_agent.AdminAgentServer`
+    uses (its ``.urls`` app_name, default ``"admin_agent"``). The sidebar reverses
+    the endpoint and its sub-views within it — ``reverse("<namespace>:endpoint")``,
+    ``"<namespace>:tools"``, …. Set this if you mount the server with a non-default
+    ``namespace=``."""
 
     tool_display: str
     """How much detail tool-call cards show: ``"minimal"``, ``"compact"``, or
@@ -90,7 +92,7 @@ def get_settings() -> AdminAgentSettings:
     return AdminAgentSettings(
         title=raw.get("TITLE", "Admin Copilot"),
         auto_confirm=bool(raw.get("AUTO_CONFIRM", False)),
-        endpoint_url_name=raw.get("ENDPOINT_URL_NAME", "django_admin_agent_endpoint"),
+        url_namespace=raw.get("URL_NAMESPACE", "admin_agent"),
         tool_display=raw.get("TOOL_DISPLAY", "compact"),
         skills=raw.get("SKILLS"),
         theme=raw.get("THEME"),

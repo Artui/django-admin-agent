@@ -14,7 +14,7 @@ def test_each_context_injects_sidebar_and_preserves_super() -> None:
 
     # Our key is present and well-formed...
     sidebar = context["django_admin_agent"]
-    assert sidebar["endpoint"] == "/admin-agent/agent/"
+    assert sidebar["endpoint"] == "/admin-agent/"
     assert sidebar["admin_base_url"] == "/admin/"
     # ...and the base AdminSite context still passes through.
     assert "site_title" in context

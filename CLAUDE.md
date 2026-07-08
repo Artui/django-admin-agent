@@ -8,7 +8,7 @@ unless flagged as a heuristic.
 An always-present chat-agent sidebar embedded in the Django admin. It depends
 on two sibling packages:
 - **`django-ag-ui`** — the Django ↔ Pydantic-AI ↔ AG-UI bridge. Provides
-  `ToolRegistry`, the `@tool` decorator, `DjangoAGUIView`, `get_urls`, the
+  `ToolRegistry`, the `@tool` decorator, `DjangoAGUIView`, `AGUIServer`, the
   audit logger. This package *builds on* those; it does not reimplement them.
 - **`@artooi/ag-ui-web-component`** — the `<ag-ui-chat>` Web Component. We
   vendor its built bundle into `django_admin_agent/static/django_admin_agent/`
@@ -23,7 +23,7 @@ The AG-UI stack design doc (`django-ag-ui-plan.md`) lives in the private ecosyst
 
 ## Local development
 
-`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.8,<0.9` pin in
+`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.12,<0.13` pin in
 `pyproject.toml` (so CI, which has no sibling checkout, syncs cleanly). To
 develop both packages together against a local checkout, add a `[tool.uv.sources]`
 override *locally* (do not commit it) and `uv sync`:
@@ -92,7 +92,8 @@ The agent loop, tool registry, AG-UI transport, and audit logger live in
 `django-ag-ui`. Import them:
 - `django_ag_ui.ToolRegistry`, `django_ag_ui.tool` (the `@tool` decorator),
   `django_ag_ui.ToolCategory`
-- `django_ag_ui.DjangoAGUIView`, `django_ag_ui.get_urls`
+- `django_ag_ui.DjangoAGUIView`, `django_ag_ui.AGUIServer` (this package
+  subclasses it as `AdminAgentServer` with admin defaults)
 - `django_ag_ui.AuditLogger` and friends
 
 This package contributes *tools* and *admin wiring*, not transport.
@@ -134,7 +135,7 @@ mutables; initialise in `__init__`. A project may mount more than one sidebar.
 | --- | --- | --- |
 | Python | 3.10 | 3.10–3.14 |
 | Django | 4.2 LTS | 4.2, 5.0, 5.1, 5.2, 6.0 |
-| django-ag-ui | 0.8 | from PyPI (`>=0.8,<0.9`) |
+| django-ag-ui | 0.12 | from PyPI (`>=0.12,<0.13`) |
 | Django Unfold (supported, optional) | 0.40 | latest in matrix |
 
 ## Branching & releases

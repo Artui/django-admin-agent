@@ -19,7 +19,7 @@ pip install django-admin-agent[mcp]
 
 !!! info "Compatibility floor"
     Python 3.10+ (tested 3.10–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
-    5.2, 6.0), `django-ag-ui>=0.2`, and — optionally — Django Unfold 0.40+.
+    5.2, 6.0), `django-ag-ui>=0.10,<0.12`, and — optionally — Django Unfold 0.40+.
 
 ## 1. Add to `INSTALLED_APPS`
 
@@ -34,37 +34,41 @@ INSTALLED_APPS = [
 This makes the vendored static bundle, the `django_admin_agent` template-tag
 library, and the sidebar template discoverable.
 
-## 2. Mount the agent endpoint
+## 2. Mount the agent server
 
-`django_admin_agent.get_urls()` returns URL patterns that mount a
-[`DjangoAGUIView`](https://github.com/Artui/django-ag-ui) over the default
-server-side admin tool registry. The endpoint is named
-`django_admin_agent_endpoint` — the name the sidebar reverses to find it.
+[`AdminAgentServer`](reference.md) is a
+[`django_ag_ui.AGUIServer`](https://github.com/Artui/django-ag-ui) pre-configured
+for the admin (the default admin tool registry + a fail-closed staff gate). Mount
+its namespaced `.urls` the `admin.site.urls` way. The endpoints live under the
+`admin_agent` namespace — the sidebar reverses `admin_agent:endpoint` to find the
+agent endpoint.
 
 ```python title="urls.py"
 from django.contrib import admin
 from django.urls import path
 
-from django_admin_agent import get_urls
+from django_admin_agent import AdminAgentServer
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    *get_urls(model="anthropic:claude-sonnet-4.6"),
+    path("admin-agent/", AdminAgentServer(model="anthropic:claude-sonnet-4.6").urls),
 ]
 ```
 
-`get_urls()` accepts:
+`AdminAgentServer(...)` accepts:
 
-- `prefix` (default `"admin-agent/"`) — the URL prefix; the endpoint is mounted
-  at `<prefix>agent/`.
-- `registry` — a custom `django_ag_ui.ToolRegistry`. Omit it to use
-  [`build_default_registry()`](reference.md) (the full `shell.*` + `introspect.*`
-  tool set).
+- `registry` (first positional) — a custom `django_ag_ui.ToolRegistry`. Omit it to
+  use [`build_default_registry()`](reference.md) (the full `shell.*` +
+  `introspect.*` tool set).
+- `namespace` (default `"admin_agent"`) — the URL namespace `.urls` mounts under.
+  Set it *and* `DJANGO_ADMIN_AGENT["URL_NAMESPACE"]` together to mount two sidebars
+  without name collisions.
 - Any extra keyword arguments (`model`, `instructions`, `audit_logger`,
-  `csrf_exempt`, …) pass straight through to the underlying `DjangoAGUIView`.
+  `conversation_store`, `attachment_store`, `transcription_backend`, …) pass
+  straight through to the underlying `AGUIServer`.
 
 !!! tip "Where the model is configured"
-    The agent model can be supplied per-mount as a `get_urls(model=...)` keyword
+    The agent model can be supplied per-mount as `AdminAgentServer(model=...)`
     *or* globally via `DJANGO_AG_UI["MODEL"]`. See
     [Configuration](configuration.md).
 

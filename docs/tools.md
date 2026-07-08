@@ -3,7 +3,7 @@
 The agent reaches its goals through two families of tools:
 
 - **Server-side tools** run in-process inside the `DjangoAGUIView`. They are
-  read-only and registered on the `ToolRegistry` that `get_urls()` mounts. This
+  read-only and registered on the `ToolRegistry` that `AdminAgentServer` mounts. This
   package contributes the `shell.*` (ORM) and `introspect.*` (Django/admin
   introspection) categories.
 - **Frontend tools** are declared by the `<ag-ui-chat>` Web Component on every
@@ -60,7 +60,7 @@ Registered by `register_introspect_tools()`.
 
 These categories are bundled by `register_admin_tools(registry)`, and
 `build_default_registry()` returns a fresh registry with both registered — the
-default `get_urls()` uses it.
+default `AdminAgentServer()` uses it.
 
 ## Frontend tools
 
