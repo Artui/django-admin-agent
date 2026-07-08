@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-07-08
+
+### Added
+
+- **`AdminAgentServer` — the sidebar's mount object.** A
+  `django_ag_ui.AGUIServer` subclass pre-configured for the admin (the default
+  admin tool registry + the fail-closed staff gate). Construct it once and mount
+  its namespaced `.urls` the `admin.site.urls` way:
+
+  ```python
+  from django_admin_agent import AdminAgentServer
+  urlpatterns = [
+      path("admin/", admin.site.urls),
+      path("admin-agent/", AdminAgentServer().urls),
+  ]
+  ```
+
+  Extra keyword arguments (`model`, `conversation_store`, `attachment_store`,
+  `transcription_backend`, `authorize`, …) pass through to `AGUIServer`. Requires
+  `django-ag-ui>=0.12`.
+
+### Removed (breaking)
+
+- **`get_urls` is removed** in favour of `AdminAgentServer` (upstream dropped its
+  own `get_urls` in 0.12). Migrate the root URLconf from
+  `*get_urls(model=...)` to `path("admin-agent/", AdminAgentServer(model=...).urls)`.
+  `staff_required` is still exported (now from `django_admin_agent` directly, not
+  `django_admin_agent.urls`).
+- **Endpoint URL names are now namespaced.** The flat global names
+  (`django_admin_agent_endpoint` / `_tools` / `_threads` / …) are replaced by the
+  `admin_agent` namespace — `reverse("admin_agent:endpoint")`, `"admin_agent:tools"`,
+  …. The `ENDPOINT_URL_NAME` setting is replaced by **`URL_NAMESPACE`** (default
+  `"admin_agent"`); set it if you mount the server with a non-default `namespace=`.
+  The agent endpoint also moves from `<prefix>agent/` to `<prefix>` (the sidebar
+  reverses by name, so this is transparent).
+
+### Changed (breaking)
+
+- **The thread / upload / transcription sub-views mount only when their store is
+  configured** (the `AGUIServer` conditional-mounting contract), instead of always
+  mounting `Null`-backed endpoints. With no `CONVERSATION_STORE` / `ATTACHMENT_STORE`
+  / `TRANSCRIPTION_BACKEND`, those `data-*-url` attributes are absent and the
+  sidebar shows no upload / mic affordance (the history drawer falls back to the
+  client's per-tab threads, as before).
+- Bumped the `django-ag-ui` floor to `>=0.12,<0.13`.
+
 ## [0.10.1] — 2026-07-03
 
 ### Changed
@@ -243,7 +289,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.10.1...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/Artui/django-admin-agent/compare/v0.10.1...v0.11.0
 [0.10.1]: https://github.com/Artui/django-admin-agent/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Artui/django-admin-agent/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/Artui/django-admin-agent/compare/v0.8.0...v0.9.0

@@ -74,12 +74,12 @@ INSTALLED_APPS = [
 from django.contrib import admin
 from django.urls import path
 
-from django_admin_agent import get_urls
+from django_admin_agent import AdminAgentServer
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # Mounts the agent endpoint over the default shell.* + introspect.* registry.
-    *get_urls(model="anthropic:claude-sonnet-4.6"),
+    # Mounts the agent server over the default shell.* + introspect.* registry.
+    path("admin-agent/", AdminAgentServer(model="anthropic:claude-sonnet-4.6").urls),
 ]
 ```
 
@@ -102,7 +102,7 @@ doesn't need swapping. Serve it over ASGI:
 uvicorn myproject.asgi:application
 ```
 
-The model can be set per-mount (`get_urls(model=...)`) or globally via
+The model can be set per-mount (`AdminAgentServer(model=...)`) or globally via
 `DJANGO_AG_UI["MODEL"]`. See the
 [docs](https://artui.github.io/django-admin-agent/) for the full tool surface,
 configuration reference, the `SidebarAdminSite` path, Unfold support, and the

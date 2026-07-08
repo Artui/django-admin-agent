@@ -434,7 +434,7 @@ e2e = [
 [package.metadata]
 requires-dist = [
     { name = "django", specifier = ">=4.2" },
-    { name = "django-ag-ui", specifier = ">=0.10,<0.12" },
+    { name = "django-ag-ui", specifier = ">=0.12,<0.13" },
     { name = "djangorestframework-mcp-server", marker = "extra == 'mcp'", specifier = ">=0.6.1" },
 ]
 provides-extras = ["mcp"]
@@ -465,16 +465,16 @@ e2e = [
 
 [[package]]
 name = "django-ag-ui"
-version = "0.11.0"
+version = "0.12.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django", version = "5.2.14", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.0.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pydantic-ai-slim", extra = ["ag-ui"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/39/23/a96c7fb3b23b293b0087305c084f0d48c8bb0bd58b6dabfe88139f1b212c/django_ag_ui-0.11.0.tar.gz", hash = "sha256:5bb2319e7d4862ec221983bc97aecbf581b7d3b05a1dc142053efd7ac44bc2f5", size = 257301, upload-time = "2026-07-02T16:07:52.878Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9b/75/2a9d90725056513f1e0c3e323d2c05b8709813f6339b1612dee4040aa2c1/django_ag_ui-0.12.0.tar.gz", hash = "sha256:001fe3a4795277b195b9de5ca7c10ecdc57b3d88f6a7e236f8833ba8c8aed078", size = 261099, upload-time = "2026-07-08T07:42:15.16Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d3/96/a6574f90f4f0934639e8d59b66b80b8af25a554ae5dc2bccd7714424fe35/django_ag_ui-0.11.0-py3-none-any.whl", hash = "sha256:0b4d69fc043d1fadee6dfb4ba578d9e582f3bd52f62fdf26cdddb53465aef4bb", size = 91939, upload-time = "2026-07-02T16:07:51.416Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/64/8451a4dd8a0fe76e798f96ff3e6252e697cc33bf8a0feb33eab39bc2fa96/django_ag_ui-0.12.0-py3-none-any.whl", hash = "sha256:a8463e05cbb77a421d33ab45efbd4794a2849c6daf2a60910cdff7de8220aadd", size = 92937, upload-time = "2026-07-08T07:42:13.692Z" },
 ]
 
 [[package]]
