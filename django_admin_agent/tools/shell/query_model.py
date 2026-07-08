@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from django_admin_agent.tools.shell.redact_sensitive_fields import redact_sensitive_fields
 from django_admin_agent.tools.utils import resolve_model, to_json_safe
 
 
@@ -22,7 +23,8 @@ def query_model(
     ``filter`` and ``exclude`` accept ORM lookup kwargs (e.g.
     ``{"email__icontains": "@foo"}``). ``fields`` projects via
     ``.values()``; if omitted, every concrete field is returned.
-    ``limit`` is hard-capped at 1000 to keep responses bounded.
+    ``limit`` is hard-capped at 1000 to keep responses bounded. Sensitive fields
+    (name matching the ``SHELL_FIELD_REDACTION`` denylist) are redacted.
     """
     model_cls = resolve_model(app_label, model)
     qs = model_cls._default_manager.all()
@@ -43,7 +45,7 @@ def query_model(
     else:
         all_fields = [f.name for f in model_cls._meta.concrete_fields]
         values = sliced.values(*all_fields)
-    return [to_json_safe(row) for row in values]
+    return [redact_sensitive_fields(to_json_safe(row)) for row in values]
 
 
 __all__ = ["query_model"]

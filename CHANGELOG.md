@@ -7,6 +7,169 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-07-08
+
+### Added
+
+- **`AdminAgentServer` — the sidebar's mount object.** A
+  `django_ag_ui.AGUIServer` subclass pre-configured for the admin (the default
+  admin tool registry + the fail-closed staff gate). Construct it once and mount
+  its namespaced `.urls` the `admin.site.urls` way:
+
+  ```python
+  from django_admin_agent import AdminAgentServer
+  urlpatterns = [
+      path("admin/", admin.site.urls),
+      path("admin-agent/", AdminAgentServer().urls),
+  ]
+  ```
+
+  Extra keyword arguments (`model`, `conversation_store`, `attachment_store`,
+  `transcription_backend`, `authorize`, …) pass through to `AGUIServer`. Requires
+  `django-ag-ui>=0.12`.
+
+### Removed (breaking)
+
+- **`get_urls` is removed** in favour of `AdminAgentServer` (upstream dropped its
+  own `get_urls` in 0.12). Migrate the root URLconf from
+  `*get_urls(model=...)` to `path("admin-agent/", AdminAgentServer(model=...).urls)`.
+  `staff_required` is still exported (now from `django_admin_agent` directly, not
+  `django_admin_agent.urls`).
+- **Endpoint URL names are now namespaced.** The flat global names
+  (`django_admin_agent_endpoint` / `_tools` / `_threads` / …) are replaced by the
+  `admin_agent` namespace — `reverse("admin_agent:endpoint")`, `"admin_agent:tools"`,
+  …. The `ENDPOINT_URL_NAME` setting is replaced by **`URL_NAMESPACE`** (default
+  `"admin_agent"`); set it if you mount the server with a non-default `namespace=`.
+  The agent endpoint also moves from `<prefix>agent/` to `<prefix>` (the sidebar
+  reverses by name, so this is transparent).
+
+### Changed (breaking)
+
+- **The thread / upload / transcription sub-views mount only when their store is
+  configured** (the `AGUIServer` conditional-mounting contract), instead of always
+  mounting `Null`-backed endpoints. With no `CONVERSATION_STORE` / `ATTACHMENT_STORE`
+  / `TRANSCRIPTION_BACKEND`, those `data-*-url` attributes are absent and the
+  sidebar shows no upload / mic affordance (the history drawer falls back to the
+  client's per-tab threads, as before).
+- Bumped the `django-ag-ui` floor to `>=0.12,<0.13`.
+
+## [0.10.1] — 2026-07-03
+
+### Changed
+
+- **The admin sidebar now forwards the configured upload guards to the browser.**
+  When uploads are mounted, `build_sidebar_context()` mirrors django-ag-ui's
+  server-side `ATTACHMENT_MAX_BYTES` / `ATTACHMENT_ALLOWED_TYPES` onto the
+  `<ag-ui-chat>` element as `data-attachment-max-bytes` / `data-attachment-accept`,
+  so the composer can reject oversized or wrong-type files before upload. The
+  server stays authoritative; this is instant client-side feedback only.
+- **Documentation:** documented the sidebar customization settings the code
+  already reads (`STRINGS`, `ICON_URL`, `SIDE`, `THEME_TOGGLE`) and the
+  `sidebar` placement value; refreshed the admin-wiring context table; and
+  corrected the stale `django-ag-ui` version floor in the README and docs to the
+  current `>=0.10,<0.12` pin.
+- **Vendored bundle:** stripped the trailing `sourceMappingURL` pointer from the
+  vendored web-component bundle (the `.map` is not shipped), so admin pages no
+  longer 404 for a missing source map; the `Makefile` re-vendor targets strip it
+  on every refresh.
+- **Dependency:** widened the `django-ag-ui` pin to `>=0.10,<0.12` to allow the
+  published 0.11.x line (CI-validated against 0.11.x).
+
+## [0.10.0] — 2026-07-02
+
+### Changed
+
+- **Re-vendored the 0.10.0 web-component bundle** (`WEB_COMPONENT_VERSION`),
+  adopting its client-lifecycle hardening — no new admin settings and no
+  `django-ag-ui` pin change. The sidebar now: ignores Enter while a run is
+  streaming (no second concurrent run); on teardown (sidebar removed / route
+  swapped) cancels the run, aborts in-flight uploads, and releases the mic;
+  presents the chat-history drawer as a focus-trapped, Escape-closable modal
+  dialog; scopes its stored collapsed/theme/thread state per instance so two
+  sidebars on one origin no longer clobber each other (existing state migrates
+  automatically); and hardens history replay against a thread-switch race, a
+  malformed thread response, unparseable timestamps, and corrupt attachment
+  refs.
+
+## [0.9.0] — 2026-07-02
+
+### Security
+
+- **The mounted routes are now fail-closed (breaking: anonymous access
+  removed).** `get_urls` previously mounted the agent endpoint and its
+  companions (tool catalog, thread index, uploads, transcription) **open** — an
+  unauthenticated visitor could drive the agent and, via `shell.query_model`,
+  stream model rows including `auth.User` password hashes back over SSE. Every
+  route now defaults to `require_authenticated=True` (401 for anonymous) **and**
+  `authorize=staff_required` (403 for a non-staff user), returning JSON rather
+  than an HTML login redirect (so `admin_view()` is not used), and the agent
+  endpoint defaults to `csrf_exempt=False` (the sidebar bootstrap already sends
+  the token). Relax deliberately via `get_urls(require_authenticated=..., authorize=..., csrf_exempt=...)`.
+  Pins `django-ag-ui>=0.10,<0.11` (the release that added the `authorize=` seam).
+- **Sensitive fields are redacted from the shell tools.** `shell.query_model` /
+  `shell.get_model_instance` now redact any field whose name matches
+  `DJANGO_ADMIN_AGENT["SHELL_FIELD_REDACTION"]` (default
+  `password|token|secret|key|hash`, case-insensitive) before the row reaches the
+  model — even a legitimate staff query shouldn't ship a password hash to a
+  third-party LLM. Set `False` to disable, or a regex `str` to override the
+  denylist. New export: `django_admin_agent.urls.staff_required`.
+
+## [0.8.0] — 2026-06-30
+
+### Added
+
+- **Re-vendored the 0.9.0 web-component bundle** (`WEB_COMPONENT_VERSION`) and
+  bumped the `django-ag-ui` pin to `>=0.8,<0.9`, adopting the rich-turn UI:
+  the per-turn answer well, inline tool-display mode + themeable status icons, and
+  — for a reasoning model — a collapsible streamed **thoughts** region (no admin
+  wiring needed; it appears whenever `DJANGO_AG_UI["MODEL_SETTINGS"]` enables
+  thinking).
+- **Voice input.** `get_urls` now also mounts a transcription endpoint at
+  `<prefix>agent/transcribe/` (named `django_admin_agent_transcribe`) and the
+  sidebar passes its URL as `data-transcribe-url`, so the composer gains a 🎤 mic
+  button. Voice is off until `DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]` is set (or a
+  backend is passed via `get_urls(transcription_backend=...)`); django-ag-ui's
+  opt-in `OpenAITranscriptionBackend` is the batteries-included option.
+- **`THEME_TOGGLE` setting** → `data-theme-toggle`: opt into the web component's
+  built-in light⇄dark header toggle (off by default).
+
+## [0.7.0] — 2026-06-26
+
+### Changed
+- **Re-vendored the `@artooi/ag-ui-web-component` bundle to 0.7.0**
+  (`WEB_COMPONENT_VERSION`), activating its UI-customization, localization, and
+  page-action features in the admin sidebar, plus the mid-run "connection lost"
+  reliability fix.
+
+### Added
+- **Localized sidebar strings.** `DJANGO_ADMIN_AGENT["STRINGS"]` is passed
+  through to the Web Component as its `data-strings` table (a partial override of
+  the English defaults). Wrap values in `gettext_lazy` and the sidebar follows
+  the admin's active language.
+- **Sidebar branding & docking.** `ICON_URL` surfaces a header/launcher icon
+  (`data-icon-url`); `SIDE` (`"left"` / `"right"`) sets the dock edge
+  (`data-side`) for the new `PLACEMENT = "sidebar"` (a full-height docked panel
+  that collapses to an icon rail).
+
+## [0.6.0] — 2026-06-25
+
+### Added
+- **File uploads in the sidebar.** `get_urls` now mounts django-ag-ui's
+  `AttachmentsView` at `<prefix>agent/attachments/[<id>/]` (named
+  `django_admin_agent_attachments` / `django_admin_agent_attachment`), and
+  `build_sidebar_context` passes its URL to the Web Component as
+  `data-attachments-url` — so an admin can attach files to a message (📎 +
+  drag-and-drop) and the agent reads them via the `read_attachment` tool.
+  Owner-scoped to the admin user; CSRF rides the bootstrap's existing
+  `el.headers`. Uploads are disabled by default (a `NullAttachmentStore` → `410`)
+  until `DJANGO_AG_UI["ATTACHMENT_STORE"]` is set (e.g. the opt-in
+  `DefaultAttachmentStore`), or an `attachment_store=` is passed to `get_urls`.
+
+### Changed
+- **Bumped the `django-ag-ui` pin to `>=0.7,<0.8`** (for `AttachmentStore` /
+  `AttachmentsView` / `read_attachment`) and re-vendored the
+  `@artooi/ag-ui-web-component@0.6.0` bundle (the upload tray + `uploadHandler`).
+
 ## [0.5.0] — 2026-06-24
 
 ### Added
@@ -126,7 +289,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/Artui/django-admin-agent/compare/v0.10.1...v0.11.0
+[0.10.1]: https://github.com/Artui/django-admin-agent/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/Artui/django-admin-agent/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/Artui/django-admin-agent/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/Artui/django-admin-agent/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/Artui/django-admin-agent/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/Artui/django-admin-agent/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Artui/django-admin-agent/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Artui/django-admin-agent/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Artui/django-admin-agent/compare/v0.2.0...v0.3.0

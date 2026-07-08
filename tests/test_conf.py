@@ -11,39 +11,51 @@ def test_defaults_when_setting_absent() -> None:
     assert isinstance(config, AdminAgentSettings)
     assert config.title == "Admin Copilot"
     assert config.auto_confirm is False
-    assert config.endpoint_url_name == "django_admin_agent_endpoint"
+    assert config.url_namespace == "admin_agent"
     assert config.tool_display == "compact"
     assert config.skills is None
     assert config.theme is None
     assert config.density is None
     assert config.placement is None
     assert config.text_animation is None
+    assert config.strings is None
+    assert config.icon_url is None
+    assert config.side is None
+    assert config.theme_toggle is False
 
 
 @override_settings(
     DJANGO_ADMIN_AGENT={
         "TITLE": "Helper",
         "AUTO_CONFIRM": True,
-        "ENDPOINT_URL_NAME": "custom_endpoint",
+        "URL_NAMESPACE": "copilot",
         "TOOL_DISPLAY": "full",
         "SKILLS": [{"name": "x", "title": "X", "prompt": "p"}],
         "THEME": "dark",
         "DENSITY": "compact",
-        "PLACEMENT": "side",
+        "PLACEMENT": "sidebar",
         "TEXT_ANIMATION": "fade",
+        "STRINGS": {"send": "Senden"},
+        "ICON_URL": "/static/logo.png",
+        "SIDE": "left",
+        "THEME_TOGGLE": True,
     },
 )
 def test_reads_overrides() -> None:
     config = get_settings()
     assert config.title == "Helper"
     assert config.auto_confirm is True
-    assert config.endpoint_url_name == "custom_endpoint"
+    assert config.url_namespace == "copilot"
     assert config.tool_display == "full"
     assert config.skills == [{"name": "x", "title": "X", "prompt": "p"}]
     assert config.theme == "dark"
     assert config.density == "compact"
-    assert config.placement == "side"
+    assert config.placement == "sidebar"
     assert config.text_animation == "fade"
+    assert config.strings == {"send": "Senden"}
+    assert config.icon_url == "/static/logo.png"
+    assert config.side == "left"
+    assert config.theme_toggle is True
 
 
 @override_settings(DJANGO_ADMIN_AGENT={"AUTO_CONFIRM": 1})

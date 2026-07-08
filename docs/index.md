@@ -10,7 +10,7 @@ It is the admin-facing consumer in a three-package stack:
 - **[`django-ag-ui`](https://github.com/Artui/django-ag-ui)** — the Django ↔
   Pydantic-AI ↔ [AG-UI](https://docs.ag-ui.com) bridge. Provides the
   `ToolRegistry`, the `@tool` decorator, `ToolCategory`, the async
-  `DjangoAGUIView`, `get_urls`, and the audit-logger machinery. This package
+  `DjangoAGUIView`, `AGUIServer`, and the audit-logger machinery. This package
   *builds on* those; it does not reimplement the transport or the agent loop.
 - **`@artooi/ag-ui-web-component`** — the framework-free `<ag-ui-chat>` Web
   Component. Its built bundle is vendored into
@@ -59,7 +59,7 @@ It is the admin-facing consumer in a three-package stack:
 ## Get started
 
 - [Installation & setup](installation.md) — add to `INSTALLED_APPS`, mount
-  `get_urls()`, inject the sidebar, ASGI requirement, the vendored bundle.
+  `AdminAgentServer().urls`, inject the sidebar, ASGI requirement, the vendored bundle.
 - [Configuration](configuration.md) — the `DJANGO_ADMIN_AGENT` settings and the
   inherited `DJANGO_AG_UI` ones.
 - [Tool surface](tools.md) — every server-side and frontend tool, the

@@ -24,10 +24,12 @@ class AdminAgentSettings:
     """When ``True``, destructive UI tools run without a confirmation modal.
     Passed to the Web Component as ``autoConfirm``."""
 
-    endpoint_url_name: str
-    """URL name to reverse for the AG-UI endpoint. Mount it with
-    :func:`django_admin_agent.get_urls` (which names it
-    ``django_admin_agent_endpoint``)."""
+    url_namespace: str
+    """The URL namespace the mounted :class:`~django_admin_agent.AdminAgentServer`
+    uses (its ``.urls`` app_name, default ``"admin_agent"``). The sidebar reverses
+    the endpoint and its sub-views within it — ``reverse("<namespace>:endpoint")``,
+    ``"<namespace>:tools"``, …. Set this if you mount the server with a non-default
+    ``namespace=``."""
 
     tool_display: str
     """How much detail tool-call cards show: ``"minimal"``, ``"compact"``, or
@@ -46,12 +48,42 @@ class AdminAgentSettings:
     """``"comfortable"`` / ``"compact"``. ``None`` leaves the default."""
 
     placement: str | None
-    """``"bottom-left"`` / ``"side"`` / ``"full"`` / ``"embedded"`` (or unset for
-    the default floating bottom-right)."""
+    """``"bottom-left"`` / ``"side"`` / ``"sidebar"`` / ``"full"`` / ``"embedded"``
+    (or unset for the default floating bottom-right). ``"sidebar"`` is a
+    full-height docked panel that collapses to an icon rail; pair it with
+    :attr:`side`."""
 
     text_animation: str | None
     """Incoming-text animation: ``"none"`` / ``"fade"`` / ``"word"``. ``None``
     leaves the default (none)."""
+
+    strings: dict[str, Any] | None
+    """Localized UI strings for the Web Component, passed through as its
+    ``data-strings`` table (a partial override merged over the English defaults).
+    Wrap values in ``gettext_lazy`` so the sidebar follows the admin's active
+    language. ``None`` leaves the component's English defaults."""
+
+    icon_url: str | None
+    """URL of a header/launcher icon image, passed through as ``data-icon-url``.
+    ``None`` leaves the sidebar icon-less."""
+
+    side: str | None
+    """For ``placement="sidebar"``: which edge it docks to — ``"left"`` /
+    ``"right"`` (``data-side``). ``None`` leaves the component default (right)."""
+
+    theme_toggle: bool
+    """When ``True``, show the Web Component's built-in light⇄dark header toggle
+    (``data-theme-toggle``), which flips :attr:`theme` and persists per tab.
+    Defaults to ``False`` — the admin's own theme usually governs."""
+
+    shell_field_redaction: bool | str
+    """Sensitive-field redaction for the ``shell.query_model`` /
+    ``shell.get_model_instance`` tools. ``True`` (default) redacts any field
+    whose name matches the built-in denylist pattern
+    (``password|token|secret|key|hash``, case-insensitive) before the row
+    reaches the LLM — even legitimate staff use shouldn't stream ``auth.User``
+    password hashes to a third-party model. ``False`` disables redaction; a
+    regex ``str`` replaces the built-in pattern with your own."""
 
 
 def get_settings() -> AdminAgentSettings:
@@ -60,13 +92,18 @@ def get_settings() -> AdminAgentSettings:
     return AdminAgentSettings(
         title=raw.get("TITLE", "Admin Copilot"),
         auto_confirm=bool(raw.get("AUTO_CONFIRM", False)),
-        endpoint_url_name=raw.get("ENDPOINT_URL_NAME", "django_admin_agent_endpoint"),
+        url_namespace=raw.get("URL_NAMESPACE", "admin_agent"),
         tool_display=raw.get("TOOL_DISPLAY", "compact"),
         skills=raw.get("SKILLS"),
         theme=raw.get("THEME"),
         density=raw.get("DENSITY"),
         placement=raw.get("PLACEMENT"),
         text_animation=raw.get("TEXT_ANIMATION"),
+        strings=raw.get("STRINGS"),
+        icon_url=raw.get("ICON_URL"),
+        side=raw.get("SIDE"),
+        theme_toggle=bool(raw.get("THEME_TOGGLE", False)),
+        shell_field_redaction=raw.get("SHELL_FIELD_REDACTION", True),
     )
 
 
