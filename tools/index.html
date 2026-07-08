@@ -797,7 +797,7 @@
 <p>The agent reaches its goals through two families of tools:</p>
 <ul>
 <li><strong>Server-side tools</strong> run in-process inside the <code>DjangoAGUIView</code>. They are
-  read-only and registered on the <code>ToolRegistry</code> that <code>get_urls()</code> mounts. This
+  read-only and registered on the <code>ToolRegistry</code> that <code>AdminAgentServer</code> mounts. This
   package contributes the <code>shell.*</code> (ORM) and <code>introspect.*</code> (Django/admin
   introspection) categories.</li>
 <li><strong>Frontend tools</strong> are declared by the <code>&lt;ag-ui-chat&gt;</code> Web Component on every
@@ -910,7 +910,7 @@ code path.</p>
 </div>
 <p>These categories are bundled by <code>register_admin_tools(registry)</code>, and
 <code>build_default_registry()</code> returns a fresh registry with both registered — the
-default <code>get_urls()</code> uses it.</p>
+default <code>AdminAgentServer()</code> uses it.</p>
 <h2 id="frontend-tools">Frontend tools<a class="headerlink" href="#frontend-tools" title="Permanent link">&para;</a></h2>
 <p>Declared per-run by the Web Component and executed in the browser against
 Django admin's structural DOM contracts (<code>#id_&lt;field&gt;</code> inputs,

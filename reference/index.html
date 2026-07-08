@@ -500,10 +500,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#django_admin_agent.urls.get_urls" class="md-nav__link">
+  <a href="#django_admin_agent.admin_agent_server.AdminAgentServer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        get_urls
+        AdminAgentServer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#django_admin_agent.staff_required.staff_required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        staff_required
       
     </span>
   </a>
@@ -600,10 +611,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#django_admin_agent.conf.AdminAgentSettings.endpoint_url_name" class="md-nav__link">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.url_namespace" class="md-nav__link">
     <span class="md-ellipsis">
       
-        endpoint_url_name
+        url_namespace
       
     </span>
   </a>
@@ -1014,10 +1025,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#django_admin_agent.urls.get_urls" class="md-nav__link">
+  <a href="#django_admin_agent.admin_agent_server.AdminAgentServer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        get_urls
+        AdminAgentServer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#django_admin_agent.staff_required.staff_required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        staff_required
       
     </span>
   </a>
@@ -1114,10 +1136,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#django_admin_agent.conf.AdminAgentSettings.endpoint_url_name" class="md-nav__link">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.url_namespace" class="md-nav__link">
     <span class="md-ellipsis">
       
-        endpoint_url_name
+        url_namespace
       
     </span>
   </a>
@@ -1512,31 +1534,42 @@
 <h2 id="package-entry-points">Package entry points<a class="headerlink" href="#package-entry-points" title="Permanent link">&para;</a></h2>
 
 
-<div class="doc doc-object doc-function">
+<div class="doc doc-object doc-class">
 
 
-<h2 id="django_admin_agent.urls.get_urls" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">get_urls</span>
+
+<h2 id="django_admin_agent.admin_agent_server.AdminAgentServer" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">AdminAgentServer</span>
 
 
-<a href="#django_admin_agent.urls.get_urls" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">get_urls</span><span class="p">(</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;admin-agent/&quot;</span><span class="p">,</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="o">*</span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">registry</span><span class="p">:</span> <span class="n">ToolRegistry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">conversation_store</span><span class="p">:</span> <span class="n">ConversationStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">attachment_store</span><span class="p">:</span> <span class="n">AttachmentStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">transcription_backend</span><span class="p">:</span> <span class="n">TranscriptionBackend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">require_authenticated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">authorize</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">HttpRequest</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">staff_required</span><span class="p">,</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">csrf_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="o">**</span><span class="n">view_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">URLPattern</span><span class="p">]</span>
-</span></code></pre></div>
+<a href="#django_admin_agent.admin_agent_server.AdminAgentServer" class="headerlink" title="Permanent link">&para;</a></h2>
+
 
     <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="django_ag_ui.AGUIServer">AGUIServer</span></code></p>
 
-        <p>Return URL patterns mounting the admin agent's AG-UI endpoint.</p>
+
+
+        <p>The admin sidebar's mount object — a :class:<code>~django_ag_ui.AGUIServer</code>
+pre-configured for the Django admin.</p>
+<p>Construct it once and mount its namespaced :attr:<code>~django_ag_ui.AGUIServer.urls</code>
+the <code>admin.site.urls</code> way, alongside the admin::</p>
+<div class="language-text highlight"><pre><span></span><code>from django.contrib import admin
+from django.urls import path
+from django_admin_agent import AdminAgentServer
+
+urlpatterns = [
+    path(&quot;admin/&quot;, admin.site.urls),
+    path(&quot;admin-agent/&quot;, AdminAgentServer().urls),
+]
+# reverse(&quot;admin_agent:endpoint&quot;) · &quot;admin_agent:tools&quot; · &quot;admin_agent:threads&quot; · …
+</code></pre></div>
+<p>It mounts the agent endpoint and its tool catalog, plus the thread /
+attachment / transcription sub-views when their stores are configured (the
+same conditional mounting as <code>AGUIServer</code>). The web-component sidebar
+reverses these names via <code>DJANGO_ADMIN_AGENT["URL_NAMESPACE"]</code> (default
+<code>"admin_agent"</code>) — set it if you pass a non-default <code>namespace</code>.</p>
 <p><strong>Fail-closed by default.</strong> Every mounted route requires an authenticated,
 active <strong>staff</strong> user: <code>require_authenticated=True</code> gives <code>401</code> for an
 anonymous request and <code>authorize=staff_required</code> gives <code>403</code> for a
@@ -1546,45 +1579,58 @@ the token). Without this an unauthenticated visitor could drive the agent and
 stream model data (e.g. <code>auth.User</code> rows) back over SSE. Relax it
 deliberately — e.g. <code>authorize=lambda r: r.user.is_superuser</code> to tighten,
 or <code>require_authenticated=False</code> to open it — but the default is locked.</p>
-<p>Builds a :class:<code>~django_ag_ui.DjangoAGUIView</code> over the default
-server-side admin tool registry (or a registry you pass) and mounts it
-at <code>&lt;prefix&gt;agent/</code> named <code>django_admin_agent_endpoint</code> — the name
-the sidebar reverses. Also mounts:</p>
-<ul>
-<li>the server-tool label catalog at <code>&lt;prefix&gt;agent/tools/</code> (named
-  <code>django_admin_agent_tools</code>), passed to the Web Component as
-  <code>data-tools-url</code>;</li>
-<li>the <strong>thread index</strong> for the chat-history drawer at <code>&lt;prefix&gt;agent/threads/</code>
-  and <code>&lt;prefix&gt;agent/threads/&lt;id&gt;/</code> (named <code>django_admin_agent_threads</code> /
-  <code>django_admin_agent_thread</code>), passed as <code>data-threads-url</code>. It uses the
-  same store the agent endpoint persists to — the one configured by
-  <code>DJANGO_AG_UI["CONVERSATION_STORE"]</code> (a <code>NullConversationStore</code> until you
-  set one, in which case the drawer falls back to the client's per-tab
-  threads) — or the <code>conversation_store</code> you pass here.</li>
-<li>the <strong>file-upload endpoint</strong> for the composer at <code>&lt;prefix&gt;agent/attachments/</code>
-  and <code>&lt;prefix&gt;agent/attachments/&lt;id&gt;/</code> (named <code>django_admin_agent_attachments</code>
-  / <code>django_admin_agent_attachment</code>), passed as <code>data-attachments-url</code>. It
-  uses the store configured by <code>DJANGO_AG_UI["ATTACHMENT_STORE"]</code> (a
-  <code>NullAttachmentStore</code> — uploads disabled, <code>410</code> — until you set one, e.g.
-  the opt-in <code>DefaultAttachmentStore</code>) — or the <code>attachment_store</code> you pass
-  here. Owner-scoped to the admin user, so an admin only sees their own files.</li>
-<li>the <strong>voice-transcription endpoint</strong> for the composer's mic at
-  <code>&lt;prefix&gt;agent/transcribe/</code> (named <code>django_admin_agent_transcribe</code>),
-  passed as <code>data-transcribe-url</code>. It uses the backend configured by
-  <code>DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]</code> (a <code>NullTranscriptionBackend</code> —
-  voice disabled, <code>410</code> — until you set one, e.g. the opt-in
-  <code>OpenAITranscriptionBackend</code>) — or the <code>transcription_backend</code> you pass
-  here.</li>
-</ul>
-<p>Extra keyword arguments (<code>model</code>, <code>instructions</code>, <code>audit_logger</code>,
-<code>get_user</code>) pass through to the agent view. <code>require_authenticated</code> /
-<code>authorize</code> / <code>csrf_exempt</code> are applied to the mounted routes as above.</p>
-<p>Include the result from your project's root URLconf::</p>
-<div class="language-text highlight"><pre><span></span><code>urlpatterns = [
-    path(&quot;admin/&quot;, admin.site.urls),
-    *get_urls(),
-]
-</code></pre></div>
+<p>Defaults the registry to the built-in admin tool registry
+(:func:<code>~django_admin_agent.build_default_registry</code>). Extra keyword arguments
+(<code>model</code>, <code>instructions</code>, <code>audit_logger</code>, <code>get_user</code>,
+<code>conversation_store</code>, <code>attachment_store</code>, <code>transcription_backend</code>) pass
+straight through to :class:<code>~django_ag_ui.AGUIServer</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="django_admin_agent.staff_required.staff_required" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">staff_required</span>
+
+
+<a href="#django_admin_agent.staff_required.staff_required" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">staff_required</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">HttpRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>The default authorization gate: an active, staff user.</p>
+<p>The mounted routes are JSON / SSE endpoints, so this returns a bool the
+views turn into a <code>403</code> — unlike <code>admin_view()</code>, whose HTML login
+redirect would corrupt an SSE stream or a JSON fetch.</p>
 
 
     </div>
@@ -1769,23 +1815,25 @@ Passed to the Web Component as <code>autoConfirm</code>.</p>
 
 
 
-<h3 id="django_admin_agent.conf.AdminAgentSettings.endpoint_url_name" class="doc doc-heading">
-            <span class="doc doc-object-name doc-attribute-name">endpoint_url_name</span>
+<h3 id="django_admin_agent.conf.AdminAgentSettings.url_namespace" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">url_namespace</span>
 
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#django_admin_agent.conf.AdminAgentSettings.endpoint_url_name" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">endpoint_url_name</span><span class="p">:</span> <span class="nb">str</span>
+<a href="#django_admin_agent.conf.AdminAgentSettings.url_namespace" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">url_namespace</span><span class="p">:</span> <span class="nb">str</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>URL name to reverse for the AG-UI endpoint. Mount it with
-:func:<code>django_admin_agent.get_urls</code> (which names it
-<code>django_admin_agent_endpoint</code>).</p>
+        <p>The URL namespace the mounted :class:<code>~django_admin_agent.AdminAgentServer</code>
+uses (its <code>.urls</code> app_name, default <code>"admin_agent"</code>). The sidebar reverses
+the endpoint and its sub-views within it — <code>reverse("&lt;namespace&gt;:endpoint")</code>,
+<code>"&lt;namespace&gt;:tools"</code>, …. Set this if you mount the server with a non-default
+<code>namespace=</code>.</p>
 
     </div>
 

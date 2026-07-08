@@ -378,10 +378,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-mount-the-agent-endpoint" class="md-nav__link">
+  <a href="#2-mount-the-agent-server" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Mount the agent endpoint
+        2. Mount the agent server
       
     </span>
   </a>
@@ -641,10 +641,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-mount-the-agent-endpoint" class="md-nav__link">
+  <a href="#2-mount-the-agent-server" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Mount the agent endpoint
+        2. Mount the agent server
       
     </span>
   </a>
@@ -762,34 +762,38 @@ admin sidebar.</p>
 </span></code></pre></div>
 <p>This makes the vendored static bundle, the <code>django_admin_agent</code> template-tag
 library, and the sidebar template discoverable.</p>
-<h2 id="2-mount-the-agent-endpoint">2. Mount the agent endpoint<a class="headerlink" href="#2-mount-the-agent-endpoint" title="Permanent link">&para;</a></h2>
-<p><code>django_admin_agent.get_urls()</code> returns URL patterns that mount a
-<a href="https://github.com/Artui/django-ag-ui"><code>DjangoAGUIView</code></a> over the default
-server-side admin tool registry. The endpoint is named
-<code>django_admin_agent_endpoint</code> — the name the sidebar reverses to find it.</p>
+<h2 id="2-mount-the-agent-server">2. Mount the agent server<a class="headerlink" href="#2-mount-the-agent-server" title="Permanent link">&para;</a></h2>
+<p><a href="../reference/"><code>AdminAgentServer</code></a> is a
+<a href="https://github.com/Artui/django-ag-ui"><code>django_ag_ui.AGUIServer</code></a> pre-configured
+for the admin (the default admin tool registry + a fail-closed staff gate). Mount
+its namespaced <code>.urls</code> the <code>admin.site.urls</code> way. The endpoints live under the
+<code>admin_agent</code> namespace — the sidebar reverses <code>admin_agent:endpoint</code> to find the
+agent endpoint.</p>
 <div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">admin</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.urls</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_urls</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminAgentServer</span>
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">&quot;admin/&quot;</span><span class="p">,</span> <span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="o">*</span><span class="n">get_urls</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic:claude-sonnet-4.6&quot;</span><span class="p">),</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">&quot;admin-agent/&quot;</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic:claude-sonnet-4.6&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">]</span>
 </span></code></pre></div>
-<p><code>get_urls()</code> accepts:</p>
+<p><code>AdminAgentServer(...)</code> accepts:</p>
 <ul>
-<li><code>prefix</code> (default <code>"admin-agent/"</code>) — the URL prefix; the endpoint is mounted
-  at <code>&lt;prefix&gt;agent/</code>.</li>
-<li><code>registry</code> — a custom <code>django_ag_ui.ToolRegistry</code>. Omit it to use
-  <a href="../reference/"><code>build_default_registry()</code></a> (the full <code>shell.*</code> + <code>introspect.*</code>
-  tool set).</li>
+<li><code>registry</code> (first positional) — a custom <code>django_ag_ui.ToolRegistry</code>. Omit it to
+  use <a href="../reference/"><code>build_default_registry()</code></a> (the full <code>shell.*</code> +
+  <code>introspect.*</code> tool set).</li>
+<li><code>namespace</code> (default <code>"admin_agent"</code>) — the URL namespace <code>.urls</code> mounts under.
+  Set it <em>and</em> <code>DJANGO_ADMIN_AGENT["URL_NAMESPACE"]</code> together to mount two sidebars
+  without name collisions.</li>
 <li>Any extra keyword arguments (<code>model</code>, <code>instructions</code>, <code>audit_logger</code>,
-  <code>csrf_exempt</code>, …) pass straight through to the underlying <code>DjangoAGUIView</code>.</li>
+  <code>conversation_store</code>, <code>attachment_store</code>, <code>transcription_backend</code>, …) pass
+  straight through to the underlying <code>AGUIServer</code>.</li>
 </ul>
 <div class="admonition tip">
 <p class="admonition-title">Where the model is configured</p>
-<p>The agent model can be supplied per-mount as a <code>get_urls(model=...)</code> keyword
+<p>The agent model can be supplied per-mount as <code>AdminAgentServer(model=...)</code>
 <em>or</em> globally via <code>DJANGO_AG_UI["MODEL"]</code>. See
 <a href="../configuration/">Configuration</a>.</p>
 </div>

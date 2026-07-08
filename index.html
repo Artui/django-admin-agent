@@ -601,7 +601,7 @@ pages — with visible animations and a confirmation modal on destructive action
 <li><strong><a href="https://github.com/Artui/django-ag-ui"><code>django-ag-ui</code></a></strong> — the Django ↔
   Pydantic-AI ↔ <a href="https://docs.ag-ui.com">AG-UI</a> bridge. Provides the
   <code>ToolRegistry</code>, the <code>@tool</code> decorator, <code>ToolCategory</code>, the async
-  <code>DjangoAGUIView</code>, <code>get_urls</code>, and the audit-logger machinery. This package
+  <code>DjangoAGUIView</code>, <code>AGUIServer</code>, and the audit-logger machinery. This package
   <em>builds on</em> those; it does not reimplement the transport or the agent loop.</li>
 <li><strong><code>@artooi/ag-ui-web-component</code></strong> — the framework-free <code>&lt;ag-ui-chat&gt;</code> Web
   Component. Its built bundle is vendored into
@@ -650,7 +650,7 @@ pages — with visible animations and a confirmation modal on destructive action
 <h2 id="get-started">Get started<a class="headerlink" href="#get-started" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="installation/">Installation &amp; setup</a> — add to <code>INSTALLED_APPS</code>, mount
-  <code>get_urls()</code>, inject the sidebar, ASGI requirement, the vendored bundle.</li>
+  <code>AdminAgentServer().urls</code>, inject the sidebar, ASGI requirement, the vendored bundle.</li>
 <li><a href="configuration/">Configuration</a> — the <code>DJANGO_ADMIN_AGENT</code> settings and the
   inherited <code>DJANGO_AG_UI</code> ones.</li>
 <li><a href="tools/">Tool surface</a> — every server-side and frontend tool, the
