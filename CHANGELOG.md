@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Re-vendored the 0.11.0 web-component bundle** (`WEB_COMPONENT_VERSION`),
+  bringing the human-in-the-loop client UI and a customization pass to the admin
+  sidebar:
+  - **Server-side tool-approval card** — when the agent gates a destructive tool,
+    the sidebar renders an inline approve/deny card and resumes the run with the
+    decision (the AG-UI interrupt/resume loop). Present but inert until the server
+    enables the gate; activating it end-to-end needs a `django-ag-ui` bump to a
+    version with `TOOL_GUARD` (0.17+), tracked separately — the admin's pin stays
+    `>=0.12,<0.13` for now.
+  - **`ask_user`** — an opt-in built-in typed-question tool (`chat.askUser`).
+  - **Full `::part()` customization** of every widget (approval / question cards,
+    attachment chips, skills UI, drawer rows) plus `approvalRenderer` /
+    `askUserRenderer` hooks. No admin code change — the bundle is a drop-in.
+
 ## [0.11.0] — 2026-07-08
 
 ### Added
