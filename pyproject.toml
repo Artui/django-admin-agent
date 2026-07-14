@@ -37,7 +37,7 @@ classifiers = [
 ]
 dependencies = [
     "django>=4.2",
-    "django-ag-ui>=0.12,<0.13",
+    "django-ag-ui>=0.17,<0.19",
 ]
 
 [project.optional-dependencies]

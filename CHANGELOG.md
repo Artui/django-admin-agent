@@ -11,15 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Adopted `django-ag-ui` 0.17+ — the human-in-the-loop tool-approval gate is
+  now live in the admin.** The pin moves from `>=0.12,<0.13` to `>=0.17,<0.19`,
+  bringing the server-side `TOOL_GUARD` gate (0.17) and the CodeMode `[harness]`
+  extra (0.18). A project can now set `DJANGO_AG_UI["TOOL_GUARD"] = {"ENABLED":
+  True}` so destructive admin tools defer for approval — the re-vendored sidebar
+  (below) renders the approve/deny card and resumes the run. Off by default. No
+  admin code change; the intervening `django-ag-ui` releases (0.13–0.16 —
+  namespaced `.urls`, the capability-based audit / session split, and
+  `SpecCapability`) are additive to the admin's usage, so the existing suite
+  passes unchanged against both 0.17 and 0.18.
 - **Re-vendored the 0.11.0 web-component bundle** (`WEB_COMPONENT_VERSION`),
   bringing the human-in-the-loop client UI and a customization pass to the admin
   sidebar:
   - **Server-side tool-approval card** — when the agent gates a destructive tool,
     the sidebar renders an inline approve/deny card and resumes the run with the
-    decision (the AG-UI interrupt/resume loop). Present but inert until the server
-    enables the gate; activating it end-to-end needs a `django-ag-ui` bump to a
-    version with `TOOL_GUARD` (0.17+), tracked separately — the admin's pin stays
-    `>=0.12,<0.13` for now.
+    decision (the AG-UI interrupt/resume loop). Now active end-to-end with the
+    `django-ag-ui` bump above.
   - **`ask_user`** — an opt-in built-in typed-question tool (`chat.askUser`).
   - **Full `::part()` customization** of every widget (approval / question cards,
     attachment chips, skills UI, drawer rows) plus `approvalRenderer` /
