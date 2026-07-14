@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] — 2026-07-14
+
+### Changed
+
+- **Adopted `django-ag-ui` 0.17+ — the human-in-the-loop tool-approval gate is
+  now live in the admin.** The pin moves from `>=0.12,<0.13` to `>=0.17,<0.19`,
+  bringing the server-side `TOOL_GUARD` gate (0.17) and the CodeMode `[harness]`
+  extra (0.18). A project can now set `DJANGO_AG_UI["TOOL_GUARD"] = {"ENABLED":
+  True}` so destructive admin tools defer for approval — the re-vendored sidebar
+  (below) renders the approve/deny card and resumes the run. Off by default. No
+  admin code change; the intervening `django-ag-ui` releases (0.13–0.16 —
+  namespaced `.urls`, the capability-based audit / session split, and
+  `SpecCapability`) are additive to the admin's usage, so the existing suite
+  passes unchanged against both 0.17 and 0.18.
+- **Re-vendored the 0.11.0 web-component bundle** (`WEB_COMPONENT_VERSION`),
+  bringing the human-in-the-loop client UI and a customization pass to the admin
+  sidebar:
+  - **Server-side tool-approval card** — when the agent gates a destructive tool,
+    the sidebar renders an inline approve/deny card and resumes the run with the
+    decision (the AG-UI interrupt/resume loop). Now active end-to-end with the
+    `django-ag-ui` bump above.
+  - **`ask_user`** — an opt-in built-in typed-question tool (`chat.askUser`).
+  - **Full `::part()` customization** of every widget (approval / question cards,
+    attachment chips, skills UI, drawer rows) plus `approvalRenderer` /
+    `askUserRenderer` hooks. No admin code change — the bundle is a drop-in.
+
 ## [0.11.0] — 2026-07-08
 
 ### Added
@@ -289,7 +315,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/Artui/django-admin-agent/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/Artui/django-admin-agent/compare/v0.10.1...v0.11.0
 [0.10.1]: https://github.com/Artui/django-admin-agent/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Artui/django-admin-agent/compare/v0.9.0...v0.10.0
