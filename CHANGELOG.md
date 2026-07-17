@@ -7,6 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] — 2026-07-17
+
+Adopts **django-ag-ui 0.19**, whose configuration is now per-endpoint, and
+retires `URL_NAMESPACE` — the last piece of this package that assumed exactly
+one mounted sidebar.
+
+**Breaking** only if you set `DJANGO_ADMIN_AGENT["URL_NAMESPACE"]`. Everything
+else in `DJANGO_ADMIN_AGENT` is unchanged: it is presentation config for a
+singleton sidebar, consumed by a template tag, and stays exactly where it is.
+
+### Changed
+
+- **Requires `django-ag-ui>=0.19,<0.20`** (was `>=0.17,<0.19`), picking up
+  per-endpoint configuration, collaborators-as-objects, and
+  `ScopedConversationStore`. `AdminAgentServer` passes every extra keyword
+  through to `AGUIServer`, so its new arguments (`toolsets=`, `capabilities=`,
+  `drf_mcp_server=`, `config=`, …) are available on the admin sidebar too.
+
+  If your project set any of the ten dotted-path settings ag-ui removed
+  (`TOOLSETS`, `CONVERSATION_STORE`, `AUDIT_LOGGER`, …), they now raise
+  `ImproperlyConfigured` naming the replacement. See
+  [django-ag-ui 0.19.0](https://github.com/Artui/django-ag-ui/blob/main/CHANGELOG.md).
+
+- The composer's upload-cap hint reads `DJANGO_AG_UI["ATTACHMENT_MAX_BYTES"]` /
+  `["ATTACHMENT_ALLOWED_TYPES"]` directly (ag-ui's `get_settings` is gone). It is
+  a **hint**: those are per-endpoint in 0.19, so a server built with an explicit
+  `config=` could hold different values. Cosmetic only — `AttachmentsView`
+  enforces its own config server-side and still rejects the upload.
+
+### Removed
+
+- **`DJANGO_ADMIN_AGENT["URL_NAMESPACE"]`.** The namespace is now an argument:
+
+  ```django
+  {# before: the setting named the one server #}
+  {% django_admin_agent_sidebar %}
+
+  {# after: name the server this sidebar belongs to #}
+  {% django_admin_agent_sidebar namespace="internal-agent" %}
+  ```
+
+  A single-sidebar project passes nothing — the tag defaults to the same
+  `"admin_agent"` the server does. `SidebarAdminSite` gains a matching
+  `sidebar_namespace` class attribute.
+
+  The setting duplicated state the server already held (you stated it twice and
+  kept the two in step) and, being one global, could name only **one** server —
+  though this package has always intended to support more than one sidebar. The
+  installation docs even claimed you could "set it *and* `namespace=` together to
+  mount two sidebars", which one global value cannot do.
+
+### Added
+
+- Docs: [Two sidebars in one project](https://artui.github.io/django-admin-agent/installation/#two-sidebars-in-one-project).
+
 ## [0.12.0] — 2026-07-14
 
 ### Changed
@@ -315,7 +370,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/Artui/django-admin-agent/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/Artui/django-admin-agent/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/Artui/django-admin-agent/compare/v0.10.1...v0.11.0
 [0.10.1]: https://github.com/Artui/django-admin-agent/compare/v0.10.0...v0.10.1

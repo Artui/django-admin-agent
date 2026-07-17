@@ -61,8 +61,8 @@ urlpatterns = [
   use [`build_default_registry()`](reference.md) (the full `shell.*` +
   `introspect.*` tool set).
 - `namespace` (default `"admin_agent"`) — the URL namespace `.urls` mounts under.
-  Set it *and* `DJANGO_ADMIN_AGENT["URL_NAMESPACE"]` together to mount two sidebars
-  without name collisions.
+  Pass the same value to the template tag so the sidebar reverses against *this*
+  server: `{% django_admin_agent_sidebar namespace="internal-agent" %}`.
 - Any extra keyword arguments (`model`, `instructions`, `audit_logger`,
   `conversation_store`, `attachment_store`, `transcription_backend`, …) pass
   straight through to the underlying `AGUIServer`.

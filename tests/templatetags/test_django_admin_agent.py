@@ -60,3 +60,11 @@ def test_tag_emits_customization_attributes() -> None:
     # attribute and the browser decodes them back on read.
     assert "data-strings=" in rendered
     assert "Senden" in rendered
+
+
+@override_settings(ROOT_URLCONF="tests.testapp.two_sidebars_urls")
+def test_the_tag_takes_a_namespace_for_a_second_sidebar() -> None:
+    """``{% django_admin_agent_sidebar namespace="internal-agent" %}`` — the
+    replacement for URL_NAMESPACE, which could name only one server."""
+    assert django_admin_agent_sidebar("internal-agent")["endpoint"] == "/internal-agent/"
+    assert django_admin_agent_sidebar("public-agent")["endpoint"] == "/public-agent/"

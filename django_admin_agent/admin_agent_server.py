@@ -30,10 +30,12 @@ class AdminAgentServer(AGUIServer):
         # reverse("admin_agent:endpoint") · "admin_agent:tools" · "admin_agent:threads" · …
 
     It mounts the agent endpoint and its tool catalog, plus the thread /
-    attachment / transcription sub-views when their stores are configured (the
-    same conditional mounting as ``AGUIServer``). The web-component sidebar
-    reverses these names via ``DJANGO_ADMIN_AGENT["URL_NAMESPACE"]`` (default
-    ``"admin_agent"``) — set it if you pass a non-default ``namespace``.
+    attachment / transcription sub-views when their stores are passed (the same
+    conditional mounting as ``AGUIServer``). The sidebar reverses these names
+    within ``namespace``; pass the same value to the template tag if you use a
+    non-default one::
+
+        {% django_admin_agent_sidebar namespace="internal-agent" %}
 
     **Fail-closed by default.** Every mounted route requires an authenticated,
     active **staff** user: ``require_authenticated=True`` gives ``401`` for an

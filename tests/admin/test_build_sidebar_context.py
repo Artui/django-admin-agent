@@ -154,3 +154,26 @@ def test_attachment_limits_are_none_when_unset() -> None:
 def test_transcribe_url_is_none_when_not_mounted() -> None:
     # Endpoint mounted by hand → no transcription route to reverse.
     assert build_sidebar_context()["transcribe_url"] is None
+
+
+@override_settings(ROOT_URLCONF="tests.testapp.two_sidebars_urls")
+def test_each_sidebar_reverses_against_its_own_server() -> None:
+    """The namespace is an argument, so two mounts each get their own URLs.
+
+    A single ``URL_NAMESPACE`` setting could only ever name one of them.
+    """
+    internal = build_sidebar_context("internal-agent")
+    public = build_sidebar_context("public-agent")
+
+    assert internal["endpoint"] == "/internal-agent/"
+    assert public["endpoint"] == "/public-agent/"
+    assert internal["tools_url"] == "/internal-agent/tools/"
+    assert public["tools_url"] == "/public-agent/tools/"
+
+
+@override_settings(ROOT_URLCONF="tests.testapp.two_sidebars_urls")
+def test_an_unmounted_namespace_degrades_rather_than_raising() -> None:
+    """A namespace that doesn't resolve leaves the optional URLs None rather
+    than exploding the admin page it renders into."""
+    context = build_sidebar_context("internal-agent")
+    assert context["threads_url"] is None
