@@ -15,7 +15,6 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | --- | --- | --- |
 | `TITLE` | `"Admin Copilot"` | Header text shown on the sidebar chat panel. |
 | `AUTO_CONFIRM` | `False` | When `True`, destructive frontend tools run without the confirmation modal. Passed to the Web Component as `autoConfirm`. |
-| `URL_NAMESPACE` | `"admin_agent"` | The URL namespace the mounted [`AdminAgentServer`](#access-control) uses; the sidebar reverses `<namespace>:endpoint`, `<namespace>:tools`, … within it. Override only if you mount the server with a non-default `namespace=`. |
 | `TOOL_DISPLAY` | `"compact"` | How much detail tool-call cards show: `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. |
 | `THEME` | _unset_ | Web Component theme: `"light"`, `"dark"`, `"auto"`, or `"code"`. Rendered as the `theme` attribute; left off (component default, light) when unset. |
 | `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |

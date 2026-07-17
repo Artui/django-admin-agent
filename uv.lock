@@ -412,7 +412,7 @@ e2e = [
 [package.metadata]
 requires-dist = [
     { name = "django", specifier = ">=4.2" },
-    { name = "django-ag-ui", specifier = ">=0.17,<0.19" },
+    { name = "django-ag-ui", specifier = ">=0.19,<0.20" },
     { name = "djangorestframework-mcp-server", marker = "extra == 'mcp'", specifier = ">=0.6.1" },
 ]
 provides-extras = ["mcp"]
@@ -443,16 +443,16 @@ e2e = [
 
 [[package]]
 name = "django-ag-ui"
-version = "0.17.0"
+version = "0.19.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ag-ui-protocol" },
     { name = "django" },
     { name = "pydantic-ai-slim", extra = ["ag-ui"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1f/be/0ce1039aa350a6c2d51a713ac96776d1b42fe37725485c1b1cc4504ba197/django_ag_ui-0.17.0.tar.gz", hash = "sha256:cc60ebe802b9a9e77697bf320b712b63fbaaea6c5d66ab36899a4e0a0972ea9f", size = 277991, upload-time = "2026-07-14T15:33:26.789Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5a/23/232aaae29145ae4e63da7178c8958b2025b5bbb515430d1b8febd433c635/django_ag_ui-0.19.0.tar.gz", hash = "sha256:bc571b6ca882ee7720765194836fec871520cd908f42b1534ed90482a8c8c263", size = 297631, upload-time = "2026-07-17T12:06:57.854Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/61/a8/2445d43a60e4e56dc1a1218bc7a526bafc84214f00756ed97e0b012dc03f/django_ag_ui-0.17.0-py3-none-any.whl", hash = "sha256:00ed663771881dc907f156e1cdbbd7912eb03fbcbe3ff105a1fd0bc56fdefefa", size = 101275, upload-time = "2026-07-14T15:33:25.277Z" },
+    { url = "https://files.pythonhosted.org/packages/89/e6/3c279aefadcaba9bdf628710024c1711ffad4b9ec1e096926ab953848946/django_ag_ui-0.19.0-py3-none-any.whl", hash = "sha256:cb6f97a22828973ed4be740ae92d7bc38f8b9fa3e1ea7a8f531c88b3dc222f0e", size = 103857, upload-time = "2026-07-17T12:06:56.278Z" },
 ]
 
 [[package]]

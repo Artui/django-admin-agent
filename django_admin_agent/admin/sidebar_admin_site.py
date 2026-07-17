@@ -6,6 +6,7 @@ from django.contrib.admin import AdminSite
 from django.http import HttpRequest
 
 from django_admin_agent.admin.build_sidebar_context import build_sidebar_context
+from django_admin_agent.admin_agent_server import DEFAULT_URL_NAMESPACE
 
 
 class SidebarAdminSite(AdminSite):
@@ -15,11 +16,23 @@ class SidebarAdminSite(AdminSite):
     a base template can render the chat without the template tag. Using the
     ``{% django_admin_agent_sidebar %}`` tag in ``admin/base_site.html`` is
     the more common path and does not require swapping the admin site.
+
+    ``sidebar_namespace`` names the mounted
+    :class:`~django_admin_agent.AdminAgentServer` to reverse against, matching
+    the ``namespace=`` it was built with — the class attribute mirrors the tag's
+    argument, so a project running two admin sites can point each at its own
+    server::
+
+        class InternalAdminSite(SidebarAdminSite):
+            sidebar_namespace = "internal-agent"
     """
+
+    # An immutable str, so no shared-mutable hazard; subclasses override it.
+    sidebar_namespace: str = DEFAULT_URL_NAMESPACE
 
     def each_context(self, request: HttpRequest) -> dict[str, Any]:
         context = super().each_context(request)
-        context["django_admin_agent"] = build_sidebar_context()
+        context["django_admin_agent"] = build_sidebar_context(self.sidebar_namespace)
         return context
 
 
