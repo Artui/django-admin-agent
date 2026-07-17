@@ -785,8 +785,8 @@ agent endpoint.</p>
   use <a href="../reference/"><code>build_default_registry()</code></a> (the full <code>shell.*</code> +
   <code>introspect.*</code> tool set).</li>
 <li><code>namespace</code> (default <code>"admin_agent"</code>) — the URL namespace <code>.urls</code> mounts under.
-  Set it <em>and</em> <code>DJANGO_ADMIN_AGENT["URL_NAMESPACE"]</code> together to mount two sidebars
-  without name collisions.</li>
+  Pass the same value to the template tag so the sidebar reverses against <em>this</em>
+  server: <code>{% django_admin_agent_sidebar namespace="internal-agent" %}</code>.</li>
 <li>Any extra keyword arguments (<code>model</code>, <code>instructions</code>, <code>audit_logger</code>,
   <code>conversation_store</code>, <code>attachment_store</code>, <code>transcription_backend</code>, …) pass
   straight through to the underlying <code>AGUIServer</code>.</li>

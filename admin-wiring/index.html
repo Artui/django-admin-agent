@@ -754,7 +754,7 @@ navigate, and the two attachment paths.</p>
 <tbody>
 <tr>
 <td><code>endpoint</code></td>
-<td><code>reverse("&lt;URL_NAMESPACE&gt;:endpoint")</code></td>
+<td><code>reverse("&lt;namespace&gt;:endpoint")</code></td>
 <td>The AG-UI endpoint the chat POSTs to.</td>
 </tr>
 <tr>
@@ -804,17 +804,17 @@ navigate, and the two attachment paths.</p>
 </tr>
 <tr>
 <td><code>tools_url</code></td>
-<td><code>reverse("&lt;URL_NAMESPACE&gt;:tools")</code> (or <code>None</code>)</td>
+<td><code>reverse("&lt;namespace&gt;:tools")</code> (or <code>None</code>)</td>
 <td>URL of the server-tool label catalog, rendered as <code>data-tools-url</code>; the component fetches it to label server-tool cards. <code>None</code> when the server wasn't mounted.</td>
 </tr>
 <tr>
 <td><code>threads_url</code></td>
-<td><code>reverse("&lt;URL_NAMESPACE&gt;:threads")</code> (or <code>None</code>)</td>
+<td><code>reverse("&lt;namespace&gt;:threads")</code> (or <code>None</code>)</td>
 <td>URL of the owner-scoped thread index, rendered as <code>data-threads-url</code>; the component's history drawer fetches it. <code>None</code> when no conversation store is configured (the sub-view is unmounted).</td>
 </tr>
 <tr>
 <td><code>attachments_url</code></td>
-<td><code>reverse("&lt;URL_NAMESPACE&gt;:attachments")</code> (or <code>None</code>)</td>
+<td><code>reverse("&lt;namespace&gt;:attachments")</code> (or <code>None</code>)</td>
 <td>URL of the upload endpoint, rendered as <code>data-attachments-url</code>; the composer posts files to it. <code>None</code> when no attachment store is configured (the sub-view is unmounted).</td>
 </tr>
 <tr>
@@ -824,7 +824,7 @@ navigate, and the two attachment paths.</p>
 </tr>
 <tr>
 <td><code>transcribe_url</code></td>
-<td><code>reverse("&lt;URL_NAMESPACE&gt;:transcribe")</code> (or <code>None</code>)</td>
+<td><code>reverse("&lt;namespace&gt;:transcribe")</code> (or <code>None</code>)</td>
 <td>URL of the transcription endpoint, rendered as <code>data-transcribe-url</code>; the mic button posts audio to it. <code>None</code> when no transcription backend is configured (the sub-view is unmounted).</td>
 </tr>
 <tr>
@@ -870,7 +870,7 @@ then:</p>
 </ol>
 <p>Server-tool card labels are <strong>not</strong> embedded — the component fetches them from
 <code>data-tools-url</code> (the <a href="https://artui.github.io/django-ag-ui/concepts/#tool-metadata-catalog"><code>&lt;prefix&gt;tools/</code> catalog endpoint</a>, named
-<code>&lt;URL_NAMESPACE&gt;:tools</code>), whose labels come from each tool's <code>@tool(summary=)</code>.</p>
+<code>&lt;namespace&gt;:tools</code>), whose labels come from each tool's <code>@tool(summary=)</code>.</p>
 <p>The themeable attributes (<code>theme</code> / <code>density</code> / <code>placement</code> /
 <code>data-text-animation</code>) and <code>data-tool-display</code> are read by the Web Component
 itself; this template is the seam where the <code>DJANGO_ADMIN_AGENT</code> settings become

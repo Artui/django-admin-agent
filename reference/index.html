@@ -611,17 +611,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#django_admin_agent.conf.AdminAgentSettings.url_namespace" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        url_namespace
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#django_admin_agent.conf.AdminAgentSettings.tool_display" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1136,17 +1125,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#django_admin_agent.conf.AdminAgentSettings.url_namespace" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        url_namespace
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#django_admin_agent.conf.AdminAgentSettings.tool_display" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1566,10 +1544,12 @@ urlpatterns = [
 # reverse(&quot;admin_agent:endpoint&quot;) · &quot;admin_agent:tools&quot; · &quot;admin_agent:threads&quot; · …
 </code></pre></div>
 <p>It mounts the agent endpoint and its tool catalog, plus the thread /
-attachment / transcription sub-views when their stores are configured (the
-same conditional mounting as <code>AGUIServer</code>). The web-component sidebar
-reverses these names via <code>DJANGO_ADMIN_AGENT["URL_NAMESPACE"]</code> (default
-<code>"admin_agent"</code>) — set it if you pass a non-default <code>namespace</code>.</p>
+attachment / transcription sub-views when their stores are passed (the same
+conditional mounting as <code>AGUIServer</code>). The sidebar reverses these names
+within <code>namespace</code>; pass the same value to the template tag if you use a
+non-default one::</p>
+<div class="language-text highlight"><pre><span></span><code>{% django_admin_agent_sidebar namespace=&quot;internal-agent&quot; %}
+</code></pre></div>
 <p><strong>Fail-closed by default.</strong> Every mounted route requires an authenticated,
 active <strong>staff</strong> user: <code>require_authenticated=True</code> gives <code>401</code> for an
 anonymous request and <code>authorize=staff_required</code> gives <code>403</code> for a
@@ -1806,34 +1786,6 @@ The agent model itself is configured separately via <code>django-ag-ui</code>'s
 
         <p>When <code>True</code>, destructive UI tools run without a confirmation modal.
 Passed to the Web Component as <code>autoConfirm</code>.</p>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-attribute">
-
-
-
-<h3 id="django_admin_agent.conf.AdminAgentSettings.url_namespace" class="doc doc-heading">
-            <span class="doc doc-object-name doc-attribute-name">url_namespace</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
-  </span>
-
-<a href="#django_admin_agent.conf.AdminAgentSettings.url_namespace" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">url_namespace</span><span class="p">:</span> <span class="nb">str</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>The URL namespace the mounted :class:<code>~django_admin_agent.AdminAgentServer</code>
-uses (its <code>.urls</code> app_name, default <code>"admin_agent"</code>). The sidebar reverses
-the endpoint and its sub-views within it — <code>reverse("&lt;namespace&gt;:endpoint")</code>,
-<code>"&lt;namespace&gt;:tools"</code>, …. Set this if you mount the server with a non-default
-<code>namespace=</code>.</p>
 
     </div>
 
@@ -2164,12 +2116,17 @@ regex <code>str</code> replaces the built-in pattern with your own.</p>
 
 
 <a href="#django_admin_agent.admin.build_sidebar_context.build_sidebar_context" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">build_sidebar_context</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">build_sidebar_context</span><span class="p">(</span><span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_URL_NAMESPACE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents first">
 
         <p>Build the context the sidebar template needs.</p>
+<p><code>namespace</code> names the mounted :class:<code>~django_admin_agent.AdminAgentServer</code>
+to reverse against — the one it was constructed with. It is an argument
+rather than a setting because a project may mount more than one sidebar, and
+because the server already knows its own namespace: a setting made you say it
+twice and get it wrong.</p>
 <p>Reverses the AG-UI endpoint URL, resolves the bootstrap module's static
 URL, reads the title / auto-confirm flag from settings, and resolves the
 admin index URL so the frontend <code>nav.*</code> tools can build changelist /
@@ -2249,6 +2206,14 @@ group}</code>. The agent calls <code>list_routes</code> to discover destinations
 a base template can render the chat without the template tag. Using the
 <code>{% django_admin_agent_sidebar %}</code> tag in <code>admin/base_site.html</code> is
 the more common path and does not require swapping the admin site.</p>
+<p><code>sidebar_namespace</code> names the mounted
+:class:<code>~django_admin_agent.AdminAgentServer</code> to reverse against, matching
+the <code>namespace=</code> it was built with — the class attribute mirrors the tag's
+argument, so a project running two admin sites can point each at its own
+server::</p>
+<div class="language-text highlight"><pre><span></span><code>class InternalAdminSite(SidebarAdminSite):
+    sidebar_namespace = &quot;internal-agent&quot;
+</code></pre></div>
 
 
 
