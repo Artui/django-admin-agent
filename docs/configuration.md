@@ -164,27 +164,36 @@ relevant to the admin sidebar:
 | --- | --- | --- |
 | `MODEL` | _unset_ | Pydantic-AI model string, e.g. `"anthropic:claude-sonnet-4.6"`. Can instead be passed per-mount as `AdminAgentServer(model=...)`. |
 | `AUTO_CONFIRM` | `False` | The `django-ag-ui`-level destructive-confirmation flag surfaced to the frontend. |
-| `CONVERSATION_STORE` | `None` (stateless) | Dotted path to a `ConversationStore` for server-side conversation persistence. See below. |
-| `ATTACHMENT_STORE` | `None` (uploads off) | Dotted path to an `AttachmentStore` for file uploads. See below. |
 | `ATTACHMENT_MAX_BYTES` / `ATTACHMENT_ALLOWED_TYPES` | 10 MiB / any | Server-side upload size cap and content-type allowlist (enforced by `AttachmentsView`). |
-| `DRF_MCP_SERVER` | `None` | Dotted path to a `djangorestframework-mcp-server` `MCPServer` instance whose tools are exposed to the agent in-process (requires the `[mcp]` extra). |
-| `AUDIT_LOGGER` | _package default_ | Dotted path to an `AuditLogger` implementation. |
-| `MODEL_SETTINGS`, `RETRIES`, `AGENT_FACTORY`, `TOOLSETS`, `CAPABILITIES` | — | Advanced Pydantic-AI configuration; see the `django-ag-ui` docs. |
+| `MODEL_SETTINGS`, `RETRIES` | — | Advanced Pydantic-AI configuration; see the `django-ag-ui` docs. |
 
 ```python title="settings.py"
 DJANGO_AG_UI = {
     "MODEL": "anthropic:claude-sonnet-4.6",
-    # Persist conversations server-side, per admin user, across tabs and reloads:
-    "CONVERSATION_STORE": "django_ag_ui.persistence.django_session_conversation_store.DjangoSessionConversationStore",
 }
 ```
 
-### `CONVERSATION_STORE` and the reload model
+!!! warning "Collaborators are constructor arguments, not settings"
+    Stores, backends, loggers, toolsets and the MCP server are **passed to
+    `AdminAgentServer(...)` in `urls.py`** — a settings dict can't hold a live
+    object, and `urls.py` can. django-ag-ui 0.19 removed the dotted-path keys
+    that used to name them, and **raises `ImproperlyConfigured` if one is still
+    present** rather than silently ignoring it: `CONVERSATION_STORE`,
+    `ATTACHMENT_STORE`, `TRANSCRIPTION_BACKEND`, `AUDIT_LOGGER`,
+    `DRF_MCP_SERVER`, `SERVICE_SPECS`, `AGENT_FACTORY`, `TOOLSETS`,
+    `CAPABILITIES`, `PROVIDER`. If an older guide had you set any of these,
+    move them to the constructor:
+
+    ```python title="urls.py"
+    AdminAgentServer(conversation_store=DjangoSessionConversationStore())
+    ```
+
+### Conversation persistence and the reload model
 
 Because the Django admin reloads the whole page on every save, filter, and
 navigation, the agent's run loop must survive reloads. The Web Component's
 client-side store (per-tab `sessionStorage`) keeps the conversation continuous
-out of the box. Setting `CONVERSATION_STORE` adds **server-side** persistence on
+out of the box. Passing a `conversation_store` adds **server-side** persistence on
 top — keyed by AG-UI `thread_id`, owner-scoped per user — so a conversation
 durably survives across tabs and devices, and the resume checkpoint becomes
 derivable from the stored history.
@@ -192,13 +201,18 @@ derivable from the stored history.
 For admin deployments — where [`AdminAgentServer`](#access-control) requires an
 authenticated staff user, so sessions always exist —
 `DjangoSessionConversationStore` is the natural choice (no migration, per-user
-durability). Leaving `CONVERSATION_STORE` unset keeps the server stateless; the
-client store still provides single-tab continuity.
+durability). Passing no store keeps the server stateless; the client store still
+provides single-tab continuity.
 
-For **durable, cross-device** history, opt into django-ag-ui's reference store
-instead: add `"django_ag_ui.contrib.store"` to `INSTALLED_APPS`, run `migrate`,
-and set `CONVERSATION_STORE` to
-`django_ag_ui.contrib.store.default_conversation_store.DefaultConversationStore`.
+```python title="urls.py"
+from django_pydantic_agent import DjangoSessionConversationStore
+
+AdminAgentServer(conversation_store=DjangoSessionConversationStore())
+```
+
+For **durable, cross-device** history, opt into the reference store instead: add
+`"django_pydantic_agent.contrib.store"` to `INSTALLED_APPS`, run `migrate`, and
+pass `DefaultConversationStore`.
 
 ### The chat-history drawer
 
@@ -207,10 +221,33 @@ owner-scoped **thread index** at `<prefix>threads/` (list) and
 `<prefix>threads/<id>/` (load / rename / delete), and the sidebar passes its URL
 to the Web Component as `data-threads-url` — the data behind a chat-history drawer
 of the admin user's past conversations. The index uses whatever
-`CONVERSATION_STORE` resolves to (pass an explicit store with
-`AdminAgentServer(conversation_store=...)` to override). **Without a store the
+the store passed to `AdminAgentServer(conversation_store=...)`. **Without a store the
 sub-view isn't mounted** and the drawer falls back to the client's per-tab
 `sessionStorage` threads; configure a durable store to list server-backed threads.
+
+### Continuing a run
+
+When a **step store** is configured, `AdminAgentServer` also mounts an
+owner-scoped run index at `<prefix>runs/` beside `resume/<run_id>/` and
+`fork/<run_id>/`, and the sidebar passes its URL to the Web Component as
+`data-runs-url` — so the sidebar header gains a ⭯ *Continue a run* panel.
+
+A run that stopped part-way (a crash, a closed tab) can then be picked up from
+its last server-side checkpoint rather than restarted: type the next turn, then
+**Resume** to carry on or **Fork** to branch without touching the original. Only
+runs the server marks continuable are offered — one that never reached a
+provider-valid boundary has no snapshot to seed from.
+
+```python title="urls.py"
+from django_pydantic_agent.contrib.store.default_step_store import DefaultStepStore
+
+AdminAgentServer(step_store=DefaultStepStore)
+```
+
+`DefaultStepStore`'s constructor *is* the `request -> StepStore` factory the
+capability needs, so pass the class itself. Requires django-ag-ui's `[harness]`
+extra. **Without a step store the sub-views aren't mounted** and no panel
+appears.
 
 ### File uploads
 
@@ -222,15 +259,21 @@ picker + drag-and-drop. Files upload out-of-band and travel as lightweight refs;
 the agent reads their contents server-side via the built-in `read_attachment` tool
 (the AG-UI message stream stays free of file bytes).
 
-Uploads are **off by default** — with no `ATTACHMENT_STORE` the sub-view isn't
-mounted (no 📎 affordance). Turn them on by pointing `ATTACHMENT_STORE` at a store
-— for **durable, per-admin-user**
-files, opt into django-ag-ui's reference store: add `"django_ag_ui.contrib.store"`
-to `INSTALLED_APPS`, run `migrate`, and set
+Uploads are **off by default** — with no attachment store the sub-view isn't
+mounted (no 📎 affordance). Turn them on by passing one. For **durable,
+per-admin-user** files, opt into the reference store: add
+`"django_pydantic_agent.contrib.store"` to `INSTALLED_APPS`, run `migrate`, then
+
+```python title="urls.py"
+from django_pydantic_agent.contrib.store.default_attachment_store import (
+    DefaultAttachmentStore,
+)
+
+AdminAgentServer(attachment_store=DefaultAttachmentStore())
+```
 
 ```python title="settings.py"
 DJANGO_AG_UI = {
-    "ATTACHMENT_STORE": "django_ag_ui.contrib.store.default_attachment_store.DefaultAttachmentStore",
     # Optional server-side guards. When uploads are mounted the admin sidebar
     # forwards these to the composer (data-attachment-max-bytes /
     # data-attachment-accept) so oversized or wrong-type files are rejected

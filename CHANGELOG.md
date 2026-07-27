@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Continue a run from the sidebar.** With a `step_store` configured,
+  `AdminAgentServer` mounts django-ag-ui's run index and the sidebar passes it to
+  the Web Component as `data-runs-url`, giving the header a ⭯ *Continue a run*
+  panel: a run that stopped part-way resumes from its last server-side
+  checkpoint, or forks without touching the original. Self-gating — no step
+  store, no attribute, no panel — the same rule the thread / upload / mic URLs
+  follow.
+
+### Changed
+
+- **Re-vendored `@artooi/ag-ui-web-component` 0.11.0 → 0.12.0** (the checkpoint
+  panel).
+- **`django-ag-ui` pin `>=0.19,<0.20` → `>=0.23,<0.24`**, adopting four releases
+  at once: durable step persistence (0.20), the agent-host substrate extraction
+  (0.21), spec-registry support (0.22) and the run index (0.23). No code change
+  was needed — every symbol this package imports is permanently re-exported by
+  django-ag-ui after the 0.21 extraction.
+
+### Fixed
+
+- **The configuration docs told readers to set settings keys that now refuse to
+  start.** `CONVERSATION_STORE`, `ATTACHMENT_STORE` and friends were removed in
+  django-ag-ui 0.19 — the release this package already depended on — and
+  `check_removed_settings` raises `ImproperlyConfigured` at URL-conf import if
+  one is still present, deliberately, so a silently-dropped collaborator can't
+  go unnoticed. A project following the old guidance would fail to boot. The
+  docs now show the constructor arguments that replaced them, with a migration
+  note naming all ten removed keys.
+- **They also pointed at a module that moved.** `django_ag_ui.contrib.store`
+  became `django_pydantic_agent.contrib.store` in the 0.21 extraction, so the
+  `INSTALLED_APPS` and store-path instructions raised `ModuleNotFoundError`.
+  Repointed, along with `DjangoSessionConversationStore`'s import path.
+
+
 ## [0.13.0] — 2026-07-17
 
 Adopts **django-ag-ui 0.19**, whose configuration is now per-endpoint, and
