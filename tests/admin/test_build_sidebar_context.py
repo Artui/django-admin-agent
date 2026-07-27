@@ -22,6 +22,8 @@ def test_context_keys_and_values() -> None:
     # sub-views are unmounted and their URLs fall back to None (the drawer then
     # uses the client's local per-tab threads; no upload / mic affordances).
     assert context["threads_url"] is None
+    # No step store either, so the checkpoint panel has nothing to index.
+    assert context["runs_url"] is None
     assert context["attachments_url"] is None
     assert context["attachment_max_bytes"] is None
     assert context["attachment_accept"] is None
@@ -95,6 +97,13 @@ def test_store_backed_urls_resolve_when_the_sub_views_are_mounted() -> None:
     assert context["threads_url"] == "/admin-agent/threads/"
     assert context["attachments_url"] == "/admin-agent/attachments/"
     assert context["transcribe_url"] == "/admin-agent/transcribe/"
+
+
+@override_settings(ROOT_URLCONF="tests.admin.urls_steps")
+def test_runs_url_resolves_when_a_step_store_is_configured() -> None:
+    # A step store mounts resume/fork *and* the run index, so the Web
+    # Component's checkpoint panel gets its data-runs-url.
+    assert build_sidebar_context()["runs_url"] == "/admin-agent/runs/"
 
 
 @override_settings(ROOT_URLCONF="tests.admin.urls_endpoint_only")

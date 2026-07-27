@@ -43,6 +43,7 @@ def build_sidebar_context(namespace: str = DEFAULT_URL_NAMESPACE) -> dict[str, A
         "skills": config.skills if config.skills is not None else build_skills(),
         "tools_url": _tools_url(namespace),
         "threads_url": _threads_url(namespace),
+        "runs_url": _runs_url(namespace),
         "attachments_url": attachments_url,
         "attachment_max_bytes": attachment_max_bytes,
         "attachment_accept": attachment_accept,
@@ -120,6 +121,19 @@ def _threads_url(namespace: str) -> str | None:
     ``None`` when no conversation store is configured (so the sub-view is unmounted)."""
     try:
         return reverse(f"{namespace}:threads")
+    except NoReverseMatch:
+        return None
+
+
+def _runs_url(namespace: str) -> str | None:
+    """Resolve the run-index URL the Web Component's checkpoint panel fetches, or
+    ``None`` when no step store is configured (so the sub-view is unmounted).
+
+    Self-gating: ``runs`` mounts only alongside ``resume`` / ``fork``, so a
+    project without durable step persistence gets no attribute and no panel —
+    the same rule the thread / attachment / transcribe URLs follow."""
+    try:
+        return reverse(f"{namespace}:runs")
     except NoReverseMatch:
         return None
 
