@@ -462,10 +462,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#conversation_store-and-the-reload-model" class="md-nav__link">
+  <a href="#conversation-persistence-and-the-reload-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CONVERSATION_STORE and the reload model
+        Conversation persistence and the reload model
       
     </span>
   </a>
@@ -477,6 +477,17 @@
     <span class="md-ellipsis">
       
         The chat-history drawer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuing-a-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuing a run
       
     </span>
   </a>
@@ -743,10 +754,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#conversation_store-and-the-reload-model" class="md-nav__link">
+  <a href="#conversation-persistence-and-the-reload-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CONVERSATION_STORE and the reload model
+        Conversation persistence and the reload model
       
     </span>
   </a>
@@ -758,6 +769,17 @@
     <span class="md-ellipsis">
       
         The chat-history drawer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuing-a-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuing a run
       
     </span>
   </a>
@@ -1080,32 +1102,12 @@ relevant to the admin sidebar:</p>
 <td>The <code>django-ag-ui</code>-level destructive-confirmation flag surfaced to the frontend.</td>
 </tr>
 <tr>
-<td><code>CONVERSATION_STORE</code></td>
-<td><code>None</code> (stateless)</td>
-<td>Dotted path to a <code>ConversationStore</code> for server-side conversation persistence. See below.</td>
-</tr>
-<tr>
-<td><code>ATTACHMENT_STORE</code></td>
-<td><code>None</code> (uploads off)</td>
-<td>Dotted path to an <code>AttachmentStore</code> for file uploads. See below.</td>
-</tr>
-<tr>
 <td><code>ATTACHMENT_MAX_BYTES</code> / <code>ATTACHMENT_ALLOWED_TYPES</code></td>
 <td>10 MiB / any</td>
 <td>Server-side upload size cap and content-type allowlist (enforced by <code>AttachmentsView</code>).</td>
 </tr>
 <tr>
-<td><code>DRF_MCP_SERVER</code></td>
-<td><code>None</code></td>
-<td>Dotted path to a <code>djangorestframework-mcp-server</code> <code>MCPServer</code> instance whose tools are exposed to the agent in-process (requires the <code>[mcp]</code> extra).</td>
-</tr>
-<tr>
-<td><code>AUDIT_LOGGER</code></td>
-<td><em>package default</em></td>
-<td>Dotted path to an <code>AuditLogger</code> implementation.</td>
-</tr>
-<tr>
-<td><code>MODEL_SETTINGS</code>, <code>RETRIES</code>, <code>AGENT_FACTORY</code>, <code>TOOLSETS</code>, <code>CAPABILITIES</code></td>
+<td><code>MODEL_SETTINGS</code>, <code>RETRIES</code></td>
 <td>—</td>
 <td>Advanced Pydantic-AI configuration; see the <code>django-ag-ui</code> docs.</td>
 </tr>
@@ -1113,37 +1115,69 @@ relevant to the admin sidebar:</p>
 </table>
 <div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="s2">&quot;MODEL&quot;</span><span class="p">:</span> <span class="s2">&quot;anthropic:claude-sonnet-4.6&quot;</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="c1"># Persist conversations server-side, per admin user, across tabs and reloads:</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="s2">&quot;CONVERSATION_STORE&quot;</span><span class="p">:</span> <span class="s2">&quot;django_ag_ui.persistence.django_session_conversation_store.DjangoSessionConversationStore&quot;</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="p">}</span>
 </span></code></pre></div>
-<h3 id="conversation_store-and-the-reload-model"><code>CONVERSATION_STORE</code> and the reload model<a class="headerlink" href="#conversation_store-and-the-reload-model" title="Permanent link">&para;</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Collaborators are constructor arguments, not settings</p>
+<p>Stores, backends, loggers, toolsets and the MCP server are <strong>passed to
+<code>AdminAgentServer(...)</code> in <code>urls.py</code></strong> — a settings dict can't hold a live
+object, and <code>urls.py</code> can. django-ag-ui 0.19 removed the dotted-path keys
+that used to name them, and <strong>raises <code>ImproperlyConfigured</code> if one is still
+present</strong> rather than silently ignoring it: <code>CONVERSATION_STORE</code>,
+<code>ATTACHMENT_STORE</code>, <code>TRANSCRIPTION_BACKEND</code>, <code>AUDIT_LOGGER</code>,
+<code>DRF_MCP_SERVER</code>, <code>SERVICE_SPECS</code>, <code>AGENT_FACTORY</code>, <code>TOOLSETS</code>,
+<code>CAPABILITIES</code>, <code>PROVIDER</code>. If an older guide had you set any of these,
+move them to the constructor:</p>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">conversation_store</span><span class="o">=</span><span class="n">DjangoSessionConversationStore</span><span class="p">())</span>
+</span></code></pre></div>
+</div>
+<h3 id="conversation-persistence-and-the-reload-model">Conversation persistence and the reload model<a class="headerlink" href="#conversation-persistence-and-the-reload-model" title="Permanent link">&para;</a></h3>
 <p>Because the Django admin reloads the whole page on every save, filter, and
 navigation, the agent's run loop must survive reloads. The Web Component's
 client-side store (per-tab <code>sessionStorage</code>) keeps the conversation continuous
-out of the box. Setting <code>CONVERSATION_STORE</code> adds <strong>server-side</strong> persistence on
+out of the box. Passing a <code>conversation_store</code> adds <strong>server-side</strong> persistence on
 top — keyed by AG-UI <code>thread_id</code>, owner-scoped per user — so a conversation
 durably survives across tabs and devices, and the resume checkpoint becomes
 derivable from the stored history.</p>
 <p>For admin deployments — where <a href="#access-control"><code>AdminAgentServer</code></a> requires an
 authenticated staff user, so sessions always exist —
 <code>DjangoSessionConversationStore</code> is the natural choice (no migration, per-user
-durability). Leaving <code>CONVERSATION_STORE</code> unset keeps the server stateless; the
-client store still provides single-tab continuity.</p>
-<p>For <strong>durable, cross-device</strong> history, opt into django-ag-ui's reference store
-instead: add <code>"django_ag_ui.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>,
-and set <code>CONVERSATION_STORE</code> to
-<code>django_ag_ui.contrib.store.default_conversation_store.DefaultConversationStore</code>.</p>
+durability). Passing no store keeps the server stateless; the client store still
+provides single-tab continuity.</p>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoSessionConversationStore</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">conversation_store</span><span class="o">=</span><span class="n">DjangoSessionConversationStore</span><span class="p">())</span>
+</span></code></pre></div>
+<p>For <strong>durable, cross-device</strong> history, opt into the reference store instead: add
+<code>"django_pydantic_agent.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, and
+pass <code>DefaultConversationStore</code>.</p>
 <h3 id="the-chat-history-drawer">The chat-history drawer<a class="headerlink" href="#the-chat-history-drawer" title="Permanent link">&para;</a></h3>
 <p>When a conversation store is configured, <code>AdminAgentServer</code> mounts an
 owner-scoped <strong>thread index</strong> at <code>&lt;prefix&gt;threads/</code> (list) and
 <code>&lt;prefix&gt;threads/&lt;id&gt;/</code> (load / rename / delete), and the sidebar passes its URL
 to the Web Component as <code>data-threads-url</code> — the data behind a chat-history drawer
 of the admin user's past conversations. The index uses whatever
-<code>CONVERSATION_STORE</code> resolves to (pass an explicit store with
-<code>AdminAgentServer(conversation_store=...)</code> to override). <strong>Without a store the
+the store passed to <code>AdminAgentServer(conversation_store=...)</code>. <strong>Without a store the
 sub-view isn't mounted</strong> and the drawer falls back to the client's per-tab
 <code>sessionStorage</code> threads; configure a durable store to list server-backed threads.</p>
+<h3 id="continuing-a-run">Continuing a run<a class="headerlink" href="#continuing-a-run" title="Permanent link">&para;</a></h3>
+<p>When a <strong>step store</strong> is configured, <code>AdminAgentServer</code> also mounts an
+owner-scoped run index at <code>&lt;prefix&gt;runs/</code> beside <code>resume/&lt;run_id&gt;/</code> and
+<code>fork/&lt;run_id&gt;/</code>, and the sidebar passes its URL to the Web Component as
+<code>data-runs-url</code> — so the sidebar header gains a ⭯ <em>Continue a run</em> panel.</p>
+<p>A run that stopped part-way (a crash, a closed tab) can then be picked up from
+its last server-side checkpoint rather than restarted: type the next turn, then
+<strong>Resume</strong> to carry on or <strong>Fork</strong> to branch without touching the original. Only
+runs the server marks continuable are offered — one that never reached a
+provider-valid boundary has no snapshot to seed from.</p>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent.contrib.store.default_step_store</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultStepStore</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">step_store</span><span class="o">=</span><span class="n">DefaultStepStore</span><span class="p">)</span>
+</span></code></pre></div>
+<p><code>DefaultStepStore</code>'s constructor <em>is</em> the <code>request -&gt; StepStore</code> factory the
+capability needs, so pass the class itself. Requires django-ag-ui's <code>[harness]</code>
+extra. <strong>Without a step store the sub-views aren't mounted</strong> and no panel
+appears.</p>
 <h3 id="file-uploads">File uploads<a class="headerlink" href="#file-uploads" title="Permanent link">&para;</a></h3>
 <p>When an attachment store is configured, <code>AdminAgentServer</code> mounts an owner-scoped
 <strong>upload endpoint</strong> at <code>&lt;prefix&gt;attachments/</code> (<code>POST</code> upload) and
@@ -1152,20 +1186,24 @@ URL to the Web Component as <code>data-attachments-url</code> — so the compose
 picker + drag-and-drop. Files upload out-of-band and travel as lightweight refs;
 the agent reads their contents server-side via the built-in <code>read_attachment</code> tool
 (the AG-UI message stream stays free of file bytes).</p>
-<p>Uploads are <strong>off by default</strong> — with no <code>ATTACHMENT_STORE</code> the sub-view isn't
-mounted (no 📎 affordance). Turn them on by pointing <code>ATTACHMENT_STORE</code> at a store
-— for <strong>durable, per-admin-user</strong>
-files, opt into django-ag-ui's reference store: add <code>"django_ag_ui.contrib.store"</code>
-to <code>INSTALLED_APPS</code>, run <code>migrate</code>, and set</p>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="s2">&quot;ATTACHMENT_STORE&quot;</span><span class="p">:</span> <span class="s2">&quot;django_ag_ui.contrib.store.default_attachment_store.DefaultAttachmentStore&quot;</span><span class="p">,</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="c1"># Optional server-side guards. When uploads are mounted the admin sidebar</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="c1"># forwards these to the composer (data-attachment-max-bytes /</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="c1"># data-attachment-accept) so oversized or wrong-type files are rejected</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="c1"># before upload — the server stays authoritative:</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="s2">&quot;ATTACHMENT_MAX_BYTES&quot;</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="s2">&quot;ATTACHMENT_ALLOWED_TYPES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;image/png&quot;</span><span class="p">,</span> <span class="s2">&quot;image/jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">],</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="p">}</span>
+<p>Uploads are <strong>off by default</strong> — with no attachment store the sub-view isn't
+mounted (no 📎 affordance). Turn them on by passing one. For <strong>durable,
+per-admin-user</strong> files, opt into the reference store: add
+<code>"django_pydantic_agent.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, then</p>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent.contrib.store.default_attachment_store</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">DefaultAttachmentStore</span><span class="p">,</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="p">)</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">attachment_store</span><span class="o">=</span><span class="n">DefaultAttachmentStore</span><span class="p">())</span>
+</span></code></pre></div>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="c1"># Optional server-side guards. When uploads are mounted the admin sidebar</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="c1"># forwards these to the composer (data-attachment-max-bytes /</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="c1"># data-attachment-accept) so oversized or wrong-type files are rejected</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="c1"># before upload — the server stays authoritative:</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="s2">&quot;ATTACHMENT_MAX_BYTES&quot;</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="s2">&quot;ATTACHMENT_ALLOWED_TYPES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;image/png&quot;</span><span class="p">,</span> <span class="s2">&quot;image/jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">],</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>The reference store keeps bytes in Django <code>Storage</code> (filesystem by default; point
 <code>STORAGES</code>/<code>DEFAULT_FILE_STORAGE</code> at S3/GCS for production) and metadata in a row,
@@ -1183,12 +1221,12 @@ mounted (no mic affordance); enable it by pointing
 <code>DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]</code> at a backend — django-ag-ui ships an opt-in
 <code>OpenAITranscriptionBackend</code> over any OpenAI-compatible endpoint (the <code>[openai]</code>
 extra):</p>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="s2">&quot;TRANSCRIPTION_BACKEND&quot;</span><span class="p">:</span> <span class="p">(</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        <span class="s2">&quot;django_ag_ui.contrib.transcription.openai_transcription_backend&quot;</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="s2">&quot;.OpenAITranscriptionBackend&quot;</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="p">),</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="s2">&quot;TRANSCRIPTION_BACKEND&quot;</span><span class="p">:</span> <span class="p">(</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>        <span class="s2">&quot;django_ag_ui.contrib.transcription.openai_transcription_backend&quot;</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>        <span class="s2">&quot;.OpenAITranscriptionBackend&quot;</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="p">),</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Pass an explicit backend with <code>AdminAgentServer(transcription_backend=...)</code> to override.
 Model <strong>reasoning</strong> needs no admin wiring: when <code>DJANGO_AG_UI["MODEL_SETTINGS"]</code>
