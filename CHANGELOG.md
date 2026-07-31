@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.1] — 2026-07-31
+
+### Changed
+
+- **Re-vendored `@artooi/ag-ui-web-component` 0.12.0 → 0.14.0**
+  (`WEB_COMPONENT_VERSION`), closing the last stale pin in the stack. The
+  sidebar picks up 0.13's shared-state surface (`registerPageState`) and 0.14's
+  skill chip and compaction observer.
+
+  **A refresh, not an adoption.** Unlike previous re-vendors, no Python or
+  template change rides along: this package wires none of the new capabilities,
+  and every attribute `sidebar.html` sets on `<ag-ui-chat>` — `endpoint`,
+  `title-text`, `data-auto-confirm`, `data-tool-display`, `data-slash-commands`,
+  `theme`, `density`, `placement`, `data-side` — is handled by the new bundle
+  exactly as by the old one.
+
+  ⚠ **The new surfaces are not inert, though.** With django-ag-ui 0.27 behind
+  it, an agent that loads a deferred capability will now show a skill chip that
+  0.12.0 did not render. Nothing needs configuring for that to appear.
+
 ## [0.15.0] — 2026-07-31
 
 ### Changed
@@ -442,7 +462,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.15.1...HEAD
+[0.15.1]: https://github.com/Artui/django-admin-agent/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/Artui/django-admin-agent/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/Artui/django-admin-agent/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/Artui/django-admin-agent/compare/v0.12.0...v0.13.0
