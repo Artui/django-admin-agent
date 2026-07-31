@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] — 2026-07-31
+
+### Changed
+
+- ⚠ **`django-ag-ui` moves to `>=0.27,<0.28`** (was `>=0.23,<0.24`), and the
+  `[mcp]` extra gains a ceiling: **`djangorestframework-mcp-server>=0.17,<0.25`**
+  (was an unbounded `>=0.6.1`).
+
+  This closes out a stack-wide bump — drf-services 0.32, drf-mcp 0.24,
+  djangorestframework-pydantic-ai 0.11, django-pydantic-agent 0.5, django-ag-ui
+  0.27 — that started from a genuine conflict further upstream (drf-mcp 0.24 and
+  PAI `<0.11` required disjoint drf-services ranges). This package was never
+  part of that conflict; its own pin was simply four minors behind, which meant
+  installing it quietly held the whole stack at old releases.
+
+  ⭐ **No adaptation was needed.** The roadmap expected an adoption pass across
+  ag-ui 0.24/0.25/0.26 — 0.24 made `AgentSession`'s `deps` keyword-only and
+  required, and 0.25 moved the harness floor. Neither reaches here: this package
+  touches `AGUIServer`, `ToolRegistry`, `ToolCategory`, `tool` and one
+  `get_setting`, and never constructs an `AgentSession` itself. Full suite green
+  against the new versions with no source change.
+
+  ⚠ **The unbounded `[mcp]` floor was a latent version of the bug this wave was
+  about.** A floor with no ceiling silently admits any future major of a package
+  whose wire behaviour has changed under it — which is exactly how a resolvable
+  install ends up behaving wrongly. It now matches every other extra in the
+  stack.
+
+### Upgrading
+
+- ⚠ **Run `migrate`.** `django-pydantic-agent` 0.4.0 added a `state` column and
+  migration `0002` to `DefaultStepStore`, and this release crosses that version.
+  Only relevant if you use step persistence; harmless otherwise.
+
 ## [0.14.0] — 2026-07-27
 
 ### Added
@@ -408,7 +442,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/Artui/django-admin-agent/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/Artui/django-admin-agent/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/Artui/django-admin-agent/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/Artui/django-admin-agent/compare/v0.11.0...v0.12.0
