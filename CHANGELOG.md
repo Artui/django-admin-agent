@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Re-vendored `@artooi/ag-ui-web-component` 0.12.0 → 0.14.0**
+  (`WEB_COMPONENT_VERSION`), closing the last stale pin in the stack. The
+  sidebar picks up 0.13's shared-state surface (`registerPageState`) and 0.14's
+  skill chip and compaction observer.
+
+  **A refresh, not an adoption.** Unlike previous re-vendors, no Python or
+  template change rides along: this package wires none of the new capabilities,
+  and every attribute `sidebar.html` sets on `<ag-ui-chat>` — `endpoint`,
+  `title-text`, `data-auto-confirm`, `data-tool-display`, `data-slash-commands`,
+  `theme`, `density`, `placement`, `data-side` — is handled by the new bundle
+  exactly as by the old one.
+
+  ⚠ **The new surfaces are not inert, though.** With django-ag-ui 0.27 behind
+  it, an agent that loads a deferred capability will now show a skill chip that
+  0.12.0 did not render. Nothing needs configuring for that to appear.
+
 ## [0.15.0] — 2026-07-31
 
 ### Changed
