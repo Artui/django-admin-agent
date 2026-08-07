@@ -133,7 +133,9 @@ from django_admin_agent import AdminAgentServer
 urlpatterns = [
     path("admin/", admin.site.urls),
     # Locked to staff by default; tighten or relax deliberately:
-    path("admin-agent/", AdminAgentServer(authorize=lambda r: r.user.is_superuser).urls),  # superusers only
+    path(
+        "admin-agent/", AdminAgentServer(authorize=lambda r: r.user.is_superuser).urls
+    ),  # superusers only
     # path("admin-agent/", AdminAgentServer(require_authenticated=False, authorize=None).urls),  # fully open (not advised)
 ]
 ```
@@ -305,8 +307,7 @@ extra):
 ```python title="settings.py"
 DJANGO_AG_UI = {
     "TRANSCRIPTION_BACKEND": (
-        "django_ag_ui.contrib.transcription.openai_transcription_backend"
-        ".OpenAITranscriptionBackend"
+        "django_ag_ui.contrib.transcription.openai_transcription_backend.OpenAITranscriptionBackend"
     ),
 }
 ```

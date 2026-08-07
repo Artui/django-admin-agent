@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] — 2026-08-07
+
+### Changed
+
+- **Floors raised**: `django-ag-ui>=0.28`, and the `[mcp]` extra to
+  `djangorestframework-mcp-server>=0.25`.
+
+  ⚠ **Floors rather than widened ceilings.** drf-mcp 0.25 changes behaviour
+  rather than adding surface — an unguarded tool now *raises* at registration
+  instead of warning, and a request with no `Mcp-Session-Id` returns `400`
+  rather than `404`. Admitting 0.24 beside 0.25 is a pairing that resolves
+  cleanly and behaves differently, which no resolver can see.
+
+- **Tested against Django 6.1**, with the lock moved to
+  `djangorestframework>=3.18`. ⚠ Django 6.1 removed
+  `django.utils.cache.cc_delim_re`, which DRF 3.17.x imports at module level, so
+  that pairing fails at `import rest_framework` rather than at runtime.
+
+### Security
+
+- **`pymdown-extensions` → 11.0.1**, closing the repo's one open advisory
+  (MEDIUM — path traversal in the `b64` extension). Docs-only, so it never
+  reached the served surface.
+
 ## [0.15.2] — 2026-08-02
 
 ### Changed
@@ -213,6 +237,7 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 
   ```python
   from django_admin_agent import AdminAgentServer
+
   urlpatterns = [
       path("admin/", admin.site.urls),
       path("admin-agent/", AdminAgentServer().urls),
@@ -484,7 +509,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.15.2...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/Artui/django-admin-agent/compare/v0.15.2...v0.16.0
 [0.15.2]: https://github.com/Artui/django-admin-agent/compare/v0.15.1...v0.15.2
 [0.15.1]: https://github.com/Artui/django-admin-agent/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/Artui/django-admin-agent/compare/v0.14.0...v0.15.0
