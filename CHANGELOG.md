@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`django-ag-ui>=0.30`** (was `>=0.29,<0.30`). Pins only; nothing here uses
+  `service_specs=`, so 0.30's pre-built-toolset support does not reach the
+  sidebar. Full suite green against it.
+
+  ⚠ **Released promptly on purpose, though nothing is broken.** An exclusive
+  ceiling stops being correct the moment the dependency's minor moves, and a
+  release that is *published but unreachable* is the quieter half of shipping —
+  the announcement reads as completion while every consumer still resolves the
+  old version. Tracking that gap costs less than rediscovering it.
+
+  ⭐ **Structurally, every `django-ag-ui` minor obsoletes this pin by
+  construction.** That is scheduled, not accidental, so the follow-up release is
+  part of the cost of an ag-ui minor rather than a surprise.
+
 ## [0.17.0] — 2026-08-10
 
 ### Changed
