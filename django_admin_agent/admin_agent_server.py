@@ -48,10 +48,18 @@ class AdminAgentServer(AGUIServer):
     or ``require_authenticated=False`` to open it — but the default is locked.
 
     Defaults the registry to the built-in admin tool registry
-    (:func:`~django_admin_agent.build_default_registry`). Extra keyword arguments
-    (``model``, ``instructions``, ``audit_logger``, ``get_user``,
-    ``conversation_store``, ``attachment_store``, ``transcription_backend``) pass
-    straight through to :class:`~django_ag_ui.AGUIServer`.
+    (:func:`~django_admin_agent.build_default_registry`). **Every other keyword
+    passes straight through** to :class:`~django_ag_ui.AGUIServer` via
+    ``**kwargs`` — the model, the stores, the toolsets and capabilities, the
+    drf-mcp bridge, the per-request model and instructions hooks, the throttle,
+    and anything added there later.
+
+    Deliberately not enumerated. A wrapper that lists what it forwards is a
+    second place every new option has to be added, and nothing in lint, types or
+    coverage can see the omission — the wrapper still compiles, the tests still
+    pass, the option is simply undocumented or unreachable. The four arguments
+    below are re-declared only because this package overrides their defaults;
+    a test asserts the rest keep flowing through.
     """
 
     def __init__(
