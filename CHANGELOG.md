@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`django-ag-ui` floor raised to `>=0.35,<0.36`, `[mcp]` to
+  `djangorestframework-mcp-server>=0.28,<0.29`, and the vendored web-component
+  bundle to `0.18.0`** (was ag-ui `>=0.30,<0.31`, drf-mcp `>=0.27,<0.28`, bundle
+  `0.15.0`).
+
+  ⛔ **Two published fixes were unreachable from here, and one of them is the
+  sidebar's own front door.**
+
+  **The agent endpoint's authentication default flipped closed in ag-ui
+  0.31.0** — every route now refuses anonymous callers — and this package's
+  `<0.31` ceiling excluded it. The sidebar was never *open*, because
+  `AdminAgentServer` has always passed `require_authenticated=True`,
+  `csrf_exempt=False` and a staff predicate of its own. But a project mounting
+  its own `AGUIServer` alongside kept the old open default, and the sub-views
+  the flip also covers — the thread drawer, the attachment routes, the tool
+  catalog — were reachable without it.
+
+  **drf-mcp 0.28.0 refuses an authenticated caller with no `pk`** instead of
+  collapsing every such caller onto the shared `"anonymous"` principal, where
+  any two of them can present each other's sessions. The `<0.28` ceiling
+  excluded that too. It reaches the bridge, not only the MCP endpoint:
+  `DRFMCPToolset` runs the same principal resolution.
+
+  ⭐ **The bundle jump is three web-component releases in one step** (0.16.0 →
+  0.18.0): the stale-page guard on frontend tool calls and the
+  run-interrupted-by-navigation notice, then `sendMessage` / `attachFile` and
+  the attachment event, the connect-time-config warning, checkpoint-panel
+  theming and focus management, styled markdown tables, the code-block copy
+  button, and the send-time notice for uploads still in flight. Verified in a
+  real browser by the Playwright suite, which drives the vendored bundle rather
+  than a build of it.
+
+### Added
+
+- **A test asserting `AdminAgentServer` still forwards every `AGUIServer`
+  option.** It re-declares four arguments deliberately — the ones this package
+  overrides to secure defaults — and passes the rest through `**kwargs`.
+
+  ⚠ **A wrapper that re-declares a wrapped constructor is a second place every
+  new option has to be added, and nothing in lint, types or coverage can see the
+  omission** — the wrapper compiles, the suite passes, the option is simply
+  absent. That has already happened once in this ecosystem, where nine keywords
+  added to `SpecToolset` reached `SpecCapability` not at all, including the one
+  escape hatch its own upgrade notes pointed people at. This is the last of the
+  three wrappers to get a guard.
+
+  The class docstring stopped enumerating what it forwards, for the same reason.
+
 ## [0.18.0] — 2026-08-10
 
 ### Changed
