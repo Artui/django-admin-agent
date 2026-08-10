@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Floors raised: `django-ag-ui>=0.29`, and the `[mcp]` extra to
+  `djangorestframework-mcp-server>=0.27`.** Pins only — no source change, full
+  suite green against both.
+
+  ⛔ **The `[mcp]` move is what keeps this package co-installable.** drf-mcp
+  0.26 required `djangorestframework-services>=0.34.0,<0.35` while
+  `djangorestframework-pydantic-ai` 0.13 requires `>=0.35,<0.36`. Disjoint — so
+  `django-admin-agent[mcp]` installed **alongside**
+  `django-ag-ui[spec-tools]` could not resolve at all, even though this package
+  on its own resolved fine. ⚠ *A conflict that only appears in combination is
+  invisible to any per-package check*, which is why the floor moves here rather
+  than waiting for someone to hit it.
+
+### Upgrading
+
+- ⚠ **If you pass `service_specs=` to an `AGUIServer` of your own**, django-ag-ui
+  0.29 refuses a spec with no `permission_classes` at construction rather than
+  exposing an ungated tool — `permission_classes=None` means *inherit* over
+  HTTP, and off HTTP there is nothing to inherit from. Nothing in this package
+  uses `service_specs=`, so the sidebar itself is unaffected; see django-ag-ui's
+  0.29.0 notes for the migration path.
+
 ## [0.16.2] — 2026-08-10
 
 ### Security
