@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **The `[mcp]` extra now requires `djangorestframework-mcp-server>=0.26`**
+  (was `>=0.25,<0.26`), which closes a fail-open authentication defect.
+
+  ⚠ **Take this one promptly if you serve the admin tools over MCP.** An
+  `async def authenticate` on a backend mounted under `server.urls` returned an
+  un-awaited coroutine, which is truthy — so the `token is None` check that
+  produces the `401` passed and every caller was served as authenticated. The
+  upstream release refuses the configuration instead, and sweeps the same shape
+  across four more hooks (permissions, list-time visibility, rate limiters, and
+  the sync transport's session store) where an `async def` was likewise read as
+  a yes. See its [0.26.0 notes][drf-mcp-0.26.0] for the full table.
+
+  Nothing in this package supplies any of those hooks, so the upgrade needs no
+  code change here — the exposure was only ever in a project's own backend or
+  permission classes. The ceiling was excluding the fix, which is the whole
+  reason for this release.
+
+[drf-mcp-0.26.0]: https://github.com/Artui/djangorestframework-mcp-server/blob/main/CHANGELOG.md
+
 ## [0.16.1] — 2026-08-08
 
 ### Security
