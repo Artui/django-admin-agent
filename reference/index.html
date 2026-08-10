@@ -1560,10 +1560,17 @@ stream model data (e.g. <code>auth.User</code> rows) back over SSE. Relax it
 deliberately — e.g. <code>authorize=lambda r: r.user.is_superuser</code> to tighten,
 or <code>require_authenticated=False</code> to open it — but the default is locked.</p>
 <p>Defaults the registry to the built-in admin tool registry
-(:func:<code>~django_admin_agent.build_default_registry</code>). Extra keyword arguments
-(<code>model</code>, <code>instructions</code>, <code>audit_logger</code>, <code>get_user</code>,
-<code>conversation_store</code>, <code>attachment_store</code>, <code>transcription_backend</code>) pass
-straight through to :class:<code>~django_ag_ui.AGUIServer</code>.</p>
+(:func:<code>~django_admin_agent.build_default_registry</code>). <strong>Every other keyword
+passes straight through</strong> to :class:<code>~django_ag_ui.AGUIServer</code> via
+<code>**kwargs</code> — the model, the stores, the toolsets and capabilities, the
+drf-mcp bridge, the per-request model and instructions hooks, the throttle,
+and anything added there later.</p>
+<p>Deliberately not enumerated. A wrapper that lists what it forwards is a
+second place every new option has to be added, and nothing in lint, types or
+coverage can see the omission — the wrapper still compiles, the tests still
+pass, the option is simply undocumented or unreachable. The four arguments
+below are re-declared only because this package overrides their defaults;
+a test asserts the rest keep flowing through.</p>
 
 
 
