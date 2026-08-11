@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] — 2026-08-11
+
 ### Fixed
 
 - ⛔ **`placement="side"` is full-height again.** The vendored bundle was pinned
@@ -719,7 +721,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.20.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.21.0...HEAD
+[0.21.0]: https://github.com/Artui/django-admin-agent/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/Artui/django-admin-agent/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/Artui/django-admin-agent/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/Artui/django-admin-agent/compare/v0.17.0...v0.18.0
