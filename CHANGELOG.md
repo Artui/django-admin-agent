@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Ecosystem refresh: `django-ag-ui>=0.38,<0.39`, `[mcp]` to
+  `djangorestframework-mcp-server>=0.29,<0.30`, and the vendored web-component
+  bundle re-cut from `@artooi/ag-ui-web-component@0.20.0`** (was 0.18.0).
+
+  ⛔ **Everything from the chat-surface wave reaches the admin sidebar only
+  here.** Until this release the pins excluded all of it: a restored transcript
+  still lost every tool call and tool result on reload (the server was serving
+  `tool_calls` to a client reading `toolCalls`), a failing tool still ended the
+  whole run, and a paginated MCP tool still advertised a `limit.maximum` five
+  times its own dispatch default.
+
+  What the new bundle brings to the sidebar: tool cards that separate
+  **Arguments** from **Result** with a display mode that applies live, a
+  confirmation card that sits inside the turn and leaves once answered while the
+  tool card keeps the decision, a resizable panel, per-control header icon
+  slots, and skills that can send a `/name` token instead of publishing their
+  prompt to the browser.
+
+  ⚠ **This package is why the wave needed a ninth release.** Refreshing it
+  resolved `pydantic-ai-slim` **2.9.1** — the oldest end of a range every
+  upstream repo only ever tested at its newest — and `django-pydantic-agent`
+  0.12.0 could not import there at all. Fixed upstream in 0.12.1; the floor is
+  now `>=2.16`. A downstream consumer resolving from scratch is the only thing
+  in this stack that exercises that end of the range.
+
 ## [0.19.0] — 2026-08-10
 
 ### Changed
