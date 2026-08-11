@@ -38,6 +38,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   this measures the unit suite and needs no browser install — the e2e-only
   dependencies are outside it.
 
+### Fixed
+
+- **The installation docs advertised a `django-ag-ui` window that had not
+  existed for two releases.** The "Compatibility floor" admonition still read
+  `>=0.17,<0.19` while the package declares `>=0.39` with no upper bound —
+  wrong at *both* ends. It could not break an install, because `pyproject.toml`
+  is what a resolver reads; what it could do is answer the question the page
+  exists to answer, wrongly and in the discouraging direction. Someone holding
+  `django-ag-ui` 0.40 and checking whether this package works with it read a
+  documented ceiling of `<0.19` and had every reason to conclude it does not.
+
+  The same admonition omitted Django 6.1, which the matrix has been testing,
+  and never mentioned the `[mcp]` extra's `djangorestframework-mcp-server>=0.30`
+  at all, though the extra is installed a few lines above it.
+
+  ⚠ **The claim lived in two places with nothing tying them.** `CLAUDE.md`
+  carried its own copy and was right about `django-ag-ui`: the release that
+  moved the pin updated the table a contributor reads and not the page a user
+  reads, which is why the drift ran two releases without being noticed. Both
+  now cover the same five components, and `CLAUDE.md` says outright that the
+  two are one claim to two audiences and move together. ⇒ *Nothing here changes
+  what resolves — only what the docs say resolves.*
+
 ## [0.22.0] — 2026-08-11
 
 ### Changed
