@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] — 2026-08-11
+
+### Fixed
+
+- ⛔ **`placement="side"` is full-height again.** The vendored bundle was pinned
+  to web component 0.20.0, which shipped with a regression: a dragged size is
+  written as a custom property on the host, and an inline custom property
+  outranks the `:host([placement="side"])` rule setting the same property — so
+  one resize collapsed the docked panel's height, and the size persists per tab,
+  so it stayed collapsed on every later visit. Fixed upstream in 0.20.1 and
+  carried here by this re-vendor.
+
+  ⚠ **It has been live in 0.20.0 for the whole of the host-integration wave**, a
+  deliberate trade to re-vendor once at the end rather than twice — recorded
+  rather than discovered.
+
+### Changed
+
+- **Vendored web component 0.20.0 → 0.21.0**, which brings the whole
+  host-integration wave to the admin sidebar: CSS custom properties now work
+  from an ancestor, the flash ring is an `outline` that an `overflow: hidden`
+  ancestor cannot clip and lasts long enough to be seen, `getHeaders` and
+  `credentials` reach every request rather than only the agent run,
+  `openThreads()` / `openCheckpoints()` / `reload()` are callable from a host's
+  own chrome, and the resize grip sits on the corner that actually moves.
+
+- **Upstream windows moved to `django-ag-ui>=0.39,<0.40` and
+  `djangorestframework-mcp-server>=0.30,<0.31`** — the releases where a
+  `FilterSet`'s `OrderingFilter` owns ordering end to end, and where
+  `AGUIServer(service_specs=...)` is typed for the shapes it accepts.
+
+### Added
+
+- **A test that the vendored bundle carries the version the Makefile pins.**
+  The bundle is a build artefact with no other check: the tests are Python, the
+  bundle is JavaScript, and `vendor-bundle-release` is a *release-time* action
+  nobody re-runs when reviewing a change.
+
+  ⭐ **That gap is not hypothetical** — the pin sat four minors behind the
+  published component before anyone noticed, and a `make vendor-bundle` run
+  against a sibling checkout leaves a bundle that looks fine and is whatever
+  happened to be built locally. The release target now asserts the same thing
+  before it builds a wheel, so a mis-fetch fails there rather than shipping.
+
 ## [0.20.0] — 2026-08-11
 
 ### Changed
@@ -677,7 +721,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.20.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.21.0...HEAD
+[0.21.0]: https://github.com/Artui/django-admin-agent/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/Artui/django-admin-agent/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/Artui/django-admin-agent/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/Artui/django-admin-agent/compare/v0.17.0...v0.18.0
