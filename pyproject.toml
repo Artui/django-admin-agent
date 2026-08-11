@@ -37,13 +37,13 @@ classifiers = [
 ]
 dependencies = [
     "django>=4.2",
-    "django-ag-ui>=0.38,<0.39",
+    "django-ag-ui>=0.39,<0.40",
 ]
 
 [project.optional-dependencies]
 # Also expose the admin tools as an MCP server over HTTP via the user's
 # djangorestframework-mcp-server stack.
-mcp = ["djangorestframework-mcp-server>=0.29,<0.30"]
+mcp = ["djangorestframework-mcp-server>=0.30,<0.31"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"
