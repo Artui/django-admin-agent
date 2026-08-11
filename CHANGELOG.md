@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The upper bound came off both sibling windows: `django-ag-ui>=0.39` and the
+  `[mcp]` extra's `djangorestframework-mcp-server>=0.30`.** Both were one-minor
+  windows over a package we ship ourselves, which is not a compatibility
+  statement but a *schedule*: every upstream release made this package
+  unresolvable until someone re-cut it, whether or not anything broke. This repo
+  sat at the end of the chain and paid for it most often — a large share of its
+  recent releases were pin refreshes carrying no behaviour. Against that there
+  is no recorded case of a ceiling here catching a real incompatibility, while
+  they caused four incidents in this ecosystem, including a **Security** release
+  published-and-unreachable, and two disjoint windows that resolved
+  *successfully* by silently downgrading a consumer past every fix. ⇒ *A project
+  can now install this package alongside the current `django-ag-ui` on the day
+  it ships, instead of waiting for a release here that exists only to move a
+  number.*
+
+  ⚠ Both siblings are ours, so the external-0.x risk that applies upstream does
+  not apply to this pair directly — but it reaches here transitively, since
+  `django-ag-ui` now admits any `ag-ui-protocol` and `pydantic-ai-harness` 0.x
+  minor. The floors themselves are unchanged; nothing older resolves than did
+  before.
+
+### Added
+
+- **A `floor` job in `tests.yml`, wired into the `tests` aggregate gate.** It
+  resolves every *declared* dependency at `--resolution lowest-direct` and runs
+  the suite, then installs the package **alone** — no extras, no dev group — and
+  imports it plus a few public symbols, with `django.contrib.admin` and the two
+  apps it needs to register its models configured first. An all-extras install
+  cannot check a floor on its own, because one extra can hold a shared
+  dependency above the floor being claimed.
+
+  ⚠ **This repo has the oldest-end measurement but not yet the newest-end one.**
+  The sibling repos also run a weekly `upstream-drift.yml` that ignores the lock
+  and resolves the newest versions `pyproject.toml` admits; this repo has no
+  such job, so a breaking upstream minor is currently caught here only when a
+  human syncs. ⇒ *Worth adding before the open windows are relied on heavily.*
+
 ## [0.21.0] — 2026-08-11
 
 ### Fixed
