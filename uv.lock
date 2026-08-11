@@ -434,8 +434,8 @@ e2e = [
 [package.metadata]
 requires-dist = [
     { name = "django", specifier = ">=4.2" },
-    { name = "django-ag-ui", specifier = ">=0.39,<0.40" },
-    { name = "djangorestframework-mcp-server", marker = "extra == 'mcp'", specifier = ">=0.30,<0.31" },
+    { name = "django-ag-ui", specifier = ">=0.39" },
+    { name = "djangorestframework-mcp-server", marker = "extra == 'mcp'", specifier = ">=0.30" },
 ]
 provides-extras = ["mcp"]
 

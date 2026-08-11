@@ -23,8 +23,12 @@ The AG-UI stack design doc (`django-ag-ui-plan.md`) lives in the private ecosyst
 
 ## Local development
 
-`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.19,<0.20` pin in
-`pyproject.toml` (so CI, which has no sibling checkout, syncs cleanly). To
+`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.39` floor in
+`pyproject.toml` (so CI, which has no sibling checkout, syncs cleanly). There is
+deliberately no upper bound — a one-minor ceiling over a package we ship
+ourselves is a release schedule, not a compatibility statement. The `floor` job
+in `tests.yml` measures the bottom of the window per PR; `uv.lock` is what pins
+the top for development. To
 develop both packages together against a local checkout, add a `[tool.uv.sources]`
 override *locally* (do not commit it) and `uv sync`:
 
@@ -135,7 +139,7 @@ mutables; initialise in `__init__`. A project may mount more than one sidebar.
 | --- | --- | --- |
 | Python | 3.10 | 3.10–3.14 |
 | Django | 4.2 LTS | 4.2, 5.0, 5.1, 5.2, 6.0 |
-| django-ag-ui | 0.19 | from PyPI (`>=0.19,<0.20`) |
+| django-ag-ui | 0.39 | from PyPI (`>=0.39`, no ceiling) |
 | Django Unfold (supported, optional) | 0.40 | latest in matrix |
 
 ## Branching & releases
