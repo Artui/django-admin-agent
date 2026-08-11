@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A weekly `upstream-drift.yml` — the newest-end measurement 0.22.0 shipped
+  without.** It ignores `uv.lock`, resolves the newest versions
+  `pyproject.toml` admits, installs every group *and every extra*, and runs the
+  suite on the newest supported Python; a failure opens (or comments on) an
+  issue labelled `upstream-drift`, and the `git diff --stat uv.lock` step in
+  that run names what moved. The sibling repos have run this job for a while;
+  this one did not, which is exactly what the 0.22.0 note flagged when the
+  ceilings came off. ⇒ *The two measurements that replace a ceiling are now
+  both in place: `floor` resolves lowest-direct per PR (the oldest end), and
+  this resolves unpinned weekly (the newest end).*
+
+  A ceiling is a guess about which future versions will break; these are a
+  measurement of which ones do. Until now this repo had only the oldest end, so
+  a breaking upstream minor was caught here only when a human happened to sync
+  — which is a schedule, not a control.
+
+  ⭐ **The first run is not hypothetical.** Resolving unpinned today already
+  moves both open windows past the bounds that were removed —
+  `django-ag-ui` 0.39.0 → 0.40.0 and `djangorestframework-mcp-server`
+  0.30.0 → 0.31.0, on Django 6.1 — and the suite passes against all three. That
+  is the newest end being measured rather than assumed, on day one.
+
+  ⚠ Two local notes for whoever edits this job. `--all-extras` is load-bearing
+  rather than tidy: `djangorestframework-mcp-server` is reachable only through
+  the `[mcp]` extra, so a base install would leave half of the open windows
+  unmeasured. And the default `addopts` already carry `--ignore=tests/e2e`, so
+  this measures the unit suite and needs no browser install — the e2e-only
+  dependencies are outside it.
+
+### Fixed
+
+- **The installation docs advertised a `django-ag-ui` window that had not
+  existed for two releases.** The "Compatibility floor" admonition still read
+  `>=0.17,<0.19` while the package declares `>=0.39` with no upper bound —
+  wrong at *both* ends. It could not break an install, because `pyproject.toml`
+  is what a resolver reads; what it could do is answer the question the page
+  exists to answer, wrongly and in the discouraging direction. Someone holding
+  `django-ag-ui` 0.40 and checking whether this package works with it read a
+  documented ceiling of `<0.19` and had every reason to conclude it does not.
+
+  The same admonition omitted Django 6.1, which the matrix has been testing,
+  and never mentioned the `[mcp]` extra's `djangorestframework-mcp-server>=0.30`
+  at all, though the extra is installed a few lines above it.
+
+  ⚠ **The claim lived in two places with nothing tying them.** `CLAUDE.md`
+  carried its own copy and was right about `django-ag-ui`: the release that
+  moved the pin updated the table a contributor reads and not the page a user
+  reads, which is why the drift ran two releases without being noticed. Both
+  now cover the same five components, and `CLAUDE.md` says outright that the
+  two are one claim to two audiences and move together. ⇒ *Nothing here changes
+  what resolves — only what the docs say resolves.*
+
 ## [0.22.0] — 2026-08-11
 
 ### Changed
