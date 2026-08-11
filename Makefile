@@ -85,6 +85,11 @@ vendor-bundle-release:
 	sed -e '/sourceMappingURL/d' "$(BUNDLE_DEST)" > "$(BUNDLE_DEST).tmp" && mv "$(BUNDLE_DEST).tmp" "$(BUNDLE_DEST)"; \
 	rm -rf "$$tmp"; \
 	echo "Vendored $(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION) bundle (release)."
+	@# Assert the artefact agrees with the pin, so a mis-fetch fails here rather
+	@# than shipping. tests/test_vendored_bundle.py enforces the same thing on
+	@# every CI run, which is what catches drift nobody re-vendored for.
+	@grep -q '"$(WEB_COMPONENT_VERSION)"' "$(BUNDLE_DEST)" \
+		|| { echo "ERROR: bundle does not carry $(WEB_COMPONENT_VERSION)."; exit 1; }
 
 release-bump:
 	@if [ -z "$(VERSION)" ]; then \
