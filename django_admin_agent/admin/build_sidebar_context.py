@@ -18,19 +18,18 @@ _BUNDLE_PATH = "django_admin_agent/admin_agent.js"
 def build_sidebar_context(namespace: str = DEFAULT_URL_NAMESPACE) -> dict[str, Any]:
     """Build the context the sidebar template needs.
 
-    ``namespace`` names the mounted :class:`~django_admin_agent.AdminAgentServer`
-    to reverse against — the one it was constructed with. It is an argument
-    rather than a setting because a project may mount more than one sidebar, and
-    because the server already knows its own namespace: a setting made you say it
-    twice and get it wrong.
-
-    Reverses the AG-UI endpoint URL, resolves the bootstrap module's static
-    URL, reads the title / auto-confirm flag from settings, and resolves the
-    admin index URL so the frontend ``nav.*`` tools can build changelist /
-    changeform URLs without reversing named routes in the browser. Shared by
-    the ``{% django_admin_agent_sidebar %}`` template tag and the
+    Reverses the AG-UI endpoint URL, resolves the bootstrap module's static URL,
+    reads the title / auto-confirm flag from settings, and resolves the admin
+    index URL so the frontend ``nav.*`` tools can build changelist / changeform
+    URLs without reversing named routes in the browser. Shared by the
+    ``{% django_admin_agent_sidebar %}`` template tag and the
     :class:`~django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite`
     ``each_context`` hook.
+
+    Args:
+        namespace: The mounted :class:`~django_admin_agent.AdminAgentServer` to
+            reverse against — the one it was constructed with. An argument rather
+            than a setting, because a project may mount more than one sidebar.
     """
     config = get_settings()
     attachments_url = _attachments_url(namespace)
@@ -71,13 +70,12 @@ def _attachment_limits(attachments_url: str | None) -> tuple[int | None, str | N
     is ``None`` when the corresponding limit is unset (no cap / any type) or
     uploads are off.
 
-    **A hint, not the gate.** django-ag-ui 0.19 made these per-endpoint, so a
-    server built with an explicit ``config=build_ag_ui_config(...)`` could hold
-    different values than the settings read here — the hint would then be stale.
-    That is cosmetic: ``AttachmentsView`` enforces its own config server-side and
-    still rejects the upload. Reading the settings default keeps the sidebar
-    (a presentation layer, singleton per admin) out of the business of reaching
-    into another server's config.
+    **A hint, not the gate.** These limits are per-endpoint upstream, so a server
+    built with an explicit ``config=`` may hold different values than the settings
+    read here and the hint goes stale. That is cosmetic — ``AttachmentsView``
+    enforces its own config server-side and still rejects the upload — and it
+    keeps the sidebar, a presentation layer, out of reaching into another
+    server's config.
 
     ``accept`` is an HTML ``accept``-style comma-joined string built from
     ``ATTACHMENT_ALLOWED_TYPES``.

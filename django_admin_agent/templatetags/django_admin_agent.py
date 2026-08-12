@@ -25,10 +25,6 @@ def django_admin_agent_sidebar(namespace: str = DEFAULT_URL_NAMESPACE) -> dict[s
     nothing. A project mounting two sidebars names each::
 
         {% django_admin_agent_sidebar namespace="internal-agent" %}
-
-    This replaces ``DJANGO_ADMIN_AGENT["URL_NAMESPACE"]``, which duplicated state
-    the server already held — you had to say it twice and keep the two in step —
-    and could only ever name *one* server, though a project may mount several.
     """
     return build_sidebar_context(namespace)
 

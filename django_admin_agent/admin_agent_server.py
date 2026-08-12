@@ -31,35 +31,35 @@ class AdminAgentServer(AGUIServer):
 
     It mounts the agent endpoint and its tool catalog, plus the thread /
     attachment / transcription sub-views when their stores are passed (the same
-    conditional mounting as ``AGUIServer``). The sidebar reverses these names
-    within ``namespace``; pass the same value to the template tag if you use a
-    non-default one::
-
-        {% django_admin_agent_sidebar namespace="internal-agent" %}
+    conditional mounting as ``AGUIServer``).
 
     **Fail-closed by default.** Every mounted route requires an authenticated,
-    active **staff** user: ``require_authenticated=True`` gives ``401`` for an
-    anonymous request and ``authorize=staff_required`` gives ``403`` for a
-    non-staff one (JSON, not an HTML login redirect), and the agent endpoint is
-    CSRF-protected (``csrf_exempt=False`` — the sidebar bootstrap already sends
-    the token). Without this an unauthenticated visitor could drive the agent and
-    stream model data (e.g. ``auth.User`` rows) back over SSE. Relax it
-    deliberately — e.g. ``authorize=lambda r: r.user.is_superuser`` to tighten,
-    or ``require_authenticated=False`` to open it — but the default is locked.
+    active **staff** user, and without that an unauthenticated visitor could
+    drive the agent and stream model data (``auth.User`` rows, say) back over
+    SSE. Relax it deliberately, but the default is locked.
 
-    Defaults the registry to the built-in admin tool registry
-    (:func:`~django_admin_agent.build_default_registry`). **Every other keyword
-    passes straight through** to :class:`~django_ag_ui.AGUIServer` via
-    ``**kwargs`` — the model, the stores, the toolsets and capabilities, the
-    drf-mcp bridge, the per-request model and instructions hooks, the throttle,
-    and anything added there later.
+    **Every keyword below this class's own passes straight through** to
+    :class:`~django_ag_ui.AGUIServer` via ``**kwargs`` — the model, the stores,
+    the toolsets and capabilities, the drf-mcp bridge, the per-request model and
+    instructions hooks, the throttle, and anything added there later. They are
+    deliberately not enumerated here; the ones below are re-declared only because
+    this package overrides their defaults, and a test asserts the rest keep
+    flowing through.
 
-    Deliberately not enumerated. A wrapper that lists what it forwards is a
-    second place every new option has to be added, and nothing in lint, types or
-    coverage can see the omission — the wrapper still compiles, the tests still
-    pass, the option is simply undocumented or unreachable. The four arguments
-    below are re-declared only because this package overrides their defaults;
-    a test asserts the rest keep flowing through.
+    Args:
+        registry: The server-side tool registry. ``None`` uses the built-in admin
+            tools (:func:`~django_admin_agent.build_default_registry`).
+        require_authenticated: Answer ``401`` to an anonymous request.
+        authorize: Per-request gate answering ``403`` when it returns ``False``,
+            as JSON rather than an HTML login redirect. The default admits active
+            staff; pass ``lambda r: r.user.is_superuser`` to tighten.
+        csrf_exempt: Drop CSRF protection from the agent endpoint. Left off — the
+            sidebar bootstrap already sends the token.
+        namespace: The URL namespace the mounted routes live under, which the
+            sidebar reverses against. Pass the same value to the template tag
+            when it is not the default::
+
+                {% django_admin_agent_sidebar namespace="internal-agent" %}
     """
 
     def __init__(

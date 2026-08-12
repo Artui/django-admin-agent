@@ -65,7 +65,7 @@ class AdminAgentSettings:
     ``"right"`` (``data-side``). ``None`` leaves the component default (right)."""
 
     theme_toggle: bool
-    """When ``True``, show the Web Component's built-in light⇄dark header toggle
+    """When ``True``, show the Web Component's built-in light/dark header toggle
     (``data-theme-toggle``), which flips :attr:`theme` and persists per tab.
     Defaults to ``False`` — the admin's own theme usually governs."""
 

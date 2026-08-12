@@ -25,13 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a breaking upstream minor was caught here only when a human happened to sync
   — which is a schedule, not a control.
 
-  ⭐ **The first run is not hypothetical.** Resolving unpinned today already
+  **The first run is not hypothetical.** Resolving unpinned today already
   moves both open windows past the bounds that were removed —
   `django-ag-ui` 0.39.0 → 0.40.0 and `djangorestframework-mcp-server`
   0.30.0 → 0.31.0, on Django 6.1 — and the suite passes against all three. That
   is the newest end being measured rather than assumed, on day one.
 
-  ⚠ Two local notes for whoever edits this job. `--all-extras` is load-bearing
+  Two local notes for whoever edits this job. `--all-extras` is load-bearing
   rather than tidy: `djangorestframework-mcp-server` is reachable only through
   the `[mcp]` extra, so a base install would leave half of the open windows
   unmeasured. And the default `addopts` already carry `--ignore=tests/e2e`, so
@@ -53,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and never mentioned the `[mcp]` extra's `djangorestframework-mcp-server>=0.30`
   at all, though the extra is installed a few lines above it.
 
-  ⚠ **The claim lived in two places with nothing tying them.** `CLAUDE.md`
+  **The claim lived in two places with nothing tying them.** `CLAUDE.md`
   carried its own copy and was right about `django-ag-ui`: the release that
   moved the pin updated the table a contributor reads and not the page a user
   reads, which is why the drift ran two releases without being noticed. Both
@@ -80,7 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   it ships, instead of waiting for a release here that exists only to move a
   number.*
 
-  ⚠ Both siblings are ours, so the external-0.x risk that applies upstream does
+  Both siblings are ours, so the external-0.x risk that applies upstream does
   not apply to this pair directly — but it reaches here transitively, since
   `django-ag-ui` now admits any `ag-ui-protocol` and `pydantic-ai-harness` 0.x
   minor. The floors themselves are unchanged; nothing older resolves than did
@@ -96,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cannot check a floor on its own, because one extra can hold a shared
   dependency above the floor being claimed.
 
-  ⚠ **This repo has the oldest-end measurement but not yet the newest-end one.**
+  **This repo has the oldest-end measurement but not yet the newest-end one.**
   The sibling repos also run a weekly `upstream-drift.yml` that ignores the lock
   and resolves the newest versions `pyproject.toml` admits; this repo has no
   such job, so a breaking upstream minor is currently caught here only when a
@@ -106,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- ⛔ **`placement="side"` is full-height again.** The vendored bundle was pinned
+- **`placement="side"` is full-height again.** The vendored bundle was pinned
   to web component 0.20.0, which shipped with a regression: a dragged size is
   written as a custom property on the host, and an inline custom property
   outranks the `:host([placement="side"])` rule setting the same property — so
@@ -114,7 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   so it stayed collapsed on every later visit. Fixed upstream in 0.20.1 and
   carried here by this re-vendor.
 
-  ⚠ **It has been live in 0.20.0 for the whole of the host-integration wave**, a
+  **It has been live in 0.20.0 for the whole of the host-integration wave**, a
   deliberate trade to re-vendor once at the end rather than twice — recorded
   rather than discovered.
 
@@ -140,7 +140,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   bundle is JavaScript, and `vendor-bundle-release` is a *release-time* action
   nobody re-runs when reviewing a change.
 
-  ⭐ **That gap is not hypothetical** — the pin sat four minors behind the
+  **That gap is not hypothetical** — the pin sat four minors behind the
   published component before anyone noticed, and a `make vendor-bundle` run
   against a sibling checkout leaves a bundle that looks fine and is whatever
   happened to be built locally. The release target now asserts the same thing
@@ -154,7 +154,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `djangorestframework-mcp-server>=0.29,<0.30`, and the vendored web-component
   bundle re-cut from `@artooi/ag-ui-web-component@0.20.0`** (was 0.18.0).
 
-  ⛔ **Everything from the chat-surface wave reaches the admin sidebar only
+  **Everything from the chat-surface wave reaches the admin sidebar only
   here.** Until this release the pins excluded all of it: a restored transcript
   still lost every tool call and tool result on reload (the server was serving
   `tool_calls` to a client reading `toolCalls`), a failing tool still ended the
@@ -168,7 +168,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   slots, and skills that can send a `/name` token instead of publishing their
   prompt to the browser.
 
-  ⚠ **This package is why the wave needed a ninth release.** Refreshing it
+  **This package is why the wave needed a ninth release.** Refreshing it
   resolved `pydantic-ai-slim` **2.9.1** — the oldest end of a range every
   upstream repo only ever tested at its newest — and `django-pydantic-agent`
   0.12.0 could not import there at all. Fixed upstream in 0.12.1; the floor is
@@ -184,7 +184,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   bundle to `0.18.0`** (was ag-ui `>=0.30,<0.31`, drf-mcp `>=0.27,<0.28`, bundle
   `0.15.0`).
 
-  ⛔ **Two published fixes were unreachable from here, and one of them is the
+  **Two published fixes were unreachable from here, and one of them is the
   sidebar's own front door.**
 
   **The agent endpoint's authentication default flipped closed in ag-ui
@@ -202,7 +202,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   excluded that too. It reaches the bridge, not only the MCP endpoint:
   `DRFMCPToolset` runs the same principal resolution.
 
-  ⭐ **The bundle jump is three web-component releases in one step** (0.16.0 →
+  **The bundle jump is three web-component releases in one step** (0.16.0 →
   0.18.0): the stale-page guard on frontend tool calls and the
   run-interrupted-by-navigation notice, then `sendMessage` / `attachFile` and
   the attachment event, the connect-time-config warning, checkpoint-panel
@@ -217,7 +217,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   option.** It re-declares four arguments deliberately — the ones this package
   overrides to secure defaults — and passes the rest through `**kwargs`.
 
-  ⚠ **A wrapper that re-declares a wrapped constructor is a second place every
+  **A wrapper that re-declares a wrapped constructor is a second place every
   new option has to be added, and nothing in lint, types or coverage can see the
   omission** — the wrapper compiles, the suite passes, the option is simply
   absent. That has already happened once in this ecosystem, where nine keywords
@@ -235,13 +235,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `service_specs=`, so 0.30's pre-built-toolset support does not reach the
   sidebar. Full suite green against it.
 
-  ⚠ **Released promptly on purpose, though nothing is broken.** An exclusive
+  **Released promptly on purpose, though nothing is broken.** An exclusive
   ceiling stops being correct the moment the dependency's minor moves, and a
   release that is *published but unreachable* is the quieter half of shipping —
   the announcement reads as completion while every consumer still resolves the
   old version. Tracking that gap costs less than rediscovering it.
 
-  ⭐ **Structurally, every `django-ag-ui` minor obsoletes this pin by
+  **Structurally, every `django-ag-ui` minor obsoletes this pin by
   construction.** That is scheduled, not accidental, so the follow-up release is
   part of the cost of an ag-ui minor rather than a surprise.
 
@@ -253,18 +253,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `djangorestframework-mcp-server>=0.27`.** Pins only — no source change, full
   suite green against both.
 
-  ⛔ **The `[mcp]` move is what keeps this package co-installable.** drf-mcp
+  **The `[mcp]` move is what keeps this package co-installable.** drf-mcp
   0.26 required `djangorestframework-services>=0.34.0,<0.35` while
   `djangorestframework-pydantic-ai` 0.13 requires `>=0.35,<0.36`. Disjoint — so
   `django-admin-agent[mcp]` installed **alongside**
   `django-ag-ui[spec-tools]` could not resolve at all, even though this package
-  on its own resolved fine. ⚠ *A conflict that only appears in combination is
+  on its own resolved fine. *A conflict that only appears in combination is
   invisible to any per-package check*, which is why the floor moves here rather
   than waiting for someone to hit it.
 
 ### Upgrading
 
-- ⚠ **If you pass `service_specs=` to an `AGUIServer` of your own**, django-ag-ui
+- **If you pass `service_specs=` to an `AGUIServer` of your own**, django-ag-ui
   0.29 refuses a spec with no `permission_classes` at construction rather than
   exposing an ungated tool — `permission_classes=None` means *inherit* over
   HTTP, and off HTTP there is nothing to inherit from. Nothing in this package
@@ -278,7 +278,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **The `[mcp]` extra now requires `djangorestframework-mcp-server>=0.26`**
   (was `>=0.25,<0.26`), which closes a fail-open authentication defect.
 
-  ⚠ **Take this one promptly if you serve the admin tools over MCP.** An
+  **Take this one promptly if you serve the admin tools over MCP.** An
   `async def authenticate` on a backend mounted under `server.urls` returned an
   un-awaited coroutine, which is truthy — so the `token is None` check that
   produces the `401` passed and every caller was served as authenticated. The
@@ -303,11 +303,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   closes the five advisories the old exact pin was holding open (three LOW, two
   MEDIUM).
 
-  ⚠ **DOMPurify ships *inside* the bundle**, not as a peer dependency — so
+  **DOMPurify ships *inside* the bundle**, not as a peer dependency — so
   until now every install of `django-admin-agent` served 3.4.7 to the browser
   regardless of anything in this repo. Only a re-vendor moves it.
 
-  ⭐ **The pin it lifts was never the protection it looked like.** It was
+  **The pin it lifts was never the protection it looked like.** It was
   holding 3.4.7 because 3.4.8+ appeared not to sanitise — a symptom that turned
   out to be happy-dom's DOM emulation, reproducible only in that test
   environment. Verified in real Chromium: 3.4.13 sanitises correctly, so
@@ -321,14 +321,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Floors raised**: `django-ag-ui>=0.28`, and the `[mcp]` extra to
   `djangorestframework-mcp-server>=0.25`.
 
-  ⚠ **Floors rather than widened ceilings.** drf-mcp 0.25 changes behaviour
+  **Floors rather than widened ceilings.** drf-mcp 0.25 changes behaviour
   rather than adding surface — an unguarded tool now *raises* at registration
   instead of warning, and a request with no `Mcp-Session-Id` returns `400`
   rather than `404`. Admitting 0.24 beside 0.25 is a pairing that resolves
   cleanly and behaves differently, which no resolver can see.
 
 - **Tested against Django 6.1**, with the lock moved to
-  `djangorestframework>=3.18`. ⚠ Django 6.1 removed
+  `djangorestframework>=3.18`. Django 6.1 removed
   `django.utils.cache.cc_delim_re`, which DRF 3.17.x imports at module level, so
   that pairing fails at `import rest_framework` rather than at runtime.
 
@@ -353,7 +353,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   authenticated one in the pool that decides which row gets mutated and which set
   gets bulk-deleted. Fixed in drf-services 0.33.0.
 
-  ⚠ A version pair that resolves cleanly and leaves the bypass live is exactly
+  A version pair that resolves cleanly and leaves the bypass live is exactly
   what a resolver cannot see, which is why the floor moves rather than the
   ceiling. Installing this extra now gets the fix, rather than merely permitting
   it.
@@ -376,7 +376,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `theme`, `density`, `placement`, `data-side` — is handled by the new bundle
   exactly as by the old one.
 
-  ⚠ **The new surfaces are not inert, though.** With django-ag-ui 0.27 behind
+  **The new surfaces are not inert, though.** With django-ag-ui 0.27 behind
   it, an agent that loads a deferred capability will now show a skill chip that
   0.12.0 did not render. Nothing needs configuring for that to appear.
 
@@ -384,7 +384,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- ⚠ **`django-ag-ui` moves to `>=0.27,<0.28`** (was `>=0.23,<0.24`), and the
+- **`django-ag-ui` moves to `>=0.27,<0.28`** (was `>=0.23,<0.24`), and the
   `[mcp]` extra gains a ceiling: **`djangorestframework-mcp-server>=0.17,<0.25`**
   (was an unbounded `>=0.6.1`).
 
@@ -395,14 +395,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   part of that conflict; its own pin was simply four minors behind, which meant
   installing it quietly held the whole stack at old releases.
 
-  ⭐ **No adaptation was needed.** The roadmap expected an adoption pass across
+  **No adaptation was needed.** The roadmap expected an adoption pass across
   ag-ui 0.24/0.25/0.26 — 0.24 made `AgentSession`'s `deps` keyword-only and
   required, and 0.25 moved the harness floor. Neither reaches here: this package
   touches `AGUIServer`, `ToolRegistry`, `ToolCategory`, `tool` and one
   `get_setting`, and never constructs an `AgentSession` itself. Full suite green
   against the new versions with no source change.
 
-  ⚠ **The unbounded `[mcp]` floor was a latent version of the bug this wave was
+  **The unbounded `[mcp]` floor was a latent version of the bug this wave was
   about.** A floor with no ceiling silently admits any future major of a package
   whose wire behaviour has changed under it — which is exactly how a resolvable
   install ends up behaving wrongly. It now matches every other extra in the
@@ -410,7 +410,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Upgrading
 
-- ⚠ **Run `migrate`.** `django-pydantic-agent` 0.4.0 added a `state` column and
+- **Run `migrate`.** `django-pydantic-agent` 0.4.0 added a `state` column and
   migration `0002` to `DefaultStepStore`, and this release crosses that version.
   Only relevant if you use step persistence; harmless otherwise.
 
@@ -653,7 +653,7 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
   thinking).
 - **Voice input.** `get_urls` now also mounts a transcription endpoint at
   `<prefix>agent/transcribe/` (named `django_admin_agent_transcribe`) and the
-  sidebar passes its URL as `data-transcribe-url`, so the composer gains a 🎤 mic
+  sidebar passes its URL as `data-transcribe-url`, so the composer gains a mic
   button. Voice is off until `DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]` is set (or a
   backend is passed via `get_urls(transcription_backend=...)`); django-ag-ui's
   opt-in `OpenAITranscriptionBackend` is the batteries-included option.
@@ -685,7 +685,7 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
   `AttachmentsView` at `<prefix>agent/attachments/[<id>/]` (named
   `django_admin_agent_attachments` / `django_admin_agent_attachment`), and
   `build_sidebar_context` passes its URL to the Web Component as
-  `data-attachments-url` — so an admin can attach files to a message (📎 +
+  `data-attachments-url` — so an admin can attach files to a message (+
   drag-and-drop) and the agent reads them via the `read_attachment` tool.
   Owner-scoped to the admin user; CSRF rides the bootstrap's existing
   `el.headers`. Uploads are disabled by default (a `NullAttachmentStore` → `410`)

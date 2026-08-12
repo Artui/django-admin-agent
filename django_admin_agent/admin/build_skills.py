@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import Any
 
 # Default admin skill catalog — pre-defined prompts surfaced in the sidebar's
-# `/`-command palette. Plain dicts (the client `Skill` shape, camelCase keys);
-# embedded into the page via `data-skills`, so this needs no django-ag-ui 0.2
-# server API. Prompts are placeholder-free so they work without a skill context;
-# a project can override the whole catalog via DJANGO_ADMIN_AGENT["SKILLS"].
+# `/`-command palette. Plain dicts (the client `Skill` shape, camelCase keys)
+# embedded into the page via `data-skills`, so no server API is involved.
+# Prompts are placeholder-free so they work without a skill context; a project
+# can override the whole catalog via DJANGO_ADMIN_AGENT["SKILLS"].
 
 
 def build_skills() -> list[dict[str, Any]]:
