@@ -256,13 +256,13 @@ appears.
 When an attachment store is configured, `AdminAgentServer` mounts an owner-scoped
 **upload endpoint** at `<prefix>attachments/` (`POST` upload) and
 `<prefix>attachments/<id>/` (`GET` download, `DELETE`), and the sidebar passes its
-URL to the Web Component as `data-attachments-url` — so the composer gains a 📎
+URL to the Web Component as `data-attachments-url` — so the composer gains a
 picker + drag-and-drop. Files upload out-of-band and travel as lightweight refs;
 the agent reads their contents server-side via the built-in `read_attachment` tool
 (the AG-UI message stream stays free of file bytes).
 
 Uploads are **off by default** — with no attachment store the sub-view isn't
-mounted (no 📎 affordance). Turn them on by passing one. For **durable,
+mounted (no affordance). Turn them on by passing one. For **durable,
 per-admin-user** files, opt into the reference store: add
 `"django_pydantic_agent.contrib.store"` to `INSTALLED_APPS`, run `migrate`, then
 
@@ -297,7 +297,7 @@ stream through the owner-checked `GET` (never a guessable public URL).
 When a transcription backend is configured, `AdminAgentServer` mounts a
 **transcription endpoint** at `<prefix>transcribe/` (`POST` an audio clip →
 `{"text": ...}`), and the sidebar passes its URL as `data-transcribe-url` — so the
-composer gains a 🎤 mic button (record, then drop the transcript into the input).
+composer gains a mic button (record, then drop the transcript into the input).
 Voice is **off by default** — with no `TRANSCRIPTION_BACKEND` the sub-view isn't
 mounted (no mic affordance); enable it by pointing
 `DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]` at a backend — django-ag-ui ships an opt-in

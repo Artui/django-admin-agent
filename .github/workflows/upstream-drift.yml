@@ -10,7 +10,7 @@
 # versions ``pyproject.toml`` allows, and runs the suite — so an upstream
 # release that breaks us is found by a scheduled run rather than by a consumer.
 #
-# ⚠ It is also the control that makes dropping dependency ceilings safe. A
+# It is also the control that makes dropping dependency ceilings safe. A
 # ceiling is a guess about which future versions will break; this is a
 # measurement of which ones do. Do not delete it to quieten a noisy week
 # without replacing what it measures.
@@ -77,7 +77,7 @@ jobs:
         # The repo's default ``addopts`` already carry ``--ignore=tests/e2e``,
         # so this is the unit suite (with its coverage gate) and needs no
         # browser install, even though ``--all-groups`` installed Playwright.
-        # ⚠ The flip side: drift in the e2e-only dependencies is *not* measured
+        # The flip side: drift in the e2e-only dependencies is *not* measured
         # here. Those pin nothing this package ships, so the trade is
         # deliberate — but do not read a green run as covering them.
         run: uv run pytest

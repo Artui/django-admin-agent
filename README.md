@@ -38,14 +38,14 @@ install. Works with the vanilla Django admin and with
   chips and a `/`-command palette. Built on `django-ag-ui>=0.17,<0.19` and the matching
   `@artooi/ag-ui-web-component`.
 - **Voice & model thoughts** — set `DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]` to add a
-  🎤 mic to the composer (server-side transcription), and a reasoning model's
+  mic to the composer (server-side transcription), and a reasoning model's
   streamed chain-of-thought renders in a collapsible "thoughts" region. Both ride
   on the re-vendored web component; voice is off until a backend is configured.
 - **Unfold-aware** — a runtime JS shim adapts the sidebar to Unfold's chrome;
   any Python Unfold introspection is lazy and guarded, so Unfold stays optional.
 - **100% test coverage**, type-checked, Python 3.10–3.14, Django 4.2–6.0.
 
-📖 **Full documentation:** <https://artui.github.io/django-admin-agent/>
+**Full documentation:** <https://artui.github.io/django-admin-agent/>
 
 ```bash
 pip install django-admin-agent
