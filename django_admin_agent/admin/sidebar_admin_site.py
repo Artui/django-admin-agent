@@ -18,10 +18,10 @@ class SidebarAdminSite(AdminSite):
     the more common path and does not require swapping the admin site.
 
     ``sidebar_namespace`` names the mounted
-    :class:`~django_admin_agent.AdminAgentServer` to reverse against, matching
-    the ``namespace=`` it was built with — the class attribute mirrors the tag's
-    argument, so a project running two admin sites can point each at its own
-    server::
+    [`AdminAgentServer`][django_admin_agent.admin_agent_server.AdminAgentServer]
+    to reverse against, matching the ``namespace=`` it was built with — the
+    class attribute mirrors the tag's argument, so a project running two admin
+    sites can point each at its own server::
 
         class InternalAdminSite(SidebarAdminSite):
             sidebar_namespace = "internal-agent"
