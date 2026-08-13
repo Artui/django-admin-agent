@@ -20,6 +20,12 @@
 # top. The `floor` job in `tests.yml` measures the oldest end of those windows
 # per PR; this job measures the newest end. Between them they are what a
 # ceiling used to assert by guessing.
+#
+# There is a second axis, and it is not a Python dependency at all: the web
+# component this package **vendors**, pinned in the Makefile and fetched from
+# npm. No Python resolve can see it, so the `bundle-pin` job below asks npm
+# directly. Both axes report through their own issue label, because they fail for
+# unrelated reasons and say unrelated things.
 name: upstream drift
 
 on:
@@ -39,6 +45,83 @@ permissions:
   issues: write
 
 jobs:
+  # The second axis, and the one the job above structurally cannot see. The
+  # vendored bundle is pinned in the Makefile and fetched from **npm**, so no
+  # Python resolve touches it: `uv lock --upgrade` can be perfectly current while
+  # the component we actually ship is months old. `tests/test_vendored_bundle.py`
+  # does not close that gap either — it asserts the pin and the bundle agree
+  # *with each other*, which a stale-but-consistent pair does happily. That is how
+  # the pin reached four minors behind unnoticed, and then two more after it.
+  bundle-pin:
+    name: is the vendored bundle pin behind npm?
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
+      - name: Compare the pinned bundle with the latest published component
+        id: compare
+        run: |
+          set -euo pipefail
+          package="$(sed -n 's/^WEB_COMPONENT_PKG := //p' Makefile)"
+          pinned="$(sed -n 's/^WEB_COMPONENT_VERSION := //p' Makefile)"
+          latest="$(npm view "$package" version)"
+          echo "package=$package pinned=$pinned latest=$latest"
+          {
+            echo "package=$package"
+            echo "pinned=$pinned"
+            echo "latest=$latest"
+          } >>"$GITHUB_OUTPUT"
+          if [ "$pinned" != "$latest" ]; then
+            echo "::error::$package is at $latest; this repo vendors $pinned."
+            exit 1
+          fi
+
+      - name: Open or update an issue on drift
+        if: failure()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            // Its own label and title: the resolve job's issue tells a different
+            // story, and one overwriting the other would lose whichever ran second.
+            const pinned = ${{ toJSON(steps.compare.outputs.pinned) }};
+            const latest = ${{ toJSON(steps.compare.outputs.latest) }};
+            const title = "vendored bundle: the web-component pin is behind npm";
+            const body = [
+              `This repo vendors \`${pinned}\`; npm publishes \`${latest}\`.`,
+              "",
+              "Nothing else can see this. The unpinned Python resolve does not touch",
+              "npm, and the bundle test only asserts that the pin and the committed",
+              "bundle agree with each other — which a stale pair does.",
+              "",
+              "To adopt: bump `WEB_COMPONENT_VERSION` in the `Makefile`, run",
+              "`make vendor-bundle-release`, and release. Read the component's",
+              "changelog first: a bundle bump can carry chrome changes as well as",
+              "fixes, and the release notes should say so.",
+              "",
+              "To decline: pin deliberately and say why here, so the next run has an",
+              "answer rather than a repeat.",
+              "",
+              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            ].join("\n");
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: "open", labels: "bundle-drift",
+            });
+            if (existing.data.length) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: existing.data[0].number, body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ["bundle-drift"],
+              });
+            }
+
   resolve-latest:
     name: resolve unpinned + test
     runs-on: ubuntu-latest

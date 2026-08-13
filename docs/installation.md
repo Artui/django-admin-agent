@@ -132,6 +132,42 @@ not provide. Deploy the admin under an ASGI server such as
 uvicorn myproject.asgi:application
 ```
 
+### In development, ASGI is not enough on its own
+
+`runserver` serves your static files and **cannot stream** — the SSE response
+buffers, so the sidebar sits there waiting. A bare `uvicorn` streams and **serves
+no static files at all**. The sidebar's bootstrap module *is* a static file, so
+following only the paragraph above gives you `GET
+/static/django_admin_agent/admin_agent.js → 404`, an unstyled admin, and **no
+agent** — with nothing on screen to say why.
+
+Pick one of these for local work:
+
+**Add the static-files URLs under `DEBUG`.** No new dependency, and it is what
+this project's own example uses:
+
+```python
+# urls.py
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+if settings.DEBUG:
+    urlpatterns += staticfiles_urlpatterns()
+```
+
+**Or use [WhiteNoise](https://whitenoise.readthedocs.io/),** which serves them
+under any server and is closest to how production will behave.
+
+**Or put `daphne` first in `INSTALLED_APPS`,** which replaces `runserver` with an
+ASGI one that also serves static files:
+
+```python
+INSTALLED_APPS = ["daphne", ..., "django_admin_agent"]
+```
+
+In production, `collectstatic` behind your web server (or WhiteNoise) covers it,
+which is why this only bites in development — the environment where the first
+person to install this package meets it.
+
 ## The vendored web-component bundle
 
 `django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js` is
@@ -146,5 +182,8 @@ always ships a known, fixed bundle. The committed copy is a convenience so
 (`admin_agent.js`) imports it by relative path and registers the
 `<ag-ui-chat>` custom element.
 
-With `INSTALLED_APPS` set and `collectstatic` (or the static-files app in
-development) serving `django_admin_agent/`, no further static wiring is needed.
+With `INSTALLED_APPS` set and `collectstatic` serving `django_admin_agent/`,
+production needs no further static wiring. **Development does** — see
+[In development, ASGI is not enough on its own](#in-development-asgi-is-not-enough-on-its-own),
+because the server that streams and the server that serves static files are not
+the same one.
