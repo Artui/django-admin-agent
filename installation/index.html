@@ -436,6 +436,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="4. Serve over ASGI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#in-development-asgi-is-not-enough-on-its-own" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In development, ASGI is not enough on its own
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -699,6 +716,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="4. Serve over ASGI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#in-development-asgi-is-not-enough-on-its-own" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In development, ASGI is not enough on its own
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -840,6 +874,31 @@ not provide. Deploy the admin under an ASGI server such as
 <a href="https://www.uvicorn.org/">Uvicorn</a>:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uvicorn<span class="w"> </span>myproject.asgi:application
 </span></code></pre></div>
+<h3 id="in-development-asgi-is-not-enough-on-its-own">In development, ASGI is not enough on its own<a class="headerlink" href="#in-development-asgi-is-not-enough-on-its-own" title="Permanent link">&para;</a></h3>
+<p><code>runserver</code> serves your static files and <strong>cannot stream</strong> — the SSE response
+buffers, so the sidebar sits there waiting. A bare <code>uvicorn</code> streams and <strong>serves
+no static files at all</strong>. The sidebar's bootstrap module <em>is</em> a static file, so
+following only the paragraph above gives you <code>GET
+/static/django_admin_agent/admin_agent.js → 404</code>, an unstyled admin, and <strong>no
+agent</strong> — with nothing on screen to say why.</p>
+<p>Pick one of these for local work:</p>
+<p><strong>Add the static-files URLs under <code>DEBUG</code>.</strong> No new dependency, and it is what
+this project's own example uses:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># urls.py</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.staticfiles.urls</span><span class="w"> </span><span class="kn">import</span> <span class="n">staticfiles_urlpatterns</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">urlpatterns</span> <span class="o">+=</span> <span class="n">staticfiles_urlpatterns</span><span class="p">()</span>
+</span></code></pre></div>
+<p><strong>Or use <a href="https://whitenoise.readthedocs.io/">WhiteNoise</a>,</strong> which serves them
+under any server and is closest to how production will behave.</p>
+<p><strong>Or put <code>daphne</code> first in <code>INSTALLED_APPS</code>,</strong> which replaces <code>runserver</code> with an
+ASGI one that also serves static files:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;daphne&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;django_admin_agent&quot;</span><span class="p">]</span>
+</span></code></pre></div>
+<p>In production, <code>collectstatic</code> behind your web server (or WhiteNoise) covers it,
+which is why this only bites in development — the environment where the first
+person to install this package meets it.</p>
 <h2 id="the-vendored-web-component-bundle">The vendored web-component bundle<a class="headerlink" href="#the-vendored-web-component-bundle" title="Permanent link">&para;</a></h2>
 <p><code>django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js</code> is
 a <strong>build artefact</strong> — esbuild's minified output from
@@ -851,8 +910,11 @@ always ships a known, fixed bundle. The committed copy is a convenience so
 <code>git clone</code> + <code>runserver</code> works out of the box; the bootstrap module
 (<code>admin_agent.js</code>) imports it by relative path and registers the
 <code>&lt;ag-ui-chat&gt;</code> custom element.</p>
-<p>With <code>INSTALLED_APPS</code> set and <code>collectstatic</code> (or the static-files app in
-development) serving <code>django_admin_agent/</code>, no further static wiring is needed.</p>
+<p>With <code>INSTALLED_APPS</code> set and <code>collectstatic</code> serving <code>django_admin_agent/</code>,
+production needs no further static wiring. <strong>Development does</strong> — see
+<a href="#in-development-asgi-is-not-enough-on-its-own">In development, ASGI is not enough on its own</a>,
+because the server that streams and the server that serves static files are not
+the same one.</p>
 
 
 
