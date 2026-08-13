@@ -17,7 +17,7 @@ class AdminAgentServer(AGUIServer):
     pre-configured for the Django admin.
 
     Construct it once and mount its namespaced ``urls`` the ``admin.site.urls``
-    way, alongside the admin::
+    way, alongside the admin:
 
         from django.contrib import admin
         from django.urls import path
@@ -58,7 +58,7 @@ class AdminAgentServer(AGUIServer):
             sidebar bootstrap already sends the token.
         namespace: The URL namespace the mounted routes live under, which the
             sidebar reverses against. Pass the same value to the template tag
-            when it is not the default::
+            when it is not the default:
 
                 {% django_admin_agent_sidebar namespace="internal-agent" %}
     """
