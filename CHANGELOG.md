@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] — 2026-08-13
+
+### Changed
+
+- **The vendored web component moves 0.23.1 to 0.24.0**, which is where the
+  sidebar's own share of the gallery fix wave lives. A tool card whose call was
+  approved no longer breaks its name across three lines — the decision badge used
+  to crush it to 37px in a panel this width, which is exactly the shape the admin
+  sidebar is. A gated call can ask a readable question rather than the serialized
+  call, when the server supplies one (`APPROVAL_PROMPTS`, django-ag-ui 0.43.0). A
+  first visit stops logging a `404` for a conversation that cannot exist yet. And
+  the element gains an `ag-ui-run-finished` event, which matters here for anyone
+  driving admin pages of their own: a server-side tool writes without the page
+  knowing, and this is the signal that says so.
+
 ### Added
 
 - **The weekly drift job now watches npm as well.** The vendored web-component
@@ -908,7 +923,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.23.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.24.0...HEAD
+[0.24.0]: https://github.com/Artui/django-admin-agent/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/Artui/django-admin-agent/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/Artui/django-admin-agent/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/Artui/django-admin-agent/compare/v0.20.0...v0.21.0
