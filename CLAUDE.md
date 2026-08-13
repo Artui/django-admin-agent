@@ -126,6 +126,18 @@ mutables; initialise in `__init__`. A project may mount more than one sidebar.
 - Pre-commit runs `make lint-fix`, `make format`, `make type-check`. Never
   `--no-verify`.
 
+**Four of these rules are enforced, not remembered.** `ruff` carries the
+future-annotations import (`isort.required-imports`, with `__init__.py` and
+`migrations/` exempt) and the ban on every relative form including single-dot
+(`ban-relative-imports = "all"` — `TID` alone defaults to `parents`, so
+`from .foo import x` slipped through). A pygrep pre-commit hook carries the
+mypy-pragma rule, scoped to the package because that is exactly what `ty`
+checks: under `tests/` no checker reads either pragma, while an editor running
+mypy or pyright does honour `# type: ignore`. The `UP040/046/047` ignores stop
+`ruff --fix` rewriting code *into* the PEP 695 syntax these conventions forbid.
+Change a rule here and change the config with it, or they drift apart again.
+
+
 ## Boundaries
 
 - Core imports `django.contrib.admin`; that is expected here (unlike
