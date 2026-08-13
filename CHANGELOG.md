@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Docstring cross-references now render as links instead of raw markup.** The
+  docstrings carried Sphinx roles — ``:class:`~django_admin_agent.AdminAgentServer` ``
+  — but the docs build is mkdocstrings, which renders docstring bodies as
+  Markdown and has no such syntax, so each one reached the published page
+  verbatim, `:class:` prefix and Sphinx's abbreviating `~` included. They are now
+  mkdocstrings autorefs links. References to `django-ag-ui`'s `AGUIServer` became
+  plain code spans: no inventory for sibling packages is configured, so a link
+  there could not resolve.
+
 ### Added
 
 - **A weekly `upstream-drift.yml` — the newest-end measurement 0.22.0 shipped

@@ -23,13 +23,15 @@ def build_sidebar_context(namespace: str = DEFAULT_URL_NAMESPACE) -> dict[str, A
     index URL so the frontend ``nav.*`` tools can build changelist / changeform
     URLs without reversing named routes in the browser. Shared by the
     ``{% django_admin_agent_sidebar %}`` template tag and the
-    :class:`~django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite`
+    [`SidebarAdminSite`][django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite]
     ``each_context`` hook.
 
     Args:
-        namespace: The mounted :class:`~django_admin_agent.AdminAgentServer` to
-            reverse against — the one it was constructed with. An argument rather
-            than a setting, because a project may mount more than one sidebar.
+        namespace: The mounted
+            [`AdminAgentServer`][django_admin_agent.admin_agent_server.AdminAgentServer]
+            to reverse against — the one it was constructed with. An argument
+            rather than a setting, because a project may mount more than one
+            sidebar.
     """
     config = get_settings()
     attachments_url = _attachments_url(namespace)

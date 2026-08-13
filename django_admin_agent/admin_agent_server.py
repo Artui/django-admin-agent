@@ -13,11 +13,11 @@ DEFAULT_URL_NAMESPACE = "admin_agent"
 
 
 class AdminAgentServer(AGUIServer):
-    """The admin sidebar's mount object — a :class:`~django_ag_ui.AGUIServer`
+    """The admin sidebar's mount object — a ``django_ag_ui.AGUIServer``
     pre-configured for the Django admin.
 
-    Construct it once and mount its namespaced :attr:`~django_ag_ui.AGUIServer.urls`
-    the ``admin.site.urls`` way, alongside the admin::
+    Construct it once and mount its namespaced ``urls`` the ``admin.site.urls``
+    way, alongside the admin::
 
         from django.contrib import admin
         from django.urls import path
@@ -39,7 +39,7 @@ class AdminAgentServer(AGUIServer):
     SSE. Relax it deliberately, but the default is locked.
 
     **Every keyword below this class's own passes straight through** to
-    :class:`~django_ag_ui.AGUIServer` via ``**kwargs`` — the model, the stores,
+    ``django_ag_ui.AGUIServer`` via ``**kwargs`` — the model, the stores,
     the toolsets and capabilities, the drf-mcp bridge, the per-request model and
     instructions hooks, the throttle, and anything added there later. They are
     deliberately not enumerated here; the ones below are re-declared only because
@@ -48,7 +48,8 @@ class AdminAgentServer(AGUIServer):
 
     Args:
         registry: The server-side tool registry. ``None`` uses the built-in admin
-            tools (:func:`~django_admin_agent.build_default_registry`).
+            tools
+            ([`build_default_registry`][django_admin_agent.tools.register.build_default_registry]).
         require_authenticated: Answer ``401`` to an anonymous request.
         authorize: Per-request gate answering ``403`` when it returns ``False``,
             as JSON rather than an HTML login redirect. The default admits active

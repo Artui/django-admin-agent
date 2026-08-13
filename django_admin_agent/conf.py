@@ -31,7 +31,8 @@ class AdminAgentSettings:
 
     skills: list[dict[str, Any]] | None
     """Optional override for the skill catalog (client ``Skill`` dicts). ``None``
-    uses the built-in admin catalog (:func:`build_skills`)."""
+    uses the built-in admin catalog
+    ([`build_skills`][django_admin_agent.admin.build_skills.build_skills])."""
 
     theme: str | None
     """Web Component theme: ``"light"`` / ``"dark"`` / ``"auto"`` / ``"code"``.
@@ -44,7 +45,7 @@ class AdminAgentSettings:
     """``"bottom-left"`` / ``"side"`` / ``"sidebar"`` / ``"full"`` / ``"embedded"``
     (or unset for the default floating bottom-right). ``"sidebar"`` is a
     full-height docked panel that collapses to an icon rail; pair it with
-    :attr:`side`."""
+    [`side`][django_admin_agent.conf.AdminAgentSettings.side]."""
 
     text_animation: str | None
     """Incoming-text animation: ``"none"`` / ``"fade"`` / ``"word"``. ``None``
@@ -66,8 +67,9 @@ class AdminAgentSettings:
 
     theme_toggle: bool
     """When ``True``, show the Web Component's built-in light/dark header toggle
-    (``data-theme-toggle``), which flips :attr:`theme` and persists per tab.
-    Defaults to ``False`` — the admin's own theme usually governs."""
+    (``data-theme-toggle``), which flips
+    [`theme`][django_admin_agent.conf.AdminAgentSettings.theme] and persists per
+    tab. Defaults to ``False`` — the admin's own theme usually governs."""
 
     shell_field_redaction: bool | str
     """Sensitive-field redaction for the ``shell.query_model`` /

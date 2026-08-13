@@ -19,7 +19,8 @@ def django_admin_agent_sidebar(namespace: str = DEFAULT_URL_NAMESPACE) -> dict[s
     (typically just before the closing ``{% block %}``). Self-contained: it
     computes its own context, so the admin site does not need swapping.
 
-    ``namespace`` names the mounted :class:`~django_admin_agent.AdminAgentServer`
+    ``namespace`` names the mounted
+    [`AdminAgentServer`][django_admin_agent.admin_agent_server.AdminAgentServer]
     to reverse against, matching the ``namespace=`` it was built with. The
     default matches the server's own default, so a single-sidebar project passes
     nothing. A project mounting two sidebars names each::
