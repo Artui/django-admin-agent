@@ -10,6 +10,13 @@ happened to be built locally.
 
 So this asserts the two artefacts agree: the version pinned in the Makefile is
 the version baked into the bundle.
+
+**It cannot tell you the pin is old**, and that is the other half of the same
+problem: a stale pin and a stale bundle agree with each other perfectly. Nothing
+in a Python test can ask npm what the current release is, so the `bundle-pin` job
+in `.github/workflows/upstream-drift.yml` does that weekly and opens an issue when
+this repo is behind. Two guards, two questions: *are these two files consistent*
+(here) and *is the version they agree on still the current one* (there).
 """
 
 from __future__ import annotations

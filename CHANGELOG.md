@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **The weekly drift job now watches npm as well.** The vendored web-component
+  bundle is pinned in the `Makefile` and fetched from npm, so **no Python resolve
+  can see it**: `uv lock --upgrade` runs perfectly green while the component this
+  package actually ships is months old. `tests/test_vendored_bundle.py` does not
+  close that gap either — it asserts the pin and the committed bundle agree *with
+  each other*, which a stale-but-consistent pair does happily. That is how the pin
+  reached four minors behind unnoticed, and then two more after it. A `bundle-pin`
+  job asks npm for the current release, fails when this repo is behind, and opens
+  an issue under its own label saying how to adopt it or how to decline
+  deliberately.
+
+### Documentation
+
+- **Following the install page gave you an admin with no agent.** It said to
+  deploy under ASGI, and separately that with `INSTALLED_APPS` and `collectstatic`
+  "no further static wiring is needed" — two halves that cannot both be satisfied
+  in development. A bare ASGI server serves no static files; `runserver` serves
+  them and cannot stream SSE. The sidebar's bootstrap module *is* a static file, so
+  following the ASGI half yields
+  `GET /static/django_admin_agent/admin_agent.js → 404`, an unstyled admin and no
+  agent at all, with nothing on screen to explain it. Reproduced from a clean
+  project: eleven 404s, one of them the component.
+
+  The page now names three dev recipes that stream *and* serve static files
+  (`staticfiles_urlpatterns()` under `DEBUG`, WhiteNoise, or `daphne` first in
+  `INSTALLED_APPS`), says outright that `runserver` cannot stream — the instinct
+  the old text left in place — and marks the `collectstatic` sentence as being
+  about production only.
+
 ## [0.23.0] — 2026-08-13
 
 ### Fixed
