@@ -1529,10 +1529,10 @@
 
 
 
-        <p>The admin sidebar's mount object — a :class:<code>~django_ag_ui.AGUIServer</code>
+        <p>The admin sidebar's mount object — a <code>django_ag_ui.AGUIServer</code>
 pre-configured for the Django admin.</p>
-<p>Construct it once and mount its namespaced :attr:<code>~django_ag_ui.AGUIServer.urls</code>
-the <code>admin.site.urls</code> way, alongside the admin::</p>
+<p>Construct it once and mount its namespaced <code>urls</code> the <code>admin.site.urls</code>
+way, alongside the admin:</p>
 <div class="language-text highlight"><pre><span></span><code>from django.contrib import admin
 from django.urls import path
 from django_admin_agent import AdminAgentServer
@@ -1545,32 +1545,122 @@ urlpatterns = [
 </code></pre></div>
 <p>It mounts the agent endpoint and its tool catalog, plus the thread /
 attachment / transcription sub-views when their stores are passed (the same
-conditional mounting as <code>AGUIServer</code>). The sidebar reverses these names
-within <code>namespace</code>; pass the same value to the template tag if you use a
-non-default one::</p>
+conditional mounting as <code>AGUIServer</code>).</p>
+<p><strong>Fail-closed by default.</strong> Every mounted route requires an authenticated,
+active <strong>staff</strong> user, and without that an unauthenticated visitor could
+drive the agent and stream model data (<code>auth.User</code> rows, say) back over
+SSE. Relax it deliberately, but the default is locked.</p>
+<p><strong>Every keyword below this class's own passes straight through</strong> to
+<code>django_ag_ui.AGUIServer</code> via <code>**kwargs</code> — the model, the stores,
+the toolsets and capabilities, the drf-mcp bridge, the per-request model and
+instructions hooks, the throttle, and anything added there later. They are
+deliberately not enumerated here; the ones below are re-declared only because
+this package overrides their defaults, and a test asserts the rest keep
+flowing through.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>registry</code>
+            </td>
+            <td>
+                  <code><span title="django_ag_ui.ToolRegistry">ToolRegistry</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The server-side tool registry. <code>None</code> uses the built-in admin
+tools
+(<a class="autorefs autorefs-internal" title="build_default_registry" href="#django_admin_agent.tools.register.build_default_registry"><code>build_default_registry</code></a>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>require_authenticated</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Answer <code>401</code> to an anonymous request.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>authorize</code>
+            </td>
+            <td>
+                  <code><span title="collections.abc.Callable">Callable</span>[[<span title="django.http.HttpRequest">HttpRequest</span>], <span title="bool">bool</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Per-request gate answering <code>403</code> when it returns <code>False</code>,
+as JSON rather than an HTML login redirect. The default admits active
+staff; pass <code>lambda r: r.user.is_superuser</code> to tighten.</p>
+              </div>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="staff_required (django_admin_agent.staff_required.staff_required)" href="#django_admin_agent.staff_required.staff_required">staff_required</a></code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>csrf_exempt</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Drop CSRF protection from the agent endpoint. Left off — the
+sidebar bootstrap already sends the token.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>namespace</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The URL namespace the mounted routes live under, which the
+sidebar reverses against. Pass the same value to the template tag
+when it is not the default:</p>
 <div class="language-text highlight"><pre><span></span><code>{% django_admin_agent_sidebar namespace=&quot;internal-agent&quot; %}
 </code></pre></div>
-<p><strong>Fail-closed by default.</strong> Every mounted route requires an authenticated,
-active <strong>staff</strong> user: <code>require_authenticated=True</code> gives <code>401</code> for an
-anonymous request and <code>authorize=staff_required</code> gives <code>403</code> for a
-non-staff one (JSON, not an HTML login redirect), and the agent endpoint is
-CSRF-protected (<code>csrf_exempt=False</code> — the sidebar bootstrap already sends
-the token). Without this an unauthenticated visitor could drive the agent and
-stream model data (e.g. <code>auth.User</code> rows) back over SSE. Relax it
-deliberately — e.g. <code>authorize=lambda r: r.user.is_superuser</code> to tighten,
-or <code>require_authenticated=False</code> to open it — but the default is locked.</p>
-<p>Defaults the registry to the built-in admin tool registry
-(:func:<code>~django_admin_agent.build_default_registry</code>). <strong>Every other keyword
-passes straight through</strong> to :class:<code>~django_ag_ui.AGUIServer</code> via
-<code>**kwargs</code> — the model, the stores, the toolsets and capabilities, the
-drf-mcp bridge, the per-request model and instructions hooks, the throttle,
-and anything added there later.</p>
-<p>Deliberately not enumerated. A wrapper that lists what it forwards is a
-second place every new option has to be added, and nothing in lint, types or
-coverage can see the omission — the wrapper still compiles, the tests still
-pass, the option is simply undocumented or unreachable. The four arguments
-below are re-declared only because this package overrides their defaults;
-a test asserts the rest keep flowing through.</p>
+              </div>
+            </td>
+            <td>
+                  <code><span title="django_admin_agent.admin_agent_server.DEFAULT_URL_NAMESPACE">DEFAULT_URL_NAMESPACE</span></code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
 
@@ -1843,7 +1933,8 @@ attribute; defaults to <code>"compact"</code> for a dense admin sidebar.</p>
     <div class="doc doc-contents ">
 
         <p>Optional override for the skill catalog (client <code>Skill</code> dicts). <code>None</code>
-uses the built-in admin catalog (:func:<code>build_skills</code>).</p>
+uses the built-in admin catalog
+(<a class="autorefs autorefs-internal" title="build_skills" href="#django_admin_agent.admin.build_skills.build_skills"><code>build_skills</code></a>).</p>
 
     </div>
 
@@ -1919,7 +2010,12 @@ uses the built-in admin catalog (:func:<code>build_skills</code>).</p>
         <p><code>"bottom-left"</code> / <code>"side"</code> / <code>"sidebar"</code> / <code>"full"</code> / <code>"embedded"</code>
 (or unset for the default floating bottom-right). <code>"sidebar"</code> is a
 full-height docked panel that collapses to an icon rail; pair it with
-:attr:<code>side</code>.</p>
+<a class="autorefs autorefs-internal" title="side
+
+
+  
+      instance-attribute
+  " href="#django_admin_agent.conf.AdminAgentSettings.side"><code>side</code></a>.</p>
 
     </div>
 
@@ -2045,9 +2141,15 @@ language. <code>None</code> leaves the component's English defaults.</p>
 
     <div class="doc doc-contents ">
 
-        <p>When <code>True</code>, show the Web Component's built-in light⇄dark header toggle
-(<code>data-theme-toggle</code>), which flips :attr:<code>theme</code> and persists per tab.
-Defaults to <code>False</code> — the admin's own theme usually governs.</p>
+        <p>When <code>True</code>, show the Web Component's built-in light/dark header toggle
+(<code>data-theme-toggle</code>), which flips
+<a class="autorefs autorefs-internal" title="theme
+
+
+  
+      instance-attribute
+  " href="#django_admin_agent.conf.AdminAgentSettings.theme"><code>theme</code></a> and persists per
+tab. Defaults to <code>False</code> — the admin's own theme usually governs.</p>
 
     </div>
 
@@ -2129,18 +2231,48 @@ regex <code>str</code> replaces the built-in pattern with your own.</p>
     <div class="doc doc-contents first">
 
         <p>Build the context the sidebar template needs.</p>
-<p><code>namespace</code> names the mounted :class:<code>~django_admin_agent.AdminAgentServer</code>
-to reverse against — the one it was constructed with. It is an argument
-rather than a setting because a project may mount more than one sidebar, and
-because the server already knows its own namespace: a setting made you say it
-twice and get it wrong.</p>
-<p>Reverses the AG-UI endpoint URL, resolves the bootstrap module's static
-URL, reads the title / auto-confirm flag from settings, and resolves the
-admin index URL so the frontend <code>nav.*</code> tools can build changelist /
-changeform URLs without reversing named routes in the browser. Shared by
-the <code>{% django_admin_agent_sidebar %}</code> template tag and the
-:class:<code>~django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite</code>
+<p>Reverses the AG-UI endpoint URL, resolves the bootstrap module's static URL,
+reads the title / auto-confirm flag from settings, and resolves the admin
+index URL so the frontend <code>nav.*</code> tools can build changelist / changeform
+URLs without reversing named routes in the browser. Shared by the
+<code>{% django_admin_agent_sidebar %}</code> template tag and the
+<a class="autorefs autorefs-internal" title="SidebarAdminSite" href="#django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite"><code>SidebarAdminSite</code></a>
 <code>each_context</code> hook.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>namespace</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The mounted
+<a class="autorefs autorefs-internal" title="AdminAgentServer" href="#django_admin_agent.admin_agent_server.AdminAgentServer"><code>AdminAgentServer</code></a>
+to reverse against — the one it was constructed with. An argument
+rather than a setting, because a project may mount more than one
+sidebar.</p>
+              </div>
+            </td>
+            <td>
+                  <code><span title="django_admin_agent.admin_agent_server.DEFAULT_URL_NAMESPACE">DEFAULT_URL_NAMESPACE</span></code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
     </div>
@@ -2214,10 +2346,10 @@ a base template can render the chat without the template tag. Using the
 <code>{% django_admin_agent_sidebar %}</code> tag in <code>admin/base_site.html</code> is
 the more common path and does not require swapping the admin site.</p>
 <p><code>sidebar_namespace</code> names the mounted
-:class:<code>~django_admin_agent.AdminAgentServer</code> to reverse against, matching
-the <code>namespace=</code> it was built with — the class attribute mirrors the tag's
-argument, so a project running two admin sites can point each at its own
-server::</p>
+<a class="autorefs autorefs-internal" title="AdminAgentServer" href="#django_admin_agent.admin_agent_server.AdminAgentServer"><code>AdminAgentServer</code></a>
+to reverse against, matching the <code>namespace=</code> it was built with — the
+class attribute mirrors the tag's argument, so a project running two admin
+sites can point each at its own server:</p>
 <div class="language-text highlight"><pre><span></span><code>class InternalAdminSite(SidebarAdminSite):
     sidebar_namespace = &quot;internal-agent&quot;
 </code></pre></div>

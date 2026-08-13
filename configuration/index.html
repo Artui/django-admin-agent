@@ -1184,12 +1184,12 @@ appears.</p>
 <p>When an attachment store is configured, <code>AdminAgentServer</code> mounts an owner-scoped
 <strong>upload endpoint</strong> at <code>&lt;prefix&gt;attachments/</code> (<code>POST</code> upload) and
 <code>&lt;prefix&gt;attachments/&lt;id&gt;/</code> (<code>GET</code> download, <code>DELETE</code>), and the sidebar passes its
-URL to the Web Component as <code>data-attachments-url</code> — so the composer gains a 📎
+URL to the Web Component as <code>data-attachments-url</code> — so the composer gains a
 picker + drag-and-drop. Files upload out-of-band and travel as lightweight refs;
 the agent reads their contents server-side via the built-in <code>read_attachment</code> tool
 (the AG-UI message stream stays free of file bytes).</p>
 <p>Uploads are <strong>off by default</strong> — with no attachment store the sub-view isn't
-mounted (no 📎 affordance). Turn them on by passing one. For <strong>durable,
+mounted (no affordance). Turn them on by passing one. For <strong>durable,
 per-admin-user</strong> files, opt into the reference store: add
 <code>"django_pydantic_agent.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, then</p>
 <div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent.contrib.store.default_attachment_store</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -1217,7 +1217,7 @@ stream through the owner-checked <code>GET</code> (never a guessable public URL)
 <p>When a transcription backend is configured, <code>AdminAgentServer</code> mounts a
 <strong>transcription endpoint</strong> at <code>&lt;prefix&gt;transcribe/</code> (<code>POST</code> an audio clip →
 <code>{"text": ...}</code>), and the sidebar passes its URL as <code>data-transcribe-url</code> — so the
-composer gains a 🎤 mic button (record, then drop the transcript into the input).
+composer gains a mic button (record, then drop the transcript into the input).
 Voice is <strong>off by default</strong> — with no <code>TRANSCRIPTION_BACKEND</code> the sub-view isn't
 mounted (no mic affordance); enable it by pointing
 <code>DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]</code> at a backend — django-ag-ui ships an opt-in
