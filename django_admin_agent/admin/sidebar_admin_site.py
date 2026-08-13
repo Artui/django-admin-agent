@@ -21,7 +21,7 @@ class SidebarAdminSite(AdminSite):
     [`AdminAgentServer`][django_admin_agent.admin_agent_server.AdminAgentServer]
     to reverse against, matching the ``namespace=`` it was built with — the
     class attribute mirrors the tag's argument, so a project running two admin
-    sites can point each at its own server::
+    sites can point each at its own server:
 
         class InternalAdminSite(SidebarAdminSite):
             sidebar_namespace = "internal-agent"
