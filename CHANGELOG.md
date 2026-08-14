@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.0] — 2026-08-14
+
+### Changed
+
+- **The vendored web component moves 0.24.0 to 0.25.0**, and the sidebar's share
+  of it is the approval path. A run that defers **several** calls now asks about
+  each one inside that call's own tool card, above its arguments, with every
+  question on screen at once — where before they were identical anonymous prompts
+  asked one at a time, below the calls they gated. A batch write is the shape the
+  admin takes, and a gate you can only answer blind is not a gate.
+
+  A deferred call also stops claiming to run: it reads `waiting for you` rather
+  than `running…`, with no spinner, because nothing is running while the browser
+  waits on a person. A frontend tool keeps saying `running…`, correctly.
+
+  Three smaller ones arrive with it. The checkpoint panel — reachable here
+  whenever a `step_store` is configured — can now be closed by the button that
+  opened it, no longer sits open beneath the thread drawer, and its rows lead with
+  the run's first message instead of a bare timestamp (django-ag-ui 0.44.0 sends
+  it). The composer no longer paints a paperclip that cannot upload anything,
+  which is what an admin mount without an attachment store used to show. And every
+  part the panel exposes is documented, so a project restyling the sidebar can
+  reach them.
+
 ## [0.24.0] — 2026-08-13
 
 ### Changed
@@ -923,7 +947,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.24.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.25.0...HEAD
+[0.25.0]: https://github.com/Artui/django-admin-agent/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/Artui/django-admin-agent/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/Artui/django-admin-agent/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/Artui/django-admin-agent/compare/v0.21.0...v0.22.0
