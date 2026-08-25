@@ -795,8 +795,8 @@ them is excluded.</p>
 <h2 id="1-add-to-installed_apps">1. Add to <code>INSTALLED_APPS</code><a class="headerlink" href="#1-add-to-installed_apps" title="Permanent link">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="c1"># ...</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="s2">&quot;django.contrib.admin&quot;</span><span class="p">,</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="s2">&quot;django_admin_agent&quot;</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="s2">"django.contrib.admin"</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="s2">"django_admin_agent"</span><span class="p">,</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">]</span>
 </span></code></pre></div>
 <p>This makes the vendored static bundle, the <code>django_admin_agent</code> template-tag
@@ -814,8 +814,8 @@ agent endpoint.</p>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminAgentServer</span>
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">&quot;admin/&quot;</span><span class="p">,</span> <span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">&quot;admin-agent/&quot;</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic:claude-sonnet-4.6&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin/"</span><span class="p">,</span> <span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin-agent/"</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"anthropic:claude-sonnet-4.6"</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">]</span>
 </span></code></pre></div>
 <p><code>AdminAgentServer(...)</code> accepts:</p>
@@ -842,11 +842,11 @@ the template tag is the more common path and needs no admin-site swap.</p>
 <h3 id="option-a-the-template-tag-recommended">Option A — the template tag (recommended)<a class="headerlink" href="#option-a-the-template-tag-recommended" title="Permanent link">&para;</a></h3>
 <p>Override <code>admin/base_site.html</code> in a template directory that wins over the admin
 app's copy, and drop the inclusion tag into the branding block:</p>
-<div class="language-django highlight"><span class="filename">templates/admin/base_site.html</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">{%</span> <span class="k">extends</span> <span class="s2">&quot;admin/base.html&quot;</span> <span class="cp">%}</span>
+<div class="language-django highlight"><span class="filename">templates/admin/base_site.html</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">{%</span> <span class="k">extends</span> <span class="s2">"admin/base.html"</span> <span class="cp">%}</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="cp">{%</span> <span class="k">load</span> <span class="nv">django_admin_agent</span> <span class="cp">%}</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="cp">{%</span> <span class="k">block</span> <span class="nv">branding</span> <span class="cp">%}</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="x">  &lt;h1 id=&quot;site-name&quot;&gt;&lt;a href=&quot;</span><span class="cp">{%</span> <span class="k">url</span> <span class="s1">&#39;admin:index&#39;</span> <span class="cp">%}</span><span class="x">&quot;&gt;My admin&lt;/a&gt;&lt;/h1&gt;</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="x">  &lt;h1 id="site-name"&gt;&lt;a href="</span><span class="cp">{%</span> <span class="k">url</span> <span class="s1">'admin:index'</span> <span class="cp">%}</span><span class="x">"&gt;My admin&lt;/a&gt;&lt;/h1&gt;</span>
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="x">  </span><span class="cp">{%</span> <span class="k">django_admin_agent_sidebar</span> <span class="cp">%}</span>
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
 </span></code></pre></div>
@@ -862,7 +862,7 @@ settings.</p>
 context without the template tag.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent.admin.sidebar_admin_site</span><span class="w"> </span><span class="kn">import</span> <span class="n">SidebarAdminSite</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">admin_site</span> <span class="o">=</span> <span class="n">SidebarAdminSite</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;myadmin&quot;</span><span class="p">)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">admin_site</span> <span class="o">=</span> <span class="n">SidebarAdminSite</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"myadmin"</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Both paths render the same sidebar from the same
 <a href="../admin-wiring/"><code>build_sidebar_context()</code></a> helper.</p>
@@ -894,7 +894,7 @@ this project's own example uses:</p>
 under any server and is closest to how production will behave.</p>
 <p><strong>Or put <code>daphne</code> first in <code>INSTALLED_APPS</code>,</strong> which replaces <code>runserver</code> with an
 ASGI one that also serves static files:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;daphne&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;django_admin_agent&quot;</span><span class="p">]</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"daphne"</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="s2">"django_admin_agent"</span><span class="p">]</span>
 </span></code></pre></div>
 <p>In production, <code>collectstatic</code> behind your web server (or WhiteNoise) covers it,
 which is why this only bites in development — the environment where the first

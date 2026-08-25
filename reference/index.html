@@ -1538,10 +1538,10 @@ from django.urls import path
 from django_admin_agent import AdminAgentServer
 
 urlpatterns = [
-    path(&quot;admin/&quot;, admin.site.urls),
-    path(&quot;admin-agent/&quot;, AdminAgentServer().urls),
+    path("admin/", admin.site.urls),
+    path("admin-agent/", AdminAgentServer().urls),
 ]
-# reverse(&quot;admin_agent:endpoint&quot;) · &quot;admin_agent:tools&quot; · &quot;admin_agent:threads&quot; · …
+# reverse("admin_agent:endpoint") · "admin_agent:tools" · "admin_agent:threads" · …
 </code></pre></div>
 <p>It mounts the agent endpoint and its tool catalog, plus the thread /
 attachment / transcription sub-views when their stores are passed (the same
@@ -1651,7 +1651,7 @@ sidebar bootstrap already sends the token.</p>
                 <p>The URL namespace the mounted routes live under, which the
 sidebar reverses against. Pass the same value to the template tag
 when it is not the default:</p>
-<div class="language-text highlight"><pre><span></span><code>{% django_admin_agent_sidebar namespace=&quot;internal-agent&quot; %}
+<div class="language-text highlight"><pre><span></span><code>{% django_admin_agent_sidebar namespace="internal-agent" %}
 </code></pre></div>
               </div>
             </td>
@@ -2351,7 +2351,7 @@ to reverse against, matching the <code>namespace=</code> it was built with — t
 class attribute mirrors the tag's argument, so a project running two admin
 sites can point each at its own server:</p>
 <div class="language-text highlight"><pre><span></span><code>class InternalAdminSite(SidebarAdminSite):
-    sidebar_namespace = &quot;internal-agent&quot;
+    sidebar_namespace = "internal-agent"
 </code></pre></div>
 
 
