@@ -44,7 +44,7 @@ dependencies = [
     # re-uploading the file could never repair it. This package has no direct
     # dependency on the substrate and reaches both through django-ag-ui, which
     # is why the floor moves here rather than a declaration being added.
-    "django-ag-ui>=0.45",
+    "django-ag-ui>=0.46",
 ]
 
 [project.optional-dependencies]
@@ -155,7 +155,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.26.0"
+current_version = "0.27.0"
 allow_dirty = false
 commit = false
 tag = false
