@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.26.0] — 2026-08-25
+
+### Changed
+
+- **Requires `django-ag-ui>=0.45`**, up from `>=0.39`, so the substrate release
+  it carries reaches this package's consumers rather than depending on how their
+  resolver happens to land. Below that floor, an attachment whose bytes had left
+  storage was unreadable and unrepairable: the store raised where its contract
+  says it returns `None`, so the agent got an opaque tool failure instead of a
+  sentence it could relay, and the content-hash dedup adopted a missing blob
+  without checking — which meant re-uploading the same file matched the same dead
+  row and wrote nothing.
+
+  The floor moves here rather than a dependency being added: this package
+  imports the substrate nowhere and reaches it entirely through `django-ag-ui`.
+
+### Fixed
+
+- **The locked development stack had drifted three and five minors behind.** It
+  pinned `django-ag-ui` 0.39.0 and the substrate 0.13.0 while consumers resolved
+  0.44 and 0.16 — nothing constrained it, the lock had simply not been refreshed
+  — so every local run and CI job validated a stack no consumer would get.
+  Refreshed onto the current pair; the suite passes unchanged against it.
+
 ## [0.25.0] — 2026-08-14
 
 ### Changed
@@ -947,7 +971,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.25.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.26.0...HEAD
+[0.26.0]: https://github.com/Artui/django-admin-agent/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/Artui/django-admin-agent/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/Artui/django-admin-agent/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/Artui/django-admin-agent/compare/v0.22.0...v0.23.0
