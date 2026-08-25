@@ -37,7 +37,14 @@ classifiers = [
 ]
 dependencies = [
     "django>=4.2",
-    "django-ag-ui>=0.39",
+    # Floored at 0.45 for the substrate release it carries. Below it, an
+    # attachment whose bytes had left storage raised where the store contract
+    # says it returns ``None`` -- an opaque tool failure instead of a sentence
+    # the agent can relay -- and the dedup adopted a missing blob, so
+    # re-uploading the file could never repair it. This package has no direct
+    # dependency on the substrate and reaches both through django-ag-ui, which
+    # is why the floor moves here rather than a declaration being added.
+    "django-ag-ui>=0.45",
 ]
 
 [project.optional-dependencies]

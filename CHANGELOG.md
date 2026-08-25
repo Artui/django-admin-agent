@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Requires `django-ag-ui>=0.45`**, up from `>=0.39`, so the substrate release
+  it carries reaches this package's consumers rather than depending on how their
+  resolver happens to land. Below that floor, an attachment whose bytes had left
+  storage was unreadable and unrepairable: the store raised where its contract
+  says it returns `None`, so the agent got an opaque tool failure instead of a
+  sentence it could relay, and the content-hash dedup adopted a missing blob
+  without checking — which meant re-uploading the same file matched the same dead
+  row and wrote nothing.
+
+  The floor moves here rather than a dependency being added: this package
+  imports the substrate nowhere and reaches it entirely through `django-ag-ui`.
+
+### Fixed
+
+- **The locked development stack had drifted three and five minors behind.** It
+  pinned `django-ag-ui` 0.39.0 and the substrate 0.13.0 while consumers resolved
+  0.44 and 0.16 — nothing constrained it, the lock had simply not been refreshed
+  — so every local run and CI job validated a stack no consumer would get.
+  Refreshed onto the current pair; the suite passes unchanged against it.
+
 ## [0.25.0] — 2026-08-14
 
 ### Changed
