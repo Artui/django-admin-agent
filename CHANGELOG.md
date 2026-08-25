@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Requires `django-ag-ui>=0.46`**, up from `>=0.45`, which carries
+  `django-pydantic-agent>=0.17`. Below that pair, an attached file's tool result
+  told the model *"its contents are attached"* in later turns where the bytes had
+  not survived, so it answered confidently about a document it had never read
+  with no error surfaced anywhere; and the read-back budget could not be
+  configured alongside the upload cap, leaving a band of files that uploaded
+  successfully and could never be read.
+
+### Fixed
+
+- **The floor-resolution CI gate could resolve against a stale package index.**
+  Its purpose is to answer "what would a consumer installing from scratch get",
+  but it read the runner's shared uv cache, so the answer came from whatever
+  listing that cache held rather than from the index. A sibling's gate failed a
+  floor raise as unsatisfiable while the index had been serving the release for
+  some time. Now resolved with `--refresh`, so the gate measures what it claims
+  to.
+
 ## [0.26.0] — 2026-08-25
 
 ### Changed
