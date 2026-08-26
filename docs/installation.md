@@ -19,7 +19,7 @@ pip install django-admin-agent[mcp]
 
 !!! info "Compatibility floor"
     Python 3.10+ (tested 3.10–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
-    5.2, 6.0, 6.1), `django-ag-ui>=0.39`, and — with the `[mcp]` extra above —
+    5.2, 6.0, 6.1), `django-ag-ui>=0.48`, and — with the `[mcp]` extra above —
     `djangorestframework-mcp-server>=0.30`. Django Unfold 0.40+ is optional.
 
     Neither sibling window has an upper bound, so this package installs
@@ -175,15 +175,35 @@ a **build artefact** — esbuild's minified output from
 `@artooi/ag-ui-web-component`, with `@ag-ui/*` inlined. It is *not* hand-written
 and should not be edited.
 
-The bundle version is pinned in the `Makefile` (`WEB_COMPONENT_VERSION`); a
-release re-vendors exactly that pinned published version, so a released wheel
-always ships a known, fixed bundle. The committed copy is a convenience so
-`git clone` + `runserver` works out of the box; the bootstrap module
-(`admin_agent.js`) imports it by relative path and registers the
-`<ag-ui-chat>` custom element.
+The bundle version is pinned in the `Makefile` (`WEB_COMPONENT_VERSION`), and
+the **committed file is the artefact**: CI checks it byte-for-byte against the
+pinned published component on every pull request, and a release refuses to
+publish if the two disagree. So the bundle in a released wheel is the same one
+that was reviewed in a diff, exercised by the browser suite, and installed by
+`git clone` + `runserver`. The bootstrap module (`admin_agent.js`) imports it by
+relative path and registers the `<ag-ui-chat>` custom element.
 
 With `INSTALLED_APPS` set and `collectstatic` serving `django_admin_agent/`,
 production needs no further static wiring. **Development does** — see
 [In development, ASGI is not enough on its own](#in-development-asgi-is-not-enough-on-its-own),
 because the server that streams and the server that serves static files are not
 the same one.
+
+### Charts
+
+The sidebar draws charts your own server-side code pushes. A tool returning a
+`ToolReturn` whose `metadata` carries `django_ag_ui.chart_activity(spec)` renders
+in the transcript as SVG the component builds itself — the numbers never enter
+the model's context, and nothing chart-shaped is ever parsed as markup, which is
+why a visual is safe on a surface that keeps images off. See django-ag-ui's
+charts guide for the spec shape.
+
+The other route — a `render_chart` tool the **agent** may call, so it can discuss
+the numbers it drew — is left to you, because it widens what the agent can do:
+
+```js
+document.querySelector("ag-ui-chat#django-admin-agent").enableCharts(["tool"]);
+```
+
+Run it any time after the page loads; it redraws charts already in the restored
+transcript.

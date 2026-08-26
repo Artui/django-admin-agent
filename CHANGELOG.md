@@ -7,7 +7,104 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **CI runs the browser suite, and a bundle that does not work now fails a
+  build.** `tests/e2e` is the only suite that loads the vendored web component in
+  a real browser, and no workflow ran it — every other job is Python, so a bundle
+  that fails to mount left the unit tests, the version check, the size floor and
+  the element-marker check all green while the sidebar was dead on every admin
+  page. The new `e2e` job runs it on each pull request and blocks the merge gate,
+  alongside a `bundle` job that checks the committed bundle byte-for-byte against
+  the pinned published component.
+
+  The suite gained the case that gap allowed: a tool pushes a chart, and the test
+  asserts it is drawn *and* that the assistant's claim about it matches the
+  screen. Plus one for the new-chat button, asserting the conversation it leaves
+  is still in the history drawer.
+
+### Changed
+
+- **The vendored web component moves 0.25.0 to 0.27.0**, and two of the releases
+  in between change what a user of this sidebar sees.
+
+  **Charts draw.** A tool returning a `ToolReturn` whose `metadata` carries
+  `django_ag_ui.chart_activity(spec)` now renders in the transcript, as SVG the
+  component builds itself from the numbers. Before, the activity reached the
+  browser and was discarded without a warning — while the tool call settled
+  successfully, so the model went on to tell the user about a chart that was not
+  on screen. The sidebar opts in to that pushed route on your behalf; it adds
+  nothing the agent can call, since your own server-side code decides whether
+  there is a chart at all. The other route — a `render_chart` tool the *agent*
+  may call — widens what the agent can do, so it is left to you:
+  `document.querySelector("ag-ui-chat#django-admin-agent").enableCharts(["tool"])`.
+
+  **Starting a new chat no longer deletes the conversation it leaves.** The
+  header's new-chat button cleared the active thread from the store on its way to
+  minting the next id — the same call the history drawer's own delete action
+  makes. The conversation vanished from the drawer, and because the sidebar sets
+  `data-threads-url` whenever a conversation store is mounted, the remote store
+  answered that `clear` with a `DELETE`: the press that starts a second
+  conversation destroyed the first one, on the server. If you mount a
+  conversation store, assume some history was lost this way and that upgrading is
+  what stops it. A chat nothing was ever sent in is still dropped; it was never
+  listed.
+
+  **A deliberate stop is no longer also reported as an error.** Pressing Stop
+  could put a warning bubble carrying the browser's own abort text directly above
+  the muted stopped note — one cancellation, described twice, once as a failure.
+
+  **Nothing in a project needs adopting.** `newChat()` kept its name and changed
+  its meaning: a host calling it as a deliberate wipe must now clear the store
+  itself. Nothing in this package calls it, and the built-in button is the only
+  caller here. A custom `ClientConversationStore` may implement the new optional
+  `newThread()`; without it the element mints the id and hands it over, so an
+  existing store keeps working unchanged.
+
+- **Requires `django-ag-ui>=0.48`**, up from `>=0.46`, because the browser half
+  of this package now draws charts and the server half of that lives there. 0.47
+  is where `chart_activity` first exists; 0.48 is where the server refuses a
+  chart payload the browser would silently discard. The second half is the
+  load-bearing one — a discarded chart still settles its tool call successfully,
+  so the model reports a visual the user cannot see, which is precisely the
+  failure this release exists to end rather than move one layer up.
+
+- **The release verifies the vendored bundle instead of re-vendoring it.** Both
+  release targets used to run `make vendor-bundle-release` immediately before the
+  wheel was built, overwriting the bundle inside the release runner. The tree a
+  reviewer read and the suite exercised could therefore be a local build of a
+  sibling checkout while the wheel shipped npm's bytes, and neither artefact was
+  ever compared with the other — the only guard was a grep for the version
+  string, which a local build satisfies because its own source says the same
+  version. The committed file is now the artefact: `make vendor-bundle-verify`
+  compares the bytes and the release refuses to publish on a mismatch. Adopting a
+  version is still `make vendor-bundle-release`, and its result is committed.
+
 ### Fixed
+
+- **The sidebar imported `django_ag_ui.conf`, the one reach past django-ag-ui's
+  public surface.** `get_setting` is not re-exported from `django_ag_ui` and is
+  not in its documentation, and this package declares no upper bound on it — so a
+  rename in a minor release would not have degraded the chat panel, it would have
+  raised `ImportError` from the template tag and `each_context` and answered 500
+  on every admin page. The attachment limits now come from
+  `build_ag_ui_config()`, which is public and is the same call `AGUIServer` makes
+  itself. Behaviour is unchanged.
+
+- **The docs, the README and the drift workflow stated dependency floors that
+  `pyproject.toml` had left behind.** Installation and the workflow's reasoning
+  both said `django-ag-ui>=0.39` across two floor raises, the compatibility table
+  in the contributor guide said the same, and the README was nine minors behind
+  *and* still advertising a ceiling this package deliberately dropped. A reader
+  pinning their own stack from any of them held a version below a floor that
+  exists for a specific defect, and was told that defect was optional. All four
+  now agree with the declaration, and a test keeps them agreeing.
+
+- **Two copies of the same admin-URL helper.** The route manifest and the admin
+  model listing each carried a byte-identical private reverser, so a change to
+  one would have left the agent with two tools reporting different URLs for the
+  same action and nothing to notice. There is now one, in the admin package's
+  `utils.py`.
 
 - **The floor gate's second resolution was still reading the runner's cache.**
   The previous release refreshed the floor *lock* but left the bare-install check

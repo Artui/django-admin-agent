@@ -5,7 +5,7 @@ from typing import Any
 
 from django.templatetags.static import static
 from django.urls import NoReverseMatch, reverse
-from django_ag_ui.conf import get_setting as get_ag_ui_setting
+from django_ag_ui import build_ag_ui_config
 
 from django_admin_agent.admin.build_route_map import build_route_map
 from django_admin_agent.admin.build_skills import build_skills
@@ -79,15 +79,21 @@ def _attachment_limits(attachments_url: str | None) -> tuple[int | None, str | N
     keeps the sidebar, a presentation layer, out of reaching into another
     server's config.
 
+    Read through ``build_ag_ui_config``, which is django-ag-ui's public way to
+    resolve ``DJANGO_AG_UI`` and the same call ``AGUIServer`` makes in its own
+    ``__init__``. The defaults, the coercions and the meaning of an unset value
+    therefore live upstream in one place instead of being restated here — and
+    the sidebar stops depending on ``django_ag_ui.conf``, a module the package
+    does not re-export and the docs never mention, whose disappearance in a
+    minor release would take every admin page with it.
+
     ``accept`` is an HTML ``accept``-style comma-joined string built from
     ``ATTACHMENT_ALLOWED_TYPES``.
     """
     if attachments_url is None:
         return None, None
-    max_bytes = int(get_ag_ui_setting("ATTACHMENT_MAX_BYTES", 10 * 1024 * 1024)) or None
-    allowed_types = tuple(get_ag_ui_setting("ATTACHMENT_ALLOWED_TYPES", ()) or ())
-    accept = ",".join(allowed_types) if allowed_types else None
-    return max_bytes, accept
+    ag_ui = build_ag_ui_config()
+    return ag_ui.attachment_max_bytes or None, ",".join(ag_ui.attachment_allowed_types) or None
 
 
 def _strings_json(config: AdminAgentSettings) -> str | None:

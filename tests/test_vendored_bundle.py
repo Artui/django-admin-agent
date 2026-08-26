@@ -17,6 +17,11 @@ in a Python test can ask npm what the current release is, so the `bundle-pin` jo
 in `.github/workflows/upstream-drift.yml` does that weekly and opens an issue when
 this repo is behind. Two guards, two questions: *are these two files consistent*
 (here) and *is the version they agree on still the current one* (there).
+
+**Nor can it tell you the committed bundle is the published one** -- a version
+string is a claim, not a checksum, and a locally built sibling checkout makes the
+same claim. `make vendor-bundle-verify` compares the bytes, and the `bundle` job
+runs it per PR. The last group below asserts the release goes through it.
 """
 
 from __future__ import annotations
@@ -70,3 +75,51 @@ def test_the_bundle_defines_the_element(marker: str) -> None:
     # Guards against vendoring some *other* artefact from the package — the
     # version string alone would not notice.
     assert marker in _BUNDLE.read_text()
+
+
+def _prerequisites(target: str) -> list[str]:
+    """The names after ``target:`` in the Makefile."""
+    match = re.search(rf"^{re.escape(target)}:(.*)$", _MAKEFILE.read_text(), re.MULTILINE)
+    assert match is not None, f"the Makefile no longer declares a {target} target"
+    return match.group(1).split()
+
+
+def _recipe(target: str) -> str:
+    """The tab-indented body of ``target``."""
+    text = _MAKEFILE.read_text()
+    match = re.search(rf"^{re.escape(target)}:.*$((?:\n(?:\t.*)?)*)", text, re.MULTILINE)
+    assert match is not None, f"the Makefile no longer declares a {target} target"
+    return match.group(1)
+
+
+@pytest.mark.parametrize("target", ["release-publish", "release-publish-prepare"])
+def test_the_release_verifies_the_committed_bundle_rather_than_re_vendoring_it(
+    target: str,
+) -> None:
+    """A release must not substitute bundle bytes of its own.
+
+    It used to: both release targets ran ``vendor-bundle-release`` immediately
+    before the wheel was built, overwriting the bundle inside the release runner.
+    So the file a reviewer read in the diff, and the file the suite exercised,
+    could be a ``make vendor-bundle`` copy of whatever a developer had built
+    locally, while the wheel carried npm's -- and the two were never compared in
+    either direction. The only guard was a grep for the version string, which the
+    local build satisfies because its own source says the same version.
+
+    Now the committed file is the artefact and the release only checks it.
+    """
+    prerequisites = _prerequisites(target)
+    assert "vendor-bundle-verify" in prerequisites
+    assert "vendor-bundle-release" not in prerequisites, (
+        f"{target} re-vendors the bundle, which publishes bytes nobody committed, "
+        f"diffed or ran in a browser. It should verify the committed one instead."
+    )
+
+
+def test_the_verify_target_compares_bytes_and_writes_nothing() -> None:
+    """Verifying and vendoring are different acts, and the difference is the point:
+    a verify that repaired what it found would hide exactly the divergence it exists
+    to report."""
+    recipe = _recipe("vendor-bundle-verify")
+    assert "diff" in recipe
+    assert "cp " not in recipe, "vendor-bundle-verify writes to the tree; it must only read it"

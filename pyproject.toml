@@ -37,14 +37,26 @@ classifiers = [
 ]
 dependencies = [
     "django>=4.2",
-    # Floored at 0.45 for the substrate release it carries. Below it, an
-    # attachment whose bytes had left storage raised where the store contract
-    # says it returns ``None`` -- an opaque tool failure instead of a sentence
-    # the agent can relay -- and the dedup adopted a missing blob, so
-    # re-uploading the file could never repair it. This package has no direct
-    # dependency on the substrate and reaches both through django-ag-ui, which
-    # is why the floor moves here rather than a declaration being added.
-    "django-ag-ui>=0.46",
+    # Floored at 0.48 for the chart pipeline the vendored web component now
+    # draws. 0.47 is where ``chart_activity`` first exists, so below it there is
+    # no supported way to put a chart on this sidebar at all; 0.48 is where the
+    # server refuses a payload the browser would silently discard. The second
+    # half is the load-bearing one: a discarded chart still settles its tool call
+    # successfully, so the model reports a visual that is not on screen. Shipping
+    # a chart-drawing bundle over a server that emits undrawable specs would
+    # rebuild that exact failure one layer up, which is the failure this floor
+    # and the browser suite exist to stop.
+    #
+    # Carried along by the same claim, and the reason the previous two floors
+    # were raised: 0.45's attachment-store fix (a store that raised where its
+    # contract returns ``None``, and a dedup that adopted a missing blob) and
+    # 0.46's inline read-back budget, which closed the band of files that
+    # uploaded successfully and could never be read.
+    #
+    # This package has no direct dependency on the substrate and reaches all of
+    # it through django-ag-ui, which is why the floor moves here rather than a
+    # declaration being added.
+    "django-ag-ui>=0.48",
 ]
 
 [project.optional-dependencies]
@@ -76,6 +88,10 @@ dev = [
     "httpx>=0.27",
     "flake8-tidy-imports>=4.12.0",
     "django-stubs>=5.0",
+    # Declared rather than inherited from pre-commit: tests/test_ci_workflows.py
+    # parses the workflow files, and a transitive dependency is one upstream
+    # release away from not being there.
+    "pyyaml>=6.0",
 ]
 docs = [
     "mkdocs>=1.6",

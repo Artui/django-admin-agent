@@ -28,6 +28,8 @@ from pydantic_ai.models.function import (
     FunctionModel,
 )
 
+from tests.e2e.chart_tool import CHART_REPLY
+
 _AUTHOR_ARGS = '{"app_label": "testapp", "model": "Author"}'
 
 
@@ -53,6 +55,13 @@ def _decision(messages: Sequence[ModelMessage]) -> tuple[str, str, str]:
     """Return the next step as ``(kind, name_or_text, json_args)``."""
     text = _latest_user_text(messages)
     returned = _returned_tools(messages)
+    if "chart" in text:
+        if "chart_authors" not in returned:
+            return ("tool", "chart_authors", "{}")
+        # The reply the tool handed back, repeated as the model would repeat it:
+        # the assistant claims a chart is on screen, so the test can assert that
+        # the claim and the transcript agree.
+        return ("text", CHART_REPLY, "")
     if "how many" in text or "count" in text:
         if "count_model" not in returned:
             return ("tool", "count_model", _AUTHOR_ARGS)
@@ -61,7 +70,7 @@ def _decision(messages: Sequence[ModelMessage]) -> tuple[str, str, str]:
         if "open_changelist" not in returned:
             return ("tool", "open_changelist", _AUTHOR_ARGS)
         return ("text", "Opened the authors list.", "")
-    return ("text", "I can count authors or open the authors list.", "")
+    return ("text", "I can count authors, chart them, or open the authors list.", "")
 
 
 def _script(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:  # noqa: ARG001

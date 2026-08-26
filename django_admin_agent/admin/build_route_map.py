@@ -5,6 +5,8 @@ from typing import Any
 from django.contrib import admin
 from django.urls import NoReverseMatch, reverse
 
+from django_admin_agent.admin.utils import admin_url
+
 
 def build_route_map() -> list[dict[str, Any]]:
     """Build the agent's navigable-route manifest from the admin registry.
@@ -17,7 +19,7 @@ def build_route_map() -> list[dict[str, Any]]:
     routes: list[dict[str, Any]] = []
     for model_cls in admin.site._registry:
         meta = model_cls._meta
-        changelist = _admin_url(meta, "changelist")
+        changelist = admin_url(meta, "changelist")
         if changelist is not None:
             routes.append(
                 {
@@ -27,7 +29,7 @@ def build_route_map() -> list[dict[str, Any]]:
                     "group": meta.app_label,
                 },
             )
-        add = _admin_url(meta, "add")
+        add = admin_url(meta, "add")
         if add is not None:
             routes.append(
                 {
@@ -50,13 +52,6 @@ def build_route_map() -> list[dict[str, Any]]:
                 },
             )
     return routes
-
-
-def _admin_url(meta: Any, action: str) -> str | None:
-    try:
-        return reverse(f"admin:{meta.app_label}_{meta.model_name}_{action}")
-    except NoReverseMatch:
-        return None
 
 
 # A pk sentinel unlikely to collide with the rest of an admin URL; reversed and

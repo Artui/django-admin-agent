@@ -28,6 +28,14 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+      # `release-publish-prepare` verifies the committed web-component bundle
+      # against the pinned published one, which means `npm pack`. Runners ship a
+      # node, but the release now *refuses to publish* on a mismatch rather than
+      # quietly overwriting the file, so the toolchain it depends on is pinned
+      # here rather than inherited from whatever the image happens to carry.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
       - name: Install
         run: uv sync --all-groups
 

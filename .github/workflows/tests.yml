@@ -202,6 +202,62 @@ jobs:
             htmlcov/
           if-no-files-found: ignore
 
+  bundle:
+    name: the committed bundle is the pinned one
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      # The vendored bundle is a build artefact fetched from npm, and the
+      # committed file is what the wheel ships. This asserts the two are the
+      # same bytes, on every PR.
+      #
+      # `tests/test_vendored_bundle.py` cannot: it greps the bundle for the
+      # pinned version *string*, which a locally built sibling checkout
+      # satisfies because its own source says the same version. So a `make
+      # vendor-bundle` copy of whatever a developer had built passed every gate
+      # and could land. Only a byte comparison against the published artefact
+      # tells those apart.
+      - name: make vendor-bundle-verify
+        run: make vendor-bundle-verify
+
+  e2e:
+    name: browser end-to-end
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - name: Install
+        run: uv sync --all-groups
+      # The browsers are not pip-installable; Playwright fetches them, and
+      # `--with-deps` adds the system libraries a headless Chromium needs on a
+      # bare runner. About a minute, once per run.
+      - name: Install Chromium
+        run: uv run playwright install --with-deps chromium
+      # The only suite that loads the vendored bundle in a browser, and so the
+      # only one that can tell a bundle that mounts from one that does not.
+      # Every other job is Python: a bundle truncated past the 100KB floor, an
+      # ESM export renamed under the sidebar's import, or a capability the
+      # component dropped, all leave the unit suite, the version grep and the
+      # size check green while the sidebar is dead on every admin page.
+      #
+      # That gap is why a bundle sat two minors behind with charts silently
+      # discarded -- the tool call settled successfully, so the model reported a
+      # chart nobody could see, and no gate here could have known.
+      - name: make test-e2e
+        run: make test-e2e
+      - name: Upload Playwright artefacts
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-output
+          path: test-results/
+          if-no-files-found: ignore
+
   secrets:
     name: secret scan
     runs-on: ubuntu-latest
@@ -219,7 +275,7 @@ jobs:
   tests-passed:
     name: tests
     if: always()
-    needs: [lint, docs, floor, test]
+    needs: [lint, docs, floor, test, bundle, e2e]
     runs-on: ubuntu-latest
     steps:
       - name: Verify required jobs succeeded
