@@ -49,6 +49,22 @@ def _returned_tools(messages: Sequence[ModelMessage]) -> set[str]:
     return names
 
 
+def _tool_result(messages: Sequence[ModelMessage], tool_name: str) -> str:
+    """What ``tool_name`` last returned, verbatim.
+
+    Relayed into the reply so a browser test can read the tool's own answer off
+    the page. Without it a refused tool and a successful one produce the same
+    sentence: the failure policy turns a raising tool into an ordinary tool
+    return carrying the error, so the script's next step looks identical either
+    way.
+    """
+    for message in reversed(messages):
+        for part in getattr(message, "parts", []):
+            if isinstance(part, ToolReturnPart) and part.tool_name == tool_name:
+                return str(part.content)
+    return ""
+
+
 def _decision(messages: Sequence[ModelMessage]) -> tuple[str, str, str]:
     """Return the next step as ``(kind, name_or_text, json_args)``."""
     text = _latest_user_text(messages)
@@ -56,7 +72,7 @@ def _decision(messages: Sequence[ModelMessage]) -> tuple[str, str, str]:
     if "how many" in text or "count" in text:
         if "count_model" not in returned:
             return ("tool", "count_model", _AUTHOR_ARGS)
-        return ("text", "Counted the authors.", "")
+        return ("text", f"Counted the authors. {_tool_result(messages, 'count_model')}", "")
     if "open" in text and "author" in text:
         if "open_changelist" not in returned:
             return ("tool", "open_changelist", _AUTHOR_ARGS)

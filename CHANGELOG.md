@@ -7,6 +7,106 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **The agent no longer out-privileges the admin it sits in.** Every tool that
+  reads a model now asks the acting staff user's own admin and takes its answer:
+  the model has to be registered with the admin site, in `MODEL_SCOPE` if you
+  set one, and one the registered `ModelAdmin` grants that user view permission
+  for — and the rows come from that `ModelAdmin.get_queryset(request)` rather
+  than the model's default manager. Previously the only gate was `is_staff`,
+  which Django documents as *may enter the admin* and which conveys no rights
+  over any model, and the queryset came straight off `_default_manager`. A
+  support agent with no model permissions could ask the sidebar for "every user"
+  and get every row of every table; a per-tenant `get_queryset` override scoped
+  the changelist and not the sidebar. Applies to `shell.query_model`,
+  `shell.get_model_instance`, `shell.count_model`, `shell.inspect_model_schema`,
+  `introspect.inspect_modeladmin`, `introspect.list_models` and
+  `introspect.list_admin_models`.
+
+- **`shell.count_model` was an unredacted oracle over the fields
+  `shell.query_model` redacts.** Masking a value on the way out closed only the
+  direct route: `filter={"password__startswith": "pbkdf2_sha256$1"}` answered
+  yes-or-no through the count, and because a `CharField` also takes `__gt` /
+  `__lt`, the answers binary-searched a hash out at roughly six calls per
+  character. Every `filter`, `exclude` and `order_by` on every `shell.*` tool is
+  now checked against the same pattern the output path uses, segment by segment
+  so a relation walk is covered too, and a lookup that reads a redacted field is
+  refused with an explanation. `SHELL_FIELD_REDACTION = False` turns both halves
+  off together.
+
+- **`nav.navigate_to` handed a model-supplied URL to `window.location.assign`
+  with no scheme or origin check**, and is registered non-destructive, so no
+  confirmation card stood in front of it. A `javascript:` URL evaluates in the
+  admin's own origin under the staff session, and an off-origin `https:` URL
+  carries whatever the agent put in the query string to somebody else's server —
+  both one step away wherever injected row content can reach the model. It now
+  opens only http(s) pages on the admin's own origin, and refuses anything else
+  with a message the agent can act on.
+
+- **`ui_generic.click_dom_element` threw an uncaught `SyntaxError` on a value
+  containing a double quote.** The `querySelector` attempt was guarded, but the
+  `[aria-label="…"]` lookup after it interpolated the model's value into a
+  selector string outside that guard. The aria-label match is now done in JS
+  with no selector to break, so a miss reports "no element matched" and the
+  agent can correct itself. The tool was already `destructive=true`; it and
+  `ui_generic.fill_dom_element` now also carry their own confirmation prompt.
+
+### Added
+
+- **`MODEL_SCOPE`** — an optional list of `"app_label"` / `"app_label.ModelName"`
+  entries narrowing which models the tools may touch, below what the admin
+  already allows. Unset (the default) leaves the admin registry as the scope. It
+  can only ever narrow: it never grants a user a model their permissions deny.
+
+- **`bind_acting_request(request)`** — binds the acting admin request for a
+  block, for anything driving the tools outside the mounted endpoint (a
+  management command, a bespoke agent loop, a test). The endpoint binds it for
+  you on every run via its `deps_factory` default, `build_admin_deps`, which
+  still defers to a `deps_factory` you pass.
+
+### Changed
+
+- **`shell.*` redaction is documented as what it is: data minimisation, not
+  access control.** `redact_sensitive_fields` used to promise that a field like
+  `auth.User.password` "never streams to a third-party model"; the value took a
+  different route out, and a name-shaped denylist cannot see a secret in a
+  column called `pw` or inside a JSON blob either way. The docstring and the
+  configuration docs now say what the pass does and what it cannot do, and point
+  at reach — leaving a model out of the admin or out of `MODEL_SCOPE` — as the
+  control for data that must not leave. The built-in denylist gains `passwd`,
+  `passphrase`, `credential`, `salt`, `signature`, `ssn` and `session_data`;
+  `otp` and `pin` were deliberately left out, since they ride inside ordinary
+  words and a match now blocks a query as well as masking a value.
+
+- **`register_shell_tools`'s docstring says plainly that "shell" names the
+  ORM.** The four tools build and read QuerySets and nothing else — no `eval`,
+  no `exec`, no subprocess — and the category label comes from an upstream
+  vocabulary this package consumes. Renaming it was considered and declined; the
+  cost was a reader's time, and it is paid where the reader first lands.
+
+### Upgrading
+
+**A staff user without model permissions will now get less from the sidebar
+than they did before, and that is the point.** If your project grants `is_staff`
+broadly and relies on per-model permissions — or on a `ModelAdmin.get_queryset`
+override — to scope what each person sees, the agent was previously ignoring
+both and is now bound by them. Expect these changes in behaviour:
+
+- A model that is **not registered with the admin site** is no longer reachable
+  by any user, superusers included. `django.contrib.sessions.Session`,
+  `contenttypes.ContentType` and most third-party tables fall into this group.
+  Register a `ModelAdmin` for anything you want the sidebar to reach.
+- `introspect.list_models` and `introspect.list_admin_models` now list only what
+  the acting user could open in the admin, rather than every installed model.
+- A `filter` or `order_by` naming a redacted field is refused rather than run.
+  If your project filters on a field whose name happens to match the denylist
+  (`keywords` matches `key`, for instance), set `SHELL_FIELD_REDACTION` to a
+  regex of your own.
+- A tool driven **outside** the mounted endpoint now raises `PermissionDenied`
+  unless the call is wrapped in `bind_acting_request(request)`. Nothing mounted
+  through `AdminAgentServer` is affected.
+
 ### Fixed
 
 - **The floor gate's second resolution was still reading the runner's cache.**

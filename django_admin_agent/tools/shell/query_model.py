@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from django_admin_agent.tools.admin_queryset import admin_queryset
 from django_admin_agent.tools.shell.redact_sensitive_fields import redact_sensitive_fields
-from django_admin_agent.tools.utils import resolve_model, to_json_safe
+from django_admin_agent.tools.shell.reject_redacted_lookups import reject_redacted_lookups
+from django_admin_agent.tools.utils import to_json_safe
 
 
 def query_model(
@@ -20,14 +22,20 @@ def query_model(
 ) -> list[dict[str, Any]]:
     """Query a Django model and return matching rows as JSON-safe dicts.
 
+    Reads exactly what the acting staff user's own admin changelist would: the
+    model has to be registered with the admin site, in ``MODEL_SCOPE``, and one
+    this user has view permission for, and the rows come from that
+    ``ModelAdmin.get_queryset(request)`` rather than the model's default
+    manager.
+
     ``filter`` and ``exclude`` accept ORM lookup kwargs (e.g.
-    ``{"email__icontains": "@foo"}``). ``fields`` projects via
-    ``.values()``; if omitted, every concrete field is returned.
+    ``{"email__icontains": "@foo"}``), but not on a redacted field. ``fields``
+    projects via ``.values()``; if omitted, every concrete field is returned.
     ``limit`` is hard-capped at 1000 to keep responses bounded. Sensitive fields
     (name matching the ``SHELL_FIELD_REDACTION`` denylist) are redacted.
     """
-    model_cls = resolve_model(app_label, model)
-    qs = model_cls._default_manager.all()
+    reject_redacted_lookups(filter, exclude, order_by)
+    qs = admin_queryset(app_label, model)
     if select_related:
         qs = qs.select_related(*select_related)
     if prefetch_related:
@@ -43,7 +51,7 @@ def query_model(
     if fields:
         values = sliced.values(*fields)
     else:
-        all_fields = [f.name for f in model_cls._meta.concrete_fields]
+        all_fields = [f.name for f in qs.model._meta.concrete_fields]
         values = sliced.values(*all_fields)
     return [redact_sensitive_fields(to_json_safe(row)) for row in values]
 

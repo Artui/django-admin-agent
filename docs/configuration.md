@@ -25,7 +25,8 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `ICON_URL` | _unset_ | URL of a header/launcher icon image. Rendered as the `data-icon-url` attribute; left off (icon-less) when unset. |
 | `STRINGS` | _unset_ | Localized UI-string overrides for the Web Component (a partial dict merged over its English defaults). Rendered as the `data-strings` attribute (serialized JSON). Wrap values in `gettext_lazy` so the sidebar follows the admin's active language; left off when unset. |
 | `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
-| `SHELL_FIELD_REDACTION` | `True` | Redact sensitive fields in `shell.query_model` / `shell.get_model_instance` output. `True` uses the built-in denylist (`password\|token\|secret\|key\|hash`); `False` disables it; a regex `str` overrides the pattern. See [Access control](#access-control). |
+| `SHELL_FIELD_REDACTION` | `True` | Mask sensitive-*named* fields in `shell.*` output, and refuse to filter or order on them. `True` uses the built-in denylist; `False` disables both halves; a regex `str` replaces the pattern. See [Sensitive-field redaction](#sensitive-field-redaction). |
+| `MODEL_SCOPE` | _unset_ | Narrow which models the tools may touch, below what the admin already allows. A list of `"app_label"` / `"app_label.ModelName"` entries. Unset means the admin registry is the scope. See [Access control](#access-control). |
 
 ```python title="settings.py"
 DJANGO_ADMIN_AGENT = {
@@ -41,6 +42,14 @@ DJANGO_ADMIN_AGENT = {
     With `AUTO_CONFIRM = True`, the agent can fill and submit forms, run bulk
     actions, and apply filters without pausing for a confirmation click. Leave
     it `False` (the default) unless you trust the agent to act unattended.
+
+    It removes the card from the two fallback tools as well —
+    `ui_generic.fill_dom_element` and `ui_generic.click_dom_element` — and those
+    two reach anything a CSS selector matches, rather than the opaque handles
+    their `ui_write.*` siblings hand out. An agent steered by injected row
+    content can use one to press "Yes, I'm sure" on Django's own delete
+    interstitial, which is the step the confirmation card otherwise stands in
+    front of.
 
 ### Presentation
 
@@ -115,10 +124,15 @@ the built-in catalog.
 
 ## Access control
 
-[`AdminAgentServer`](reference.md) is **fail-closed by default**: every mounted
-route (the agent endpoint, the tool catalog, and — when configured — the thread
-index, uploads, and transcription) requires an authenticated, active **staff**
-user, and the agent endpoint is CSRF-protected.
+There are **two gates**, and they answer different questions. The endpoint gate
+decides who may talk to the agent at all. The permission gate decides what the
+agent may then read on their behalf. Neither one substitutes for the other.
+
+### The endpoint gate: who may drive the sidebar
+
+Every mounted route (the agent endpoint, the tool catalog, and — when
+configured — the thread index, uploads, and transcription) requires an
+authenticated, active **staff** user, and the agent endpoint is CSRF-protected.
 
 - `require_authenticated=True` (default) → an anonymous request gets **401**.
 - `authorize=staff_required` (default) → a non-staff user gets **403**. Both are
@@ -141,20 +155,128 @@ urlpatterns = [
 ```
 
 The default `authorize` gate is [`staff_required`](reference.md), importable from
-`django_admin_agent` if you want to compose it.
+`django_admin_agent` if you want to compose it. Without it an unauthenticated
+visitor could drive the agent and stream model rows back over SSE.
 
-Without this an unauthenticated visitor could drive the agent and, via the
-`shell.query_model` tool, stream model rows — including `auth.User` password
-hashes — back over SSE.
+!!! note "`is_staff` is a door, not a permission"
+    Django documents `is_staff` as "designates whether the user can log into
+    this admin site" — it conveys no rights over any model. A site that hands
+    `is_staff` to thirty support agents and then scopes each of them with
+    per-model permissions has, at this gate, thirty users who all pass. What
+    separates them is the second gate.
+
+### The permission gate: what the agent may read
+
+Every tool that reads a model asks the acting user's **own admin** and takes its
+answer. For `shell.query_model`, `shell.get_model_instance`, `shell.count_model`,
+`shell.inspect_model_schema`, `introspect.inspect_modeladmin`,
+`introspect.list_models` and `introspect.list_admin_models`, a model is readable
+only when all three hold:
+
+1. it is **registered with the admin site** — a model no `ModelAdmin` covers is
+   one no staff user can open in the admin, so the agent does not open it
+   either (`django.contrib.sessions.Session` and most third-party tables land
+   here);
+2. `MODEL_SCOPE` admits it, if you set one;
+3. the registered `ModelAdmin` grants this user **view permission** —
+   `has_view_permission(request)`, which is Django's `view_` / `change_`
+   `has_perm` check plus whatever your `ModelAdmin` overrode.
+
+Rows then come from that **`ModelAdmin.get_queryset(request)`**, not the model's
+default manager. Per-tenant, per-owner and per-region scoping is written as a
+`get_queryset` override, so reading through it is what keeps the agent's answers
+and the changelist's rows the same set.
+
+The net effect is the rule to hold in your head:
+
+> **The agent is exactly as capable as the staff user it is acting for.** Not
+> more, not less.
+
+Establishing *who* that is happens on the endpoint's per-run hook: the mounted
+`AdminAgentServer` binds the acting request for the run before the agent starts.
+Passing your own `deps_factory` cannot switch that off — yours still decides
+what the deps are, and the binding happens either way. If you drive the tools
+from somewhere other than the endpoint (a management command, a bespoke agent
+loop, a test), bind it yourself, because a tool with no acting request refuses
+rather than guessing:
+
+```python
+from django_admin_agent import bind_acting_request
+from django_admin_agent.tools.shell.query_model import query_model
+
+with bind_acting_request(request):
+    rows = query_model("shop", "Order", limit=10)
+```
+
+### `MODEL_SCOPE`
+
+The admin registry is the default scope, which suits a site whose admin *is* the
+surface you want the sidebar to have. When the admin is broader than that,
+`MODEL_SCOPE` narrows it — and only narrows it; it can never grant a user a
+model their permissions deny:
+
+```python title="settings.py"
+DJANGO_ADMIN_AGENT = {
+    # Everything in the shop app, plus auth.User, and nothing else.
+    "MODEL_SCOPE": ["shop", "auth.User"],
+}
+```
 
 ### Sensitive-field redaction
 
-Independently of who is calling, the `shell.query_model` and
-`shell.get_model_instance` tools **redact** any field whose name matches
-`SHELL_FIELD_REDACTION` (default `password|token|secret|key|hash`,
-case-insensitive) before the row reaches the model — even a legitimate staff
-query shouldn't ship a password hash to a third-party LLM. Set it to `False` to
-disable, or to a regex `str` to use your own denylist.
+Redaction is **data minimisation, not access control**. What a user may read at
+all is settled by the permission gate above; this then keeps values they *are*
+entitled to see from being shipped to a third-party model for no good reason —
+an `auth.User` password hash is readable by anyone with change permission on
+users, and the sidebar still should not stream it.
+
+With `SHELL_FIELD_REDACTION` on (the default), any field whose **name** matches
+the built-in denylist is masked in `shell.*` output, and a `filter`, `exclude`
+or `order_by` that reads such a field is **refused**. The refusal is the other
+half of the same protection: masking a value only closes the direct route, while
+`filter={"password__startswith": "pbkdf2_sha256$1"}` reads it back through the
+row count instead, roughly six calls per character with `__gt` / `__lt`.
+
+Set it to `False` to turn off both halves, or to a regex `str` to use your own
+pattern.
+
+!!! warning "A name denylist is a heuristic, and it is incomplete by design"
+    It matches field *names*, so it cannot see what it is not named after: a
+    secret in a column called `pw`, a token inside a JSON field called
+    `profile`, or a field declared `name="pw"` over `db_column="password"`. Nor
+    can it read a value to decide.
+
+    Treat it as a courtesy, not a boundary. For anything that must never leave
+    the database, the control is **reach**: leave the model out of the admin, or
+    out of `MODEL_SCOPE`, so the sidebar cannot query it at all.
+
+### Prompt injection is part of the threat model
+
+The agent reads rows, and rows are written by people — a ticket body, a product
+review, a username. Text in a row that the agent reads can try to steer it, so
+treat every tool the agent can call as callable by whoever wrote the data it
+just read. Three things follow:
+
+- The confirmation card on destructive frontend tools is the human checkpoint;
+  `AUTO_CONFIRM = True` removes it (see the warning above).
+- `nav.navigate_to` will only open **http(s) pages on the admin's own origin**.
+  A `javascript:` URL handed to `location.assign` runs in the admin's origin
+  under the staff session, and an off-origin URL carries whatever the agent put
+  in its query string somewhere else; both are refused.
+- The permission gate bounds the blast radius: injected instructions cannot read
+  a model the acting user could not have read themselves.
+
+!!! note "Where a refusal's reason goes"
+    A refused tool call reaches the model as a failure, and by default the
+    *reason* is not part of it — django-ag-ui's `TOOL_FAILURE.INCLUDE_DETAIL`
+    is `False`, on the grounds that an exception message is written for an
+    operator. So the full explanation goes to your log and audit trail, and the
+    user sees that the tool failed. If you would rather the agent could say
+    *"you don't have permission to view orders"*, turn it on:
+
+    ```python title="settings.py"
+    DJANGO_AG_UI = {"TOOL_FAILURE": {"INCLUDE_DETAIL": True}}
+    ```
 
 ## Inherited `DJANGO_AG_UI`
 

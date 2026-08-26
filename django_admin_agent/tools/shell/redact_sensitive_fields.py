@@ -1,37 +1,40 @@
 from __future__ import annotations
 
-import re
 from typing import Any
 
-from django_admin_agent.conf import get_settings
-
-# The built-in denylist: any field whose name contains one of these (case
-# insensitive) is redacted before a shell-tool row reaches the LLM.
-_DEFAULT_PATTERN = re.compile(r"password|token|secret|key|hash", re.IGNORECASE)
+from django_admin_agent.tools.shell.redaction_pattern import redaction_pattern
 
 REDACTED = "***redacted***"
 
 
-def _pattern() -> re.Pattern[str] | None:
-    """The active redaction pattern, or ``None`` when redaction is disabled."""
-    setting: bool | str = get_settings().shell_field_redaction
-    if setting is False:
-        return None
-    if setting is True:
-        return _DEFAULT_PATTERN
-    return re.compile(setting, re.IGNORECASE)
-
-
 def redact_sensitive_fields(row: dict[str, Any]) -> dict[str, Any]:
-    """Replace values of sensitive-named fields with a redaction marker.
+    """Replace values of sensitive-*named* fields with a redaction marker.
 
-    Applies to every ``shell.query_model`` / ``shell.get_model_instance`` row so
-    a field like ``auth.User.password`` never streams to a third-party model,
-    even when a staff user (or the LLM) asks for it explicitly. Governed by
-    ``DJANGO_ADMIN_AGENT["SHELL_FIELD_REDACTION"]`` — ``True`` (default) uses the
-    built-in pattern, ``False`` disables it, a regex ``str`` overrides it.
+    **This is data minimisation, not authorization.** What the acting user may
+    read at all is settled before a row exists, by the admin's own permissions
+    and ``ModelAdmin.get_queryset``
+    ([`admin_queryset`][django_admin_agent.tools.admin_queryset.admin_queryset]).
+    This pass then keeps values the user *is* entitled to see from being shipped
+    to a third-party model when there is no good reason to: an ``auth.User``
+    password hash is readable by anyone with change permission on users, and the
+    sidebar still should not stream it.
+
+    It matches the field's **name** against
+    [`redaction_pattern`][django_admin_agent.tools.shell.redaction_pattern.redaction_pattern],
+    which makes it a heuristic and incomplete by construction. A secret in a
+    column named ``pw``, or inside a JSON blob named ``profile``, is not matched;
+    neither is a field declared ``name="pw"`` over ``db_column="password"``.
+    Widen it with your own regex via ``SHELL_FIELD_REDACTION``, and treat
+    "the sidebar cannot reach this model at all" — leaving it out of the admin,
+    or out of ``MODEL_SCOPE`` — as the control for anything that must never
+    leave the database.
+
+    Applied to every row the shell tools emit. The tools that emit no rows close
+    the same gap from the other side:
+    [`reject_redacted_lookups`][django_admin_agent.tools.shell.reject_redacted_lookups.reject_redacted_lookups]
+    stops a matched field being read back one bit at a time through a filter.
     """
-    pattern = _pattern()
+    pattern = redaction_pattern()
     if pattern is None:
         return row
     return {key: (REDACTED if pattern.search(key) else value) for key, value in row.items()}
