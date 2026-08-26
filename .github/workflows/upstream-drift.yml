@@ -44,6 +44,11 @@ permissions:
   contents: read
   issues: write
 
+# Actions are pinned to a commit SHA rather than a tag: a tag is mutable, and an
+# action owner (or anyone who takes over the account) can silently repoint one at
+# new code that then runs with this workflow's token. The trailing version comment
+# is not decoration -- Dependabot reads it to know which release the SHA is, and
+# rewrites both together when a newer one ships.
 jobs:
   # The second axis, and the one the job above structurally cannot see. The
   # vendored bundle is pinned in the Makefile and fetched from **npm**, so no
@@ -56,8 +61,8 @@ jobs:
     name: is the vendored bundle pin behind npm?
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "22"
 
@@ -81,7 +86,7 @@ jobs:
 
       - name: Open or update an issue on drift
         if: failure()
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             // Its own label and title: the resolve job's issue tells a different
@@ -126,15 +131,15 @@ jobs:
     name: resolve unpinned + test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
           enable-cache: false
 
       # One cell, not the matrix. The matrix answers "does this combination
       # work"; this answers "has an upstream moved under us", and the newest
       # supported Python is where a new release lands first.
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.14"
 
@@ -168,7 +173,7 @@ jobs:
 
       - name: Open or update an issue on failure
         if: failure()
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const title = "upstream drift: the unpinned resolve is failing";
