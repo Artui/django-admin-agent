@@ -44,7 +44,8 @@ library, and the sidebar template discoverable.
 
 [`AdminAgentServer`](reference.md) is a
 [`django_ag_ui.AGUIServer`](https://github.com/Artui/django-ag-ui) pre-configured
-for the admin (the default admin tool registry + a fail-closed staff gate). Mount
+for the admin (the default admin tool registry, a staff gate, and the acting
+user's own admin permissions on every model the tools read). Mount
 its namespaced `.urls` the `admin.site.urls` way. The endpoints live under the
 `admin_agent` namespace — the sidebar reverses `admin_agent:endpoint` to find the
 agent endpoint.

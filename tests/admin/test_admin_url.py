@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import inspect
 from pathlib import Path
+from typing import Any
 
+import pytest
 from django.contrib import admin
 
 from django_admin_agent.admin.build_route_map import build_route_map
 from django_admin_agent.admin.utils import admin_url
 from django_admin_agent.tools.introspect.list_admin_models import list_admin_models
+from tests.conftest import acting_as
 
 _ADMIN_PACKAGE = Path(inspect.getfile(build_route_map)).parent
 
@@ -33,9 +36,10 @@ def test_the_admin_package_defines_the_helper_once() -> None:
     drift, and then two tools the agent uses interchangeably report different
     URLs for the same action with nothing to notice.
     """
+    package_root = _ADMIN_PACKAGE.parent
     copies = [
-        path.name
-        for path in _ADMIN_PACKAGE.glob("*.py")
+        str(path.relative_to(package_root))
+        for path in package_root.rglob("*.py")
         if path.name != "utils.py" and "def _admin_url(" in path.read_text()
     ]
     assert copies == [], (
@@ -43,15 +47,23 @@ def test_the_admin_package_defines_the_helper_once() -> None:
     )
 
 
-def test_both_url_producers_agree_for_every_registered_model() -> None:
+@pytest.mark.django_db
+def test_both_url_producers_agree_for_every_registered_model(superuser: Any) -> None:
     """The divergence the shared helper exists to prevent, asserted end to end.
 
     ``build_route_map`` and ``list_admin_models`` are two answers to "where does
     this model live in the admin", and the agent navigates by whichever it
     happened to ask. They have to give the same answer.
+
+    Acting as a superuser because ``list_admin_models`` now answers as the
+    request's user: the comparison is about URL shape, and a superuser is the one
+    principal for whom the listing is the full registry, so nothing is filtered
+    out of the comparison by permissions.
     """
     routes = {r["id"]: r["path"] for r in build_route_map()}
-    for entry in list_admin_models():
+    with acting_as(superuser):
+        entries = list(list_admin_models())
+    for entry in entries:
         key = f"{entry['app_label']}.{entry['model'].lower()}"
         assert routes.get(f"{key}.changelist") == entry["changelist_url"]
         assert routes.get(f"{key}.add") == entry["add_url"]

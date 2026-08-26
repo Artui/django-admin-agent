@@ -53,10 +53,16 @@ dependencies = [
     # 0.46's inline read-back budget, which closed the band of files that
     # uploaded successfully and could never be read.
     #
-    # This package has no direct dependency on the substrate and reaches all of
-    # it through django-ag-ui, which is why the floor moves here rather than a
-    # declaration being added.
+    # The floor moves here because this package reaches most of the substrate
+    # through django-ag-ui rather than importing it.
     "django-ag-ui>=0.48",
+    # The one exception, and so a declared dependency rather than a transitive
+    # one: ``AgentDeps`` is imported directly to bind the acting admin request
+    # onto the run's deps, and django-ag-ui takes that type and hands it back
+    # without re-exporting it. Floored at 0.17 to match the floor django-ag-ui
+    # 0.48 already puts on it -- a lower resolution here would give this import
+    # a version django-ag-ui itself refuses.
+    "django-pydantic-agent>=0.17",
 ]
 
 [project.optional-dependencies]

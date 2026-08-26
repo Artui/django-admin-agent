@@ -471,6 +471,7 @@ dependencies = [
     { name = "django", version = "5.2.17", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "django-ag-ui" },
+    { name = "django-pydantic-agent" },
 ]
 
 [package.optional-dependencies]
@@ -510,6 +511,7 @@ e2e = [
 requires-dist = [
     { name = "django", specifier = ">=4.2" },
     { name = "django-ag-ui", specifier = ">=0.48" },
+    { name = "django-pydantic-agent", specifier = ">=0.17" },
     { name = "djangorestframework-mcp-server", marker = "extra == 'mcp'", specifier = ">=0.30" },
 ]
 provides-extras = ["mcp"]

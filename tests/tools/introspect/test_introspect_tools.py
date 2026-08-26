@@ -166,12 +166,3 @@ def test_inspect_modeladmin_coerce_handles_non_primitive() -> None:
     assert _coerce({"k": "v"}) == {"k": "v"}
     # A non-primitive, non-container value falls back to str().
     assert _coerce({1, 2}) in ("{1, 2}", "{2, 1}")
-
-
-def test_list_admin_models_url_helper_handles_no_reverse_match() -> None:
-    from types import SimpleNamespace
-
-    from django_admin_agent.tools.introspect.list_admin_models import _admin_url
-
-    fake_meta = SimpleNamespace(app_label="nope", model_name="missing")
-    assert _admin_url(fake_meta, "changelist") is None

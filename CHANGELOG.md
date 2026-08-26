@@ -180,6 +180,13 @@ both and is now bound by them. Expect these changes in behaviour:
 
 ### Fixed
 
+- **The admin-URL reverser is defined once.** Two byte-identical private copies
+  existed, one per producer of admin URLs, and the agent navigates by whichever it
+  happened to ask -- so a drift between them would have meant two tools reporting
+  different URLs for the same action, with nothing to notice. Both now import the
+  shared helper, and the guard against a third copy covers the whole package rather
+  than one sub-package of it.
+
 - **The sidebar imported `django_ag_ui.conf`, the one reach past django-ag-ui's
   public surface.** `get_setting` is not re-exported from `django_ag_ui` and is
   not in its documentation, and this package declares no upper bound on it — so a
