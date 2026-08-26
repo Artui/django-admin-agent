@@ -4,7 +4,7 @@ from typing import Any
 
 from django.db.models import Field
 
-from django_admin_agent.tools.utils import resolve_model
+from django_admin_agent.tools.authorized_model_admin import authorized_model_admin
 
 
 def inspect_model_schema(app_label: str, model: str) -> dict[str, Any]:
@@ -12,10 +12,11 @@ def inspect_model_schema(app_label: str, model: str) -> dict[str, Any]:
 
     Includes concrete fields with types, nullability, relations, indexes,
     db_table, and Meta ordering — a good first step before writing
-    queries.
+    queries. Described only for a model the acting staff user could open in
+    the admin: a field list is a map of where the data is, and handing one out
+    for a model the user may not read describes a table they cannot see.
     """
-    model_cls = resolve_model(app_label, model)
-    meta = model_cls._meta
+    meta = authorized_model_admin(app_label, model).model._meta
     fields_info: list[dict[str, Any]] = []
     for field in meta.get_fields():
         if not isinstance(field, Field):
