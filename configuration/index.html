@@ -434,10 +434,54 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#the-endpoint-gate-who-may-drive-the-sidebar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The endpoint gate: who may drive the sidebar
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-permission-gate-what-the-agent-may-read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The permission gate: what the agent may read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model_scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MODEL_SCOPE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#sensitive-field-redaction" class="md-nav__link">
     <span class="md-ellipsis">
       
         Sensitive-field redaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-injection-is-part-of-the-threat-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt injection is part of the threat model
       
     </span>
   </a>
@@ -726,10 +770,54 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#the-endpoint-gate-who-may-drive-the-sidebar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The endpoint gate: who may drive the sidebar
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-permission-gate-what-the-agent-may-read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The permission gate: what the agent may read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model_scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MODEL_SCOPE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#sensitive-field-redaction" class="md-nav__link">
     <span class="md-ellipsis">
       
         Sensitive-field redaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-injection-is-part-of-the-threat-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt injection is part of the threat model
       
     </span>
   </a>
@@ -930,7 +1018,12 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <tr>
 <td><code>SHELL_FIELD_REDACTION</code></td>
 <td><code>True</code></td>
-<td>Redact sensitive fields in <code>shell.query_model</code> / <code>shell.get_model_instance</code> output. <code>True</code> uses the built-in denylist (<code>password\|token\|secret\|key\|hash</code>); <code>False</code> disables it; a regex <code>str</code> overrides the pattern. See <a href="#access-control">Access control</a>.</td>
+<td>Mask sensitive-<em>named</em> fields in <code>shell.*</code> output, and refuse to filter or order on them. <code>True</code> uses the built-in denylist; <code>False</code> disables both halves; a regex <code>str</code> replaces the pattern. See <a href="#sensitive-field-redaction">Sensitive-field redaction</a>.</td>
+</tr>
+<tr>
+<td><code>MODEL_SCOPE</code></td>
+<td><em>unset</em></td>
+<td>Narrow which models the tools may touch, below what the admin already allows. A list of <code>"app_label"</code> / <code>"app_label.ModelName"</code> entries. Unset means the admin registry is the scope. See <a href="#access-control">Access control</a>.</td>
 </tr>
 </tbody>
 </table>
@@ -947,6 +1040,13 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <p>With <code>AUTO_CONFIRM = True</code>, the agent can fill and submit forms, run bulk
 actions, and apply filters without pausing for a confirmation click. Leave
 it <code>False</code> (the default) unless you trust the agent to act unattended.</p>
+<p>It removes the card from the two fallback tools as well —
+<code>ui_generic.fill_dom_element</code> and <code>ui_generic.click_dom_element</code> — and those
+two reach anything a CSS selector matches, rather than the opaque handles
+their <code>ui_write.*</code> siblings hand out. An agent steered by injected row
+content can use one to press "Yes, I'm sure" on Django's own delete
+interstitial, which is the step the confirmation card otherwise stands in
+front of.</p>
 </div>
 <h3 id="presentation">Presentation<a class="headerlink" href="#presentation" title="Permanent link">&para;</a></h3>
 <p><code>TOOL_DISPLAY</code>, <code>THEME</code>, <code>DENSITY</code>, <code>PLACEMENT</code>, and <code>TEXT_ANIMATION</code> all flow
@@ -1045,10 +1145,13 @@ The built-in skills are placeholder-free so they work on any page.</p>
 <p>Setting <code>SKILLS</code> to an empty list (<code>[]</code>) ships no skills; leaving it unset uses
 the built-in catalog.</p>
 <h2 id="access-control">Access control<a class="headerlink" href="#access-control" title="Permanent link">&para;</a></h2>
-<p><a href="../reference/"><code>AdminAgentServer</code></a> is <strong>fail-closed by default</strong>: every mounted
-route (the agent endpoint, the tool catalog, and — when configured — the thread
-index, uploads, and transcription) requires an authenticated, active <strong>staff</strong>
-user, and the agent endpoint is CSRF-protected.</p>
+<p>There are <strong>two gates</strong>, and they answer different questions. The endpoint gate
+decides who may talk to the agent at all. The permission gate decides what the
+agent may then read on their behalf. Neither one substitutes for the other.</p>
+<h3 id="the-endpoint-gate-who-may-drive-the-sidebar">The endpoint gate: who may drive the sidebar<a class="headerlink" href="#the-endpoint-gate-who-may-drive-the-sidebar" title="Permanent link">&para;</a></h3>
+<p>Every mounted route (the agent endpoint, the tool catalog, and — when
+configured — the thread index, uploads, and transcription) requires an
+authenticated, active <strong>staff</strong> user, and the agent endpoint is CSRF-protected.</p>
 <ul>
 <li><code>require_authenticated=True</code> (default) → an anonymous request gets <strong>401</strong>.</li>
 <li><code>authorize=staff_required</code> (default) → a non-staff user gets <strong>403</strong>. Both are
@@ -1069,17 +1172,114 @@ user, and the agent endpoint is CSRF-protected.</p>
 </span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="p">]</span>
 </span></code></pre></div>
 <p>The default <code>authorize</code> gate is <a href="../reference/"><code>staff_required</code></a>, importable from
-<code>django_admin_agent</code> if you want to compose it.</p>
-<p>Without this an unauthenticated visitor could drive the agent and, via the
-<code>shell.query_model</code> tool, stream model rows — including <code>auth.User</code> password
-hashes — back over SSE.</p>
+<code>django_admin_agent</code> if you want to compose it. Without it an unauthenticated
+visitor could drive the agent and stream model rows back over SSE.</p>
+<div class="admonition note">
+<p class="admonition-title"><code>is_staff</code> is a door, not a permission</p>
+<p>Django documents <code>is_staff</code> as "designates whether the user can log into
+this admin site" — it conveys no rights over any model. A site that hands
+<code>is_staff</code> to thirty support agents and then scopes each of them with
+per-model permissions has, at this gate, thirty users who all pass. What
+separates them is the second gate.</p>
+</div>
+<h3 id="the-permission-gate-what-the-agent-may-read">The permission gate: what the agent may read<a class="headerlink" href="#the-permission-gate-what-the-agent-may-read" title="Permanent link">&para;</a></h3>
+<p>Every tool that reads a model asks the acting user's <strong>own admin</strong> and takes its
+answer. For <code>shell.query_model</code>, <code>shell.get_model_instance</code>, <code>shell.count_model</code>,
+<code>shell.inspect_model_schema</code>, <code>introspect.inspect_modeladmin</code>,
+<code>introspect.list_models</code> and <code>introspect.list_admin_models</code>, a model is readable
+only when all three hold:</p>
+<ol>
+<li>it is <strong>registered with the admin site</strong> — a model no <code>ModelAdmin</code> covers is
+   one no staff user can open in the admin, so the agent does not open it
+   either (<code>django.contrib.sessions.Session</code> and most third-party tables land
+   here);</li>
+<li><code>MODEL_SCOPE</code> admits it, if you set one;</li>
+<li>the registered <code>ModelAdmin</code> grants this user <strong>view permission</strong> —
+   <code>has_view_permission(request)</code>, which is Django's <code>view_</code> / <code>change_</code>
+   <code>has_perm</code> check plus whatever your <code>ModelAdmin</code> overrode.</li>
+</ol>
+<p>Rows then come from that <strong><code>ModelAdmin.get_queryset(request)</code></strong>, not the model's
+default manager. Per-tenant, per-owner and per-region scoping is written as a
+<code>get_queryset</code> override, so reading through it is what keeps the agent's answers
+and the changelist's rows the same set.</p>
+<p>The net effect is the rule to hold in your head:</p>
+<blockquote>
+<p><strong>The agent is exactly as capable as the staff user it is acting for.</strong> Not
+more, not less.</p>
+</blockquote>
+<p>Establishing <em>who</em> that is happens on the endpoint's per-run hook: the mounted
+<code>AdminAgentServer</code> binds the acting request for the run before the agent starts.
+Passing your own <code>deps_factory</code> cannot switch that off — yours still decides
+what the deps are, and the binding happens either way. If you drive the tools
+from somewhere other than the endpoint (a management command, a bespoke agent
+loop, a test), bind it yourself, because a tool with no acting request refuses
+rather than guessing:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">bind_acting_request</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent.tools.shell.query_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">query_model</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">with</span> <span class="n">bind_acting_request</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">rows</span> <span class="o">=</span> <span class="n">query_model</span><span class="p">(</span><span class="s2">"shop"</span><span class="p">,</span> <span class="s2">"Order"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="model_scope"><code>MODEL_SCOPE</code><a class="headerlink" href="#model_scope" title="Permanent link">&para;</a></h3>
+<p>The admin registry is the default scope, which suits a site whose admin <em>is</em> the
+surface you want the sidebar to have. When the admin is broader than that,
+<code>MODEL_SCOPE</code> narrows it — and only narrows it; it can never grant a user a
+model their permissions deny:</p>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="c1"># Everything in the shop app, plus auth.User, and nothing else.</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="s2">"MODEL_SCOPE"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"shop"</span><span class="p">,</span> <span class="s2">"auth.User"</span><span class="p">],</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="p">}</span>
+</span></code></pre></div>
 <h3 id="sensitive-field-redaction">Sensitive-field redaction<a class="headerlink" href="#sensitive-field-redaction" title="Permanent link">&para;</a></h3>
-<p>Independently of who is calling, the <code>shell.query_model</code> and
-<code>shell.get_model_instance</code> tools <strong>redact</strong> any field whose name matches
-<code>SHELL_FIELD_REDACTION</code> (default <code>password|token|secret|key|hash</code>,
-case-insensitive) before the row reaches the model — even a legitimate staff
-query shouldn't ship a password hash to a third-party LLM. Set it to <code>False</code> to
-disable, or to a regex <code>str</code> to use your own denylist.</p>
+<p>Redaction is <strong>data minimisation, not access control</strong>. What a user may read at
+all is settled by the permission gate above; this then keeps values they <em>are</em>
+entitled to see from being shipped to a third-party model for no good reason —
+an <code>auth.User</code> password hash is readable by anyone with change permission on
+users, and the sidebar still should not stream it.</p>
+<p>With <code>SHELL_FIELD_REDACTION</code> on (the default), any field whose <strong>name</strong> matches
+the built-in denylist is masked in <code>shell.*</code> output, and a <code>filter</code>, <code>exclude</code>
+or <code>order_by</code> that reads such a field is <strong>refused</strong>. The refusal is the other
+half of the same protection: masking a value only closes the direct route, while
+<code>filter={"password__startswith": "pbkdf2_sha256$1"}</code> reads it back through the
+row count instead, roughly six calls per character with <code>__gt</code> / <code>__lt</code>.</p>
+<p>Set it to <code>False</code> to turn off both halves, or to a regex <code>str</code> to use your own
+pattern.</p>
+<div class="admonition warning">
+<p class="admonition-title">A name denylist is a heuristic, and it is incomplete by design</p>
+<p>It matches field <em>names</em>, so it cannot see what it is not named after: a
+secret in a column called <code>pw</code>, a token inside a JSON field called
+<code>profile</code>, or a field declared <code>name="pw"</code> over <code>db_column="password"</code>. Nor
+can it read a value to decide.</p>
+<p>Treat it as a courtesy, not a boundary. For anything that must never leave
+the database, the control is <strong>reach</strong>: leave the model out of the admin, or
+out of <code>MODEL_SCOPE</code>, so the sidebar cannot query it at all.</p>
+</div>
+<h3 id="prompt-injection-is-part-of-the-threat-model">Prompt injection is part of the threat model<a class="headerlink" href="#prompt-injection-is-part-of-the-threat-model" title="Permanent link">&para;</a></h3>
+<p>The agent reads rows, and rows are written by people — a ticket body, a product
+review, a username. Text in a row that the agent reads can try to steer it, so
+treat every tool the agent can call as callable by whoever wrote the data it
+just read. Three things follow:</p>
+<ul>
+<li>The confirmation card on destructive frontend tools is the human checkpoint;
+  <code>AUTO_CONFIRM = True</code> removes it (see the warning above).</li>
+<li><code>nav.navigate_to</code> will only open <strong>http(s) pages on the admin's own origin</strong>.
+  A <code>javascript:</code> URL handed to <code>location.assign</code> runs in the admin's origin
+  under the staff session, and an off-origin URL carries whatever the agent put
+  in its query string somewhere else; both are refused.</li>
+<li>The permission gate bounds the blast radius: injected instructions cannot read
+  a model the acting user could not have read themselves.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Where a refusal's reason goes</p>
+<p>A refused tool call reaches the model as a failure, and by default the
+<em>reason</em> is not part of it — django-ag-ui's <code>TOOL_FAILURE.INCLUDE_DETAIL</code>
+is <code>False</code>, on the grounds that an exception message is written for an
+operator. So the full explanation goes to your log and audit trail, and the
+user sees that the tool failed. If you would rather the agent could say
+<em>"you don't have permission to view orders"</em>, turn it on:</p>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"TOOL_FAILURE"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"INCLUDE_DETAIL"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+</span></code></pre></div>
+</div>
 <h2 id="inherited-django_ag_ui">Inherited <code>DJANGO_AG_UI</code><a class="headerlink" href="#inherited-django_ag_ui" title="Permanent link">&para;</a></h2>
 <p>The agent model, persistence, and toolset composition are configured on
 <code>django-ag-ui</code>'s settings dict. The sidebar inherits all of it. The keys most
@@ -1115,9 +1315,9 @@ relevant to the admin sidebar:</p>
 </tr>
 </tbody>
 </table>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="s2">"MODEL"</span><span class="p">:</span> <span class="s2">"anthropic:claude-sonnet-4.6"</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="s2">"MODEL"</span><span class="p">:</span> <span class="s2">"anthropic:claude-sonnet-4.6"</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="p">}</span>
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Collaborators are constructor arguments, not settings</p>
@@ -1130,7 +1330,7 @@ present</strong> rather than silently ignoring it: <code>CONVERSATION_STORE</cod
 <code>DRF_MCP_SERVER</code>, <code>SERVICE_SPECS</code>, <code>AGENT_FACTORY</code>, <code>TOOLSETS</code>,
 <code>CAPABILITIES</code>, <code>PROVIDER</code>. If an older guide had you set any of these,
 move them to the constructor:</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">conversation_store</span><span class="o">=</span><span class="n">DjangoSessionConversationStore</span><span class="p">())</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">conversation_store</span><span class="o">=</span><span class="n">DjangoSessionConversationStore</span><span class="p">())</span>
 </span></code></pre></div>
 </div>
 <h3 id="conversation-persistence-and-the-reload-model">Conversation persistence and the reload model<a class="headerlink" href="#conversation-persistence-and-the-reload-model" title="Permanent link">&para;</a></h3>
@@ -1146,9 +1346,9 @@ authenticated staff user, so sessions always exist —
 <code>DjangoSessionConversationStore</code> is the natural choice (no migration, per-user
 durability). Passing no store keeps the server stateless; the client store still
 provides single-tab continuity.</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoSessionConversationStore</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">conversation_store</span><span class="o">=</span><span class="n">DjangoSessionConversationStore</span><span class="p">())</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoSessionConversationStore</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">conversation_store</span><span class="o">=</span><span class="n">DjangoSessionConversationStore</span><span class="p">())</span>
 </span></code></pre></div>
 <p>For <strong>durable, cross-device</strong> history, opt into the reference store instead: add
 <code>"django_pydantic_agent.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, and
@@ -1172,9 +1372,9 @@ its last server-side checkpoint rather than restarted: type the next turn, then
 <strong>Resume</strong> to carry on or <strong>Fork</strong> to branch without touching the original. Only
 runs the server marks continuable are offered — one that never reached a
 provider-valid boundary has no snapshot to seed from.</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent.contrib.store.default_step_store</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultStepStore</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">step_store</span><span class="o">=</span><span class="n">DefaultStepStore</span><span class="p">)</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent.contrib.store.default_step_store</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultStepStore</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">step_store</span><span class="o">=</span><span class="n">DefaultStepStore</span><span class="p">)</span>
 </span></code></pre></div>
 <p><code>DefaultStepStore</code>'s constructor <em>is</em> the <code>request -&gt; StepStore</code> factory the
 capability needs, so pass the class itself. Requires django-ag-ui's <code>[harness]</code>
@@ -1192,20 +1392,20 @@ the agent reads their contents server-side via the built-in <code>read_attachmen
 mounted (no affordance). Turn them on by passing one. For <strong>durable,
 per-admin-user</strong> files, opt into the reference store: add
 <code>"django_pydantic_agent.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, then</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent.contrib.store.default_attachment_store</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">DefaultAttachmentStore</span><span class="p">,</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="p">)</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">attachment_store</span><span class="o">=</span><span class="n">DefaultAttachmentStore</span><span class="p">())</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent.contrib.store.default_attachment_store</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="n">DefaultAttachmentStore</span><span class="p">,</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="p">)</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">attachment_store</span><span class="o">=</span><span class="n">DefaultAttachmentStore</span><span class="p">())</span>
 </span></code></pre></div>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="c1"># Optional server-side guards. When uploads are mounted the admin sidebar</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="c1"># forwards these to the composer (data-attachment-max-bytes /</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="c1"># data-attachment-accept) so oversized or wrong-type files are rejected</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="c1"># before upload — the server stays authoritative:</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="s2">"ATTACHMENT_MAX_BYTES"</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="s2">"ATTACHMENT_ALLOWED_TYPES"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"image/png"</span><span class="p">,</span> <span class="s2">"image/jpeg"</span><span class="p">,</span> <span class="s2">"application/pdf"</span><span class="p">,</span> <span class="s2">"text/plain"</span><span class="p">],</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="c1"># Optional server-side guards. When uploads are mounted the admin sidebar</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="c1"># forwards these to the composer (data-attachment-max-bytes /</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="c1"># data-attachment-accept) so oversized or wrong-type files are rejected</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="c1"># before upload — the server stays authoritative:</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="s2">"ATTACHMENT_MAX_BYTES"</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="s2">"ATTACHMENT_ALLOWED_TYPES"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"image/png"</span><span class="p">,</span> <span class="s2">"image/jpeg"</span><span class="p">,</span> <span class="s2">"application/pdf"</span><span class="p">,</span> <span class="s2">"text/plain"</span><span class="p">],</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>The reference store keeps bytes in Django <code>Storage</code> (filesystem by default; point
 <code>STORAGES</code>/<code>DEFAULT_FILE_STORAGE</code> at S3/GCS for production) and metadata in a row,
@@ -1223,11 +1423,11 @@ mounted (no mic affordance); enable it by pointing
 <code>DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]</code> at a backend — django-ag-ui ships an opt-in
 <code>OpenAITranscriptionBackend</code> over any OpenAI-compatible endpoint (the <code>[openai]</code>
 extra):</p>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="s2">"TRANSCRIPTION_BACKEND"</span><span class="p">:</span> <span class="p">(</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>        <span class="s2">"django_ag_ui.contrib.transcription.openai_transcription_backend.OpenAITranscriptionBackend"</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="p">),</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="s2">"TRANSCRIPTION_BACKEND"</span><span class="p">:</span> <span class="p">(</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>        <span class="s2">"django_ag_ui.contrib.transcription.openai_transcription_backend.OpenAITranscriptionBackend"</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="p">),</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Pass an explicit backend with <code>AdminAgentServer(transcription_backend=...)</code> to override.
 Model <strong>reasoning</strong> needs no admin wiring: when <code>DJANGO_AG_UI["MODEL_SETTINGS"]</code>

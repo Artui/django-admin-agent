@@ -464,6 +464,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="The vendored web-component bundle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#charts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Charts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -744,6 +761,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="The vendored web-component bundle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#charts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Charts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -785,7 +819,7 @@ admin sidebar.</p>
 <div class="admonition info">
 <p class="admonition-title">Compatibility floor</p>
 <p>Python 3.10+ (tested 3.10–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
-5.2, 6.0, 6.1), <code>django-ag-ui&gt;=0.39</code>, and — with the <code>[mcp]</code> extra above —
+5.2, 6.0, 6.1), <code>django-ag-ui&gt;=0.48</code>, and — with the <code>[mcp]</code> extra above —
 <code>djangorestframework-mcp-server&gt;=0.30</code>. Django Unfold 0.40+ is optional.</p>
 <p>Neither sibling window has an upper bound, so this package installs
 alongside the current <code>django-ag-ui</code> on the day that ships rather than
@@ -804,7 +838,8 @@ library, and the sidebar template discoverable.</p>
 <h2 id="2-mount-the-agent-server">2. Mount the agent server<a class="headerlink" href="#2-mount-the-agent-server" title="Permanent link">&para;</a></h2>
 <p><a href="../reference/"><code>AdminAgentServer</code></a> is a
 <a href="https://github.com/Artui/django-ag-ui"><code>django_ag_ui.AGUIServer</code></a> pre-configured
-for the admin (the default admin tool registry + a fail-closed staff gate). Mount
+for the admin (the default admin tool registry, a staff gate, and the acting
+user's own admin permissions on every model the tools read). Mount
 its namespaced <code>.urls</code> the <code>admin.site.urls</code> way. The endpoints live under the
 <code>admin_agent</code> namespace — the sidebar reverses <code>admin_agent:endpoint</code> to find the
 agent endpoint.</p>
@@ -904,17 +939,31 @@ person to install this package meets it.</p>
 a <strong>build artefact</strong> — esbuild's minified output from
 <code>@artooi/ag-ui-web-component</code>, with <code>@ag-ui/*</code> inlined. It is <em>not</em> hand-written
 and should not be edited.</p>
-<p>The bundle version is pinned in the <code>Makefile</code> (<code>WEB_COMPONENT_VERSION</code>); a
-release re-vendors exactly that pinned published version, so a released wheel
-always ships a known, fixed bundle. The committed copy is a convenience so
-<code>git clone</code> + <code>runserver</code> works out of the box; the bootstrap module
-(<code>admin_agent.js</code>) imports it by relative path and registers the
-<code>&lt;ag-ui-chat&gt;</code> custom element.</p>
+<p>The bundle version is pinned in the <code>Makefile</code> (<code>WEB_COMPONENT_VERSION</code>), and
+the <strong>committed file is the artefact</strong>: CI checks it byte-for-byte against the
+pinned published component on every pull request, and a release refuses to
+publish if the two disagree. So the bundle in a released wheel is the same one
+that was reviewed in a diff, exercised by the browser suite, and installed by
+<code>git clone</code> + <code>runserver</code>. The bootstrap module (<code>admin_agent.js</code>) imports it by
+relative path and registers the <code>&lt;ag-ui-chat&gt;</code> custom element.</p>
 <p>With <code>INSTALLED_APPS</code> set and <code>collectstatic</code> serving <code>django_admin_agent/</code>,
 production needs no further static wiring. <strong>Development does</strong> — see
 <a href="#in-development-asgi-is-not-enough-on-its-own">In development, ASGI is not enough on its own</a>,
 because the server that streams and the server that serves static files are not
 the same one.</p>
+<h3 id="charts">Charts<a class="headerlink" href="#charts" title="Permanent link">&para;</a></h3>
+<p>The sidebar draws charts your own server-side code pushes. A tool returning a
+<code>ToolReturn</code> whose <code>metadata</code> carries <code>django_ag_ui.chart_activity(spec)</code> renders
+in the transcript as SVG the component builds itself — the numbers never enter
+the model's context, and nothing chart-shaped is ever parsed as markup, which is
+why a visual is safe on a surface that keeps images off. See django-ag-ui's
+charts guide for the spec shape.</p>
+<p>The other route — a <code>render_chart</code> tool the <strong>agent</strong> may call, so it can discuss
+the numbers it drew — is left to you, because it widens what the agent can do:</p>
+<div class="language-js highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"ag-ui-chat#django-admin-agent"</span><span class="p">).</span><span class="nx">enableCharts</span><span class="p">([</span><span class="s2">"tool"</span><span class="p">]);</span>
+</span></code></pre></div>
+<p>Run it any time after the page loads; it redraws charts already in the restored
+transcript.</p>
 
 
 

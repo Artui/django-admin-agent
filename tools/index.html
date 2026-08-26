@@ -812,6 +812,14 @@
 <p>Registered by <code>register_shell_tools()</code>. Every tool resolves the model by
 <code>app_label</code> + <code>model</code> and returns JSON-safe dicts (dates, UUIDs, Decimals, lazy
 translations flattened via <code>DjangoJSONEncoder</code>).</p>
+<div class="admonition note">
+<p class="admonition-title">\"Shell\" names the ORM, not a shell</p>
+<p>These four build and read QuerySets and nothing else — no <code>eval</code>, no <code>exec</code>,
+no subprocess. The word comes from <code>ToolCategory.SHELL</code>, the upstream
+category label a tool card displays, and from <code>manage.py shell</code>, which is
+where a Django developer does exactly this. The category is advisory
+metadata; it labels a tool and grants it nothing.</p>
+</div>
 <table>
 <thead>
 <tr>
@@ -844,8 +852,17 @@ translations flattened via <code>DjangoJSONEncoder</code>).</p>
 </tbody>
 </table>
 <p><code>filter</code> and <code>exclude</code> accept ORM lookup kwargs, e.g.
-<code>{"email__icontains": "@foo"}</code>. When <code>fields</code> is omitted, every concrete field
-is projected.</p>
+<code>{"email__icontains": "@foo"}</code> — but not one that reads a redacted field, which
+is refused. When <code>fields</code> is omitted, every concrete field is projected.</p>
+<div class="admonition warning">
+<p class="admonition-title">Every model read goes through the acting user's admin</p>
+<p>A model has to be registered with the admin site, in <code>MODEL_SCOPE</code> if you
+set one, and one the acting staff user has view permission for; the rows
+come from that <code>ModelAdmin.get_queryset(request)</code>. Applies to all four
+tools here and to <code>inspect_modeladmin</code>, <code>list_models</code> and
+<code>list_admin_models</code> below. See
+<a href="../configuration/#access-control">Access control</a>.</p>
+</div>
 <h3 id="introspect-django-admin-introspection-read-only"><code>introspect.*</code> — Django &amp; admin introspection (read-only)<a class="headerlink" href="#introspect-django-admin-introspection-read-only" title="Permanent link">&para;</a></h3>
 <p>Registered by <code>register_introspect_tools()</code>.</p>
 <table>
@@ -865,7 +882,7 @@ is projected.</p>
 <tr>
 <td><code>list_models</code></td>
 <td><code>(app_label=None)</code></td>
-<td>Installed models with table + Meta flags.</td>
+<td>Models the acting user may view, with table + Meta flags.</td>
 </tr>
 <tr>
 <td><code>list_urls</code></td>
@@ -885,7 +902,7 @@ is projected.</p>
 <tr>
 <td><code>list_admin_models</code></td>
 <td><code>()</code></td>
-<td>Every model registered with <code>admin.site</code>, with <code>list_display</code> / <code>list_filter</code> / <code>search_fields</code> and reverse-resolved changelist + add URLs.</td>
+<td>The admin-registered models the acting user may view, with <code>list_display</code> / <code>list_filter</code> / <code>search_fields</code> and reverse-resolved changelist + add URLs.</td>
 </tr>
 <tr>
 <td><code>inspect_modeladmin</code></td>
@@ -1014,7 +1031,11 @@ sidebar.</p>
 </tbody>
 </table>
 <p>Prefer the typed <code>ui_write.*</code> tools; reach for <code>ui_generic.*</code> only when no typed
-tool covers the element.</p>
+tool covers the element — these two reach anything a CSS selector matches,
+rather than the opaque handles their <code>ui_write.*</code> siblings hand out, which is
+why both carry a confirmation prompt and why
+<a href="../configuration/#django_admin_agent"><code>AUTO_CONFIRM</code></a> is worth reading about
+before turning it on.</p>
 <h3 id="nav-browser-navigation"><code>nav.*</code> — browser navigation<a class="headerlink" href="#nav-browser-navigation" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1034,12 +1055,16 @@ tool covers the element.</p>
 </tr>
 <tr>
 <td><code>navigate_to</code></td>
-<td>Navigate to an arbitrary URL (fallback). <strong>Navigates.</strong></td>
+<td>Navigate to another page <strong>on this site</strong> by URL or path (fallback). <strong>Navigates.</strong></td>
 </tr>
 </tbody>
 </table>
 <p><code>nav.*</code> builds admin URLs from the <code>data-admin-base</code> attribute the server
-injects, so the browser never has to reverse named routes. Alongside these,
+injects, so the browser never has to reverse named routes. <code>navigate_to</code> accepts
+a model-chosen URL and therefore checks it: only <code>http(s)</code> pages on the admin's
+own origin are opened, since a <code>javascript:</code> URL passed to <code>location.assign</code>
+would run in the admin's origin under the staff session, and an off-origin URL
+would carry whatever the agent put in the query string somewhere else. Alongside these,
 the agent can jump to a server-built <a href="../admin-wiring/#the-route-map">route map</a>
 via the component's <code>list_routes</code> / <code>navigate_to_route</code>. The map now includes a
 <strong>dynamic change route</strong> per model — its <code>path</code> is templated as
