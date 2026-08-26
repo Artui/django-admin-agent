@@ -21,6 +21,13 @@ Registered by `register_shell_tools()`. Every tool resolves the model by
 `app_label` + `model` and returns JSON-safe dicts (dates, UUIDs, Decimals, lazy
 translations flattened via `DjangoJSONEncoder`).
 
+!!! note "\"Shell\" names the ORM, not a shell"
+    These four build and read QuerySets and nothing else — no `eval`, no `exec`,
+    no subprocess. The word comes from `ToolCategory.SHELL`, the upstream
+    category label a tool card displays, and from `manage.py shell`, which is
+    where a Django developer does exactly this. The category is advisory
+    metadata; it labels a tool and grants it nothing.
+
 | Tool | Signature | Returns |
 | --- | --- | --- |
 | `query_model` | `(app_label, model, filter=None, exclude=None, order_by=None, select_related=None, prefetch_related=None, fields=None, limit=50, offset=0)` | List of row dicts. `limit` is hard-capped at 1000. |
@@ -29,8 +36,16 @@ translations flattened via `DjangoJSONEncoder`).
 | `inspect_model_schema` | `(app_label, model)` | Field types, nullability, relations, indexes, `db_table`, Meta ordering. |
 
 `filter` and `exclude` accept ORM lookup kwargs, e.g.
-`{"email__icontains": "@foo"}`. When `fields` is omitted, every concrete field
-is projected.
+`{"email__icontains": "@foo"}` — but not one that reads a redacted field, which
+is refused. When `fields` is omitted, every concrete field is projected.
+
+!!! warning "Every model read goes through the acting user's admin"
+    A model has to be registered with the admin site, in `MODEL_SCOPE` if you
+    set one, and one the acting staff user has view permission for; the rows
+    come from that `ModelAdmin.get_queryset(request)`. Applies to all four
+    tools here and to `inspect_modeladmin`, `list_models` and
+    `list_admin_models` below. See
+    [Access control](configuration.md#access-control).
 
 ### `introspect.*` — Django & admin introspection (read-only)
 
@@ -39,11 +54,11 @@ Registered by `register_introspect_tools()`.
 | Tool | Signature | Returns |
 | --- | --- | --- |
 | `list_installed_apps` | `()` | Configured apps: labels, names, module, path, model count. |
-| `list_models` | `(app_label=None)` | Installed models with table + Meta flags. |
+| `list_models` | `(app_label=None)` | Models the acting user may view, with table + Meta flags. |
 | `list_urls` | `(prefix=None)` | Every registered route (pattern, name, view), optionally filtered by pattern substring. |
 | `list_signals` | `()` | Django's built-in signals and their connected receivers. |
 | `get_settings_summary` | `()` | A **curated, redacted** subset of settings. |
-| `list_admin_models` | `()` | Every model registered with `admin.site`, with `list_display` / `list_filter` / `search_fields` and reverse-resolved changelist + add URLs. |
+| `list_admin_models` | `()` | The admin-registered models the acting user may view, with `list_display` / `list_filter` / `search_fields` and reverse-resolved changelist + add URLs. |
 | `inspect_modeladmin` | `(app_label, model)` | The registered `ModelAdmin`'s options. |
 
 !!! note "Settings are redacted"
@@ -105,7 +120,11 @@ Each carries the `x-destructive` flag (see [confirmation](#destructive-confirmat
 | `read_dom_element` | Read an element's text/value by selector or label (read-only). |
 
 Prefer the typed `ui_write.*` tools; reach for `ui_generic.*` only when no typed
-tool covers the element.
+tool covers the element — these two reach anything a CSS selector matches,
+rather than the opaque handles their `ui_write.*` siblings hand out, which is
+why both carry a confirmation prompt and why
+[`AUTO_CONFIRM`](configuration.md#django_admin_agent) is worth reading about
+before turning it on.
 
 ### `nav.*` — browser navigation
 
@@ -113,10 +132,14 @@ tool covers the element.
 | --- | --- |
 | `open_changelist` | Navigate to a model's changelist, with optional filters. **Navigates.** |
 | `open_changeform` | Open a model's add form (no `pk`) or edit form for a `pk`. **Navigates.** |
-| `navigate_to` | Navigate to an arbitrary URL (fallback). **Navigates.** |
+| `navigate_to` | Navigate to another page **on this site** by URL or path (fallback). **Navigates.** |
 
 `nav.*` builds admin URLs from the `data-admin-base` attribute the server
-injects, so the browser never has to reverse named routes. Alongside these,
+injects, so the browser never has to reverse named routes. `navigate_to` accepts
+a model-chosen URL and therefore checks it: only `http(s)` pages on the admin's
+own origin are opened, since a `javascript:` URL passed to `location.assign`
+would run in the admin's origin under the staff session, and an off-origin URL
+would carry whatever the agent put in the query string somewhere else. Alongside these,
 the agent can jump to a server-built [route map](admin-wiring.md#the-route-map)
 via the component's `list_routes` / `navigate_to_route`. The map now includes a
 **dynamic change route** per model — its `path` is templated as

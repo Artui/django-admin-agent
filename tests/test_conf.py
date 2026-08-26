@@ -21,6 +21,8 @@ def test_defaults_when_setting_absent() -> None:
     assert config.icon_url is None
     assert config.side is None
     assert config.theme_toggle is False
+    assert config.shell_field_redaction is True
+    assert config.model_scope is None
 
 
 @override_settings(
@@ -37,6 +39,8 @@ def test_defaults_when_setting_absent() -> None:
         "ICON_URL": "/static/logo.png",
         "SIDE": "left",
         "THEME_TOGGLE": True,
+        "SHELL_FIELD_REDACTION": r"^email$",
+        "MODEL_SCOPE": ["shop", "auth.User"],
     },
 )
 def test_reads_overrides() -> None:
@@ -53,6 +57,8 @@ def test_reads_overrides() -> None:
     assert config.icon_url == "/static/logo.png"
     assert config.side == "left"
     assert config.theme_toggle is True
+    assert config.shell_field_redaction == r"^email$"
+    assert config.model_scope == ["shop", "auth.User"]
 
 
 @override_settings(DJANGO_ADMIN_AGENT={"AUTO_CONFIRM": 1})

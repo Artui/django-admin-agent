@@ -72,13 +72,27 @@ class AdminAgentSettings:
     tab. Defaults to ``False`` — the admin's own theme usually governs."""
 
     shell_field_redaction: bool | str
-    """Sensitive-field redaction for the ``shell.query_model`` /
-    ``shell.get_model_instance`` tools. ``True`` (default) redacts any field
-    whose name matches the built-in denylist pattern
-    (``password|token|secret|key|hash``, case-insensitive) before the row
-    reaches the LLM — even legitimate staff use shouldn't stream ``auth.User``
-    password hashes to a third-party model. ``False`` disables redaction; a
-    regex ``str`` replaces the built-in pattern with your own."""
+    """Sensitive-field redaction for the ``shell.*`` tools. ``True`` (default)
+    redacts any field whose name matches the built-in denylist pattern before
+    the row reaches the LLM, and refuses to filter or order on such a field —
+    even legitimate staff use shouldn't stream ``auth.User`` password hashes to
+    a third-party model. ``False`` disables both; a regex ``str`` replaces the
+    built-in pattern with your own. This is data minimisation, not access
+    control: what the acting user may read at all is decided by their admin
+    permissions."""
+
+    model_scope: list[str] | None
+    """Optional narrowing of which models the sidebar's tools may touch at all.
+
+    ``None`` (default) means the admin site's own registry is the scope: the
+    tools reach a model when it is registered with the admin and the acting user
+    has view permission for it. A list narrows that further and can only ever
+    narrow — an entry is an ``"app_label"`` or an ``"app_label.ModelName"``,
+    matched case-insensitively:
+
+        DJANGO_ADMIN_AGENT = {"MODEL_SCOPE": ["shop", "auth.User"]}
+
+    Reach for it when the admin is broad but the sidebar should not be."""
 
 
 def get_settings() -> AdminAgentSettings:
@@ -98,6 +112,7 @@ def get_settings() -> AdminAgentSettings:
         side=raw.get("SIDE"),
         theme_toggle=bool(raw.get("THEME_TOGGLE", False)),
         shell_field_redaction=raw.get("SHELL_FIELD_REDACTION", True),
+        model_scope=raw.get("MODEL_SCOPE"),
     )
 
 

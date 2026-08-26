@@ -9,6 +9,7 @@
 //   - read the auto-confirm flag from the element's data attribute
 //   - register the admin-aware frontend tools (DOM driving) — see
 //     ./admin_tools.js
+//   - opt the surface in to server-pushed charts
 import { defineAgUiChat } from "./ag-ui-web-component.bundle.js";
 import { registerAdminTools } from "./admin_tools.js";
 
@@ -68,6 +69,21 @@ function bootstrap() {
   el.routeMap = readRouteMap();
   el.setSkills(readSkills());
   el.skillContext = skillContext;
+  // Charts are off in the component until a host asks for them, and a chart
+  // nobody asked for is discarded in silence: the tool call still settles
+  // successfully, so the model reports a visual that is not on screen.
+  //
+  // Only the "activity" route, which draws an ACTIVITY_SNAPSHOT the project's
+  // own server-side code pushed (django_ag_ui.chart_activity). The numbers never
+  // enter the model's context and nothing new becomes callable, so adopting it
+  // widens no surface the agent can reach — a project's server decides, per
+  // response, whether there is a chart at all.
+  //
+  // The other route, "tool", registers a render_chart tool the *agent* may call.
+  // That is a new agent capability rather than a fix, so it is left to the
+  // project: `document.querySelector("ag-ui-chat#django-admin-agent")
+  // .enableCharts(["tool"])` adds it, and calling it late is supported.
+  el.enableCharts(["activity"]);
   registerAdminTools(el);
 }
 

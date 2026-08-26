@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from django.contrib import admin
-
-from django_admin_agent.tools.utils import resolve_model
+from django_admin_agent.tools.authorized_model_admin import authorized_model_admin
 
 # Attributes read off the ModelAdmin. Standard Django options plus a few
 # additive ones common to subclasses (e.g. Unfold's tabs / list_fullwidth);
@@ -38,12 +36,10 @@ def inspect_modeladmin(app_label: str, model: str) -> dict[str, Any]:
 
     Reads options via ``getattr`` so it transparently surfaces both
     standard Django options and the additive attributes that subclasses
-    (Unfold) add. Raises ``LookupError`` if the model is not registered.
+    (Unfold) add. Refuses a model the acting staff user could not open in the
+    admin — including one that is not registered there at all.
     """
-    model_cls = resolve_model(app_label, model)
-    model_admin = admin.site._registry.get(model_cls)
-    if model_admin is None:
-        raise LookupError(f"{app_label}.{model} is not registered in the admin")
+    model_admin = authorized_model_admin(app_label, model)
 
     options: dict[str, Any] = {}
     for attr in _ATTRS:
@@ -52,7 +48,7 @@ def inspect_modeladmin(app_label: str, model: str) -> dict[str, Any]:
 
     return {
         "app_label": app_label,
-        "model": model_cls._meta.object_name,
+        "model": model_admin.model._meta.object_name,
         "admin_class": type(model_admin).__name__,
         "fieldsets": _coerce(getattr(model_admin, "fieldsets", None)),
         "inlines": [

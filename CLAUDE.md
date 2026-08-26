@@ -23,7 +23,7 @@ The AG-UI stack design doc (`django-ag-ui-plan.md`) lives in the private ecosyst
 
 ## Local development
 
-`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.39` floor in
+`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.48` floor in
 `pyproject.toml` (so CI, which has no sibling checkout, syncs cleanly). There is
 deliberately no upper bound — a one-minor ceiling over a package we ship
 ourselves is a release schedule, not a compatibility statement. What replaces
@@ -45,23 +45,32 @@ django-ag-ui = { path = "../django-ag-ui", editable = true }
 a **build artefact**, not hand-written — it is esbuild's minified output from
 `@artooi/ag-ui-web-component` (TypeScript source), with `@ag-ui/*` inlined.
 
-The bundle is **version-pinned** in the `Makefile` (`WEB_COMPONENT_VERSION`).
-That pin is the source of truth:
+The bundle is **version-pinned** in the `Makefile` (`WEB_COMPONENT_VERSION`) and
+the **committed file is the artefact**. The release verifies; it does not
+substitute:
 
-- **Release** re-vendors the pinned published version. `make
-  release-publish-prepare` runs `make vendor-bundle-release` (which `npm pack`s
-  `@artooi/ag-ui-web-component@$(WEB_COMPONENT_VERSION)` and copies its built
-  bundle) *before* building the wheel. So a released wheel always ships exactly
-  the pinned bundle — ongoing web-component changes can never retroactively
-  break a released `django-admin-agent`, and bumping the bundle is a deliberate
-  `WEB_COMPONENT_VERSION` change + release.
+- **Adoption** is `make vendor-bundle-release`, which `npm pack`s
+  `@artooi/ag-ui-web-component@$(WEB_COMPONENT_VERSION)` and writes its built
+  bundle into the tree. Run by a human bumping the pin, and the result is
+  committed.
+- **Release and CI** run `make vendor-bundle-verify`, which fetches the same
+  artefact and asserts the committed file is byte-identical to it. The `bundle`
+  job in `tests.yml` runs it per PR; `release-publish-prepare` runs it before the
+  wheel is built and refuses to publish on a mismatch. The release used to
+  re-vendor here instead, which shipped bytes nobody had committed, diffed or
+  executed — a local `make vendor-bundle` tree passed every gate, because the
+  only check was a grep for the version string the local build also carries.
 - **Dev** uses `make vendor-bundle` to copy from the sibling
-  `../ag-ui-web-component/dist/` checkout. The committed copy is a convenience
-  (so `git clone` + `runserver` works) and may drift; the release re-vendor is
-  the authoritative refresh.
+  `../ag-ui-web-component/dist/` checkout. Convenient for working on both at
+  once, and it makes the tree disagree with the pin — `vendor-bundle-verify` is
+  what stops that landing.
 
-To adopt a new web-component version: bump `WEB_COMPONENT_VERSION`, run `make
-vendor-bundle-release` (or `vendor-bundle` in dev), commit, release.
+To adopt a new web-component version: read the component's CHANGELOG for
+everything between the old pin and the new one, bump `WEB_COMPONENT_VERSION`,
+run `make vendor-bundle-release`, run `make test-e2e`, commit the bundle,
+release. The changelog read is not optional — a bundle bump can add a capability
+that stays off until this package opts in (charts did), or change the semantics
+of a method a host calls.
 
 ## Commands
 
@@ -153,7 +162,7 @@ Change a rule here and change the config with it, or they drift apart again.
 | --- | --- | --- |
 | Python | 3.10 | 3.10–3.14 |
 | Django | 4.2 LTS | 4.2, 5.0, 5.1, 5.2, 6.0, 6.1 |
-| django-ag-ui | 0.39 | from PyPI (`>=0.39`, no ceiling) |
+| django-ag-ui | 0.48 | from PyPI (`>=0.48`, no ceiling) |
 | djangorestframework-mcp-server (`[mcp]` extra) | 0.30 | from PyPI (`>=0.30`, no ceiling) |
 | Django Unfold (supported, optional) | 0.40 | latest in matrix |
 

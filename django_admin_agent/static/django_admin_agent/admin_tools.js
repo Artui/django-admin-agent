@@ -148,11 +148,53 @@ function resolveElement(selectorOrLabel) {
   if (label?.htmlFor) {
     return document.getElementById(label.htmlFor);
   }
-  const labelled = document.querySelector(`[aria-label="${selectorOrLabel}"]`);
-  if (labelled !== null) {
+  // Compared in JS rather than interpolated into `[aria-label="…"]`. The value
+  // is model-supplied, so a double quote in it closed the selector string and
+  // threw a SyntaxError out of the handler — outside the try/catch above, and
+  // an error the agent could not read its way out of. Matching on the attribute
+  // itself has no selector to break.
+  const labelled = [...document.querySelectorAll("[aria-label]")].find(
+    (node) => node.getAttribute("aria-label") === selectorOrLabel,
+  );
+  if (labelled !== undefined) {
     return labelled;
   }
   throw new Error(`no element matched selector or label "${selectorOrLabel}"`);
+}
+
+/**
+ * Resolve a model-supplied navigation target, or refuse it.
+ *
+ * `window.location.assign` is not a page-load primitive; it evaluates whatever
+ * scheme it is handed. A `javascript:` URL runs in *this* document's origin —
+ * inside /admin/, under the staff session — and an off-origin `https:` URL
+ * carries whatever the agent put in the query string to somebody else's server.
+ * Both are one step away whenever row content can reach the model, which it can
+ * by design: the agent reads rows and the rows are written by users.
+ *
+ * So the tool navigates only where a staff user could click to: an http(s) page
+ * on this same origin.
+ */
+function requireSameOriginUrl(url) {
+  let target;
+  try {
+    target = new URL(url, window.location.href);
+  } catch {
+    throw new Error(`"${url}" is not a URL this page can navigate to`);
+  }
+  if (target.protocol !== "http:" && target.protocol !== "https:") {
+    throw new Error(
+      `refusing to navigate to a "${target.protocol}" URL — only http(s) pages ` +
+        `on this site can be opened`,
+    );
+  }
+  if (target.origin !== window.location.origin) {
+    throw new Error(
+      `refusing to navigate to ${target.origin} — only pages on this site ` +
+        `(${window.location.origin}) can be opened`,
+    );
+  }
+  return target.href;
 }
 
 /** Trim + normalise a model name into its admin URL segment. */
@@ -424,7 +466,18 @@ export function registerAdminTools(el) {
     {
       name: "fill_dom_element",
       description: "Fill an element found by CSS selector or visible label (fallback).",
-      parameters: schema({ selector_or_label: str, value: str }, ["selector_or_label", "value"], true),
+      // The two fallback tools below reach anything the DOM matches, rather
+      // than the opaque handles their ui_write.* siblings hand out, so they
+      // carry a confirmation prompt of their own. `AUTO_CONFIRM = True` is what
+      // removes that card — see the configuration docs before turning it on.
+      parameters: schema(
+        { selector_or_label: str, value: str },
+        ["selector_or_label", "value"],
+        true,
+        false,
+        "Fill this element on the page?",
+        "Fill element",
+      ),
       handler: async ({ selector_or_label, value }) => {
         await writeControl(resolveElement(selector_or_label), value);
         return { ok: true, target: selector_or_label, value };
@@ -433,7 +486,14 @@ export function registerAdminTools(el) {
     {
       name: "click_dom_element",
       description: "Click an element found by CSS selector or visible label (fallback).",
-      parameters: schema({ selector_or_label: str }, ["selector_or_label"], true),
+      parameters: schema(
+        { selector_or_label: str },
+        ["selector_or_label"],
+        true,
+        false,
+        "Click this element on the page?",
+        "Click element",
+      ),
       handler: async ({ selector_or_label }) => {
         await clickElement(resolveElement(selector_or_label));
         return { ok: true, target: selector_or_label };
@@ -487,11 +547,13 @@ export function registerAdminTools(el) {
     },
     {
       name: "navigate_to",
-      description: "Navigate the browser to an arbitrary URL (fallback).",
+      description:
+        "Navigate the browser to another page on this site by URL or path (fallback).",
       parameters: schema({ url: str }, ["url"], false, true),
       handler: ({ url }) => {
-        window.location.assign(url);
-        return { ok: true, url };
+        const target = requireSameOriginUrl(url);
+        window.location.assign(target);
+        return { ok: true, url: target };
       },
     },
   ];
