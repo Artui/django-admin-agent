@@ -9,12 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Upgrading
 
-**A staff user refused by the permission gate now sees the refusal, and the run
-ends there.** It used to see a generic "the tool failed" while the run carried
-on. This follows from the `django-pydantic-agent` floor below: from 0.18 a
-`PermissionDenied` is re-raised rather than converted into a tool failure, so it
-never travels the `TOOL_FAILURE` path and `DJANGO_AG_UI["TOOL_FAILURE"]["INCLUDE_DETAIL"]`
-no longer governs it.
+**A staff user refused by the permission gate now sees the run end, rather than
+the agent carrying on around a failed tool.** This follows from the
+`django-pydantic-agent` floor: from 0.18 a `PermissionDenied` is re-raised
+rather than converted into a tool failure.
 
 The conversion was the problem. A denied call came back to the model as a
 generic, retryable failure that spends no retry budget and does not end the run,
@@ -22,17 +20,38 @@ so a model asked to try a range of ids could tell a denied row from a missing
 one — an existence oracle over rows the acting user cannot read. Refusing to run
 is the answer to a denied call.
 
-Showing the message is safe by construction: the gate's message names all three
-causes and commits to none of them, so it does not separate a model that was
-never registered from one this user has no permission for. **Every other
-refusal is unchanged** — a redacted-field lookup still raises `ValueError`,
-still reaches the model as a failure, and still withholds its reason unless
-`INCLUDE_DETAIL` is on.
+**Where the reason goes is unchanged, but the route is not.** The refusal no
+longer travels the `TOOL_FAILURE` path, so
+`DJANGO_AG_UI["TOOL_FAILURE"]["INCLUDE_DETAIL"]` does not govern it there. It
+travels `RUN_ERROR`, which django-ag-ui 0.49 redacts under the **same** setting
+— so with detail off the user is still told only that the run failed, and the
+message still reaches your log and audit trail alone.
+
+**Every other refusal is unchanged** — a redacted-field lookup still raises
+`ValueError`, still reaches the model as a failure, and still withholds its
+reason unless `INCLUDE_DETAIL` is on.
 
 `ToolFailureConfig(reraise=())` restores the old conversion. Reopening the
 oracle to do it is not recommended.
 
 ### Security
+
+- **Raised the `django-ag-ui` floor to `>=0.49`, and it has to move with the one
+  below it.** django-ag-ui 0.49 redacts the `RUN_ERROR` event under
+  `TOOL_FAILURE["INCLUDE_DETAIL"]`; 0.48 did not. That was harmless here until
+  the `django-pydantic-agent` floor moved to 0.18 and started routing a
+  `PermissionDenied` down the `RUN_ERROR` path — the one path no failure policy
+  ever covered. On the two floors as they stood, the permission gate's own
+  message was streamed to the browser verbatim with `INCLUDE_DETAIL` off:
+
+  ```text
+  ag-ui 0.48: RUN_ERROR "testapp.Author is not readable by this user: ..."
+  ag-ui 0.49: RUN_ERROR "The run failed. The failure has been recorded."
+  ```
+
+  A project pinning the transport below 0.49 while taking the newer substrate
+  re-opens it. **A floor is not a private matter between one package and one
+  dependency** — this pair is only wrong together.
 
 - **Raised the `django-pydantic-agent` floor to `>=0.18`.** This package has
   surfaced django-ag-ui's server-side `TOOL_GUARD` since 0.13.0, and below that

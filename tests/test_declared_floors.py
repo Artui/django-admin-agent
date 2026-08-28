@@ -26,7 +26,11 @@ import pytest
 
 _ROOT = Path(__file__).resolve().parent.parent
 _PYPROJECT = _ROOT / "pyproject.toml"
-_PACKAGES = ["django-ag-ui", "djangorestframework-mcp-server"]
+_PACKAGES = [
+    "django-ag-ui",
+    "django-pydantic-agent",
+    "djangorestframework-mcp-server",
+]
 
 _CLAIM_FILES = sorted(
     {

@@ -267,15 +267,25 @@ just read. Three things follow:
   a model the acting user could not have read themselves.
 
 !!! note "Where a refusal's reason goes — it depends which refusal"
-    **A permission refusal ends the run, and its reason is shown.** From
-    django-pydantic-agent 0.18 a `PermissionDenied` is re-raised rather than
-    converted into a tool failure, so it never travels the `TOOL_FAILURE` path
-    and `INCLUDE_DETAIL` does not govern it. Converting it was the problem: a
-    denied call came back to the model as a generic failure that spends no retry
-    budget, which a model can sweep ids with to learn which rows exist. The
-    permission-gate message is written to be safe to show — it names all three
-    causes and commits to none — so the user sees a refusal instead of a silent
-    dead end.
+    **A permission refusal ends the run.** From django-pydantic-agent 0.18 a
+    `PermissionDenied` is re-raised rather than converted into a tool failure.
+    Converting it was the problem: a denied call came back to the model as a
+    generic failure that spends no retry budget and does not end the run, which
+    a model can sweep ids with to learn which rows exist.
+
+    So it never travels the `TOOL_FAILURE` path. It travels `RUN_ERROR`, which
+    django-ag-ui 0.49 redacts under the **same** `INCLUDE_DETAIL` setting — so
+    the answer is unchanged even though the route is not: with detail off the
+    user is told the run failed and the reason stays in your log and audit
+    trail. What differs from before is that the run **ends** rather than the
+    agent carrying on around a failed tool.
+
+    !!! danger "Both floors have to move together"
+        On django-ag-ui **0.48** nothing redacted the `RUN_ERROR` path, so with
+        django-pydantic-agent 0.18 the gate's message reached the browser
+        verbatim with `INCLUDE_DETAIL` off. This package floors at
+        `django-ag-ui>=0.49` for exactly that reason. A project pinning the
+        transport lower while taking the newer substrate re-opens it.
 
     **Every other refusal still reaches the model as a failure**, and by default
     the *reason* is not part of it — `TOOL_FAILURE.INCLUDE_DETAIL` is `False`,
