@@ -2205,11 +2205,25 @@ field-level shape. It refuses with <code>PermissionDenied</code> in exactly the 
 the admin itself would show the user nothing: a model the project never
 registered, a model <code>MODEL_SCOPE</code> excludes, and a model whose
 <code>ModelAdmin</code> denies the acting user view permission.</p>
-<p>The message names which of the three it was. Where that message ends up is
-the transport's call, not this function's: by default the model is told the
-tool failed and the reason goes to the operator's log and audit trail only.
-Set <code>DJANGO_AG_UI["TOOL_FAILURE"]["INCLUDE_DETAIL"] = True</code> to let the
-agent explain the refusal to the user instead.</p>
+<p>The message names all three causes and commits to none of them, on purpose:
+<em>which</em> one held is the fact worth withholding, since "never registered" and
+"no view permission" separate a model that does not exist from one this user
+may not read.</p>
+<p>Where the message ends up is the transport's call, not this function's, and
+it now takes a different route than it used to. From django-pydantic-agent
+0.18 a <code>PermissionDenied</code> <strong>ends the run</strong> rather than being converted
+into a tool failure -- converting it was the problem, since a denied call
+came back to the model as a generic, retryable failure that spends no retry
+budget, which is an existence oracle a model can sweep ids with.</p>
+<p>So it never travels the <code>TOOL_FAILURE</code> path, and
+<code>TOOL_FAILURE["INCLUDE_DETAIL"]</code> no longer governs it. It travels
+<code>RUN_ERROR</code> instead, which django-ag-ui 0.49 redacts under the <em>same</em>
+setting: with detail off the browser is told the run failed, and this
+message reaches the audit record and the operator's log only. The two
+floors have to move together -- on django-ag-ui 0.48 nothing redacted that
+path, so this text reached the transcript verbatim.</p>
+<p>The ambiguity is the belt to that braces: even shown, the message does not
+separate a model that does not exist from one this user may not read.</p>
 
 
 <p><span class="doc-section-title">Raises:</span></p>

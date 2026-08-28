@@ -1270,13 +1270,33 @@ just read. Three things follow:</p>
   a model the acting user could not have read themselves.</li>
 </ul>
 <div class="admonition note">
-<p class="admonition-title">Where a refusal's reason goes</p>
-<p>A refused tool call reaches the model as a failure, and by default the
-<em>reason</em> is not part of it — django-ag-ui's <code>TOOL_FAILURE.INCLUDE_DETAIL</code>
-is <code>False</code>, on the grounds that an exception message is written for an
-operator. So the full explanation goes to your log and audit trail, and the
-user sees that the tool failed. If you would rather the agent could say
-<em>"you don't have permission to view orders"</em>, turn it on:</p>
+<p class="admonition-title">Where a refusal's reason goes — it depends which refusal</p>
+<p><strong>A permission refusal ends the run.</strong> From django-pydantic-agent 0.18 a
+<code>PermissionDenied</code> is re-raised rather than converted into a tool failure.
+Converting it was the problem: a denied call came back to the model as a
+generic failure that spends no retry budget and does not end the run, which
+a model can sweep ids with to learn which rows exist.</p>
+<p>So it never travels the <code>TOOL_FAILURE</code> path. It travels <code>RUN_ERROR</code>, which
+django-ag-ui 0.49 redacts under the <strong>same</strong> <code>INCLUDE_DETAIL</code> setting — so
+the answer is unchanged even though the route is not: with detail off the
+user is told the run failed and the reason stays in your log and audit
+trail. What differs from before is that the run <strong>ends</strong> rather than the
+agent carrying on around a failed tool.</p>
+<div class="admonition danger">
+<p class="admonition-title">Both floors have to move together</p>
+<p>On django-ag-ui <strong>0.48</strong> nothing redacted the <code>RUN_ERROR</code> path, so with
+django-pydantic-agent 0.18 the gate's message reached the browser
+verbatim with <code>INCLUDE_DETAIL</code> off. This package floors at
+<code>django-ag-ui&gt;=0.49</code> for exactly that reason. A project pinning the
+transport lower while taking the newer substrate re-opens it.</p>
+</div>
+<p><strong>Every other refusal still reaches the model as a failure</strong>, and by default
+the <em>reason</em> is not part of it — <code>TOOL_FAILURE.INCLUDE_DETAIL</code> is <code>False</code>,
+on the grounds that an exception message is written for an operator. A
+redacted-field lookup is the one you are most likely to meet: it raises
+<code>ValueError</code>, so the full explanation goes to your log and audit trail and
+the user sees only that the tool failed. If you would rather the agent could
+say <em>"that filter reads a redacted field"</em>, turn it on:</p>
 <div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"TOOL_FAILURE"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"INCLUDE_DETAIL"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
 </span></code></pre></div>
 </div>
