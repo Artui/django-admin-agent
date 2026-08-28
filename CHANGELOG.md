@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Upgrading
+
+**A staff user refused by the permission gate now sees the refusal, and the run
+ends there.** It used to see a generic "the tool failed" while the run carried
+on. This follows from the `django-pydantic-agent` floor below: from 0.18 a
+`PermissionDenied` is re-raised rather than converted into a tool failure, so it
+never travels the `TOOL_FAILURE` path and `DJANGO_AG_UI["TOOL_FAILURE"]["INCLUDE_DETAIL"]`
+no longer governs it.
+
+The conversion was the problem. A denied call came back to the model as a
+generic, retryable failure that spends no retry budget and does not end the run,
+so a model asked to try a range of ids could tell a denied row from a missing
+one — an existence oracle over rows the acting user cannot read. Refusing to run
+is the answer to a denied call.
+
+Showing the message is safe by construction: the gate's message names all three
+causes and commits to none of them, so it does not separate a model that was
+never registered from one this user has no permission for. **Every other
+refusal is unchanged** — a redacted-field lookup still raises `ValueError`,
+still reaches the model as a failure, and still withholds its reason unless
+`INCLUDE_DETAIL` is on.
+
+`ToolFailureConfig(reraise=())` restores the old conversion. Reopening the
+oracle to do it is not recommended.
+
 ### Security
 
 - **Raised the `django-pydantic-agent` floor to `>=0.18`.** This package has

@@ -16,11 +16,19 @@ def authorized_model_admin(app_label: str, model: str) -> Any:
     registered, a model ``MODEL_SCOPE`` excludes, and a model whose
     ``ModelAdmin`` denies the acting user view permission.
 
-    The message names which of the three it was. Where that message ends up is
-    the transport's call, not this function's: by default the model is told the
-    tool failed and the reason goes to the operator's log and audit trail only.
-    Set ``DJANGO_AG_UI["TOOL_FAILURE"]["INCLUDE_DETAIL"] = True`` to let the
-    agent explain the refusal to the user instead.
+    The message names all three causes and commits to none of them, on purpose:
+    *which* one held is the fact worth withholding, since "never registered" and
+    "no view permission" separate a model that does not exist from one this user
+    may not read.
+
+    That ambiguity is what makes the message safe to show -- which matters,
+    because from django-pydantic-agent 0.18 it **is** shown. A
+    ``PermissionDenied`` now ends the run instead of being converted into a tool
+    failure, so it never travels the ``TOOL_FAILURE`` path and
+    ``INCLUDE_DETAIL`` does not govern it. Converting it was the problem: a
+    denied call came back to the model as a generic, retryable failure that
+    spends no retry budget, which is an existence oracle a model can sweep ids
+    with. Refusing to run is the answer to a denied call.
 
     Raises:
         LookupError: when the model is not installed at all.

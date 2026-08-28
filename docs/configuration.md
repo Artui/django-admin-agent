@@ -266,13 +266,24 @@ just read. Three things follow:
 - The permission gate bounds the blast radius: injected instructions cannot read
   a model the acting user could not have read themselves.
 
-!!! note "Where a refusal's reason goes"
-    A refused tool call reaches the model as a failure, and by default the
-    *reason* is not part of it — django-ag-ui's `TOOL_FAILURE.INCLUDE_DETAIL`
-    is `False`, on the grounds that an exception message is written for an
-    operator. So the full explanation goes to your log and audit trail, and the
-    user sees that the tool failed. If you would rather the agent could say
-    *"you don't have permission to view orders"*, turn it on:
+!!! note "Where a refusal's reason goes — it depends which refusal"
+    **A permission refusal ends the run, and its reason is shown.** From
+    django-pydantic-agent 0.18 a `PermissionDenied` is re-raised rather than
+    converted into a tool failure, so it never travels the `TOOL_FAILURE` path
+    and `INCLUDE_DETAIL` does not govern it. Converting it was the problem: a
+    denied call came back to the model as a generic failure that spends no retry
+    budget, which a model can sweep ids with to learn which rows exist. The
+    permission-gate message is written to be safe to show — it names all three
+    causes and commits to none — so the user sees a refusal instead of a silent
+    dead end.
+
+    **Every other refusal still reaches the model as a failure**, and by default
+    the *reason* is not part of it — `TOOL_FAILURE.INCLUDE_DETAIL` is `False`,
+    on the grounds that an exception message is written for an operator. A
+    redacted-field lookup is the one you are most likely to meet: it raises
+    `ValueError`, so the full explanation goes to your log and audit trail and
+    the user sees only that the tool failed. If you would rather the agent could
+    say *"that filter reads a redacted field"*, turn it on:
 
     ```python title="settings.py"
     DJANGO_AG_UI = {"TOOL_FAILURE": {"INCLUDE_DETAIL": True}}

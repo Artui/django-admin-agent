@@ -49,10 +49,14 @@ def test_staff_without_model_permissions_gets_nothing(limited_page, live_server)
     reply = limited_page.locator("ag-ui-chat .message--assistant")
     expect(reply.first).to_be_visible(timeout=15000)
 
-    # The tool refused, so the reply carries the failure rather than a count.
-    # The reason itself stays server-side by default (it goes to the audit
-    # trail and the log); DJANGO_AG_UI["TOOL_FAILURE"]["INCLUDE_DETAIL"] is
-    # what puts it in front of the user.
+    # The gate raises PermissionDenied, and from django-pydantic-agent 0.18 that
+    # ends the run instead of coming back to the model as a tool failure it can
+    # route around. So the user sees the refusal itself rather than a generic
+    # "count_model tool failed", and TOOL_FAILURE.INCLUDE_DETAIL no longer
+    # governs it -- the refusal never travels that path. The message is written
+    # to be safe to show: it names all three causes and commits to none, so it
+    # does not separate a model that does not exist from one this user may not
+    # read. What must not appear either way is the count.
     text = reply.first.text_content() or ""
-    assert "count_model tool failed" in text
+    assert "is not readable by this user" in text
     assert "Counted the authors. 1" not in text
