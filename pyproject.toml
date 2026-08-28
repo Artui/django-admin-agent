@@ -59,10 +59,18 @@ dependencies = [
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
-    # without re-exporting it. Floored at 0.17 to match the floor django-ag-ui
-    # 0.48 already puts on it -- a lower resolution here would give this import
-    # a version django-ag-ui itself refuses.
-    "django-pydantic-agent>=0.17",
+    # without re-exporting it. Floored at 0.18 for ``ToolGuard``, which is where
+    # it learned the two vocabularies it had been deaf to: the MCP annotations
+    # an in-process ``SpecToolset`` writes, and the ``x-destructive`` schema
+    # stamp. Below that floor, an admin deployment that turns on
+    # ``DJANGO_AG_UI["TOOL_GUARD"]`` -- which this package has surfaced since
+    # 0.13.0 -- and attaches its own drf-services specs got a guard reading as
+    # on while it gated nothing arriving by that route. This floor is
+    # deliberately ahead of the one django-ag-ui 0.48 declares: the transitive
+    # floor would arrive on its own with a later transport release, and the
+    # question this row answers is which version *works*, not which version the
+    # dependency happens to require today.
+    "django-pydantic-agent>=0.18",
 ]
 
 [project.optional-dependencies]

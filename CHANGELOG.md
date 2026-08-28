@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Upgrading
+
+**A staff user refused by the permission gate now sees the refusal, and the run
+ends there.** It used to see a generic "the tool failed" while the run carried
+on. This follows from the `django-pydantic-agent` floor below: from 0.18 a
+`PermissionDenied` is re-raised rather than converted into a tool failure, so it
+never travels the `TOOL_FAILURE` path and `DJANGO_AG_UI["TOOL_FAILURE"]["INCLUDE_DETAIL"]`
+no longer governs it.
+
+The conversion was the problem. A denied call came back to the model as a
+generic, retryable failure that spends no retry budget and does not end the run,
+so a model asked to try a range of ids could tell a denied row from a missing
+one — an existence oracle over rows the acting user cannot read. Refusing to run
+is the answer to a denied call.
+
+Showing the message is safe by construction: the gate's message names all three
+causes and commits to none of them, so it does not separate a model that was
+never registered from one this user has no permission for. **Every other
+refusal is unchanged** — a redacted-field lookup still raises `ValueError`,
+still reaches the model as a failure, and still withholds its reason unless
+`INCLUDE_DETAIL` is on.
+
+`ToolFailureConfig(reraise=())` restores the old conversion. Reopening the
+oracle to do it is not recommended.
+
+### Security
+
+- **Raised the `django-pydantic-agent` floor to `>=0.18`.** This package has
+  surfaced django-ag-ui's server-side `TOOL_GUARD` since 0.13.0, and below that
+  floor the guard did not gate a drf-services spec attached **in process**
+  through `service_specs=`. It read one vocabulary — the destructive metadata
+  key the drf-mcp bridge stamps — while a `SpecToolset` writes
+  `metadata["annotations"]["readOnlyHint"]` instead. The *same* spec was gated
+  over the MCP bridge and ungated in process, so a deployment that turned the
+  guard on and attached its own specs had a gate that read as on and caught
+  nothing arriving by that route.
+
+  The sidebar's own tools are unaffected: they are **frontend** tools, gated by
+  the web component's confirmation card, and the server-side guard never claimed
+  them. This is about the specs a project adds alongside them.
+
+  The fix shipped in django-pydantic-agent 0.18.0; raising the floor is what
+  makes an install of *this* package get it. The floor is deliberately ahead of
+  the one django-ag-ui 0.48 declares — waiting for it to arrive transitively
+  would mean shipping a release that resolves the broken guard.
+
 ## [0.28.0] — 2026-08-26
 
 ### Upgrading
