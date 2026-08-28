@@ -55,7 +55,18 @@ dependencies = [
     #
     # The floor moves here because this package reaches most of the substrate
     # through django-ag-ui rather than importing it.
-    "django-ag-ui>=0.48",
+    #
+    # Raised to 0.49 for the ``RUN_ERROR`` redaction, which stops a failing run
+    # streaming ``str(exception)`` to the browser when
+    # ``TOOL_FAILURE["INCLUDE_DETAIL"]`` is off. That was a latent hole here
+    # until the django-pydantic-agent floor below moved: from 0.18 a
+    # ``PermissionDenied`` ends the run instead of being converted into a tool
+    # failure, so the permission gate's message started taking the ``RUN_ERROR``
+    # path -- the one path no failure policy covered. On 0.48 it reached the
+    # transcript verbatim. The two floors have to move together, and the
+    # browser suite is what showed it: the Python tests assert
+    # ``PermissionDenied`` at the tool boundary, below both layers.
+    "django-ag-ui>=0.49",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back

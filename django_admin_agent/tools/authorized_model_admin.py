@@ -21,14 +21,23 @@ def authorized_model_admin(app_label: str, model: str) -> Any:
     "no view permission" separate a model that does not exist from one this user
     may not read.
 
-    That ambiguity is what makes the message safe to show -- which matters,
-    because from django-pydantic-agent 0.18 it **is** shown. A
-    ``PermissionDenied`` now ends the run instead of being converted into a tool
-    failure, so it never travels the ``TOOL_FAILURE`` path and
-    ``INCLUDE_DETAIL`` does not govern it. Converting it was the problem: a
-    denied call came back to the model as a generic, retryable failure that
-    spends no retry budget, which is an existence oracle a model can sweep ids
-    with. Refusing to run is the answer to a denied call.
+    Where the message ends up is the transport's call, not this function's, and
+    it now takes a different route than it used to. From django-pydantic-agent
+    0.18 a ``PermissionDenied`` **ends the run** rather than being converted
+    into a tool failure -- converting it was the problem, since a denied call
+    came back to the model as a generic, retryable failure that spends no retry
+    budget, which is an existence oracle a model can sweep ids with.
+
+    So it never travels the ``TOOL_FAILURE`` path, and
+    ``TOOL_FAILURE["INCLUDE_DETAIL"]`` no longer governs it. It travels
+    ``RUN_ERROR`` instead, which django-ag-ui 0.49 redacts under the *same*
+    setting: with detail off the browser is told the run failed, and this
+    message reaches the audit record and the operator's log only. The two
+    floors have to move together -- on django-ag-ui 0.48 nothing redacted that
+    path, so this text reached the transcript verbatim.
+
+    The ambiguity is the belt to that braces: even shown, the message does not
+    separate a model that does not exist from one this user may not read.
 
     Raises:
         LookupError: when the model is not installed at all.
