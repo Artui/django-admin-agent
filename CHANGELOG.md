@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Raised the `django-pydantic-agent` floor to `>=0.18`.** This package has
+  surfaced django-ag-ui's server-side `TOOL_GUARD` since 0.13.0, and below that
+  floor the guard did not gate a drf-services spec attached **in process**
+  through `service_specs=`. It read one vocabulary — the destructive metadata
+  key the drf-mcp bridge stamps — while a `SpecToolset` writes
+  `metadata["annotations"]["readOnlyHint"]` instead. The *same* spec was gated
+  over the MCP bridge and ungated in process, so a deployment that turned the
+  guard on and attached its own specs had a gate that read as on and caught
+  nothing arriving by that route.
+
+  The sidebar's own tools are unaffected: they are **frontend** tools, gated by
+  the web component's confirmation card, and the server-side guard never claimed
+  them. This is about the specs a project adds alongside them.
+
+  The fix shipped in django-pydantic-agent 0.18.0; raising the floor is what
+  makes an install of *this* package get it. The floor is deliberately ahead of
+  the one django-ag-ui 0.48 declares — waiting for it to arrive transitively
+  would mean shipping a release that resolves the broken guard.
+
 ## [0.28.0] — 2026-08-26
 
 ### Upgrading
