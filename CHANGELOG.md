@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Quote a selection from the admin page into the chat.** Web component 0.29.0
+  offers to quote a selection in its own transcript with no host involvement.
+  The half that matters here is the other one: this sidebar's whole premise is a
+  chat sitting beside a changelist or a change form, so the text worth asking
+  about is almost always on the *page*. Selecting a cell, a validation error or a
+  paragraph of a long text field now floats a **Quote** offer beside it, and
+  taking it drops the selection into the composer as a markdown blockquote.
+  Nothing is sent -- a quotation narrows a question, it is not one.
+
+  **Scoped to `#content`, which is a decision rather than tidiness.** Unscoped,
+  the offer follows a selection made in the breadcrumbs, the module list or the
+  user-tools bar, and every drag made to *read* becomes an offer. A project whose
+  `base_site.html` renames that container gets the transcript-only behaviour
+  rather than a silent fallback to the whole document.
+
+  Driven in a browser rather than asserted off the DOM, because the gesture is a
+  selection settled by a pointer and neither is something a static render has.
+  All three tests were falsified: remove the opt-in and two fail; widen the scope
+  to `document.body` and the third does.
+
+- **The sidebar conversation is scoped to the signed-in principal.** `user-key`
+  is rendered from `request.user.pk`, and the component purges the transcript,
+  the history-drawer index and any navigation checkpoint when it changes.
+
+  The component keeps a conversation in `sessionStorage`, which is scoped to the
+  **tab** and not to the session -- so it survives the navigation a logout is. On
+  a shared admin workstation that meant the next person to sign in landed on the
+  previous one's transcript, and naming the principal is the only signal there
+  is. `pk` rather than `username`, because a renamed account is the same
+  principal and a rename should not purge anything.
+
+  Nothing to configure. `build_sidebar_context` takes an optional `user=`, the
+  template tag reads it off the request, and `SidebarAdminSite.each_context`
+  passes the one it already has -- so an anonymous or absent user leaves the
+  attribute off the element entirely and reproduces the previous behaviour rather
+  than inventing a shared bucket.
+
+### Changed
+
+- **The vendored web-component bundle moves from 0.27.0 to 0.29.0.** Byte-identical
+  to the published artefact, as the release gate requires.
+
+  Two capabilities in that range needed this package to opt in, and both are
+  above. The rest arrive on their own: `approveWithEdits` on the approval card
+  (off by default, and deliberately -- it is an assertion about what the server
+  does with `editedArgs` rather than a negotiation, so it stays the project's
+  call), `data-threads-cache` for a deployment that pointed history at a server
+  and did not want a second copy in the browser, and `trustedOrigins`.
+
+
 ## [0.29.0] — 2026-08-28
 
 ### Upgrading

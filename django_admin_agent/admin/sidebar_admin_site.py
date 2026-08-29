@@ -32,7 +32,9 @@ class SidebarAdminSite(AdminSite):
 
     def each_context(self, request: HttpRequest) -> dict[str, Any]:
         context = super().each_context(request)
-        context["django_admin_agent"] = build_sidebar_context(self.sidebar_namespace)
+        context["django_admin_agent"] = build_sidebar_context(
+            self.sidebar_namespace, user=getattr(request, "user", None)
+        )
         return context
 
 

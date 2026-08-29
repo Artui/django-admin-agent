@@ -21,6 +21,7 @@
   {% if attachment_accept %}data-attachment-accept="{{ attachment_accept }}"{% endif %}
   {% if transcribe_url %}data-transcribe-url="{{ transcribe_url }}"{% endif %}
   {% if theme_toggle %}data-theme-toggle=""{% endif %}
+  {% if user_key %}user-key="{{ user_key }}"{% endif %}
   data-admin-base="{{ admin_base_url }}"></ag-ui-chat>
 {{ route_map|json_script:"django-admin-agent-routes" }}
 {{ skills|json_script:"django-admin-agent-skills" }}

@@ -15,7 +15,9 @@ from django_admin_agent.conf import AdminAgentSettings, get_settings
 _BUNDLE_PATH = "django_admin_agent/admin_agent.js"
 
 
-def build_sidebar_context(namespace: str = DEFAULT_URL_NAMESPACE) -> dict[str, Any]:
+def build_sidebar_context(
+    namespace: str = DEFAULT_URL_NAMESPACE, *, user: Any = None
+) -> dict[str, Any]:
     """Build the context the sidebar template needs.
 
     Reverses the AG-UI endpoint URL, resolves the bootstrap module's static URL,
@@ -32,6 +34,9 @@ def build_sidebar_context(namespace: str = DEFAULT_URL_NAMESPACE) -> dict[str, A
             to reverse against — the one it was constructed with. An argument
             rather than a setting, because a project may mount more than one
             sidebar.
+        user: The signed-in principal, used only to scope the stored
+            conversation to them. Optional, and ``None`` reproduces the previous
+            behaviour exactly.
     """
     config = get_settings()
     attachments_url = _attachments_url(namespace)
@@ -60,7 +65,34 @@ def build_sidebar_context(namespace: str = DEFAULT_URL_NAMESPACE) -> dict[str, A
         "bootstrap_url": static(_BUNDLE_PATH),
         "admin_base_url": _admin_base_url(),
         "route_map": build_route_map(),
+        "user_key": _user_key(user),
     }
+
+
+def _user_key(user: Any) -> str | None:
+    """A stable identifier for the signed-in principal, or ``None``.
+
+    The component keeps a conversation in ``sessionStorage``, which is scoped to
+    the *tab* and not to the session — so it survives the navigation a logout is,
+    and the next principal to sign in at the same desk lands on the previous
+    one's transcript. Naming the principal is the only signal there is; the
+    component purges everything the previous one left behind when this changes.
+
+    ``pk`` rather than ``username``: it is what does not move when somebody
+    renames an account, and a renamed account is the same principal. It is the
+    reader's own primary key rendered into the page they are already
+    authenticated for, so it discloses nothing to them they could not read off
+    their own change form.
+
+    ``None`` for an anonymous or absent user, which leaves the attribute off the
+    element entirely and restores the previous behaviour rather than inventing a
+    shared ``"anonymous"`` bucket — the admin refuses anonymous callers anyway,
+    so this arm is about a template rendered outside that gate.
+    """
+    pk = getattr(user, "pk", None)
+    if pk is None or not getattr(user, "is_authenticated", False):
+        return None
+    return str(pk)
 
 
 def _attachment_limits(attachments_url: str | None) -> tuple[int | None, str | None]:
