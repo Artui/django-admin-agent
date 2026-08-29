@@ -84,6 +84,30 @@ function bootstrap() {
   // project: `document.querySelector("ag-ui-chat#django-admin-agent")
   // .enableCharts(["tool"])` adds it, and calling it late is supported.
   el.enableCharts(["activity"]);
+  // Quoting a selection made in the *admin page*, not just in the transcript.
+  //
+  // The transcript half needs no opt-in and is already on. This half is the one
+  // that matters here: this sidebar's whole premise is a chat sitting beside a
+  // changelist or a changeform, so the text worth asking about is almost always
+  // on the page rather than in the conversation. Selecting a cell, a validation
+  // error or a paragraph of a long text field and quoting it is how a question
+  // narrows to one row without anybody retyping a primary key.
+  //
+  // Scoped to `#content` rather than the document, which is a decision and not a
+  // tidiness: unscoped, the offer follows a selection made in the breadcrumbs,
+  // the module list, the user-tools bar -- chrome nobody asks questions about --
+  // and every drag made to *read* becomes an offer. The component already
+  // declines to offer inside its own transcript and inside a focused input, so
+  // this narrows what is left rather than duplicating those guards.
+  //
+  // `#content` is Django's own admin container and has been since the template
+  // was written; a project whose base_site.html renames it simply gets the
+  // transcript-only behaviour, which is why this is a null check rather than a
+  // fallback to the document.
+  const content = document.getElementById("content");
+  if (content !== null) {
+    el.offerQuoteInPage(content);
+  }
   registerAdminTools(el);
 }
 
