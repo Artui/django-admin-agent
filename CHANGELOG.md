@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.0] — 2026-08-29
+
 ### Added
 
 - **Quote a selection from the admin page into the chat.** Web component 0.29.0
@@ -1324,7 +1326,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.29.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.30.0...HEAD
+[0.30.0]: https://github.com/Artui/django-admin-agent/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/Artui/django-admin-agent/compare/v0.28.0...v0.29.0
 [0.28.0]: https://github.com/Artui/django-admin-agent/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/Artui/django-admin-agent/compare/v0.26.0...v0.27.0
