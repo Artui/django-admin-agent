@@ -828,6 +828,11 @@ navigate, and the two attachment paths.</p>
 <td>URL of the transcription endpoint, rendered as <code>data-transcribe-url</code>; the mic button posts audio to it. <code>None</code> when no transcription backend is configured (the sub-view is unmounted).</td>
 </tr>
 <tr>
+<td><code>user_key</code></td>
+<td><code>request.user.pk</code> (or <code>None</code>)</td>
+<td>The <code>user-key</code> attribute, which scopes the component's per-tab conversation to the signed-in principal. <code>sessionStorage</code> outlives the navigation a logout is, so without it the next person to sign in at the same desk lands on the previous one's transcript; changing the value purges everything the previous principal left behind. <code>pk</code> rather than <code>username</code>, because a renamed account is the same principal. <code>None</code> (attribute omitted) for an anonymous or absent user.</td>
+</tr>
+<tr>
 <td><code>bootstrap_url</code></td>
 <td><code>static("django_admin_agent/admin_agent.js")</code></td>
 <td>The ES-module entry point.</td>

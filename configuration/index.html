@@ -1361,6 +1361,13 @@ out of the box. Passing a <code>conversation_store</code> adds <strong>server-si
 top — keyed by AG-UI <code>thread_id</code>, owner-scoped per user — so a conversation
 durably survives across tabs and devices, and the resume checkpoint becomes
 derivable from the stored history.</p>
+<p>The client store is scoped to the signed-in principal from 0.30.0. <code>sessionStorage</code>
+is scoped to the <em>tab</em>, not to the session, so it survives the navigation a logout
+is — and on a shared admin workstation that meant the next person to sign in
+landed on the previous one's transcript. The sidebar now renders the acting
+user's primary key as <code>user-key</code>, and the component purges the transcript, the
+history-drawer index and any navigation checkpoint whenever that value changes.
+Nothing to configure, and nothing changes for a single-user deployment.</p>
 <p>For admin deployments — where <a href="#access-control"><code>AdminAgentServer</code></a> requires an
 authenticated staff user, so sessions always exist —
 <code>DjangoSessionConversationStore</code> is the natural choice (no migration, per-user
