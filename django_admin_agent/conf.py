@@ -29,6 +29,19 @@ class AdminAgentSettings:
     ``"full"``. Passed to the Web Component as the ``data-tool-display``
     attribute; defaults to ``"compact"`` for a dense admin sidebar."""
 
+    message_actions: str
+    """Which per-message actions the sidebar offers, as a comma-separated list of
+    ``copy`` / ``retry`` / ``feedback``. Passed through as
+    ``data-message-actions``.
+
+    **Defaults to ``"copy,retry"``, dropping ``feedback``, and that is a
+    deliberate subtraction rather than an oversight.** The rating buttons fire an
+    ``ag-ui-feedback`` event and store nothing -- by design, because a rating
+    belongs to whatever a project already uses for product signal. This package
+    listens for no such event, so shipping them here would put two controls in
+    the admin that visibly do nothing. A project that wires its own listener sets
+    this to ``"copy,retry,feedback"`` and gets them back."""
+
     skills: list[dict[str, Any]] | None
     """Optional override for the skill catalog (client ``Skill`` dicts). ``None``
     uses the built-in admin catalog
@@ -102,6 +115,7 @@ def get_settings() -> AdminAgentSettings:
         title=raw.get("TITLE", "Admin Copilot"),
         auto_confirm=bool(raw.get("AUTO_CONFIRM", False)),
         tool_display=raw.get("TOOL_DISPLAY", "compact"),
+        message_actions=raw.get("MESSAGE_ACTIONS", "copy,retry"),
         skills=raw.get("SKILLS"),
         theme=raw.get("THEME"),
         density=raw.get("DENSITY"),

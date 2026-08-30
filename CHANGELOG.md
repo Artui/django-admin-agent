@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`MESSAGE_ACTIONS`, defaulting to `"copy,retry"`.** Web component 0.30.0 puts
+  a copy / retry / thumbs row under every finished answer. The rating buttons
+  fire an `ag-ui-feedback` event and deliberately store nothing, because a rating
+  belongs to whatever a project already uses for product signal — and this
+  package listens for no such event. Shipping the default would have put two
+  controls in the admin that visibly do nothing. A project that wires its own
+  listener sets `"copy,retry,feedback"`.
+
+  This is what a re-vendor does not do on its own. The bundle carries
+  `formatToolPayload`, `data-max-tool-rounds`, `data-message-actions` and the
+  sub-agent panel whether or not the host asks for any of them, and only one of
+  the four needed a decision here. Adopting is reading the component's changelog
+  and then grepping both the bundle and the host script.
+
+### Changed
+
+- **Vendored web component 0.30.0** (from 0.29.0) — the sub-agent progress panel,
+  a presentation hook for the tool-card body, a tool-round budget, and a README
+  whose claims are now checked rather than only its symbol names.
+- **Floors raised** to `django-ag-ui>=0.53`, `django-pydantic-agent>=0.21` and
+  `djangorestframework-mcp-server>=0.37` (the `[mcp]` extra). 0.53 is what routes
+  a delegated sub-agent's progress onto the SSE stream, which the vendored
+  component now draws; below it the panel would have nothing to render.
+
+### Fixed
+
+- **The compatibility table stated its floor twice and only one was checked.**
+  Each row carries a version column and a `(>=X, no ceiling)` parenthetical, and
+  the gate read only the column — so a sweep could leave a row saying
+  `| 0.53 | from PyPI (>=0.49) |`, a table contradicting itself while CI stayed
+  green. Found by walking into it. A claim stated twice is now checked twice.
+
 ## [0.30.0] — 2026-08-29
 
 ### Added

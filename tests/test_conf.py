@@ -12,6 +12,10 @@ def test_defaults_when_setting_absent() -> None:
     assert config.title == "Admin Copilot"
     assert config.auto_confirm is False
     assert config.tool_display == "compact"
+    # Not merely a default: dropping ``feedback`` is what stops the sidebar
+    # showing two rating buttons whose event nothing in this package listens for.
+    assert config.message_actions == "copy,retry"
+    assert "feedback" not in config.message_actions
     assert config.skills is None
     assert config.theme is None
     assert config.density is None

@@ -23,14 +23,14 @@ The AG-UI stack design doc (`django-ag-ui-plan.md`) lives in the private ecosyst
 
 ## Local development
 
-`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.49` floor in
+`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.53` floor in
 `pyproject.toml` (so CI, which has no sibling checkout, syncs cleanly). There is
 deliberately no upper bound — a one-minor ceiling over a package we ship
 ourselves is a release schedule, not a compatibility statement. What replaces
 the ceiling is two measurements: the `floor` job in `tests.yml` resolves the
 bottom of every declared window per PR, and `upstream-drift.yml` resolves the
 top weekly. `uv.lock` pins the top for development only. The same applies to
-the `[mcp]` extra's `djangorestframework-mcp-server>=0.30`. To develop both
+the `[mcp]` extra's `djangorestframework-mcp-server>=0.37`. To develop both
 packages together against a local checkout, add a `[tool.uv.sources]` override
 *locally* (do not commit it) and `uv sync`:
 
@@ -162,9 +162,9 @@ Change a rule here and change the config with it, or they drift apart again.
 | --- | --- | --- |
 | Python | 3.10 | 3.10–3.14 |
 | Django | 4.2 LTS | 4.2, 5.0, 5.1, 5.2, 6.0, 6.1 |
-| django-ag-ui | 0.49 | from PyPI (`>=0.49`, no ceiling) |
-| django-pydantic-agent | 0.18 | from PyPI (`>=0.18`, no ceiling) |
-| djangorestframework-mcp-server (`[mcp]` extra) | 0.30 | from PyPI (`>=0.30`, no ceiling) |
+| django-ag-ui | 0.53 | from PyPI (`>=0.53`, no ceiling) |
+| django-pydantic-agent | 0.21 | from PyPI (`>=0.21`, no ceiling) |
+| djangorestframework-mcp-server (`[mcp]` extra) | 0.37 | from PyPI (`>=0.37`, no ceiling) |
 | Django Unfold (supported, optional) | 0.40 | latest in matrix |
 
 This table and the "Compatibility floor" admonition in `docs/installation.md`

@@ -19,8 +19,8 @@ pip install django-admin-agent[mcp]
 
 !!! info "Compatibility floor"
     Python 3.10+ (tested 3.10–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
-    5.2, 6.0, 6.1), `django-ag-ui>=0.49`, and — with the `[mcp]` extra above —
-    `djangorestframework-mcp-server>=0.30`. Django Unfold 0.40+ is optional.
+    5.2, 6.0, 6.1), `django-ag-ui>=0.53`, and — with the `[mcp]` extra above —
+    `djangorestframework-mcp-server>=0.37`. Django Unfold 0.40+ is optional.
 
     Neither sibling window has an upper bound, so this package installs
     alongside the current `django-ag-ui` on the day that ships rather than
