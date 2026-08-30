@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Vendored web component 0.31.0** (from 0.30.0), where the rating pair became
+  opt-in rather than default-on.
+
+  0.31.0 exists because of what this package found one release earlier. The
+  thumbs fire `ag-ui-feedback` and store nothing by design, and nothing here
+  listens -- so 0.30.0's default put two controls in the sidebar that latched
+  `aria-pressed` on click and recorded nothing, telling a reader their rating had
+  been taken. That was not an admin quirk: neither this package nor any of the
+  four gallery frontends listens for the event, so every known consumer was
+  shipping it. The component now asks.
+
+- **`MESSAGE_ACTIONS` now states the component's default rather than subtracting
+  from it.** Its value is unchanged at `"copy,retry"`. What changed is why: it is
+  no longer correcting a wrong default, it is how a project that wires its own
+  `ag-ui-feedback` listener asks for the thumbs back, and insurance against the
+  admin's row moving if the component's default ever does.
+
+
 ## [0.31.0] — 2026-08-30
 
 ### Added
