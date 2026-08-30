@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.32.0] — 2026-08-30
+
+### Changed
+
+- **Vendored web component 0.31.0** (from 0.30.0), where the rating pair became
+  opt-in rather than default-on.
+
+  0.31.0 exists because of what this package found one release earlier. The
+  thumbs fire `ag-ui-feedback` and store nothing by design, and nothing here
+  listens -- so 0.30.0's default put two controls in the sidebar that latched
+  `aria-pressed` on click and recorded nothing, telling a reader their rating had
+  been taken. That was not an admin quirk: neither this package nor any of the
+  four gallery frontends listens for the event, so every known consumer was
+  shipping it. The component now asks.
+
+- **`MESSAGE_ACTIONS` now states the component's default rather than subtracting
+  from it.** Its value is unchanged at `"copy,retry"`. What changed is why: it is
+  no longer correcting a wrong default, it is how a project that wires its own
+  `ag-ui-feedback` listener asks for the thumbs back, and insurance against the
+  admin's row moving if the component's default ever does.
+
+
 ## [0.31.0] — 2026-08-30
 
 ### Added
@@ -1362,7 +1384,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.31.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.32.0...HEAD
+[0.32.0]: https://github.com/Artui/django-admin-agent/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/Artui/django-admin-agent/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/Artui/django-admin-agent/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/Artui/django-admin-agent/compare/v0.28.0...v0.29.0
