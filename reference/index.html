@@ -2593,13 +2593,15 @@ attribute; defaults to <code>"compact"</code> for a dense admin sidebar.</p>
         <p>Which per-message actions the sidebar offers, as a comma-separated list of
 <code>copy</code> / <code>retry</code> / <code>feedback</code>. Passed through as
 <code>data-message-actions</code>.</p>
-<p><strong>Defaults to <code>"copy,retry"</code>, dropping <code>feedback</code>, and that is a
-deliberate subtraction rather than an oversight.</strong> The rating buttons fire an
-<code>ag-ui-feedback</code> event and store nothing -- by design, because a rating
-belongs to whatever a project already uses for product signal. This package
-listens for no such event, so shipping them here would put two controls in
-the admin that visibly do nothing. A project that wires its own listener sets
-this to <code>"copy,retry,feedback"</code> and gets them back.</p>
+<p>Defaults to <code>"copy,retry"</code>, which is also the component's own default from
+0.31.0 -- this states it rather than subtracting from it. The rating buttons
+fire an <code>ag-ui-feedback</code> event and store nothing by design, because a
+rating belongs to whatever a project already uses for product signal, and
+nothing here listens for it.</p>
+<p><strong>The setting exists for the other direction.</strong> A project that wires its own
+listener on the sidebar element sets <code>"copy,retry,feedback"</code> and gets the
+thumbs back; without this it would have no way to ask. Setting it explicitly
+also means the admin's row does not move if the component's default does.</p>
 
     </div>
 

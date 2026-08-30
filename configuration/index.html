@@ -973,7 +973,7 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <tr>
 <td><code>MESSAGE_ACTIONS</code></td>
 <td><code>"copy,retry"</code></td>
-<td>Which per-message actions the sidebar offers, from <code>copy</code> / <code>retry</code> / <code>feedback</code>. Rendered as <code>data-message-actions</code>. <strong><code>feedback</code> is left out on purpose:</strong> the rating buttons fire an <code>ag-ui-feedback</code> event and store nothing, and this package listens for no such event, so they would be two controls that visibly do nothing. Set <code>"copy,retry,feedback"</code> once your own listener is wired.</td>
+<td>Which per-message actions the sidebar offers, from <code>copy</code> / <code>retry</code> / <code>feedback</code>. Rendered as <code>data-message-actions</code>. Matches the component's own default from 0.31.0. The rating buttons fire an <code>ag-ui-feedback</code> event and store nothing by design, and nothing here listens for it. <strong>Set <code>"copy,retry,feedback"</code> once you have wired your own listener on the sidebar element</strong> — that is what this setting is for.</td>
 </tr>
 <tr>
 <td><code>THEME</code></td>
