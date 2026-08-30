@@ -971,6 +971,11 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <td>How much detail tool-call cards show: <code>"minimal"</code>, <code>"compact"</code>, or <code>"full"</code>. Rendered as the <code>data-tool-display</code> attribute.</td>
 </tr>
 <tr>
+<td><code>MESSAGE_ACTIONS</code></td>
+<td><code>"copy,retry"</code></td>
+<td>Which per-message actions the sidebar offers, from <code>copy</code> / <code>retry</code> / <code>feedback</code>. Rendered as <code>data-message-actions</code>. <strong><code>feedback</code> is left out on purpose:</strong> the rating buttons fire an <code>ag-ui-feedback</code> event and store nothing, and this package listens for no such event, so they would be two controls that visibly do nothing. Set <code>"copy,retry,feedback"</code> once your own listener is wired.</td>
+</tr>
+<tr>
 <td><code>THEME</code></td>
 <td><em>unset</em></td>
 <td>Web Component theme: <code>"light"</code>, <code>"dark"</code>, <code>"auto"</code>, or <code>"code"</code>. Rendered as the <code>theme</code> attribute; left off (component default, light) when unset.</td>
@@ -1287,7 +1292,7 @@ agent carrying on around a failed tool.</p>
 <p>On django-ag-ui <strong>0.48</strong> nothing redacted the <code>RUN_ERROR</code> path, so with
 django-pydantic-agent 0.18 the gate's message reached the browser
 verbatim with <code>INCLUDE_DETAIL</code> off. This package floors at
-<code>django-ag-ui&gt;=0.49</code> for exactly that reason. A project pinning the
+<code>django-ag-ui&gt;=0.53</code> for exactly that reason. A project pinning the
 transport lower while taking the newer substrate re-opens it.</p>
 </div>
 <p><strong>Every other refusal still reaches the model as a failure</strong>, and by default

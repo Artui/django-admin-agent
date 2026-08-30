@@ -721,6 +721,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.message_actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        message_actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#django_admin_agent.conf.AdminAgentSettings.skills" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1371,6 +1382,17 @@
     <span class="md-ellipsis">
       
         tool_display
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.message_actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        message_actions
       
     </span>
   </a>
@@ -2545,6 +2567,39 @@ Passed to the Web Component as <code>autoConfirm</code>.</p>
         <p>How much detail tool-call cards show: <code>"minimal"</code>, <code>"compact"</code>, or
 <code>"full"</code>. Passed to the Web Component as the <code>data-tool-display</code>
 attribute; defaults to <code>"compact"</code> for a dense admin sidebar.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.message_actions" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">message_actions</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.message_actions" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">message_actions</span><span class="p">:</span> <span class="nb">str</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Which per-message actions the sidebar offers, as a comma-separated list of
+<code>copy</code> / <code>retry</code> / <code>feedback</code>. Passed through as
+<code>data-message-actions</code>.</p>
+<p><strong>Defaults to <code>"copy,retry"</code>, dropping <code>feedback</code>, and that is a
+deliberate subtraction rather than an oversight.</strong> The rating buttons fire an
+<code>ag-ui-feedback</code> event and store nothing -- by design, because a rating
+belongs to whatever a project already uses for product signal. This package
+listens for no such event, so shipping them here would put two controls in
+the admin that visibly do nothing. A project that wires its own listener sets
+this to <code>"copy,retry,feedback"</code> and gets them back.</p>
 
     </div>
 
