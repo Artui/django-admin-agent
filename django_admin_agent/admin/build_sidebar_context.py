@@ -46,6 +46,7 @@ def build_sidebar_context(
         "title": config.title,
         "auto_confirm": config.auto_confirm,
         "tool_display": config.tool_display,
+        "message_actions": config.message_actions,
         "skills": config.skills if config.skills is not None else build_skills(),
         "tools_url": _tools_url(namespace),
         "threads_url": _threads_url(namespace),

@@ -16,6 +16,7 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `TITLE` | `"Admin Copilot"` | Header text shown on the sidebar chat panel. |
 | `AUTO_CONFIRM` | `False` | When `True`, destructive frontend tools run without the confirmation modal. Passed to the Web Component as `autoConfirm`. |
 | `TOOL_DISPLAY` | `"compact"` | How much detail tool-call cards show: `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. |
+| `MESSAGE_ACTIONS` | `"copy,retry"` | Which per-message actions the sidebar offers, from `copy` / `retry` / `feedback`. Rendered as `data-message-actions`. **`feedback` is left out on purpose:** the rating buttons fire an `ag-ui-feedback` event and store nothing, and this package listens for no such event, so they would be two controls that visibly do nothing. Set `"copy,retry,feedback"` once your own listener is wired. |
 | `THEME` | _unset_ | Web Component theme: `"light"`, `"dark"`, `"auto"`, or `"code"`. Rendered as the `theme` attribute; left off (component default, light) when unset. |
 | `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |
 | `PLACEMENT` | _unset_ | Where the panel sits: `"bottom-left"`, `"side"`, `"sidebar"`, `"full"`, or `"embedded"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. `"sidebar"` is a full-height docked panel that collapses to an icon rail (pair it with `SIDE`). |
@@ -284,7 +285,7 @@ just read. Three things follow:
         On django-ag-ui **0.48** nothing redacted the `RUN_ERROR` path, so with
         django-pydantic-agent 0.18 the gate's message reached the browser
         verbatim with `INCLUDE_DETAIL` off. This package floors at
-        `django-ag-ui>=0.49` for exactly that reason. A project pinning the
+        `django-ag-ui>=0.53` for exactly that reason. A project pinning the
         transport lower while taking the newer substrate re-opens it.
 
     **Every other refusal still reaches the model as a failure**, and by default

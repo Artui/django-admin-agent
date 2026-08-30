@@ -79,3 +79,24 @@ def test_the_compatibility_table_matches_the_declared_floor(package: str) -> Non
     )
     assert row is not None, f"CLAUDE.md's compatibility table no longer lists {package}"
     assert row.group(1) == _declared_floor(package)
+
+
+@pytest.mark.parametrize("package", _PACKAGES)
+def test_the_compatibility_row_agrees_with_itself(package: str) -> None:
+    """The row states the floor twice -- a version column and a parenthetical.
+
+    Only the column was checked, so the prose beside it drifted freely: a sweep
+    updating ``>=0.49`` everywhere leaves a row reading ``| 0.53 | from PyPI
+    (`>=0.49`) |``, which is a table contradicting itself while the gate stays
+    green. A claim stated twice needs checking twice.
+    """
+    row = re.search(
+        rf"^\| {re.escape(package)}[^|]*\| ([0-9.]+) \|([^|]*)\|",
+        (_ROOT / "CLAUDE.md").read_text(),
+        re.M,
+    )
+    assert row is not None, f"CLAUDE.md's compatibility table no longer lists {package}"
+    restated = re.findall(r">=([0-9.]+)", row.group(2))
+    assert restated == [row.group(1)], (
+        f"CLAUDE.md's {package} row says {restated} beside a column of {row.group(1)}"
+    )
