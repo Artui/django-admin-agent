@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Vendored web component 0.32.0** (from 0.31.1), where the delegation panel
+  learned to read AG-UI's own `SUBAGENT_STARTED` / `SUBAGENT_FINISHED` /
+  `SUBAGENT_ERROR` events. A delegated sub-agent's lifetime now arrives on the
+  protocol's vocabulary instead of a `CUSTOM` convention; the child's individual
+  tool calls still ride `ag_ui.subagent`.
+
+  **Nothing here needed a host opt-in, and that is the finding rather than the
+  absence of one.** The three new handlers are wired inside the element, so the
+  panel works on the vendored bytes alone — unlike `enableCharts()`, `user-key`
+  or the four additions in 0.30.0, each of which sat inert until `admin_agent.js`
+  called them. Checked the way that rule asks: the component's changelog read
+  between the pins, then the bundle grepped for the new symbols and the host
+  script for calls it does not make.
+
+  This package configures no delegation of its own, so the sidebar shows nothing
+  new by default. It reaches consumers who wire one through the `**kwargs`
+  passthrough to `AGUIServer` — `capabilities=[SubAgentObserver(SubAgents(...))]`
+  — and for them the vendored bundle is what renders it.
+
+- **The `django-ag-ui` floor stays at `>=0.53`**, deliberately, and the contrast
+  with 0.31.0 is the reason to say so. That release raised it *because* the
+  component could not draw a delegation the server never streamed. This one does
+  not, because web component 0.32.0 still narrows the five-phase `CUSTOM` shape a
+  0.53 server sends — a tested back-compat path in that package rather than an
+  accident of how the config next door happens to be written. Both server
+  versions render the panel fully, so requiring 0.54 would buy a consumer
+  nothing.
+
 ## [0.32.1] — 2026-08-31
 
 ### Changed
