@@ -7,6 +7,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.0] — 2026-08-31
+
+### Changed
+
+- **Vendored web component 0.32.0** (from 0.31.1), where the delegation panel
+  learned to read AG-UI's own `SUBAGENT_STARTED` / `SUBAGENT_FINISHED` /
+  `SUBAGENT_ERROR` events. A delegated sub-agent's lifetime now arrives on the
+  protocol's vocabulary instead of a `CUSTOM` convention; the child's individual
+  tool calls still ride `ag_ui.subagent`.
+
+  **Nothing here needed a host opt-in, and that is the finding rather than the
+  absence of one.** The three new handlers are wired inside the element, so the
+  panel works on the vendored bytes alone — unlike `enableCharts()`, `user-key`
+  or the four additions in 0.30.0, each of which sat inert until `admin_agent.js`
+  called them. Checked the way that rule asks: the component's changelog read
+  between the pins, then the bundle grepped for the new symbols and the host
+  script for calls it does not make.
+
+  This package configures no delegation of its own, so the sidebar shows nothing
+  new by default. It reaches consumers who wire one through the `**kwargs`
+  passthrough to `AGUIServer` — `capabilities=[SubAgentObserver(SubAgents(...))]`
+  — and for them the vendored bundle is what renders it.
+
+- **The `django-ag-ui` floor stays at `>=0.53`**, deliberately, and the contrast
+  with 0.31.0 is the reason to say so. That release raised it *because* the
+  component could not draw a delegation the server never streamed. This one does
+  not, because web component 0.32.0 still narrows the five-phase `CUSTOM` shape a
+  0.53 server sends — a tested back-compat path in that package rather than an
+  accident of how the config next door happens to be written. Both server
+  versions render the panel fully, so requiring 0.54 would buy a consumer
+  nothing.
+
+## [0.32.1] — 2026-08-31
+
+### Changed
+
+- **Vendored web component 0.31.1** (from 0.31.0). Currency rather than a fix:
+  0.31.1 stops a collapsed widget keeping its box inside a flex or grid parent,
+  and this sidebar is `position: fixed` on the component's floating default, so
+  it was never affected -- the panel hides, a launcher appears, and the page does
+  not reflow, which is what floating is for.
+
+  It is taken anyway so the bundle here stays level with what other consumers of
+  the component run. A gallery or a project showing this sidebar beside its own
+  embedded chat should not be demonstrating two builds of one component.
+
+  No host opt-in rides along: 0.31.1 is a CSS-only change to the in-flow
+  placements, so there is nothing for `admin_agent.js` or the template to call.
+
+
+## [0.32.0] — 2026-08-30
+
+### Changed
+
+- **Vendored web component 0.31.0** (from 0.30.0), where the rating pair became
+  opt-in rather than default-on.
+
+  0.31.0 exists because of what this package found one release earlier. The
+  thumbs fire `ag-ui-feedback` and store nothing by design, and nothing here
+  listens -- so 0.30.0's default put two controls in the sidebar that latched
+  `aria-pressed` on click and recorded nothing, telling a reader their rating had
+  been taken. That was not an admin quirk: neither this package nor any of the
+  four gallery frontends listens for the event, so every known consumer was
+  shipping it. The component now asks.
+
+- **`MESSAGE_ACTIONS` now states the component's default rather than subtracting
+  from it.** Its value is unchanged at `"copy,retry"`. What changed is why: it is
+  no longer correcting a wrong default, it is how a project that wires its own
+  `ag-ui-feedback` listener asks for the thumbs back, and insurance against the
+  admin's row moving if the component's default ever does.
+
+
 ## [0.31.0] — 2026-08-30
 
 ### Added
@@ -1362,7 +1434,10 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.31.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.33.0...HEAD
+[0.33.0]: https://github.com/Artui/django-admin-agent/compare/v0.32.1...v0.33.0
+[0.32.1]: https://github.com/Artui/django-admin-agent/compare/v0.32.0...v0.32.1
+[0.32.0]: https://github.com/Artui/django-admin-agent/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/Artui/django-admin-agent/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/Artui/django-admin-agent/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/Artui/django-admin-agent/compare/v0.28.0...v0.29.0
