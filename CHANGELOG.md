@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.0] — 2026-08-31
+
 ### Changed
 
 - **Vendored web component 0.32.0** (from 0.31.1), where the delegation panel
@@ -1432,7 +1434,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.32.1...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.33.0...HEAD
+[0.33.0]: https://github.com/Artui/django-admin-agent/compare/v0.32.1...v0.33.0
 [0.32.1]: https://github.com/Artui/django-admin-agent/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/Artui/django-admin-agent/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/Artui/django-admin-agent/compare/v0.30.0...v0.31.0
