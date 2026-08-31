@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.32.1] — 2026-08-31
+
+### Changed
+
+- **Vendored web component 0.31.1** (from 0.31.0). Currency rather than a fix:
+  0.31.1 stops a collapsed widget keeping its box inside a flex or grid parent,
+  and this sidebar is `position: fixed` on the component's floating default, so
+  it was never affected -- the panel hides, a launcher appears, and the page does
+  not reflow, which is what floating is for.
+
+  It is taken anyway so the bundle here stays level with what other consumers of
+  the component run. A gallery or a project showing this sidebar beside its own
+  embedded chat should not be demonstrating two builds of one component.
+
+  No host opt-in rides along: 0.31.1 is a CSS-only change to the in-flow
+  placements, so there is nothing for `admin_agent.js` or the template to call.
+
+
 ## [0.32.0] — 2026-08-30
 
 ### Changed
@@ -1384,7 +1402,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.32.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.32.1...HEAD
+[0.32.1]: https://github.com/Artui/django-admin-agent/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/Artui/django-admin-agent/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/Artui/django-admin-agent/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/Artui/django-admin-agent/compare/v0.29.0...v0.30.0
