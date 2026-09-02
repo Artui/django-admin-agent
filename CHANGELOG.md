@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.0] — 2026-09-02
+
+### Changed
+
+- **Vendored web component 0.33.0** (from 0.32.0). Four things reach the
+  sidebar with it:
+
+  - **The panel resizes from every edge and corner**, not one grip. The rule is
+    that the edge a grip does not drag is the one that stays put, and a drag on
+    the edge the layout was *holding still* moves the panel as well as resizing
+    it -- a floating panel pinned bottom-right could not grow rightward at all
+    before.
+  - **The collapsed launcher can be dragged anywhere**, and the panel opens into
+    whichever side of it has the most room. Where the panel fits on neither
+    side, it is clamped into the viewport and the launcher keeps its position.
+  - **Files can be pasted into the composer**, wherever `ATTACHMENTS` are
+    configured -- the same condition drag-and-drop already had. Text pastes are
+    untouched.
+  - **Copy puts a table on the clipboard as a table.** It read the bubble's
+    `textContent`, which welds a table into one run of cells; it now offers
+    `text/html` alongside a structurally serialised plain flavour. The action
+    buttons also grew to a reliable tap target and gained a label that shows on
+    keyboard focus, which a `title` attribute never does.
+
+  **Nothing here needed a host opt-in, and that is the finding rather than the
+  absence of one.** Every addition is on by default or an opt-out, where 0.29 to
+  0.30 was four host opt-ins in a row that would have shipped invisibly.
+  Confirmed by reading the component's changelog between the pins, grepping the
+  vendored bundle for each new symbol, and checking that `data-launcher-drag`
+  reads as an opt-out rather than an opt-in.
+
+  What changes without a line of Python moving is what every admin sees. The
+  sidebar leaves `placement` unset unless a project sets `PLACEMENT`, so the
+  default admin is the floating panel -- which is exactly the placement the
+  grips and the draggable launcher apply to. A project that docks the sidebar
+  gets neither, by the component's own rules.
+
+### Added
+
+- **An end-to-end test for what a re-vendor actually adopted.** A re-vendor is
+  not an adoption: the bundle is a build artefact from another repository, and
+  swapping it changes what every admin sees. `tests/e2e/test_vendored_capabilities.py`
+  asserts the placement this package defaults to, that all eight grips reach the
+  sidebar, and that a real mouse drag moves the launcher and opens the panel
+  where it lands. Two of the three fail against the 0.32.0 bundle; the third is
+  about this package's own template and correctly passes either way.
+
 ## [0.33.0] — 2026-08-31
 
 ### Changed
@@ -1434,7 +1481,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.33.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.34.0...HEAD
+[0.34.0]: https://github.com/Artui/django-admin-agent/compare/v0.33.0...v0.34.0
 [0.33.0]: https://github.com/Artui/django-admin-agent/compare/v0.32.1...v0.33.0
 [0.32.1]: https://github.com/Artui/django-admin-agent/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/Artui/django-admin-agent/compare/v0.31.0...v0.32.0
