@@ -21,6 +21,7 @@
   {% if attachment_max_bytes %}data-attachment-max-bytes="{{ attachment_max_bytes }}"{% endif %}
   {% if attachment_accept %}data-attachment-accept="{{ attachment_accept }}"{% endif %}
   {% if transcribe_url %}data-transcribe-url="{{ transcribe_url }}"{% endif %}
+  {% if not launcher_drag %}data-launcher-drag="false"{% endif %}
   {% if theme_toggle %}data-theme-toggle=""{% endif %}
   {% if user_key %}user-key="{{ user_key }}"{% endif %}
   data-admin-base="{{ admin_base_url }}"></ag-ui-chat>

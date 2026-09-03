@@ -81,6 +81,17 @@ class AdminAgentSettings:
     """For ``placement="sidebar"``: which edge it docks to — ``"left"`` /
     ``"right"`` (``data-side``). ``None`` leaves the component default (right)."""
 
+    launcher_drag: bool
+    """When ``False``, the sidebar stays where your CSS puts it: the collapsed
+    bubble cannot be dragged around the screen and the open panel cannot be
+    moved by its header (``data-launcher-drag="false"``).
+
+    Defaults to ``True``, which is the component's own default. Reach for
+    ``False`` when the sidebar's position is part of a designed admin layout
+    rather than something each user should arrange -- and note that a docked
+    ``placement`` already fixes the position on its own, so this is for the
+    floating one."""
+
     theme_toggle: bool
     """When ``True``, show the Web Component's built-in light/dark header toggle
     (``data-theme-toggle``), which flips
@@ -127,6 +138,7 @@ def get_settings() -> AdminAgentSettings:
         strings=raw.get("STRINGS"),
         icon_url=raw.get("ICON_URL"),
         side=raw.get("SIDE"),
+        launcher_drag=bool(raw.get("LAUNCHER_DRAG", True)),
         theme_toggle=bool(raw.get("THEME_TOGGLE", False)),
         shell_field_redaction=raw.get("SHELL_FIELD_REDACTION", True),
         model_scope=raw.get("MODEL_SCOPE"),

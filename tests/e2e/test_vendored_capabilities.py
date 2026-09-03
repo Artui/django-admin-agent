@@ -19,6 +19,7 @@ Run with ``make test-e2e``.
 from __future__ import annotations
 
 import pytest
+from django.test import override_settings
 from playwright.sync_api import expect
 
 from tests.e2e.conftest import send_message
@@ -210,6 +211,34 @@ def test_the_open_panel_can_be_moved_by_its_header(admin_page, live_server):  # 
     # The size is untouched: this is a move, and the grips are what resize.
     assert after["width"] == pytest.approx(before["width"], abs=1)
     assert after["height"] == pytest.approx(before["height"], abs=1)
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"LAUNCHER_DRAG": False})
+def test_a_project_can_pin_the_sidebar_where_its_layout_puts_it(admin_page, live_server):  # noqa: ANN001, ANN201
+    """`LAUNCHER_DRAG=False` stops both gestures, not one.
+
+    The component's attribute governed only the collapsed bubble until 0.34.0
+    and now governs the header drag too, so the assertion worth making here is
+    that the panel stays put -- an admin layout that places the sidebar
+    deliberately is not served by an opt-out that only covers half of it.
+    """
+    admin_page.goto(f"{live_server.url}/admin/testapp/author/")
+    chat = admin_page.locator("ag-ui-chat#django-admin-agent")
+    expect(chat).to_have_attribute("data-launcher-drag", "false")
+    before = chat.bounding_box()
+    assert before is not None
+
+    grab = admin_page.evaluate(_HEADER_BOX)
+    admin_page.mouse.move(grab["x"], grab["y"])
+    admin_page.mouse.down()
+    admin_page.mouse.move(grab["x"] - 200, grab["y"] - 80, steps=8)
+    admin_page.mouse.up()
+    admin_page.wait_for_timeout(200)
+
+    after = chat.bounding_box()
+    assert after is not None
+    assert after["x"] == pytest.approx(before["x"], abs=1)
+    assert after["y"] == pytest.approx(before["y"], abs=1)
 
 
 def test_the_launcher_travels_with_a_panel_moved_by_its_header(admin_page, live_server):  # noqa: ANN001, ANN201

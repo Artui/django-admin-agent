@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.36.0] — 2026-09-03
+
+### Added
+
+- **`LAUNCHER_DRAG`**, a setting that decides whether users may move the sidebar
+  at all. `True` by default -- the component's own default, and what every
+  project gets today. `False` renders `data-launcher-drag="false"` and pins the
+  sidebar where your CSS puts it.
+
+  It governs **both** gestures, which is why it is worth a setting rather than a
+  note. The component's attribute stopped only the collapsed bubble being
+  dragged around the screen until web component 0.34.0; it now stops the open
+  panel being dragged by its header as well. An admin layout that places the
+  sidebar deliberately had no way to say so, and would have had two gestures to
+  fight rather than one.
+
+  A docked `PLACEMENT` already fixes the position on its own, so this is for the
+  floating default. The browser suite asserts the panel actually stays put,
+  because a passthrough that renders the attribute and reaches nothing is the
+  failure worth catching.
+
 ## [0.35.0] — 2026-09-03
 
 ### Changed
@@ -1548,7 +1569,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.35.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.36.0...HEAD
+[0.36.0]: https://github.com/Artui/django-admin-agent/compare/v0.35.0...v0.36.0
 [0.35.0]: https://github.com/Artui/django-admin-agent/compare/v0.34.1...v0.35.0
 [0.34.1]: https://github.com/Artui/django-admin-agent/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/Artui/django-admin-agent/compare/v0.33.0...v0.34.0

@@ -24,6 +24,9 @@ def test_defaults_when_setting_absent() -> None:
     assert config.strings is None
     assert config.icon_url is None
     assert config.side is None
+    # On by default, because the component's own default is on: a project that
+    # says nothing gets a sidebar its users can move.
+    assert config.launcher_drag is True
     assert config.theme_toggle is False
     assert config.shell_field_redaction is True
     assert config.model_scope is None
@@ -42,6 +45,7 @@ def test_defaults_when_setting_absent() -> None:
         "STRINGS": {"send": "Senden"},
         "ICON_URL": "/static/logo.png",
         "SIDE": "left",
+        "LAUNCHER_DRAG": False,
         "THEME_TOGGLE": True,
         "SHELL_FIELD_REDACTION": r"^email$",
         "MODEL_SCOPE": ["shop", "auth.User"],
@@ -60,6 +64,7 @@ def test_reads_overrides() -> None:
     assert config.strings == {"send": "Senden"}
     assert config.icon_url == "/static/logo.png"
     assert config.side == "left"
+    assert config.launcher_drag is False
     assert config.theme_toggle is True
     assert config.shell_field_redaction == r"^email$"
     assert config.model_scope == ["shop", "auth.User"]
@@ -68,3 +73,8 @@ def test_reads_overrides() -> None:
 @override_settings(DJANGO_ADMIN_AGENT={"AUTO_CONFIRM": 1})
 def test_auto_confirm_coerced_to_bool() -> None:
     assert get_settings().auto_confirm is True
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"LAUNCHER_DRAG": 0})
+def test_launcher_drag_coerced_to_bool() -> None:
+    assert get_settings().launcher_drag is False
