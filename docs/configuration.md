@@ -23,6 +23,7 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
 | `SIDE` | _unset_ | For `PLACEMENT="sidebar"`: which edge it docks to — `"left"` or `"right"`. Rendered as the `data-side` attribute; left off (component default, right) when unset. |
 | `THEME_TOGGLE` | `False` | Show the Web Component's built-in light⇄dark header toggle (it flips `theme` and persists per tab). Rendered as the `data-theme-toggle` attribute. Off by default, since the admin's own theme usually governs. |
+| `LAUNCHER_DRAG` | `True` | Whether users may move the sidebar: drag the collapsed bubble around the screen, and drag the open panel by its header. `False` renders `data-launcher-drag="false"` and pins it where your CSS puts it. A docked `PLACEMENT` already fixes the position, so this is for the floating one. |
 | `ICON_URL` | _unset_ | URL of a header/launcher icon image. Rendered as the `data-icon-url` attribute; left off (icon-less) when unset. |
 | `STRINGS` | _unset_ | Localized UI-string overrides for the Web Component (a partial dict merged over its English defaults). Rendered as the `data-strings` attribute (serialized JSON). Wrap values in `gettext_lazy` so the sidebar follows the admin's active language; left off when unset. |
 | `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
@@ -67,10 +68,18 @@ component's own attribute values:
 | `PLACEMENT` | `placement` | `bottom-left` · `side` · `sidebar` · `full` · `embedded` | _floating bottom-right_ |
 | `TEXT_ANIMATION` | `data-text-animation` | `none` · `fade` · `word` | `none` |
 | `THEME_TOGGLE` | `data-theme-toggle` | `True` · `False` | `False` |
+| `LAUNCHER_DRAG` | `data-launcher-drag` | `True` · `False` | `True` |
 
 `THEME_TOGGLE` adds the Web Component's built-in light⇄dark header toggle (it
 flips `theme` and persists per tab) — off by default, since the admin's own theme
-usually governs. `TOOL_DISPLAY` always renders (it defaults to `"compact"`); the other four are
+usually governs.
+
+`LAUNCHER_DRAG` is the one that reads inverted: it is `True` by default, and
+setting it to `False` is what emits an attribute. It governs **both** ways the
+sidebar can be moved — dragging the collapsed bubble anywhere on screen, and
+dragging the open panel by its header — so a layout that places the sidebar
+deliberately turns off one setting rather than fighting two gestures. A docked
+`PLACEMENT` fixes the position on its own; this is for the floating default. `TOOL_DISPLAY` always renders (it defaults to `"compact"`); the other four are
 rendered only when set, so leaving them unset keeps the component's own
 defaults. `data-slash-commands="true"` is always emitted, enabling the skill
 palette.

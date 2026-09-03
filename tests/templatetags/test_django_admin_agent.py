@@ -44,6 +44,10 @@ def test_tag_renders_web_component_markup() -> None:
     assert "data-strings=" not in rendered
     assert "data-icon-url=" not in rendered
     assert "data-side=" not in rendered
+    # Dragging is the component's default, so the attribute that turns it off
+    # is absent rather than spelled out as "true": an attribute nobody set is
+    # what leaves the decision where it belongs.
+    assert "data-launcher-drag" not in rendered
 
 
 @override_settings(
@@ -118,3 +122,17 @@ def test_no_user_leaves_the_attribute_off_entirely() -> None:
 @pytest.mark.django_db
 def test_an_anonymous_user_is_not_a_principal() -> None:
     assert build_sidebar_context(user=AnonymousUser())["user_key"] is None
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"LAUNCHER_DRAG": False})
+def test_tag_pins_the_sidebar_when_dragging_is_turned_off() -> None:
+    """One attribute governs both drags from web component 0.34.0.
+
+    Before it, the same attribute stopped only the collapsed bubble being moved;
+    it now stops the open panel being dragged by its header as well. That is the
+    whole reason this setting exists -- an admin layout that places the sidebar
+    deliberately had no way to say so.
+    """
+    rendered = _render()
+
+    assert 'data-launcher-drag="false"' in rendered

@@ -16,6 +16,7 @@ navigate, and the two attachment paths.
 | `tool_display` | `DJANGO_ADMIN_AGENT["TOOL_DISPLAY"]` | The `data-tool-display` attribute (`minimal` / `compact` / `full`). |
 | `theme`, `density`, `placement`, `text_animation` | the matching `DJANGO_ADMIN_AGENT` keys | Themeable presentation attributes (`theme` / `density` / `placement` / `data-text-animation`), rendered only when set. See [Configuration → Presentation](configuration.md#presentation). |
 | `theme_toggle` | `DJANGO_ADMIN_AGENT["THEME_TOGGLE"]` | The `data-theme-toggle` attribute — opts into the built-in light⇄dark header toggle (off by default). |
+| `launcher_drag` | `DJANGO_ADMIN_AGENT["LAUNCHER_DRAG"]` | The `data-launcher-drag` attribute, rendered as `"false"` only when dragging is turned off — it governs both the collapsed bubble and the open panel's header. |
 | `side` | `DJANGO_ADMIN_AGENT["SIDE"]` | The `data-side` attribute for `placement="sidebar"` (`left` / `right`), rendered only when set. |
 | `icon_url` | `DJANGO_ADMIN_AGENT["ICON_URL"]` | The `data-icon-url` attribute (header/launcher icon), rendered only when set. |
 | `strings_json` | `DJANGO_ADMIN_AGENT["STRINGS"]` | Localized UI-string overrides serialized to JSON for the `data-strings` attribute, rendered only when set. |
