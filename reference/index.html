@@ -820,6 +820,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.launcher_drag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        launcher_drag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#django_admin_agent.conf.AdminAgentSettings.theme_toggle" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1481,6 +1492,17 @@
     <span class="md-ellipsis">
       
         side
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.launcher_drag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        launcher_drag
       
     </span>
   </a>
@@ -2811,6 +2833,37 @@ language. <code>None</code> leaves the component's English defaults.</p>
 
         <p>For <code>placement="sidebar"</code>: which edge it docks to — <code>"left"</code> /
 <code>"right"</code> (<code>data-side</code>). <code>None</code> leaves the component default (right).</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.launcher_drag" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">launcher_drag</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.launcher_drag" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">launcher_drag</span><span class="p">:</span> <span class="nb">bool</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>When <code>False</code>, the sidebar stays where your CSS puts it: the collapsed
+bubble cannot be dragged around the screen and the open panel cannot be
+moved by its header (<code>data-launcher-drag="false"</code>).</p>
+<p>Defaults to <code>True</code>, which is the component's own default. Reach for
+<code>False</code> when the sidebar's position is part of a designed admin layout
+rather than something each user should arrange -- and note that a docked
+<code>placement</code> already fixes the position on its own, so this is for the
+floating one.</p>
 
     </div>
 

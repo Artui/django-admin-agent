@@ -1006,6 +1006,11 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <td>Show the Web Component's built-in light⇄dark header toggle (it flips <code>theme</code> and persists per tab). Rendered as the <code>data-theme-toggle</code> attribute. Off by default, since the admin's own theme usually governs.</td>
 </tr>
 <tr>
+<td><code>LAUNCHER_DRAG</code></td>
+<td><code>True</code></td>
+<td>Whether users may move the sidebar: drag the collapsed bubble around the screen, and drag the open panel by its header. <code>False</code> renders <code>data-launcher-drag="false"</code> and pins it where your CSS puts it. A docked <code>PLACEMENT</code> already fixes the position, so this is for the floating one.</td>
+</tr>
+<tr>
 <td><code>ICON_URL</code></td>
 <td><em>unset</em></td>
 <td>URL of a header/launcher icon image. Rendered as the <code>data-icon-url</code> attribute; left off (icon-less) when unset.</td>
@@ -1104,11 +1109,23 @@ component's own attribute values:</p>
 <td><code>True</code> · <code>False</code></td>
 <td><code>False</code></td>
 </tr>
+<tr>
+<td><code>LAUNCHER_DRAG</code></td>
+<td><code>data-launcher-drag</code></td>
+<td><code>True</code> · <code>False</code></td>
+<td><code>True</code></td>
+</tr>
 </tbody>
 </table>
 <p><code>THEME_TOGGLE</code> adds the Web Component's built-in light⇄dark header toggle (it
 flips <code>theme</code> and persists per tab) — off by default, since the admin's own theme
-usually governs. <code>TOOL_DISPLAY</code> always renders (it defaults to <code>"compact"</code>); the other four are
+usually governs.</p>
+<p><code>LAUNCHER_DRAG</code> is the one that reads inverted: it is <code>True</code> by default, and
+setting it to <code>False</code> is what emits an attribute. It governs <strong>both</strong> ways the
+sidebar can be moved — dragging the collapsed bubble anywhere on screen, and
+dragging the open panel by its header — so a layout that places the sidebar
+deliberately turns off one setting rather than fighting two gestures. A docked
+<code>PLACEMENT</code> fixes the position on its own; this is for the floating default. <code>TOOL_DISPLAY</code> always renders (it defaults to <code>"compact"</code>); the other four are
 rendered only when set, so leaving them unset keeps the component's own
 defaults. <code>data-slash-commands="true"</code> is always emitted, enabling the skill
 palette.</p>
