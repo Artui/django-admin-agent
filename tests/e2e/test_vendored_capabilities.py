@@ -21,6 +21,8 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import expect
 
+from tests.e2e.conftest import send_message
+
 pytestmark = [pytest.mark.e2e, pytest.mark.django_db(transaction=True)]
 
 # The launcher's box with its transform divided out.
@@ -167,3 +169,123 @@ def test_a_wide_table_scrolls_in_the_sidebar(admin_page, live_server):  # noqa: 
     # The declaration that caused it, as the cell computes it. `break-word` here
     # is the legacy "break anywhere", and min-content follows it.
     assert measured["cellWordBreak"] == "normal"
+
+
+# Drag the panel by its header and report what moved. Real mouse input, because
+# the drag threshold and the pointer capture are things only the browser makes.
+_HEADER_BOX = """
+() => {
+  const el = document.querySelector('ag-ui-chat#django-admin-agent');
+  const header = el.shadowRoot.querySelector('.header');
+  const r = header.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
+"""
+
+
+def test_the_open_panel_can_be_moved_by_its_header(admin_page, live_server):  # noqa: ANN001, ANN201
+    """A chat sitting over the changelist it is being asked about can be moved.
+
+    Until this bundle the panel could only be moved by collapsing it first and
+    dragging the bubble, which is the affordance an admin reaches for least when
+    the panel is in the way of the row they are reading.
+    """
+    admin_page.goto(f"{live_server.url}/admin/testapp/author/")
+    chat = admin_page.locator("ag-ui-chat#django-admin-agent")
+    expect(chat.locator(".chat")).to_be_visible()
+    before = chat.bounding_box()
+    assert before is not None
+
+    grab = admin_page.evaluate(_HEADER_BOX)
+    admin_page.mouse.move(grab["x"], grab["y"])
+    admin_page.mouse.down()
+    admin_page.mouse.move(grab["x"] - 200, grab["y"] - 80, steps=8)
+    admin_page.mouse.up()
+    admin_page.wait_for_timeout(200)
+
+    after = chat.bounding_box()
+    assert after is not None
+    assert after["x"] - before["x"] == pytest.approx(-200, abs=1)
+    assert after["y"] - before["y"] == pytest.approx(-80, abs=1)
+    # The size is untouched: this is a move, and the grips are what resize.
+    assert after["width"] == pytest.approx(before["width"], abs=1)
+    assert after["height"] == pytest.approx(before["height"], abs=1)
+
+
+def test_the_launcher_travels_with_a_panel_moved_by_its_header(admin_page, live_server):  # noqa: ANN001, ANN201
+    """The bubble the sidebar collapses into goes exactly as far as the panel.
+
+    One widget being moved rather than two things being placed -- an admin who
+    drags the panel out of the way and then collapses it has to find the bubble
+    where the panel was, not across the screen from it.
+    """
+    admin_page.goto(f"{live_server.url}/admin/testapp/author/")
+    chat = admin_page.locator("ag-ui-chat#django-admin-agent")
+    expect(chat.locator(".chat")).to_be_visible()
+    before = admin_page.evaluate(_LAUNCHER_BOX)
+
+    grab = admin_page.evaluate(_HEADER_BOX)
+    admin_page.mouse.move(grab["x"], grab["y"])
+    admin_page.mouse.down()
+    admin_page.mouse.move(grab["x"] - 200, grab["y"] - 80, steps=8)
+    admin_page.mouse.up()
+    admin_page.wait_for_timeout(200)
+
+    after = admin_page.evaluate(_LAUNCHER_BOX)
+    assert after["x"] - before["x"] == pytest.approx(-200, abs=1)
+    assert after["y"] - before["y"] == pytest.approx(-80, abs=1)
+
+
+# Widen the panel and report what the chart already in it did about it.
+_MEASURE_CHART = """
+(width) => {
+  const el = document.querySelector('ag-ui-chat#django-admin-agent');
+  el.style.setProperty('--ag-ui-width', width + 'px');
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+      const svg = el.shadowRoot.querySelector('.chart-block svg');
+      const box = svg.getBoundingClientRect();
+      const units = Number(svg.getAttribute('viewBox').split(' ')[2]);
+      resolve({
+        panel: el.getBoundingClientRect().width,
+        width: box.width,
+        height: box.height,
+        scale: box.width / units,
+      });
+    })));
+  });
+}
+"""
+
+
+def test_a_chart_stops_at_its_own_width_in_a_widened_sidebar(admin_page, live_server):  # noqa: ANN001, ANN201
+    """Widening the sidebar does not resize the chart already in it.
+
+    The drawing used to be scaled to whatever width its block had, so an admin
+    who dragged the panel wider got the chart magnified with it -- 3.25x type in
+    a 1100px panel, and a figure tall enough to push the answer it belonged to
+    off the screen. Both halves of the fix are asserted, because they are
+    separate: the cap that stops it stretching, and the one-unit-per-pixel
+    geometry that stops it being magnified.
+
+    Driven through the pushed-activity route, so what is measured is the chart
+    an admin actually gets rather than a drawing this test made.
+    """
+    admin_page.set_viewport_size({"width": 1400, "height": 900})
+    admin_page.goto(f"{live_server.url}/admin/")
+    send_message(admin_page, "chart the authors")
+    expect(admin_page.locator("ag-ui-chat .chart-block")).to_be_visible(timeout=15000)
+
+    wide = admin_page.evaluate(_MEASURE_CHART, 1100)
+    narrow = admin_page.evaluate(_MEASURE_CHART, 420)
+
+    assert wide["panel"] == pytest.approx(1100, abs=2)
+    # Capped at its own width rather than filling the panel, the way a message
+    # bubble caps rather than stretching to the transcript's full width.
+    assert wide["width"] == pytest.approx(480, abs=1)
+    assert wide["height"] == pytest.approx(220, abs=1)
+    # And drawn one unit per pixel at both sizes, which is what keeps a 10px
+    # axis label 10px whatever the panel is doing.
+    assert wide["scale"] == pytest.approx(1, abs=0.05)
+    assert narrow["scale"] == pytest.approx(1, abs=0.05)
+    assert narrow["width"] < wide["width"]
