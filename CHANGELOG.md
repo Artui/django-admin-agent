@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.1] — 2026-09-03
+
+### Fixed
+
+- **Vendored web component 0.33.1** (from 0.33.0), where a markdown table in an
+  answer finally scrolls inside its own box instead of shredding its columns.
+
+  The component's stylesheet always said a wide table should scroll. It could
+  not: `.message` set `word-break: break-word`, the legacy spelling of "break
+  anywhere", which drops the **min-content width** of every descendant to a
+  single character. A table's column algorithm takes min-content as an input, so
+  the table always fitted and the `overflow-x: auto` beneath it had nothing to
+  scroll — the columns absorbed the pressure by rendering one letter per line
+  instead. A seven-column header row came out 162px tall. Reported against
+  0.32.0 and present at least as far back as 0.27.0.
+
+  **Nothing needed a host opt-in, and this time that is trivially so** — the
+  release is one CSS declaration. Checked rather than assumed: the bundle's
+  count of `data-`, `enable`, `offer` and `register` occurrences is identical
+  either side of the bump, so no new host-facing surface arrived with it.
+
+  `tests/e2e/test_vendored_capabilities.py` grows an assertion that measures a
+  seven-column table where admins actually meet it, in the sidebar. It fails
+  against the 0.33.0 bundle.
+
 ## [0.34.0] — 2026-09-02
 
 ### Changed
@@ -1481,7 +1506,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.34.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.34.1...HEAD
+[0.34.1]: https://github.com/Artui/django-admin-agent/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/Artui/django-admin-agent/compare/v0.33.0...v0.34.0
 [0.33.0]: https://github.com/Artui/django-admin-agent/compare/v0.32.1...v0.33.0
 [0.32.1]: https://github.com/Artui/django-admin-agent/compare/v0.32.0...v0.32.1
