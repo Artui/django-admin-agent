@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Vendored web component 0.34.0** (from 0.33.1). Two things reach the sidebar
+  with it:
+
+  - **The open panel moves by its header**, the way a window moves by its title
+    bar. Until now a chat sitting over the changelist it was being asked about
+    could only be moved by collapsing it and dragging the bubble, which is the
+    affordance an admin reaches for least when the panel is in the way of the
+    row they are reading. The bubble travels exactly as far as the panel, so
+    collapsing afterwards leaves it where the panel was, and a position dragged
+    this way survives collapsing, reopening and reloading.
+  - **A chart no longer grows with the panel.** It was drawn into a fixed
+    480x220 frame and scaled to whatever width its block had, while the block
+    stretched to the transcript's full width -- so an admin who dragged the
+    panel wider got the chart magnified with it: 3.25x type in a 1100px panel,
+    and a figure tall enough to push the answer it belonged to off the screen.
+    It now takes the width it needs and stops, at `--ag-ui-chart-max-width`
+    (480px), and is drawn one unit per CSS pixel so a 10px axis label is 10px at
+    every panel size. This one lands squarely on this package, which turns
+    pushed charts on for the surface in `admin_agent.js`.
+
+  **Nothing needed a host opt-in.** Checked rather than assumed: the component's
+  public exports are unchanged between the two releases, and its one new
+  host-facing name is the `--ag-ui-chart-max-width` token, which has a default
+  this package has no reason to override. The header drag is on by default for
+  the floating placement the sidebar leaves in place unless a project sets
+  `PLACEMENT`.
+
+  `tests/e2e/test_vendored_capabilities.py` grows three assertions that measure
+  both capabilities where admins actually meet them. Against the 0.33.1 bundle
+  the panel does not move at all and the chart renders 1066px wide instead of
+  480.
+
+  **One gap this pass surfaced, unchanged by the release but widened by it:**
+  the component's `data-launcher-drag="false"` opt-out has no settings
+  passthrough here, and from 0.34.0 that attribute governs the header drag as
+  well as the launcher's. A project that wants the sidebar to stay where its CSS
+  puts it currently has no way to say so.
+
 ## [0.34.1] — 2026-09-03
 
 ### Fixed

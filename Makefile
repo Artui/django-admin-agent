@@ -64,7 +64,7 @@ docs-build:
 # published wheel ships exactly the bytes that were reviewed, tested and driven
 # in a browser here.
 WEB_COMPONENT_PKG := @artooi/ag-ui-web-component
-WEB_COMPONENT_VERSION := 0.33.1
+WEB_COMPONENT_VERSION := 0.34.0
 BUNDLE_DEST := django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js
 
 # Fetch the pinned published component into a tmpdir and normalise its bundle
