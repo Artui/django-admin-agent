@@ -116,3 +116,54 @@ def test_the_collapsed_launcher_can_be_moved_and_the_panel_opens_where_it_lands(
     assert panel["y"] == pytest.approx(moved["y"], abs=1)
     assert panel["x"] + panel["width"] > moved["x"] + moved["size"]
     assert panel["y"] + panel["height"] > moved["y"] + moved["size"]
+
+
+# Build a wide markdown-style table inside an assistant bubble, where the
+# component puts one, and report what the browser laid out.
+_MEASURE_TABLE = """
+() => {
+  const el = document.querySelector('ag-ui-chat#django-admin-agent');
+  const root = el.shadowRoot;
+  const messages = root.querySelector('.messages');
+  messages.replaceChildren();
+  const group = document.createElement('div');
+  group.className = 'answer';
+  const bubble = document.createElement('div');
+  bubble.className = 'message message--assistant';
+  bubble.innerHTML =
+    '<table><thead><tr><th>Line item</th><th>Draw request</th><th>Condition</th>' +
+    '<th>Status</th><th>Amount requested</th><th>Amount approved</th><th>Inspector</th></tr></thead>' +
+    '<tbody><tr><td>Foundation waterproofing</td><td>DR-2026-0184</td><td>Pending lien waiver</td>' +
+    '<td>Awaiting inspection</td><td>$184,500.00</td><td>$172,300.00</td><td>M. Okonkwo</td></tr></tbody></table>';
+  group.appendChild(bubble);
+  messages.appendChild(group);
+  const table = bubble.querySelector('table');
+  const header = bubble.querySelector('th');
+  return {
+    scrolls: table.scrollWidth > table.clientWidth,
+    headerHeight: header.getBoundingClientRect().height,
+    cellWordBreak: getComputedStyle(header).wordBreak,
+  };
+}
+"""
+
+
+def test_a_wide_table_scrolls_in_the_sidebar(admin_page, live_server):  # noqa: ANN001, ANN201
+    """The vendored stylesheet's table rule, exercised where admins meet it.
+
+    The component's own suite covers this, but the bundle is a build artefact
+    from another repository: what this asserts is that the *vendored* bytes carry
+    the fix, which is the only question this package can answer. Before it, a
+    seven-column header rendered one letter per line at 162px tall and the
+    table's own `overflow-x: auto` had nothing to scroll.
+    """
+    admin_page.goto(f"{live_server.url}/admin/testapp/author/")
+
+    measured = admin_page.evaluate(_MEASURE_TABLE)
+
+    assert measured["scrolls"], "the table absorbed the width instead of scrolling"
+    # One letter per line took this past 160px; a line of text is well under 60.
+    assert measured["headerHeight"] < 60
+    # The declaration that caused it, as the cell computes it. `break-word` here
+    # is the legacy "break anywhere", and min-content follows it.
+    assert measured["cellWordBreak"] == "normal"
