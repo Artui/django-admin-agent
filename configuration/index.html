@@ -988,7 +988,7 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <tr>
 <td><code>PLACEMENT</code></td>
 <td><em>unset</em></td>
-<td>Where the panel sits: <code>"bottom-left"</code>, <code>"side"</code>, <code>"sidebar"</code>, <code>"full"</code>, or <code>"embedded"</code>. Rendered as the <code>placement</code> attribute; left off for the default floating bottom-right. <code>"sidebar"</code> is a full-height docked panel that collapses to an icon rail (pair it with <code>SIDE</code>).</td>
+<td>Where the panel sits: <code>"sidebar"</code>, <code>"embedded"</code>, <code>"page"</code>, or the older <code>"bottom-left"</code>, <code>"side"</code> and <code>"full"</code>. Rendered as the <code>placement</code> attribute; left off for the default floating bottom-right. <code>"sidebar"</code> is a full-height docked panel that collapses to an icon rail (pair it with <code>SIDE</code>); <code>"page"</code> is a full-screen route with no collapsed state at all. The last three are no longer in the component's own documented four but still parse and still work.</td>
 </tr>
 <tr>
 <td><code>TEXT_ANIMATION</code></td>
@@ -1004,6 +1004,11 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <td><code>THEME_TOGGLE</code></td>
 <td><code>False</code></td>
 <td>Show the Web Component's built-in light⇄dark header toggle (it flips <code>theme</code> and persists per tab). Rendered as the <code>data-theme-toggle</code> attribute. Off by default, since the admin's own theme usually governs.</td>
+</tr>
+<tr>
+<td><code>START_OPEN</code></td>
+<td><code>False</code></td>
+<td>Whether a corner placement opens on a first visit rather than resting at its launcher. Rendered as the <code>data-start-open</code> attribute. From web component 0.35.0 the panel rests as a bubble on a first visit; before that it opened itself, so set this to <code>True</code> to keep the old behaviour. A user's own collapse or expand outlives it -- this decides only the first visit, and the stored preference wins after. Does nothing under <code>"sidebar"</code>, <code>"embedded"</code> or <code>"page"</code>, which have no collapsed state to rest in.</td>
 </tr>
 <tr>
 <td><code>LAUNCHER_DRAG</code></td>
@@ -1094,7 +1099,7 @@ component's own attribute values:</p>
 <tr>
 <td><code>PLACEMENT</code></td>
 <td><code>placement</code></td>
-<td><code>bottom-left</code> · <code>side</code> · <code>sidebar</code> · <code>full</code> · <code>embedded</code></td>
+<td><code>sidebar</code> · <code>embedded</code> · <code>page</code> · <code>bottom-left</code> · <code>side</code> · <code>full</code></td>
 <td><em>floating bottom-right</em></td>
 </tr>
 <tr>
@@ -1114,6 +1119,12 @@ component's own attribute values:</p>
 <td><code>data-launcher-drag</code></td>
 <td><code>True</code> · <code>False</code></td>
 <td><code>True</code></td>
+</tr>
+<tr>
+<td><code>START_OPEN</code></td>
+<td><code>data-start-open</code></td>
+<td><code>True</code> · <code>False</code></td>
+<td><code>False</code></td>
 </tr>
 </tbody>
 </table>
