@@ -208,3 +208,57 @@ document.querySelector("ag-ui-chat#django-admin-agent").enableCharts(["tool"]);
 
 Run it any time after the page loads; it redraws charts already in the restored
 transcript.
+
+### Letting the agent move its own panel
+
+The sidebar sits over the changelist or changeform it is discussing, which is
+the one problem a chat pinned to its own tab never has. Web component 0.35.0
+gives the agent four tools for it -- read where the panel is, send it to a
+corner, minimise it to the launcher, restore it -- and each move it makes is
+written into the transcript with an undo beside it, so the panel never
+rearranges itself silently.
+
+Left to you for the same reason `render_chart` is: it is a new thing the agent
+can do rather than a fix, and four more tool definitions in every request is a
+cost you should choose.
+
+```js
+import {
+  createChatSurfaceTools,
+} from "/static/django_admin_agent/ag-ui-web-component.bundle.js";
+
+const el = document.querySelector("ag-ui-chat#django-admin-agent");
+for (const tool of createChatSurfaceTools(el)) {
+  el.registerTool(tool);
+}
+```
+
+The element is the surface the factory wants, so it is passed to itself. The
+tools decline rather than lie where the position is not theirs to take: a
+docked `PLACEMENT`, or a panel filling a phone screen, answers `moved: false`
+with the reason and what would work instead.
+
+### Pointing at something on the admin page
+
+`showHighlightOverlay` rings an element from an overlay drawn outside it, so a
+target is not restyled and nothing in your admin templates has to cooperate. It
+can dim everything else with a scrim, and run a gradient around the ring:
+
+```js
+import {
+  showHighlightOverlay,
+} from "/static/django_admin_agent/ag-ui-web-component.bundle.js";
+
+const dismiss = showHighlightOverlay(document.querySelector("#result_list"), {
+  scrim: true,
+  gradient: true,
+});
+// Call dismiss() to take it down -- it does not retire itself.
+```
+
+It reads its colours from `--ag-ui-accent` and the `--ag-ui-highlight-*` tokens
+**on the target**, not on the chat element, because the overlay lives in your
+page rather than in the component's shadow tree.
+
+Wiring it to a tool the agent can call is a step further again, and the same
+judgement applies as above: nothing here registers one for you.

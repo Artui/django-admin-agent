@@ -33,6 +33,7 @@ def test_context_keys_and_values() -> None:
     assert context["theme_toggle"] is False
     # Dragging is on unless a project turns it off, matching the component.
     assert context["launcher_drag"] is True
+    assert context["start_open"] is False
     # Styling knobs default to None (the component default applies).
     assert context["theme"] is None
     assert context["density"] is None

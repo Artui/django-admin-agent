@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import expect
 
-from tests.e2e.conftest import send_message
+from tests.e2e.conftest import open_sidebar, send_message
 
 pytestmark = [pytest.mark.e2e, pytest.mark.django_db(transaction=True)]
 
@@ -11,8 +11,13 @@ pytestmark = [pytest.mark.e2e, pytest.mark.django_db(transaction=True)]
 def test_sidebar_renders_on_admin_pages(admin_page, live_server):  # noqa: ANN001, ANN201
     admin_page.goto(f"{live_server.url}/admin/")
     expect(admin_page.locator("ag-ui-chat#django-admin-agent")).to_be_attached()
-    # The vendored bundle defined the custom element and the chat shell rendered.
-    expect(admin_page.locator("ag-ui-chat .input")).to_be_visible()
+    # It arrives at its launcher, which is the component's own behaviour for a
+    # corner placement from 0.35.0 and the right one here: nobody opens a
+    # changelist wanting a panel over it.
+    expect(admin_page.locator("ag-ui-chat .launcher")).to_be_visible()
+    # ...and opening it is one click, which is what proves the vendored bundle
+    # defined the custom element and the chat shell rendered.
+    open_sidebar(admin_page)
 
 
 def test_agent_answers_with_a_server_tool_without_navigating(admin_page, live_server):  # noqa: ANN001, ANN201

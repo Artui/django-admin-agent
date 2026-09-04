@@ -22,7 +22,7 @@ import pytest
 from django.test import override_settings
 from playwright.sync_api import expect
 
-from tests.e2e.conftest import send_message
+from tests.e2e.conftest import open_sidebar, send_message
 
 pytestmark = [pytest.mark.e2e, pytest.mark.django_db(transaction=True)]
 
@@ -87,10 +87,12 @@ def test_the_collapsed_launcher_can_be_moved_and_the_panel_opens_where_it_lands(
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
     chat = admin_page.locator("ag-ui-chat#django-admin-agent")
 
-    chat.locator(".header-btn--collapse").click()
+    # No collapse step: a corner placement arrives at its launcher from web
+    # component 0.35.0, which is the state this test was reaching for anyway.
     launcher = chat.locator(".launcher")
     expect(launcher).to_be_visible()
-    # The collapse animates, and a box read mid-transition is a scaled one.
+    # The launcher settles into its resting scale, and a box read mid-
+    # transition is a scaled one.
     admin_page.wait_for_timeout(500)
 
     start = admin_page.evaluate(_LAUNCHER_BOX)
@@ -192,8 +194,7 @@ def test_the_open_panel_can_be_moved_by_its_header(admin_page, live_server):  # 
     the panel is in the way of the row they are reading.
     """
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
-    chat = admin_page.locator("ag-ui-chat#django-admin-agent")
-    expect(chat.locator(".chat")).to_be_visible()
+    chat = open_sidebar(admin_page)
     before = chat.bounding_box()
     assert before is not None
 
@@ -249,8 +250,7 @@ def test_the_launcher_travels_with_a_panel_moved_by_its_header(admin_page, live_
     where the panel was, not across the screen from it.
     """
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
-    chat = admin_page.locator("ag-ui-chat#django-admin-agent")
-    expect(chat.locator(".chat")).to_be_visible()
+    open_sidebar(admin_page)
     before = admin_page.evaluate(_LAUNCHER_BOX)
 
     grab = admin_page.evaluate(_HEADER_BOX)

@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`START_OPEN`**, the way back to the behaviour the vendored component just
+  changed. From web component 0.35.0 a corner placement rests at its launcher
+  on a first visit rather than opening itself, and the default placement here
+  *is* a corner one -- so every project that has not set `PLACEMENT` sees the
+  change. `False` by default, because a changelist nobody asked to have covered
+  is the better arrival, and `True` restores what 0.36.0 did. It decides the
+  first visit only: a user's own collapse or expand is stored and wins after.
+
+### Changed
+
+- **Vendored web component 0.35.0** (from 0.34.0). What reaches the sidebar
+  without anyone opting in:
+
+  - **A phone-sized layout.** At 600px and below the panel is full-bleed
+    instead of a floating box scaled down, sized to the part of the screen the
+    on-screen keyboard leaves rather than to a `100dvh` that ignores it, and
+    every control is a thumb-sized target under a coarse pointer. An admin
+    driven from a phone was the case this did worst.
+  - **A composer that keeps what you typed.** Enter during a run queues the
+    message and sends it when the run settles, instead of doing nothing at all
+    and silently; Up and Down walk back through what you have already sent; and
+    a paste over 5000 characters becomes an attachment, which this sidebar
+    already has somewhere to put because it configures `data-attachments-url`.
+  - **A conversation list that can be narrowed** once there are eight or more,
+    and that docks beside the transcript instead of over it on a wide panel.
+  - **Geometry that agrees with itself.** A dragged panel, a resized one and a
+    restored one now stop on the same line, 8px inside the screen -- one of
+    them used to weld itself to the boundary and then jump a whole gutter
+    inward the next time the window changed.
+
+  Two capabilities in it are **not** switched on here, for the reason
+  `enableCharts(["tool"])` is not: each is a new thing the *agent* can do
+  rather than a fix, so it is the project's call. `createChatSurfaceTools`
+  lets the agent move or minimise the panel it is speaking from -- the
+  strongest fit this component has for a chat sitting over a changelist -- and
+  `showHighlightOverlay` rings an element on the admin page from outside it,
+  with a scrim or a travelling gradient. Both are exported from the vendored
+  bundle and documented under "Opting in to more" in the configuration guide.
+
+  Nothing is owed on the reserved-edge tokens: Django's own admin stylesheet
+  has no sticky or fixed chrome for the widget to sit under, so the four
+  `--ag-ui-viewport-inset-*` tokens are a knob for projects with their own
+  header rather than something this package should set.
+
 ## [0.36.0] — 2026-09-03
 
 ### Added

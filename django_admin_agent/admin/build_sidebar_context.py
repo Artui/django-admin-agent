@@ -55,6 +55,7 @@ def build_sidebar_context(
         "attachment_max_bytes": attachment_max_bytes,
         "attachment_accept": attachment_accept,
         "transcribe_url": _transcribe_url(namespace),
+        "start_open": config.start_open,
         "launcher_drag": config.launcher_drag,
         "theme_toggle": config.theme_toggle,
         "theme": config.theme,
