@@ -27,6 +27,10 @@ def test_defaults_when_setting_absent() -> None:
     # On by default, because the component's own default is on: a project that
     # says nothing gets a sidebar its users can move.
     assert config.launcher_drag is True
+    # Off by default, matching the component from 0.35.0: an admin page arrives
+    # with the chat as a bubble rather than a panel over the changelist someone
+    # came to read. Before that the panel opened itself on every first visit.
+    assert config.start_open is False
     assert config.theme_toggle is False
     assert config.shell_field_redaction is True
     assert config.model_scope is None
@@ -46,6 +50,7 @@ def test_defaults_when_setting_absent() -> None:
         "ICON_URL": "/static/logo.png",
         "SIDE": "left",
         "LAUNCHER_DRAG": False,
+        "START_OPEN": True,
         "THEME_TOGGLE": True,
         "SHELL_FIELD_REDACTION": r"^email$",
         "MODEL_SCOPE": ["shop", "auth.User"],
@@ -65,6 +70,7 @@ def test_reads_overrides() -> None:
     assert config.icon_url == "/static/logo.png"
     assert config.side == "left"
     assert config.launcher_drag is False
+    assert config.start_open is True
     assert config.theme_toggle is True
     assert config.shell_field_redaction == r"^email$"
     assert config.model_scope == ["shop", "auth.User"]
@@ -78,3 +84,8 @@ def test_auto_confirm_coerced_to_bool() -> None:
 @override_settings(DJANGO_ADMIN_AGENT={"LAUNCHER_DRAG": 0})
 def test_launcher_drag_coerced_to_bool() -> None:
     assert get_settings().launcher_drag is False
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"START_OPEN": 1})
+def test_start_open_coerced_to_bool() -> None:
+    assert get_settings().start_open is True

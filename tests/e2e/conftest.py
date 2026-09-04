@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from playwright.sync_api import expect
 
 
 @pytest.fixture
@@ -15,9 +16,30 @@ def admin_page(live_server, page, django_user_model):  # noqa: ANN001, ANN201
     return page
 
 
+def open_sidebar(page):  # noqa: ANN001, ANN201
+    """Open the sidebar the way a user does, if it is resting at its launcher.
+
+    From web component 0.35.0 a corner placement arrives collapsed on a first
+    visit, and the default placement here is a corner one -- so every page in
+    this suite now starts with a bubble rather than a panel. Clicking it is the
+    real first step, and doing that here keeps these tests exercising the
+    arrival a user actually gets instead of configuring it away with
+    ``START_OPEN``.
+
+    Tolerant of an already-open panel, because a test that navigates twice
+    keeps the state it chose: the preference is stored, so the second page load
+    arrives open.
+    """
+    chat = page.locator("ag-ui-chat#django-admin-agent")
+    if chat.get_attribute("collapsed") is not None:
+        chat.locator(".launcher").click()
+    expect(chat.locator(".input")).to_be_visible()
+    return chat
+
+
 def send_message(page, text):  # noqa: ANN001, ANN201
     """Type a message into the sidebar and click Send (pierces shadow DOM)."""
-    chat = page.locator("ag-ui-chat#django-admin-agent")
+    chat = open_sidebar(page)
     chat.locator(".input").fill(text)
     chat.locator(".send").click()
 

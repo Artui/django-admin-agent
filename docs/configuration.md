@@ -19,10 +19,11 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `MESSAGE_ACTIONS` | `"copy,retry"` | Which per-message actions the sidebar offers, from `copy` / `retry` / `feedback`. Rendered as `data-message-actions`. Matches the component's own default from 0.31.0. The rating buttons fire an `ag-ui-feedback` event and store nothing by design, and nothing here listens for it. **Set `"copy,retry,feedback"` once you have wired your own listener on the sidebar element** — that is what this setting is for. |
 | `THEME` | _unset_ | Web Component theme: `"light"`, `"dark"`, `"auto"`, or `"code"`. Rendered as the `theme` attribute; left off (component default, light) when unset. |
 | `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |
-| `PLACEMENT` | _unset_ | Where the panel sits: `"bottom-left"`, `"side"`, `"sidebar"`, `"full"`, or `"embedded"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. `"sidebar"` is a full-height docked panel that collapses to an icon rail (pair it with `SIDE`). |
+| `PLACEMENT` | _unset_ | Where the panel sits: `"sidebar"`, `"embedded"`, `"page"`, or the older `"bottom-left"`, `"side"` and `"full"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. `"sidebar"` is a full-height docked panel that collapses to an icon rail (pair it with `SIDE`); `"page"` is a full-screen route with no collapsed state at all. The last three are no longer in the component's own documented four but still parse and still work. |
 | `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
 | `SIDE` | _unset_ | For `PLACEMENT="sidebar"`: which edge it docks to — `"left"` or `"right"`. Rendered as the `data-side` attribute; left off (component default, right) when unset. |
 | `THEME_TOGGLE` | `False` | Show the Web Component's built-in light⇄dark header toggle (it flips `theme` and persists per tab). Rendered as the `data-theme-toggle` attribute. Off by default, since the admin's own theme usually governs. |
+| `START_OPEN` | `False` | Whether a corner placement opens on a first visit rather than resting at its launcher. Rendered as the `data-start-open` attribute. From web component 0.35.0 the panel rests as a bubble on a first visit; before that it opened itself, so set this to `True` to keep the old behaviour. A user's own collapse or expand outlives it -- this decides only the first visit, and the stored preference wins after. Does nothing under `"sidebar"`, `"embedded"` or `"page"`, which have no collapsed state to rest in. |
 | `LAUNCHER_DRAG` | `True` | Whether users may move the sidebar: drag the collapsed bubble around the screen, and drag the open panel by its header. `False` renders `data-launcher-drag="false"` and pins it where your CSS puts it. A docked `PLACEMENT` already fixes the position, so this is for the floating one. |
 | `ICON_URL` | _unset_ | URL of a header/launcher icon image. Rendered as the `data-icon-url` attribute; left off (icon-less) when unset. |
 | `STRINGS` | _unset_ | Localized UI-string overrides for the Web Component (a partial dict merged over its English defaults). Rendered as the `data-strings` attribute (serialized JSON). Wrap values in `gettext_lazy` so the sidebar follows the admin's active language; left off when unset. |
@@ -65,10 +66,11 @@ component's own attribute values:
 | `TOOL_DISPLAY` | `data-tool-display` | `minimal` · `compact` · `full` | `compact` |
 | `THEME` | `theme` | `light` · `dark` · `auto` · `code` | _component default (light)_ |
 | `DENSITY` | `density` | `comfortable` · `compact` | _component default_ |
-| `PLACEMENT` | `placement` | `bottom-left` · `side` · `sidebar` · `full` · `embedded` | _floating bottom-right_ |
+| `PLACEMENT` | `placement` | `sidebar` · `embedded` · `page` · `bottom-left` · `side` · `full` | _floating bottom-right_ |
 | `TEXT_ANIMATION` | `data-text-animation` | `none` · `fade` · `word` | `none` |
 | `THEME_TOGGLE` | `data-theme-toggle` | `True` · `False` | `False` |
 | `LAUNCHER_DRAG` | `data-launcher-drag` | `True` · `False` | `True` |
+| `START_OPEN` | `data-start-open` | `True` · `False` | `False` |
 
 `THEME_TOGGLE` adds the Web Component's built-in light⇄dark header toggle (it
 flips `theme` and persists per tab) — off by default, since the admin's own theme

@@ -81,6 +81,21 @@ class AdminAgentSettings:
     """For ``placement="sidebar"``: which edge it docks to — ``"left"`` /
     ``"right"`` (``data-side``). ``None`` leaves the component default (right)."""
 
+    start_open: bool
+    """Whether a corner placement opens on a first visit, rather than resting
+    at its launcher.
+
+    ``False`` is the component's own behaviour from 0.35.0 and the default
+    here: an admin page arrives with the chat as a bubble in the corner, not
+    with a panel over the changelist somebody came to read. Before that the
+    panel opened itself, so a site that wants the old behaviour back sets this
+    to ``True``.
+
+    Only the corner placements have a collapsed state to rest in, so this does
+    nothing under ``"sidebar"``, ``"embedded"`` or ``"page"``. A choice the
+    user makes by collapsing or expanding outlives this: it is the *first*
+    visit this decides, and the stored preference wins afterwards."""
+
     launcher_drag: bool
     """When ``False``, the sidebar stays where your CSS puts it: the collapsed
     bubble cannot be dragged around the screen and the open panel cannot be
@@ -138,6 +153,7 @@ def get_settings() -> AdminAgentSettings:
         strings=raw.get("STRINGS"),
         icon_url=raw.get("ICON_URL"),
         side=raw.get("SIDE"),
+        start_open=bool(raw.get("START_OPEN", False)),
         launcher_drag=bool(raw.get("LAUNCHER_DRAG", True)),
         theme_toggle=bool(raw.get("THEME_TOGGLE", False)),
         shell_field_redaction=raw.get("SHELL_FIELD_REDACTION", True),

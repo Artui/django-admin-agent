@@ -136,3 +136,22 @@ def test_tag_pins_the_sidebar_when_dragging_is_turned_off() -> None:
     rendered = _render()
 
     assert 'data-launcher-drag="false"' in rendered
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"START_OPEN": True})
+def test_tag_opens_the_sidebar_on_a_first_visit_when_asked() -> None:
+    """The way back to the behaviour web component 0.35.0 changed.
+
+    Before it, a corner placement opened itself on a first visit; from it, the
+    panel rests at its launcher instead and the user opens it. That is the
+    better default for an admin page -- nobody arrives at a changelist wanting
+    it covered -- but a site that had the old behaviour had no way to keep it,
+    because the attribute that restores it was never rendered.
+    """
+    assert "data-start-open" in _render()
+
+
+def test_the_sidebar_rests_at_its_launcher_by_default() -> None:
+    # The negative half, and the one that would rot silently: an attribute that
+    # is always emitted makes the setting above look like it works.
+    assert "data-start-open" not in _render()
