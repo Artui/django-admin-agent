@@ -701,65 +701,6 @@ both and is now bound by them. Expect these changes in behaviour:
 
 ## [0.23.0] — 2026-08-13
 
-### Fixed
-
-- **A sidebar conversation abandoned its next multi-step task once it had
-  answered anything.** The vendored web component restored stored history by
-  iterating an assistant turn's `toolCalls` behind an `!== undefined` check, and
-  `django-ag-ui` serialises that field as `null` for a turn that called no tool.
-  Iterating the `null` threw inside the replay, so the replay stopped at the first
-  plain answer.
-
-  In a single-page host that costs a short transcript. In the admin it costs the
-  run: every navigating tool (`open_changelist`, `submit_form`, `apply_filter`)
-  reloads the page, and the loop continues only because the component rehydrates
-  and completes the pending call from the page it lands on. With the replay
-  throwing, a thread that had answered once stopped silently at its first
-  navigation — the agent would open a change form and never type into it.
-  Reproduced and then re-verified across two reloads: find a row, open its form,
-  fill a field, save.
-
-  Fixed upstream in `@artooi/ag-ui-web-component` 0.23.1 and vendored here. It
-  only ever affected a mount with a `conversation_store` configured, which is the
-  setup [Configuration](https://artui.github.io/django-admin-agent/configuration/)
-  recommends: without one there is no server-backed history to restore.
-
-### Changed
-
-- **The vendored bundle moves 0.21.0 → 0.23.1, three releases at once**, so the
-  sidebar's chrome changes along with the fix above. From 0.22.0: the composer is
-  one surface rather than four boxes, collapsing goes to a round floating launcher
-  with an unread badge, the history and checkpoint panels slide instead of
-  appearing, the chrome's glyphs are inline SVG, and there are new motion and
-  launcher CSS tokens. From 0.23.0: attachment-chip fixes, including a filename
-  that was invisible on the stock light theme. Nothing in this package's own API
-  changes; a project that themes the sidebar through `--ag-ui-*` variables should
-  look at it once after upgrading.
-
-  Note that the pin had drifted two minors before this, and the guard that exists
-  could not have caught it: `tests/test_vendored_bundle.py` asserts the **pin and the
-  bundle agree with each other**, which a stale-but-consistent pair does. Nothing
-  compares either against what is published.
-
-### Fixed
-
-- **The reST literal-block marker no longer reaches the page.** Sphinx reads a
-  trailing `::` as "an indented literal block follows" and prints one colon;
-  Markdown has no such rule, so the second colon rendered verbatim. The indented
-  block was already coming out as a code block either way, so this drops the
-  stray character and nothing else.
-
-### Fixed
-
-- **Docstring cross-references now render as links instead of raw markup.** The
-  docstrings carried Sphinx roles — ``:class:`~django_admin_agent.AdminAgentServer` ``
-  — but the docs build is mkdocstrings, which renders docstring bodies as
-  Markdown and has no such syntax, so each one reached the published page
-  verbatim, `:class:` prefix and Sphinx's abbreviating `~` included. They are now
-  mkdocstrings autorefs links. References to `django-ag-ui`'s `AGUIServer` became
-  plain code spans: no inventory for sibling packages is configured, so a link
-  there could not resolve.
-
 ### Added
 
 - **A weekly `upstream-drift.yml` — the newest-end measurement 0.22.0 shipped
@@ -791,7 +732,60 @@ both and is now bound by them. Expect these changes in behaviour:
   this measures the unit suite and needs no browser install — the e2e-only
   dependencies are outside it.
 
+### Changed
+
+- **The vendored bundle moves 0.21.0 → 0.23.1, three releases at once**, so the
+  sidebar's chrome changes along with the fix above. From 0.22.0: the composer is
+  one surface rather than four boxes, collapsing goes to a round floating launcher
+  with an unread badge, the history and checkpoint panels slide instead of
+  appearing, the chrome's glyphs are inline SVG, and there are new motion and
+  launcher CSS tokens. From 0.23.0: attachment-chip fixes, including a filename
+  that was invisible on the stock light theme. Nothing in this package's own API
+  changes; a project that themes the sidebar through `--ag-ui-*` variables should
+  look at it once after upgrading.
+
+  Note that the pin had drifted two minors before this, and the guard that exists
+  could not have caught it: `tests/test_vendored_bundle.py` asserts the **pin and the
+  bundle agree with each other**, which a stale-but-consistent pair does. Nothing
+  compares either against what is published.
+
 ### Fixed
+
+- **A sidebar conversation abandoned its next multi-step task once it had
+  answered anything.** The vendored web component restored stored history by
+  iterating an assistant turn's `toolCalls` behind an `!== undefined` check, and
+  `django-ag-ui` serialises that field as `null` for a turn that called no tool.
+  Iterating the `null` threw inside the replay, so the replay stopped at the first
+  plain answer.
+
+  In a single-page host that costs a short transcript. In the admin it costs the
+  run: every navigating tool (`open_changelist`, `submit_form`, `apply_filter`)
+  reloads the page, and the loop continues only because the component rehydrates
+  and completes the pending call from the page it lands on. With the replay
+  throwing, a thread that had answered once stopped silently at its first
+  navigation — the agent would open a change form and never type into it.
+  Reproduced and then re-verified across two reloads: find a row, open its form,
+  fill a field, save.
+
+  Fixed upstream in `@artooi/ag-ui-web-component` 0.23.1 and vendored here. It
+  only ever affected a mount with a `conversation_store` configured, which is the
+  setup [Configuration](https://artui.github.io/django-admin-agent/configuration/)
+  recommends: without one there is no server-backed history to restore.
+
+- **The reST literal-block marker no longer reaches the page.** Sphinx reads a
+  trailing `::` as "an indented literal block follows" and prints one colon;
+  Markdown has no such rule, so the second colon rendered verbatim. The indented
+  block was already coming out as a code block either way, so this drops the
+  stray character and nothing else.
+
+- **Docstring cross-references now render as links instead of raw markup.** The
+  docstrings carried Sphinx roles — ``:class:`~django_admin_agent.AdminAgentServer` ``
+  — but the docs build is mkdocstrings, which renders docstring bodies as
+  Markdown and has no such syntax, so each one reached the published page
+  verbatim, `:class:` prefix and Sphinx's abbreviating `~` included. They are now
+  mkdocstrings autorefs links. References to `django-ag-ui`'s `AGUIServer` became
+  plain code spans: no inventory for sibling packages is configured, so a link
+  there could not resolve.
 
 - **The installation docs advertised a `django-ag-ui` window that had not
   existed for two releases.** The "Compatibility floor" admonition still read
