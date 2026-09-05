@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.40.1] — 2026-09-05
+## [0.41.0] — 2026-09-05
+
+### Changed
+
+- **The `django-ag-ui` floor is `>=0.57`**, adopted for what it documents rather
+  than for anything it does. That release corrects the same `FORWARD_REASONING`
+  claim fixed here, on the page this package's docs now send a reader to. A floor
+  is the only way to say "the page you will land on is the corrected one", and
+  landing on the old one is how the misunderstanding survives a fix.
+
+  Nothing in this package's behaviour depends on it: 0.57.0 changes no behaviour,
+  and its other change is a `[spec-tools]` floor under an extra this package does
+  not take.
 
 ### Fixed
 
@@ -1708,8 +1720,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.40.1...HEAD
-[0.40.1]: https://github.com/Artui/django-admin-agent/compare/v0.40.0...v0.40.1
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.41.0...HEAD
+[0.41.0]: https://github.com/Artui/django-admin-agent/compare/v0.40.0...v0.41.0
 [0.40.0]: https://github.com/Artui/django-admin-agent/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/Artui/django-admin-agent/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/Artui/django-admin-agent/compare/v0.37.0...v0.38.0

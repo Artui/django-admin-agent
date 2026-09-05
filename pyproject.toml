@@ -78,15 +78,25 @@ dependencies = [
     # with the panel already open. It now fails where every other Django
     # misconfiguration fails.
     #
-    # 0.56 is the floor now, and it is what makes the vendored component's new
+    # The floor before this one is what makes the vendored component's tool-card
     # rendering reachable rather than decorative. The bundle pinned below reads
-    # an ``outcome`` field on ``TOOL_CALL_RESULT`` to settle a tool card to
-    # error or declined instead of done; 0.56 is the release that puts that
+    # an ``outcome`` field on ``TOOL_CALL_RESULT`` to settle a card to error or
+    # declined instead of done, and that floor is the release that puts the
     # field on the wire. Below it this package would ship a client watching for
     # something its own server never sends, and every refused tool call would go
     # on rendering as a successful one -- the two halves are only right
-    # together, which is why the pin and the floor move in one release.
-    "django-ag-ui>=0.56",
+    # together, which is why the pin and the floor moved in one release.
+    #
+    # The current floor is adopted for documentation rather than behaviour, and
+    # is worth stating anyway. It carries the correction to
+    # ``FORWARD_REASONING``, which had been documented as though a
+    # chain-of-thought could only reach a browser once an operator enabled a
+    # thinking budget. It cannot be relied on: some models reason by default and
+    # cannot be told not to. This package decides who is looking -- the sidebar
+    # renders reasoning to every staff member who can open a changelist -- so a
+    # reader following our docs to the upstream setting should land on the page
+    # that says so, not on the one that talked them out of checking.
+    "django-ag-ui>=0.57",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -216,7 +226,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.40.1"
+current_version = "0.41.0"
 allow_dirty = false
 commit = false
 tag = false

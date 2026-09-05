@@ -510,7 +510,7 @@ e2e = [
 [package.metadata]
 requires-dist = [
     { name = "django", specifier = ">=4.2" },
-    { name = "django-ag-ui", specifier = ">=0.56" },
+    { name = "django-ag-ui", specifier = ">=0.57" },
     { name = "django-pydantic-agent", specifier = ">=0.21" },
     { name = "djangorestframework-mcp-server", marker = "extra == 'mcp'", specifier = ">=0.37" },
 ]
@@ -543,7 +543,7 @@ e2e = [
 
 [[package]]
 name = "django-ag-ui"
-version = "0.56.0"
+version = "0.57.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ag-ui-protocol" },
@@ -552,9 +552,9 @@ dependencies = [
     { name = "django-pydantic-agent" },
     { name = "pydantic-ai-slim", extra = ["ag-ui"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d2/42/421d139d8d849cbe7453953ef82858010fed62b8726af2d53134228d2afd/django_ag_ui-0.56.0.tar.gz", hash = "sha256:be5be829b99b9161b7d59f98350713c59069f47fad2b4aafc48d6563f405969f", size = 533308, upload-time = "2026-09-05T16:43:59.655Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e5/99/1556a4c3f785bb91dd7475b675461f4a8c1e84c7391a45d85c4cf41d6e36/django_ag_ui-0.57.0.tar.gz", hash = "sha256:0ca4b85587a9054a914934726bf57dff2bc69f984620044234824d54eaa5c139", size = 536471, upload-time = "2026-09-05T19:50:27.556Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0b/49/623c7ea0fcc5a83e21dd940ff635195a8b2baa2f4d0762917965078f799f/django_ag_ui-0.56.0-py3-none-any.whl", hash = "sha256:8a73269a7b0501ee299afde40181160f687820692507cdd9ffcd24186431a7f9", size = 144657, upload-time = "2026-09-05T16:43:57.723Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/86/b806f3da5c44ff7197bf1eef688472bb661db5b27cc74608a352b31cb4f2/django_ag_ui-0.57.0-py3-none-any.whl", hash = "sha256:deb5ceb46ae5f719825561422852859667a41573da53bea37056afd7dce4af6c", size = 145067, upload-time = "2026-09-05T19:50:26.145Z" },
 ]
 
 [[package]]

@@ -298,7 +298,7 @@ just read. Three things follow:
         On django-ag-ui **0.48** nothing redacted the `RUN_ERROR` path, so with
         django-pydantic-agent 0.18 the gate's message reached the browser
         verbatim with `INCLUDE_DETAIL` off. This package floors at
-        `django-ag-ui>=0.56` for exactly that reason. A project pinning the
+        `django-ag-ui>=0.57` for exactly that reason. A project pinning the
         transport lower while taking the newer substrate re-opens it.
 
     **Every other refusal still reaches the model as a failure**, and by default
