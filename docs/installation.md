@@ -209,34 +209,30 @@ document.querySelector("ag-ui-chat#django-admin-agent").enableCharts(["tool"]);
 Run it any time after the page loads; it redraws charts already in the restored
 transcript.
 
-### Letting the agent move its own panel
+### The agent moving its own panel
 
 The sidebar sits over the changelist or changeform it is discussing, which is
-the one problem a chat pinned to its own tab never has. Web component 0.35.0
-gives the agent four tools for it -- read where the panel is, send it to a
-corner, minimise it to the launcher, restore it -- and each move it makes is
-written into the transcript with an undo beside it, so the panel never
-rearranges itself silently.
+the one problem a chat pinned to its own tab never has. The agent has four
+tools for it -- read where the panel is, send it to a corner, minimise it to
+the launcher, restore it -- and each move it makes is written into the
+transcript with an undo beside it, so the panel never rearranges itself
+silently.
 
-Left to you for the same reason `render_chart` is: it is a new thing the agent
-can do rather than a fix, and four more tool definitions in every request is a
-cost you should choose.
+**On by default**, which is the opposite of the call made for `render_chart`
+just above, and the difference is what the widened surface can reach. A chart
+tool draws whatever the agent decides to draw; these move this sidebar and
+nothing else. They read no model, change no row, and touch no data. The cost is
+four tool definitions in each request, and that is what the setting is for:
 
-```js
-import {
-  createChatSurfaceTools,
-} from "/static/django_admin_agent/ag-ui-web-component.bundle.js";
-
-const el = document.querySelector("ag-ui-chat#django-admin-agent");
-for (const tool of createChatSurfaceTools(el)) {
-  el.registerTool(tool);
-}
+```python
+DJANGO_ADMIN_AGENT = {"CHAT_SURFACE_TOOLS": False}
 ```
 
-The element is the surface the factory wants, so it is passed to itself. The
-tools decline rather than lie where the position is not theirs to take: a
-docked `PLACEMENT`, or a panel filling a phone screen, answers `moved: false`
-with the reason and what would work instead.
+Worth turning off for a `PLACEMENT` that owns its own position and has no
+collapsed state, since there the tools can only ever answer that they did
+nothing. They decline rather than lie: a docked placement, or a panel filling a
+phone screen, answers `moved: false` with the reason and what would work
+instead.
 
 ### Pointing at something on the admin page
 

@@ -22,6 +22,7 @@
   {% if attachment_accept %}data-attachment-accept="{{ attachment_accept }}"{% endif %}
   {% if transcribe_url %}data-transcribe-url="{{ transcribe_url }}"{% endif %}
   {% if start_open %}data-start-open=""{% endif %}
+  {% if not chat_surface_tools %}data-chat-surface-tools="false"{% endif %}
   {% if not launcher_drag %}data-launcher-drag="false"{% endif %}
   {% if theme_toggle %}data-theme-toggle=""{% endif %}
   {% if user_key %}user-key="{{ user_key }}"{% endif %}

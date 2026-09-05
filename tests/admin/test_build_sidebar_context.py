@@ -34,6 +34,7 @@ def test_context_keys_and_values() -> None:
     # Dragging is on unless a project turns it off, matching the component.
     assert context["launcher_drag"] is True
     assert context["start_open"] is False
+    assert context["chat_surface_tools"] is True
     # Styling knobs default to None (the component default applies).
     assert context["theme"] is None
     assert context["density"] is None
