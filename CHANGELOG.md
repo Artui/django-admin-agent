@@ -19,11 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   that failed on its first message, in a stream, with the panel already open. It
   now fails where every other Django misconfiguration fails.
 
-- **The vendored web component is `@artooi/ag-ui-web-component@0.35.1`.** The
-  changelog read between the pins found nothing to wire up, and the bundle
-  confirms it: 0.35.0 and 0.35.1 are the same 556830 bytes and differ in one
-  region, the embedded version string. 0.35.1 is a documentation release. The
-  re-vendor keeps the pin honest rather than adopting a capability, and the
+- **The vendored web component is `@artooi/ag-ui-web-component@0.35.2`**, two
+  releases on from 0.35.0 and neither of them behavioural. The changelog read
+  across both found nothing to wire up, and the bundles confirm it: all three
+  are the same 556830 bytes, and each hop differs in one region at the same
+  offset, the embedded version string. 0.35.1 names the symptom of forgetting
+  `defineAgUiChat()`; 0.35.2 makes that note render, since it had been written
+  in a syntax the README is not processed by.
+
+  The re-vendor keeps the pin honest rather than adopting a capability, and the
   browser suite was rerun against it because a re-vendor that is asserted to be
   inert and not driven is just an assertion.
 
