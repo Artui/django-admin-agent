@@ -15,7 +15,7 @@
 # measurement of which ones do. Do not delete it to quieten a noisy week
 # without replacing what it measures.
 #
-# Here that is not abstract. This package declares `django-ag-ui>=0.55` and, in
+# Here that is not abstract. This package declares `django-ag-ui>=0.56` and, in
 # the `[mcp]` extra, `djangorestframework-mcp-server>=0.37` — both open at the
 # top. The `floor` job in `tests.yml` measures the oldest end of those windows
 # per PR; this job measures the newest end. Between them they are what a

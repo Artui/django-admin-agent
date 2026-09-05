@@ -77,7 +77,16 @@ dependencies = [
     # working admin and a chat that failed on its first message, in a stream,
     # with the panel already open. It now fails where every other Django
     # misconfiguration fails.
-    "django-ag-ui>=0.55",
+    #
+    # 0.56 is the floor now, and it is what makes the vendored component's new
+    # rendering reachable rather than decorative. The bundle pinned below reads
+    # an ``outcome`` field on ``TOOL_CALL_RESULT`` to settle a tool card to
+    # error or declined instead of done; 0.56 is the release that puts that
+    # field on the wire. Below it this package would ship a client watching for
+    # something its own server never sends, and every refused tool call would go
+    # on rendering as a successful one -- the two halves are only right
+    # together, which is why the pin and the floor move in one release.
+    "django-ag-ui>=0.56",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -207,7 +216,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.39.0"
+current_version = "0.40.0"
 allow_dirty = false
 commit = false
 tag = false
