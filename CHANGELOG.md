@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The `django-ag-ui` floor is `>=0.55`**, for a refusal this package is the
+  reason to want. From 0.55 an endpoint with no model is refused at the mount
+  rather than one request later, and the sidebar is mounted by
+  `AdminAgentServer` inside `admin.site.urls` -- so a project that installs it
+  and forgets `DJANGO_AG_UI["MODEL"]` used to get a working admin and a chat
+  that failed on its first message, in a stream, with the panel already open. It
+  now fails where every other Django misconfiguration fails.
+
+- **The vendored web component is `@artooi/ag-ui-web-component@0.35.1`.** The
+  changelog read between the pins found nothing to wire up, and the bundle
+  confirms it: 0.35.0 and 0.35.1 are the same 556830 bytes and differ in one
+  region, the embedded version string. 0.35.1 is a documentation release. The
+  re-vendor keeps the pin honest rather than adopting a capability, and the
+  browser suite was rerun against it because a re-vendor that is asserted to be
+  inert and not driven is just an assertion.
+
 ## [0.38.0] — 2026-09-05
 
 ### Added

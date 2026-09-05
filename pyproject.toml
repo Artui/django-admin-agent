@@ -70,7 +70,14 @@ dependencies = [
     # every CUSTOM event, and its spec extras carry drf-services>=0.49 for the
     # bounded schema recursion. The vendored component here draws that progress,
     # so a server below the floor would leave the panel with nothing to render.
-    "django-ag-ui>=0.53",
+    # 0.55 refuses an endpoint with no model at the mount rather than one request
+    # later, and this package is the reason that timing matters: the sidebar is
+    # mounted by ``AdminAgentServer`` inside ``admin.site.urls``, so a project
+    # that installs it and forgets ``DJANGO_AG_UI["MODEL"]`` used to get a
+    # working admin and a chat that failed on its first message, in a stream,
+    # with the panel already open. It now fails where every other Django
+    # misconfiguration fails.
+    "django-ag-ui>=0.55",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
