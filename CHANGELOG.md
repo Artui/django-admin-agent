@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.41.0] — 2026-09-05
+
+### Changed
+
+- **The `django-ag-ui` floor is `>=0.57`**, adopted for what it documents rather
+  than for anything it does. That release corrects the same `FORWARD_REASONING`
+  claim fixed here, on the page this package's docs now send a reader to. A floor
+  is the only way to say "the page you will land on is the corrected one", and
+  landing on the old one is how the misunderstanding survives a fix.
+
+  Nothing in this package's behaviour depends on it: 0.57.0 changes no behaviour,
+  and its other change is a `[spec-tools]` floor under an extra this package does
+  not take.
+
+### Fixed
+
+- **The reasoning docs said the thoughts region needs a thinking budget**, which
+  reads as a promise that a staff member cannot see a chain-of-thought you did
+  not ask for. It is not one. Several models reason by default and cannot be told
+  not to — Pydantic-AI marks `deepseek-reasoner` `thinking_always_enabled` for
+  that reason, and builds a thinking part out of an OpenAI-compatible provider's
+  `reasoning_content` without consulting any setting — so pointing `MODEL` at one
+  of those renders its reasoning in the sidebar with `MODEL_SETTINGS` empty.
+
+  That is worth stating here rather than only upstream, because this package
+  decides the audience. A model's private reasoning restates the system prompt,
+  reasons aloud about the user, and discusses tools it chose not to call, and the
+  sidebar shows it to every staff member who can open a changelist. The page now
+  says so and names `FORWARD_REASONING` as the way to turn it off.
+
+  Nothing here changed behaviour; the correction is upstream's in
+  `django-ag-ui` 0.57.0, and this is the half that inherited the claim.
+
 ## [0.40.0] — 2026-09-05
 
 ### Changed
@@ -1687,7 +1720,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.40.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.41.0...HEAD
+[0.41.0]: https://github.com/Artui/django-admin-agent/compare/v0.40.0...v0.41.0
 [0.40.0]: https://github.com/Artui/django-admin-agent/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/Artui/django-admin-agent/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/Artui/django-admin-agent/compare/v0.37.0...v0.38.0
