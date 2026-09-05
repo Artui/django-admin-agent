@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.40.0] — 2026-09-05
+
+### Changed
+
+- **The vendored web component is `@artooi/ag-ui-web-component@0.36.0`**, which
+  settles a tool card to *error* or *declined* when `TOOL_CALL_RESULT` carries
+  an `outcome` saying the call failed or was refused. Until now every result
+  settled *done*, so a refused tool call rendered as a successful one with the
+  reason folded inside it.
+
+- **The `django-ag-ui` floor is `>=0.56`**, and it moves in the same release for
+  a reason worth stating: 0.56 is what puts that `outcome` on the wire. Below it
+  this package would ship a client watching for something its own server never
+  sends, and every refused tool call would go on rendering as a success. The two
+  halves are only right together.
+
+  The previous floor's reason is subsumed, not dropped: 0.55 is where an
+  endpoint with no model is refused at the mount rather than one request later.
+
+### Notes
+
+- **The adoption pass found nothing else owed**, which is recorded because it is
+  a result rather than a step that was skipped. All three of 0.36.0's entries
+  are automatic -- the rendering is read by the component itself, and this
+  package's own registered tools signal failure by throwing, which the component
+  already maps to a failed outcome without being asked. Verified by grepping the
+  vendored bundle for the new symbols and the host script for the calls, not by
+  reading the changelog and assuming.
+
 ## [0.39.0] — 2026-09-05
 
 ### Changed
@@ -1658,7 +1687,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.39.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.40.0...HEAD
+[0.40.0]: https://github.com/Artui/django-admin-agent/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/Artui/django-admin-agent/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/Artui/django-admin-agent/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/Artui/django-admin-agent/compare/v0.36.0...v0.37.0
