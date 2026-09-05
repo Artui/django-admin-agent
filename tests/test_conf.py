@@ -31,6 +31,9 @@ def test_defaults_when_setting_absent() -> None:
     # with the chat as a bubble rather than a panel over the changelist someone
     # came to read. Before that the panel opened itself on every first visit.
     assert config.start_open is False
+    # On by default, unlike the agent-facing chart route: these four move this
+    # sidebar and nothing else, so the surface they widen reaches no data.
+    assert config.chat_surface_tools is True
     assert config.theme_toggle is False
     assert config.shell_field_redaction is True
     assert config.model_scope is None
@@ -51,6 +54,7 @@ def test_defaults_when_setting_absent() -> None:
         "SIDE": "left",
         "LAUNCHER_DRAG": False,
         "START_OPEN": True,
+        "CHAT_SURFACE_TOOLS": False,
         "THEME_TOGGLE": True,
         "SHELL_FIELD_REDACTION": r"^email$",
         "MODEL_SCOPE": ["shop", "auth.User"],
@@ -71,6 +75,7 @@ def test_reads_overrides() -> None:
     assert config.side == "left"
     assert config.launcher_drag is False
     assert config.start_open is True
+    assert config.chat_surface_tools is False
     assert config.theme_toggle is True
     assert config.shell_field_redaction == r"^email$"
     assert config.model_scope == ["shop", "auth.User"]
@@ -89,3 +94,8 @@ def test_launcher_drag_coerced_to_bool() -> None:
 @override_settings(DJANGO_ADMIN_AGENT={"START_OPEN": 1})
 def test_start_open_coerced_to_bool() -> None:
     assert get_settings().start_open is True
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"CHAT_SURFACE_TOOLS": 0})
+def test_chat_surface_tools_coerced_to_bool() -> None:
+    assert get_settings().chat_surface_tools is False

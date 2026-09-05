@@ -10,7 +10,11 @@
 //   - register the admin-aware frontend tools (DOM driving) — see
 //     ./admin_tools.js
 //   - opt the surface in to server-pushed charts
-import { defineAgUiChat } from "./ag-ui-web-component.bundle.js";
+//   - let the agent move its own panel out of the way of the page
+import {
+  createChatSurfaceTools,
+  defineAgUiChat,
+} from "./ag-ui-web-component.bundle.js";
 import { registerAdminTools } from "./admin_tools.js";
 
 function readCsrfToken() {
@@ -109,6 +113,23 @@ function bootstrap() {
     el.offerQuoteInPage(content);
   }
   registerAdminTools(el);
+  // Let the agent move the panel it is speaking from.
+  //
+  // On unless the project says otherwise, which is the opposite of the call
+  // made for `enableCharts(["tool"])` a few lines up, and the difference is
+  // what the widened surface can reach. A `render_chart` tool draws whatever
+  // the agent decides to draw; these four move this sidebar and nothing else
+  // -- they read no model, change no row, and every move is written into the
+  // transcript with an undo beside it. The cost is four tool definitions per
+  // request, which is what the setting is for.
+  //
+  // The element is the surface the factory wants, so it is handed to itself:
+  // `describeSurface`, `moveTo` and `setCollapsed` are the whole port.
+  if (el.getAttribute("data-chat-surface-tools") !== "false") {
+    for (const tool of createChatSurfaceTools(el)) {
+      el.registerTool(tool);
+    }
+  }
 }
 
 if (document.readyState === "loading") {

@@ -318,3 +318,65 @@ def test_a_chart_stops_at_its_own_width_in_a_widened_sidebar(admin_page, live_se
     assert wide["scale"] == pytest.approx(1, abs=0.05)
     assert narrow["scale"] == pytest.approx(1, abs=0.05)
     assert narrow["width"] < wide["width"]
+
+
+def test_the_agent_can_move_its_own_panel_off_the_page(admin_page, live_server):  # noqa: ANN001, ANN201
+    """The one problem a chat pinned to its own tab never has.
+
+    This sidebar sits on top of the changelist it is being asked about, so
+    "move aside so I can see that row" is a sentence the agent should be able
+    to act on rather than apologise for. Driven end to end -- the scripted
+    model calls `move_chat`, the component moves itself, and the transcript
+    says so -- because the wiring is four lines of bootstrap and a factory, and
+    every part of that chain is somewhere a mistake would be invisible.
+    """
+    admin_page.goto(f"{live_server.url}/admin/testapp/author/")
+    open_sidebar(admin_page)
+    chat = admin_page.locator("ag-ui-chat#django-admin-agent")
+    before = chat.bounding_box()
+    assert before is not None
+
+    send_message(admin_page, "move out of the way")
+
+    expect(
+        chat.locator(".message--assistant", has_text="Moved the chat."),
+    ).to_be_visible(timeout=15000)
+    admin_page.wait_for_timeout(400)
+
+    after = chat.bounding_box()
+    assert after is not None
+    # Sent to the top-left, so it travelled up and left from the resting corner.
+    assert after["x"] < before["x"], "the panel did not move"
+    assert after["y"] < before["y"], "the panel did not move"
+    # And it said so, with the way back beside it: a panel that rearranges
+    # itself silently is worse than one that stays in the way.
+    expect(chat.locator(".run-notice--surface")).to_be_visible()
+    expect(chat.locator(".run-notice-undo")).to_be_visible()
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"CHAT_SURFACE_TOOLS": False})
+def test_a_project_can_keep_the_panel_tools_out_of_every_request(admin_page, live_server):  # noqa: ANN001, ANN201
+    """Off means not registered, not registered-and-refusing.
+
+    The cost these carry is four tool definitions in each request, so a project
+    turning them off has to stop them being sent rather than have them decline.
+    The agent falls back to its ordinary answer, which is what proves the tool
+    was never there to call.
+    """
+    admin_page.goto(f"{live_server.url}/admin/testapp/author/")
+    open_sidebar(admin_page)
+    chat = admin_page.locator("ag-ui-chat#django-admin-agent")
+    before = chat.bounding_box()
+    assert before is not None
+
+    send_message(admin_page, "move out of the way")
+
+    expect(
+        chat.locator(".message--assistant", has_text="I can count authors"),
+    ).to_be_visible(timeout=15000)
+    admin_page.wait_for_timeout(400)
+
+    after = chat.bounding_box()
+    assert after is not None
+    assert after["x"] == pytest.approx(before["x"], abs=1)
+    assert after["y"] == pytest.approx(before["y"], abs=1)

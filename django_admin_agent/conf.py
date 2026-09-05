@@ -81,6 +81,22 @@ class AdminAgentSettings:
     """For ``placement="sidebar"``: which edge it docks to — ``"left"`` /
     ``"right"`` (``data-side``). ``None`` leaves the component default (right)."""
 
+    chat_surface_tools: bool
+    """Whether the agent may move, minimise and restore its own panel.
+
+    On by default, which is a departure from how this package treats a new
+    agent capability -- ``enableCharts(["tool"])`` is left to the project
+    because it widens what the agent can do. The difference is what the widened
+    surface reaches: these four tools can move the sidebar and nothing else.
+    They read no model, change no row and touch no data, so the only cost is
+    four tool definitions in each request, and the thing they buy is the one
+    problem a chat pinned to its own tab never has -- this one sits on top of
+    the changelist it is being asked about.
+
+    ``False`` registers none of them. Worth turning off for a placement that
+    owns its own position and has no collapsed state, since there the tools can
+    only ever answer that they did nothing."""
+
     start_open: bool
     """Whether a corner placement opens on a first visit, rather than resting
     at its launcher.
@@ -153,6 +169,7 @@ def get_settings() -> AdminAgentSettings:
         strings=raw.get("STRINGS"),
         icon_url=raw.get("ICON_URL"),
         side=raw.get("SIDE"),
+        chat_surface_tools=bool(raw.get("CHAT_SURFACE_TOOLS", True)),
         start_open=bool(raw.get("START_OPEN", False)),
         launcher_drag=bool(raw.get("LAUNCHER_DRAG", True)),
         theme_toggle=bool(raw.get("THEME_TOGGLE", False)),

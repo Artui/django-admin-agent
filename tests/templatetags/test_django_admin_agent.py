@@ -155,3 +155,18 @@ def test_the_sidebar_rests_at_its_launcher_by_default() -> None:
     # The negative half, and the one that would rot silently: an attribute that
     # is always emitted makes the setting above look like it works.
     assert "data-start-open" not in _render()
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"CHAT_SURFACE_TOOLS": False})
+def test_tag_turns_the_panel_tools_off_when_asked() -> None:
+    """The attribute is the off switch, so it is only rendered to turn them off.
+
+    On by default and absent by default: the bootstrap registers the tools
+    unless it reads "false" here, so an always-emitted attribute would make
+    this setting look like it works while the tools stayed registered.
+    """
+    assert 'data-chat-surface-tools="false"' in _render()
+
+
+def test_the_panel_tools_are_on_without_being_asked_for() -> None:
+    assert "data-chat-surface-tools" not in _render()

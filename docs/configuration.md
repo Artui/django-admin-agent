@@ -23,6 +23,7 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
 | `SIDE` | _unset_ | For `PLACEMENT="sidebar"`: which edge it docks to — `"left"` or `"right"`. Rendered as the `data-side` attribute; left off (component default, right) when unset. |
 | `THEME_TOGGLE` | `False` | Show the Web Component's built-in light⇄dark header toggle (it flips `theme` and persists per tab). Rendered as the `data-theme-toggle` attribute. Off by default, since the admin's own theme usually governs. |
+| `CHAT_SURFACE_TOOLS` | `True` | Whether the agent may move, minimise and restore its own panel -- four tools it calls to get out of the way of the page it is being asked about. Every move it makes is written into the transcript with an undo beside it. On by default, unlike `render_chart`: these reach the sidebar and nothing else, so the only cost is four tool definitions per request. `False` renders `data-chat-surface-tools="false"` and registers none of them, which is worth doing for a placement that owns its position and has no collapsed state. |
 | `START_OPEN` | `False` | Whether a corner placement opens on a first visit rather than resting at its launcher. Rendered as the `data-start-open` attribute. From web component 0.35.0 the panel rests as a bubble on a first visit; before that it opened itself, so set this to `True` to keep the old behaviour. A user's own collapse or expand outlives it -- this decides only the first visit, and the stored preference wins after. Does nothing under `"sidebar"`, `"embedded"` or `"page"`, which have no collapsed state to rest in. |
 | `LAUNCHER_DRAG` | `True` | Whether users may move the sidebar: drag the collapsed bubble around the screen, and drag the open panel by its header. `False` renders `data-launcher-drag="false"` and pins it where your CSS puts it. A docked `PLACEMENT` already fixes the position, so this is for the floating one. |
 | `ICON_URL` | _unset_ | URL of a header/launcher icon image. Rendered as the `data-icon-url` attribute; left off (icon-less) when unset. |
@@ -71,6 +72,7 @@ component's own attribute values:
 | `THEME_TOGGLE` | `data-theme-toggle` | `True` · `False` | `False` |
 | `LAUNCHER_DRAG` | `data-launcher-drag` | `True` · `False` | `True` |
 | `START_OPEN` | `data-start-open` | `True` · `False` | `False` |
+| `CHAT_SURFACE_TOOLS` | `data-chat-surface-tools` | `True` · `False` | `True` |
 
 `THEME_TOGGLE` adds the Web Component's built-in light⇄dark header toggle (it
 flips `theme` and persists per tab) — off by default, since the admin's own theme

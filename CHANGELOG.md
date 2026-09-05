@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **The agent can move the panel it is speaking from.** Four tools -- read the
+  surface, send it to a corner, minimise it to the launcher, restore it -- so
+  "let me move this aside so you can see that row" is a sentence it can act on
+  rather than apologise for. This sidebar sits on top of the changelist it is
+  being asked about, which is the one problem a chat pinned to its own tab
+  never has. Every move is written into the transcript with an undo beside it,
+  because a panel that rearranges itself silently is worse than one that stays
+  in the way.
+
+  **On by default**, and that is the opposite of the call made for the
+  agent-facing chart route, which stays off. The difference is what the widened
+  surface can reach: `render_chart` draws whatever the agent decides to draw,
+  while these four move this sidebar and nothing else -- they read no model,
+  change no row and touch no data. What is left is four tool definitions in
+  each request, and `CHAT_SURFACE_TOOLS = False` is how a project declines to
+  pay it. Worth declining for a placement that owns its own position and has no
+  collapsed state, since there the tools can only ever answer that they did
+  nothing.
+
 ## [0.37.0] — 2026-09-04
 
 ### Added

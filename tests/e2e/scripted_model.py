@@ -67,10 +67,23 @@ def _tool_result(messages: Sequence[ModelMessage], tool_name: str) -> str:
     return ""
 
 
-def _decision(messages: Sequence[ModelMessage]) -> tuple[str, str, str]:
+def _offered(info: AgentInfo) -> set[str]:
+    """The tool names this run was actually given.
+
+    A real model only calls what it was offered, and a script that ignores the
+    list is not standing in for one: it would call a frontend tool a project
+    had turned off, the run would fail on an unknown tool, and a test asserting
+    "the tool is not registered" would be reading a crash rather than an
+    absence.
+    """
+    return {tool.name for tool in info.function_tools}
+
+
+def _decision(messages: Sequence[ModelMessage], info: AgentInfo) -> tuple[str, str, str]:
     """Return the next step as ``(kind, name_or_text, json_args)``."""
     text = _latest_user_text(messages)
     returned = _returned_tools(messages)
+    offered = _offered(info)
     if "chart" in text:
         if "chart_authors" not in returned:
             return ("tool", "chart_authors", "{}")
@@ -82,15 +95,23 @@ def _decision(messages: Sequence[ModelMessage]) -> tuple[str, str, str]:
         if "count_model" not in returned:
             return ("tool", "count_model", _AUTHOR_ARGS)
         return ("text", f"Counted the authors. {_tool_result(messages, 'count_model')}", "")
+    if ("move" in text or "out of the way" in text) and "move_chat" in offered:
+        if "move_chat" not in returned:
+            return ("tool", "move_chat", '{"corner": "top-left"}')
+        return ("text", f"Moved the chat. {_tool_result(messages, 'move_chat')}", "")
     if "open" in text and "author" in text:
         if "open_changelist" not in returned:
             return ("tool", "open_changelist", _AUTHOR_ARGS)
         return ("text", "Opened the authors list.", "")
-    return ("text", "I can count authors, chart them, or open the authors list.", "")
+    return (
+        "text",
+        "I can count authors, chart them, open the authors list, or move out of the way.",
+        "",
+    )
 
 
-def _script(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:  # noqa: ARG001
-    kind, name_or_text, json_args = _decision(messages)
+def _script(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+    kind, name_or_text, json_args = _decision(messages, info)
     if kind == "tool":
         return ModelResponse(
             parts=[ToolCallPart(tool_name=name_or_text, args=json.loads(json_args))]
@@ -100,9 +121,9 @@ def _script(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:  # 
 
 async def _script_stream(
     messages: list[ModelMessage],
-    info: AgentInfo,  # noqa: ARG001
+    info: AgentInfo,
 ) -> AsyncIterator[str | DeltaToolCalls]:
-    kind, name_or_text, json_args = _decision(messages)
+    kind, name_or_text, json_args = _decision(messages, info)
     if kind == "tool":
         yield {0: DeltaToolCall(name=name_or_text, json_args=json_args)}
     else:
