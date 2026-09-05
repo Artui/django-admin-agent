@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The reasoning docs said the thoughts region needs a thinking budget**, which
+  reads as a promise that a staff member cannot see a chain-of-thought you did
+  not ask for. It is not one. Several models reason by default and cannot be told
+  not to — Pydantic-AI marks `deepseek-reasoner` `thinking_always_enabled` for
+  that reason, and builds a thinking part out of an OpenAI-compatible provider's
+  `reasoning_content` without consulting any setting — so pointing `MODEL` at one
+  of those renders its reasoning in the sidebar with `MODEL_SETTINGS` empty.
+
+  That is worth stating here rather than only upstream, because this package
+  decides the audience. A model's private reasoning restates the system prompt,
+  reasons aloud about the user, and discusses tools it chose not to call, and the
+  sidebar shows it to every staff member who can open a changelist. The page now
+  says so and names `FORWARD_REASONING` as the way to turn it off.
+
+  Nothing here changed behaviour; the correction is upstream's in
+  `django-ag-ui` 0.57.0, and this is the half that inherited the claim.
+
 ## [0.40.0] — 2026-09-05
 
 ### Changed

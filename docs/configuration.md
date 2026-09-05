@@ -478,9 +478,28 @@ DJANGO_AG_UI = {
 ```
 
 Pass an explicit backend with `AdminAgentServer(transcription_backend=...)` to override.
-Model **reasoning** needs no admin wiring: when `DJANGO_AG_UI["MODEL_SETTINGS"]`
-enables a thinking budget, the sidebar renders the streamed chain-of-thought in a
-collapsible "thoughts" region automatically.
+Model **reasoning** needs no admin wiring: the sidebar renders a streamed
+chain-of-thought in a collapsible "thoughts" region automatically, whenever the
+model produces one.
+
+!!! warning "Not the same as: whenever you configure one"
+
+    This page used to say the thoughts region appears once
+    `DJANGO_AG_UI["MODEL_SETTINGS"]` enables a thinking budget, which invites the
+    reading that a staff member cannot see a chain-of-thought you did not ask
+    for. Several models reason by default and cannot be told not to — Pydantic-AI
+    marks `deepseek-reasoner` `thinking_always_enabled` for exactly that reason,
+    and builds a thinking part out of an OpenAI-compatible provider's
+    `reasoning_content` without consulting any setting. Point `MODEL` at one of
+    those and the sidebar renders its reasoning with `MODEL_SETTINGS` empty.
+
+    A model's private reasoning is written for nobody: it restates the system
+    prompt, reasons aloud about the user, and discusses tools it chose not to
+    call. The admin sidebar shows it to every staff member who can open the
+    changelist, which is a wider audience than "you". If that is not what you
+    want, set [`FORWARD_REASONING`](https://artui.github.io/django-ag-ui/configuration/#forward_reasoning)
+    to `False` in `DJANGO_AG_UI` — the events are then stripped server-side and
+    never reach the browser.
 
 ### `DRF_MCP_SERVER` and the `[mcp]` extra
 
