@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.39.0] — 2026-09-05
+
+### Changed
+
+- **The `django-ag-ui` floor is `>=0.55`**, for a refusal this package is the
+  reason to want. From 0.55 an endpoint with no model is refused at the mount
+  rather than one request later, and the sidebar is mounted by
+  `AdminAgentServer` inside `admin.site.urls` -- so a project that installs it
+  and forgets `DJANGO_AG_UI["MODEL"]` used to get a working admin and a chat
+  that failed on its first message, in a stream, with the panel already open. It
+  now fails where every other Django misconfiguration fails.
+
+- **The vendored web component is `@artooi/ag-ui-web-component@0.35.2`**, two
+  releases on from 0.35.0 and neither of them behavioural. The changelog read
+  across both found nothing to wire up, and the bundles confirm it: all three
+  are the same 556830 bytes, and each hop differs in one region at the same
+  offset, the embedded version string. 0.35.1 names the symptom of forgetting
+  `defineAgUiChat()`; 0.35.2 makes that note render, since it had been written
+  in a syntax the README is not processed by.
+
+  The re-vendor keeps the pin honest rather than adopting a capability, and the
+  browser suite was rerun against it because a re-vendor that is asserted to be
+  inert and not driven is just an assertion.
+
 ## [0.38.0] — 2026-09-05
 
 ### Added
@@ -1634,7 +1658,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.38.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.39.0...HEAD
+[0.39.0]: https://github.com/Artui/django-admin-agent/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/Artui/django-admin-agent/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/Artui/django-admin-agent/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/Artui/django-admin-agent/compare/v0.35.0...v0.36.0
