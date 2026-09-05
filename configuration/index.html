@@ -1006,6 +1006,11 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <td>Show the Web Component's built-in light⇄dark header toggle (it flips <code>theme</code> and persists per tab). Rendered as the <code>data-theme-toggle</code> attribute. Off by default, since the admin's own theme usually governs.</td>
 </tr>
 <tr>
+<td><code>CHAT_SURFACE_TOOLS</code></td>
+<td><code>True</code></td>
+<td>Whether the agent may move, minimise and restore its own panel -- four tools it calls to get out of the way of the page it is being asked about. Every move it makes is written into the transcript with an undo beside it. On by default, unlike <code>render_chart</code>: these reach the sidebar and nothing else, so the only cost is four tool definitions per request. <code>False</code> renders <code>data-chat-surface-tools="false"</code> and registers none of them, which is worth doing for a placement that owns its position and has no collapsed state.</td>
+</tr>
+<tr>
 <td><code>START_OPEN</code></td>
 <td><code>False</code></td>
 <td>Whether a corner placement opens on a first visit rather than resting at its launcher. Rendered as the <code>data-start-open</code> attribute. From web component 0.35.0 the panel rests as a bubble on a first visit; before that it opened itself, so set this to <code>True</code> to keep the old behaviour. A user's own collapse or expand outlives it -- this decides only the first visit, and the stored preference wins after. Does nothing under <code>"sidebar"</code>, <code>"embedded"</code> or <code>"page"</code>, which have no collapsed state to rest in.</td>
@@ -1125,6 +1130,12 @@ component's own attribute values:</p>
 <td><code>data-start-open</code></td>
 <td><code>True</code> · <code>False</code></td>
 <td><code>False</code></td>
+</tr>
+<tr>
+<td><code>CHAT_SURFACE_TOOLS</code></td>
+<td><code>data-chat-surface-tools</code></td>
+<td><code>True</code> · <code>False</code></td>
+<td><code>True</code></td>
 </tr>
 </tbody>
 </table>

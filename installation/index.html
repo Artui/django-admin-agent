@@ -479,10 +479,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#letting-the-agent-move-its-own-panel" class="md-nav__link">
+  <a href="#the-agent-moving-its-own-panel" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Letting the agent move its own panel
+        The agent moving its own panel
       
     </span>
   </a>
@@ -798,10 +798,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#letting-the-agent-move-its-own-panel" class="md-nav__link">
+  <a href="#the-agent-moving-its-own-panel" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Letting the agent move its own panel
+        The agent moving its own panel
       
     </span>
   </a>
@@ -1008,29 +1008,25 @@ the numbers it drew — is left to you, because it widens what the agent can do:
 </span></code></pre></div>
 <p>Run it any time after the page loads; it redraws charts already in the restored
 transcript.</p>
-<h3 id="letting-the-agent-move-its-own-panel">Letting the agent move its own panel<a class="headerlink" href="#letting-the-agent-move-its-own-panel" title="Permanent link">&para;</a></h3>
+<h3 id="the-agent-moving-its-own-panel">The agent moving its own panel<a class="headerlink" href="#the-agent-moving-its-own-panel" title="Permanent link">&para;</a></h3>
 <p>The sidebar sits over the changelist or changeform it is discussing, which is
-the one problem a chat pinned to its own tab never has. Web component 0.35.0
-gives the agent four tools for it -- read where the panel is, send it to a
-corner, minimise it to the launcher, restore it -- and each move it makes is
-written into the transcript with an undo beside it, so the panel never
-rearranges itself silently.</p>
-<p>Left to you for the same reason <code>render_chart</code> is: it is a new thing the agent
-can do rather than a fix, and four more tool definitions in every request is a
-cost you should choose.</p>
-<div class="language-js highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nx">createChatSurfaceTools</span><span class="p">,</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"/static/django_admin_agent/ag-ui-web-component.bundle.js"</span><span class="p">;</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">el</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"ag-ui-chat#django-admin-agent"</span><span class="p">);</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">tool</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">createChatSurfaceTools</span><span class="p">(</span><span class="nx">el</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="nx">el</span><span class="p">.</span><span class="nx">registerTool</span><span class="p">(</span><span class="nx">tool</span><span class="p">);</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">}</span>
+the one problem a chat pinned to its own tab never has. The agent has four
+tools for it -- read where the panel is, send it to a corner, minimise it to
+the launcher, restore it -- and each move it makes is written into the
+transcript with an undo beside it, so the panel never rearranges itself
+silently.</p>
+<p><strong>On by default</strong>, which is the opposite of the call made for <code>render_chart</code>
+just above, and the difference is what the widened surface can reach. A chart
+tool draws whatever the agent decides to draw; these move this sidebar and
+nothing else. They read no model, change no row, and touch no data. The cost is
+four tool definitions in each request, and that is what the setting is for:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"CHAT_SURFACE_TOOLS"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
 </span></code></pre></div>
-<p>The element is the surface the factory wants, so it is passed to itself. The
-tools decline rather than lie where the position is not theirs to take: a
-docked <code>PLACEMENT</code>, or a panel filling a phone screen, answers <code>moved: false</code>
-with the reason and what would work instead.</p>
+<p>Worth turning off for a <code>PLACEMENT</code> that owns its own position and has no
+collapsed state, since there the tools can only ever answer that they did
+nothing. They decline rather than lie: a docked placement, or a panel filling a
+phone screen, answers <code>moved: false</code> with the reason and what would work
+instead.</p>
 <h3 id="pointing-at-something-on-the-admin-page">Pointing at something on the admin page<a class="headerlink" href="#pointing-at-something-on-the-admin-page" title="Permanent link">&para;</a></h3>
 <p><code>showHighlightOverlay</code> rings an element from an overlay drawn outside it, so a
 target is not restyled and nothing in your admin templates has to cooperate. It
