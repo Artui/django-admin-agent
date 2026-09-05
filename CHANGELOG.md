@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.39.0] — 2026-09-05
+
 ### Changed
 
 - **The `django-ag-ui` floor is `>=0.55`**, for a refusal this package is the
@@ -1652,7 +1654,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.38.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.39.0...HEAD
+[0.39.0]: https://github.com/Artui/django-admin-agent/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/Artui/django-admin-agent/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/Artui/django-admin-agent/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/Artui/django-admin-agent/compare/v0.35.0...v0.36.0
