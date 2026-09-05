@@ -1331,7 +1331,7 @@ agent carrying on around a failed tool.</p>
 <p>On django-ag-ui <strong>0.48</strong> nothing redacted the <code>RUN_ERROR</code> path, so with
 django-pydantic-agent 0.18 the gate's message reached the browser
 verbatim with <code>INCLUDE_DETAIL</code> off. This package floors at
-<code>django-ag-ui&gt;=0.56</code> for exactly that reason. A project pinning the
+<code>django-ag-ui&gt;=0.57</code> for exactly that reason. A project pinning the
 transport lower while taking the newer substrate re-opens it.</p>
 </div>
 <p><strong>Every other refusal still reaches the model as a failure</strong>, and by default
@@ -1501,9 +1501,27 @@ extra):</p>
 </span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Pass an explicit backend with <code>AdminAgentServer(transcription_backend=...)</code> to override.
-Model <strong>reasoning</strong> needs no admin wiring: when <code>DJANGO_AG_UI["MODEL_SETTINGS"]</code>
-enables a thinking budget, the sidebar renders the streamed chain-of-thought in a
-collapsible "thoughts" region automatically.</p>
+Model <strong>reasoning</strong> needs no admin wiring: the sidebar renders a streamed
+chain-of-thought in a collapsible "thoughts" region automatically, whenever the
+model produces one.</p>
+<div class="admonition warning">
+<p class="admonition-title">Not the same as: whenever you configure one</p>
+<p>This page used to say the thoughts region appears once
+<code>DJANGO_AG_UI["MODEL_SETTINGS"]</code> enables a thinking budget, which invites the
+reading that a staff member cannot see a chain-of-thought you did not ask
+for. Several models reason by default and cannot be told not to — Pydantic-AI
+marks <code>deepseek-reasoner</code> <code>thinking_always_enabled</code> for exactly that reason,
+and builds a thinking part out of an OpenAI-compatible provider's
+<code>reasoning_content</code> without consulting any setting. Point <code>MODEL</code> at one of
+those and the sidebar renders its reasoning with <code>MODEL_SETTINGS</code> empty.</p>
+<p>A model's private reasoning is written for nobody: it restates the system
+prompt, reasons aloud about the user, and discusses tools it chose not to
+call. The admin sidebar shows it to every staff member who can open the
+changelist, which is a wider audience than "you". If that is not what you
+want, set <a href="https://artui.github.io/django-ag-ui/configuration/#forward_reasoning"><code>FORWARD_REASONING</code></a>
+to <code>False</code> in <code>DJANGO_AG_UI</code> — the events are then stripped server-side and
+never reach the browser.</p>
+</div>
 <h3 id="drf_mcp_server-and-the-mcp-extra"><code>DRF_MCP_SERVER</code> and the <code>[mcp]</code> extra<a class="headerlink" href="#drf_mcp_server-and-the-mcp-extra" title="Permanent link">&para;</a></h3>
 <p>Installing <code>django-admin-agent[mcp]</code> and pointing <code>DRF_MCP_SERVER</code> at a
 <code>djangorestframework-mcp-server</code> <code>MCPServer</code> instance exposes that server's
