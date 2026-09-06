@@ -1,4 +1,12 @@
 {% load static %}
+{% comment %}
+Nothing at all for a signed-out visitor. The decision is the template tag's
+-- an inclusion tag renders against a fresh context carrying only the dict it
+returned, so there is no `user` here to test -- and the flag is written this
+way round on purpose: a context that never sets it (any other caller of this
+template) still renders.
+{% endcomment %}
+{% if not anonymous_visitor %}
 <ag-ui-chat
   id="django-admin-agent"
   endpoint="{{ endpoint }}"
@@ -30,3 +38,4 @@
 {{ route_map|json_script:"django-admin-agent-routes" }}
 {{ skills|json_script:"django-admin-agent-skills" }}
 <script type="module" src="{{ bootstrap_url }}"></script>
+{% endif %}

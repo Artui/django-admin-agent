@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+from pathlib import Path
+from typing import Any
+
 import pytest
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.template import Context, Template
-from django.test import RequestFactory, override_settings
+from django.test import Client, RequestFactory, override_settings
 
 from django_admin_agent.admin.build_sidebar_context import build_sidebar_context
 from django_admin_agent.templatetags.django_admin_agent import (
@@ -15,6 +19,19 @@ def _render() -> str:
     return Template(
         "{% load django_admin_agent %}{% django_admin_agent_sidebar %}",
     ).render(Context())
+
+
+def _render_for(request: Any) -> str:
+    """Render the tag the way an admin page does: with a request in the context."""
+    return Template(
+        "{% load django_admin_agent %}{% django_admin_agent_sidebar %}",
+    ).render(Context({"request": request}))
+
+
+def _request_from(user: Any) -> Any:
+    request = RequestFactory().get("/admin/")
+    request.user = user
+    return request
 
 
 def test_tag_returns_sidebar_context() -> None:
@@ -170,3 +187,104 @@ def test_tag_turns_the_panel_tools_off_when_asked() -> None:
 
 def test_the_panel_tools_are_on_without_being_asked_for() -> None:
     assert "data-chat-surface-tools" not in _render()
+
+
+# Who the sidebar is rendered for.
+#
+# The endpoint the launcher points at refuses anyone who is not active staff
+# (tests/test_staff_required.py), so a chat offered to a signed-out visitor
+# could only ever answer 401 -- it is dead UI, not a host's styling choice. The
+# tag is installed in `admin/base_site.html`, and the admin's *login* page
+# renders that template's branding block, so "every admin page" includes the one
+# page where nobody is signed in yet.
+
+
+def _templates_with_the_tag_in_base_site() -> list[dict[str, Any]]:
+    """The configured engine plus an ``admin/base_site.html`` carrying the tag.
+
+    ``DIRS`` is searched before ``APP_DIRS``, so this override is the template
+    the admin renders through -- the wiring ``docs/installation.md`` recommends,
+    exercised against the real admin views rather than a bare ``Template``.
+    """
+    return [
+        {
+            **settings.TEMPLATES[0],
+            "DIRS": [str(Path(__file__).resolve().parents[1] / "templates")],
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_the_admin_login_page_carries_no_launcher() -> None:
+    """The reported symptom, at the level it was reported.
+
+    A visitor who has not signed in yet reaches exactly one admin page, and it
+    is rendered through the same ``base_site.html`` every other page uses.
+    """
+    with override_settings(TEMPLATES=_templates_with_the_tag_in_base_site()):
+        body = Client().get("/admin/login/").content.decode()
+
+    # Sized so the negative assertion cannot pass vacuously: without the
+    # override in play the admin's own base_site.html renders, which carries no
+    # tag at all and would satisfy "no launcher here" for the wrong reason.
+    assert "Test admin" in body
+    assert "<ag-ui-chat" not in body
+    assert "admin_agent.js" not in body
+
+
+def test_a_signed_out_visitor_gets_no_sidebar() -> None:
+    """The guard: an anonymous user renders nothing whatsoever.
+
+    Not merely a launcher with no ``user-key``: the bootstrap module, the route
+    manifest and the skill catalog are all page weight spent on a chat that
+    cannot open.
+    """
+    rendered = _render_for(_request_from(AnonymousUser()))
+
+    assert rendered.strip() == ""
+    assert "<ag-ui-chat" not in rendered
+    assert "admin_agent.js" not in rendered
+    assert "django-admin-agent-routes" not in rendered
+
+
+@pytest.mark.django_db
+def test_a_signed_in_principal_still_gets_the_sidebar() -> None:
+    """The arm the guard must not touch, stated on its own.
+
+    Every other rendering test here builds its context without a request, so
+    this is the only one that would fail if the guard read the request wrongly
+    and suppressed the sidebar for everybody.
+    """
+    user = User.objects.create_user(username="ada", is_staff=True)
+
+    rendered = _render_for(_request_from(user))
+
+    assert "<ag-ui-chat" in rendered
+    assert f'user-key="{user.pk}"' in rendered
+
+
+def test_a_context_without_a_request_still_renders_the_sidebar() -> None:
+    """A deliberate non-change, pinned so it is not tidied into the guard.
+
+    The tag documents that a context with no ``request`` degrades to the
+    previous behaviour rather than raising, because a missing user is a valid
+    answer there -- a template rendered outside a request cycle has nobody to
+    refuse. Suppressing the sidebar for that case would be a behaviour change
+    for hosts rendering the admin chrome offline, and it is not the reported
+    defect: the login page has a request and an ``AnonymousUser`` on it.
+    """
+    assert "<ag-ui-chat" in _render()
+
+
+def test_a_request_without_a_user_still_renders_the_sidebar() -> None:
+    """The other conjunct of the guard, which no other test holds.
+
+    A request that never passed ``AuthenticationMiddleware`` carries no ``user``
+    at all, which is "we cannot tell" rather than "anonymous" -- the same answer
+    the paragraph above gives for a missing request. Delete ``user is not None``
+    from the guard and this is the test that fails.
+    """
+    request = RequestFactory().get("/admin/")
+
+    assert not hasattr(request, "user")
+    assert "<ag-ui-chat" in _render_for(request)

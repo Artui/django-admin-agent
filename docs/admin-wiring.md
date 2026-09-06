@@ -113,6 +113,13 @@ def django_admin_agent_sidebar() -> dict[str, Any]: ...
 its own context via `build_sidebar_context()`, so the admin site does not need
 swapping. This is the common path.
 
+The tag renders **nothing at all** for a signed-out visitor. `base_site.html` is
+also what the admin's *login* page renders, and the endpoint behind the launcher
+refuses anyone who is not active staff — so a sidebar there could only answer
+401. A context with no `request` (or a request that never met
+`AuthenticationMiddleware`) still renders, because "nobody to refuse" is not the
+same answer as "refused".
+
 ### `SidebarAdminSite`
 
 `SidebarAdminSite` is a drop-in `AdminSite` whose `each_context` adds the
@@ -121,6 +128,10 @@ render the chat from `{{ django_admin_agent }}` without the tag. It calls
 `super().each_context()` first, so all standard admin context keys pass through
 unchanged. Use this when you already swap the admin site; otherwise prefer the
 template tag.
+
+This path hands you the context and your template decides, so the signed-out
+guard above is yours to make: `each_context` runs for the login page too, and
+your markup should sit inside `{% if user.is_authenticated %}`.
 
 ## Unfold compatibility shim
 

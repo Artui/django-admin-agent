@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The sidebar rendered on the admin login page**, where nobody is signed in and
+  the endpoint behind the launcher would refuse them. `{% django_admin_agent_sidebar %}`
+  is installed in `admin/base_site.html`, and the login page renders that
+  template's branding block like every other admin page — so the one page reached
+  before signing in offered a chat that could only ever answer 401, and loaded the
+  bootstrap module, the route manifest and the skill catalog to do it.
+
+  **The route manifest is the part worth upgrading for.** `build_route_map()`
+  takes no user and walks `admin.site._registry` unfiltered, so the login page
+  served an unauthenticated visitor a JSON inventory of **every registered
+  model** — app label, verbose name and admin URL apiece. Nothing there is a
+  credential and admin URLs are guessable one at a time, but the complete list is
+  not something a signed-out visitor should be handed, and it was being handed
+  over by default. Reported as a cosmetic oddity; it is not one.
+
+  The tag now renders nothing when the request carries an anonymous user. It is
+  not a styling choice a host might want either way: the agent view requires an
+  active staff user, so a launcher offered to a signed-out visitor is dead UI.
+
+  Two states are deliberately unchanged. A signed-in principal renders exactly as
+  before, and a context with **no** `request` — or a request that never met
+  `AuthenticationMiddleware` — still renders, because "nobody to refuse" is not
+  the same answer as "refused": a template rendered outside a request cycle has no
+  visitor to gate on, which is the degradation the tag already documented.
+
+  `SidebarAdminSite.each_context` is unchanged. That path hands the context to
+  your own template, which is where the decision belongs there; `each_context`
+  runs for the login page too, so guard your markup with
+  `{% if user.is_authenticated %}`. Both docs pages now say so.
+
 ## [0.41.0] — 2026-09-05
 
 ### Changed

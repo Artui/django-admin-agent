@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% load django_admin_agent %}
+
+{% comment %}
+The wiring docs/installation.md recommends, so a test can render the real
+admin pages through it -- including the login page, which reaches the
+branding block with nobody signed in.
+{% endcomment %}
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Test admin</a></h1>
+{% django_admin_agent_sidebar %}
+{% endblock %}
