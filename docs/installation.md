@@ -119,7 +119,11 @@ admin_site = SidebarAdminSite(name="myadmin")
 ```
 
 Both paths render the same sidebar from the same
-[`build_sidebar_context()`](admin-wiring.md) helper.
+[`build_sidebar_context()`](admin-wiring.md) helper. They differ on one point:
+the tag renders nothing for a signed-out visitor — the admin's login page goes
+through `base_site.html` too, and the agent endpoint refuses anyone who is not
+active staff — while Option B hands the context to your template, so put your
+markup inside `{% if user.is_authenticated %}` there.
 
 ## 4. Serve over ASGI
 
