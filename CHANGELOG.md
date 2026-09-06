@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`SidebarAdminSite` no longer hands a signed-out visitor the route manifest.**
+  `each_context` runs for the admin's login page like every other admin page, and
+  it was building a full sidebar context there. That context carries
+  `build_route_map()`, which takes no user and walks `admin.site._registry`
+  **unfiltered** — so a template rendering it unconditionally published an
+  inventory of every registered model, its label and its admin URL to anyone who
+  could reach the login page.
+
+  An anonymous request now gets an empty `django_admin_agent`. It is falsy, so
+  `{% if django_admin_agent %}` is the natural guard and a host that already
+  wrote one is unaffected; `{{ django_admin_agent.endpoint }}` resolves to the
+  empty string either way, so a host rendering unconditionally is no worse off
+  than before — its launcher was already inert for a visitor the endpoint
+  refuses. It loses only the manifest it should not have had.
+
+  This completes the previous release's fix, which covered the template tag and
+  deliberately left this path alone on the grounds that the render decision is
+  the host's. That remains true of the *markup* and is not true of the *content*.
+
+  Two states here, not the tag's three: `AdminSite.each_context` reads
+  `request.user` itself and raises first, so "no user to judge" cannot be
+  reached — pinned by a test, so nobody adds a conjunct no test could hold.
+
 - **The sidebar rendered on the admin login page**, where nobody is signed in and
   the endpoint behind the launcher would refuse them. `{% django_admin_agent_sidebar %}`
   is installed in `admin/base_site.html`, and the login page renders that
