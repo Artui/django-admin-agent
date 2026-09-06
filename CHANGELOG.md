@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The vendored web component is `@artooi/ag-ui-web-component@0.37.0`**, which
+  reports a send that would otherwise vanish. An element with no `endpoint`
+  swallowed every message *after* the two visible halves of a working send had
+  already happened — the bubble was in the transcript and the submit event had
+  fired — so the composer cleared, the message appeared to go, and nothing was
+  ever requested. It now names the missing attribute on the console and says so
+  in the transcript.
+
+  Not an inert re-vendor, and checked rather than assumed: the bundle grows 779
+  bytes and first differs at char 246266, well before the embedded version
+  string. Two smaller silent failures ride along — a checkpoint resumed with an
+  empty composer, and a `data-strings` or `data-skills` value that will not
+  parse.
+
+  **Nothing is owed on the host side**, which is a result rather than a step
+  skipped. The three changed rows in the component's own reference are
+  modifications, not additions: no new attribute, property or method, and the
+  only new public surface is a CSS part. The check that mattered was the last
+  one — this package hands the component `data-strings` verbatim, so a key
+  allowlist here would have silently dropped the two new string keys. There is
+  none; `_strings_json` is a bare `json.dumps`.
+
+- **The `django-ag-ui` floor is `>=0.58`.** That release floors
+  `djangorestframework-pydantic-ai` at 0.27, which stops a spec dispatch leaving
+  a database connection open on asgiref's shared thread — a leak that survives
+  an HTTP request, because `request_finished` closes the connection belonging to
+  the *request's* thread and `django.db.connections` is thread-local.
+
+  The `[mcp]` extra's `djangorestframework-mcp-server>=0.37` deliberately does
+  not move, though 0.41 is published: its work is the OAuth surface the
+  in-process bridge never reaches, so raising the floor would narrow what a
+  consumer may resolve in exchange for nothing. The **lockfile** was moved to
+  0.41.0 all the same — a stale lock and a load-bearing floor are different
+  claims, and the manual sibling audit is what catches the first, because
+  Dependabot's `uv` group has never once proposed a first-party bump.
+
 ### Fixed
 
 - **`SidebarAdminSite` no longer hands a signed-out visitor the route manifest.**
