@@ -917,6 +917,12 @@ demand via the <code>ui_read.*</code> tools.</p>
 <code>admin/base_site.html</code> renders the sidebar. It is self-contained — it computes
 its own context via <code>build_sidebar_context()</code>, so the admin site does not need
 swapping. This is the common path.</p>
+<p>The tag renders <strong>nothing at all</strong> for a signed-out visitor. <code>base_site.html</code> is
+also what the admin's <em>login</em> page renders, and the endpoint behind the launcher
+refuses anyone who is not active staff — so a sidebar there could only answer
+401. A context with no <code>request</code> (or a request that never met
+<code>AuthenticationMiddleware</code>) still renders, because "nobody to refuse" is not the
+same answer as "refused".</p>
 <h3 id="sidebaradminsite"><code>SidebarAdminSite</code><a class="headerlink" href="#sidebaradminsite" title="Permanent link">&para;</a></h3>
 <p><code>SidebarAdminSite</code> is a drop-in <code>AdminSite</code> whose <code>each_context</code> adds the
 sidebar context under the <code>django_admin_agent</code> key, so a base template can
@@ -924,6 +930,18 @@ render the chat from <code>{{ django_admin_agent }}</code> without the tag. It c
 <code>super().each_context()</code> first, so all standard admin context keys pass through
 unchanged. Use this when you already swap the admin site; otherwise prefer the
 template tag.</p>
+<p><code>each_context</code> runs for the login page too, so the signed-out case reaches this
+path as well. It cannot render nothing the way the tag does — the markup is
+yours — so it withholds the <em>content</em> instead: an anonymous request gets an
+empty <code>django_admin_agent</code>, which is falsy. <code>{% if django_admin_agent %}</code> is
+therefore the natural guard, and a template that renders unconditionally is no
+worse off than before, because its launcher was already inert for a visitor the
+endpoint refuses.</p>
+<p>What that empty context prevents is worth stating plainly: a populated one
+carries the route manifest, and <code>build_route_map()</code> walks the admin registry
+without filtering by permission — so it names every registered model and its
+admin URL. A host rendering unconditionally used to publish that on its login
+page.</p>
 <h2 id="unfold-compatibility-shim">Unfold compatibility shim<a class="headerlink" href="#unfold-compatibility-shim" title="Permanent link">&para;</a></h2>
 <p>The frontend tool handlers work against Django Unfold unchanged because Unfold
 preserves Django's structural DOM contracts. Two Unfold-only quirks are smoothed

@@ -954,6 +954,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="SidebarAdminSite">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite.each_context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        each_context
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1654,6 +1671,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="SidebarAdminSite">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite.each_context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        each_context
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -3286,6 +3320,46 @@ sites can point each at its own server:</p>
 
 
 
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite.each_context" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">each_context</span>
+
+
+<a href="#django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite.each_context" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">each_context</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">HttpRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Add the sidebar context, and an <strong>empty</strong> one for a signed-out visitor.</p>
+<p><code>each_context</code> runs for the admin's login page too, so this key is
+built for visitors who are not signed in. The template tag renders
+nothing for them; this path cannot, because what gets rendered is the
+host's own markup and that decision is genuinely theirs.</p>
+<p>What it can do is stop handing them anything to render. An anonymous
+request gets <code>{}</code> rather than a populated context, which matters for a
+reason beyond the dead launcher: <code>build_route_map()</code> takes no user and
+walks <code>admin.site._registry</code> unfiltered, so a populated context carries
+an inventory of every registered model, its label and its admin URL. A
+host that renders unconditionally was publishing that on its login page.</p>
+<p>Two states rather than the template tag's three: <code>AdminSite.each_context</code>
+reads <code>request.user</code> before this override runs, so "no user to judge"
+raises upstream and cannot be reached here.</p>
+<p><code>{}</code> rather than omitting the key, deliberately. It is falsy, so
+<code>{% if django_admin_agent %}</code> works as the natural guard and a host
+that already wrote one is unaffected. And <code>{{ django_admin_agent.endpoint }}</code>
+resolves to the empty string either way, so a host that renders
+unconditionally is no worse off than before -- their launcher was already
+inert for an anonymous visitor, since the endpoint refuses anyone who is
+not active staff. They lose only the manifest they should not have had.</p>
+
+
+    </div>
+
+</div>
 
 
 

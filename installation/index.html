@@ -863,7 +863,7 @@ admin sidebar.</p>
 <div class="admonition info">
 <p class="admonition-title">Compatibility floor</p>
 <p>Python 3.10+ (tested 3.10–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
-5.2, 6.0, 6.1), <code>django-ag-ui&gt;=0.57</code>, and — with the <code>[mcp]</code> extra above —
+5.2, 6.0, 6.1), <code>django-ag-ui&gt;=0.58</code>, and — with the <code>[mcp]</code> extra above —
 <code>djangorestframework-mcp-server&gt;=0.37</code>. Django Unfold 0.40+ is optional.</p>
 <p>Neither sibling window has an upper bound, so this package installs
 alongside the current <code>django-ag-ui</code> on the day that ships rather than
@@ -944,7 +944,14 @@ context without the template tag.</p>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">admin_site</span> <span class="o">=</span> <span class="n">SidebarAdminSite</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"myadmin"</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Both paths render the same sidebar from the same
-<a href="../admin-wiring/"><code>build_sidebar_context()</code></a> helper.</p>
+<a href="../admin-wiring/"><code>build_sidebar_context()</code></a> helper, and <strong>neither offers
+anything to a signed-out visitor</strong> — the admin's login page goes through
+<code>base_site.html</code> like every other page, and the agent endpoint refuses anyone who
+is not active staff.</p>
+<p>They differ only in how they say no. The tag renders nothing at all. Option B
+hands your template an empty <code>django_admin_agent</code>, because the markup is yours
+and the render decision has to stay with it; guard on <code>{% if django_admin_agent %}</code>
+if you want the surrounding chrome to disappear too.</p>
 <h2 id="4-serve-over-asgi">4. Serve over ASGI<a class="headerlink" href="#4-serve-over-asgi" title="Permanent link">&para;</a></h2>
 <p><strong>ASGI is required.</strong> The agent endpoint streams AG-UI events over
 Server-Sent Events, which needs an event loop the synchronous WSGI worker will
