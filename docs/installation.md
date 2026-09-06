@@ -119,11 +119,15 @@ admin_site = SidebarAdminSite(name="myadmin")
 ```
 
 Both paths render the same sidebar from the same
-[`build_sidebar_context()`](admin-wiring.md) helper. They differ on one point:
-the tag renders nothing for a signed-out visitor — the admin's login page goes
-through `base_site.html` too, and the agent endpoint refuses anyone who is not
-active staff — while Option B hands the context to your template, so put your
-markup inside `{% if user.is_authenticated %}` there.
+[`build_sidebar_context()`](admin-wiring.md) helper, and **neither offers
+anything to a signed-out visitor** — the admin's login page goes through
+`base_site.html` like every other page, and the agent endpoint refuses anyone who
+is not active staff.
+
+They differ only in how they say no. The tag renders nothing at all. Option B
+hands your template an empty `django_admin_agent`, because the markup is yours
+and the render decision has to stay with it; guard on `{% if django_admin_agent %}`
+if you want the surrounding chrome to disappear too.
 
 ## 4. Serve over ASGI
 

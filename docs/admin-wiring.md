@@ -129,9 +129,19 @@ render the chat from `{{ django_admin_agent }}` without the tag. It calls
 unchanged. Use this when you already swap the admin site; otherwise prefer the
 template tag.
 
-This path hands you the context and your template decides, so the signed-out
-guard above is yours to make: `each_context` runs for the login page too, and
-your markup should sit inside `{% if user.is_authenticated %}`.
+`each_context` runs for the login page too, so the signed-out case reaches this
+path as well. It cannot render nothing the way the tag does — the markup is
+yours — so it withholds the *content* instead: an anonymous request gets an
+empty `django_admin_agent`, which is falsy. `{% if django_admin_agent %}` is
+therefore the natural guard, and a template that renders unconditionally is no
+worse off than before, because its launcher was already inert for a visitor the
+endpoint refuses.
+
+What that empty context prevents is worth stating plainly: a populated one
+carries the route manifest, and `build_route_map()` walks the admin registry
+without filtering by permission — so it names every registered model and its
+admin URL. A host rendering unconditionally used to publish that on its login
+page.
 
 ## Unfold compatibility shim
 
