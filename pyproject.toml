@@ -96,7 +96,7 @@ dependencies = [
     # renders reasoning to every staff member who can open a changelist -- so a
     # reader following our docs to the upstream setting should land on the page
     # that says so, not on the one that talked them out of checking.
-    "django-ag-ui>=0.58",
+    "django-ag-ui>=0.59",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back

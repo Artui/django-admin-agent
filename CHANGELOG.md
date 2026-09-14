@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Vendors `@artooi/ag-ui-web-component` 0.38.0, and floors
+  `django-ag-ui>=0.59`.** Both halves of one change, so the admin surface and
+  any frontend built beside it run the same component.
+
+  0.38.0 stops the sidebar drawing an empty message bubble above every tool
+  call. pydantic-ai 2.37 opens and closes an empty text message there so that
+  the `parentMessageId` on `TOOL_CALL_START` names a message the stream
+  announced; the component rendered it, at 16px, between the question and the
+  card. It was also present live and absent after a reload, since the restore
+  path had always skipped such a message.
+
+  The `django-ag-ui` floor is the server half: 0.59.0 floors pydantic-ai at the
+  version that emits the announced id. Raised as currency rather than
+  necessity -- with the new bundle the sidebar renders correctly either way --
+  but a floor a release behind means the admin and the component disagree about
+  which wire they are for.
+
+  **The adoption pass found nothing else owed, which is a result rather than a
+  skipped step.** 0.38.0's other entries are an internal regrouping of `src/ui/`
+  and the event detail shapes moving into their own modules; the exported symbol
+  set is identical across the two tags (173 either side, none added or removed)
+  and no `data-` attribute changed, so there is no host opt-in to wire. That is
+  the opposite of the 0.29 to 0.30 hop, where all four additions needed one.
+
 ## [0.42.0] — 2026-09-06
 
 ### Changed
