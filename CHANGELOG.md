@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.44.0] — 2026-09-16
+
 ### Changed
 
 - **The `[mcp]` extra is floored at `djangorestframework-mcp-server>=0.44` (was
@@ -1855,7 +1857,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.43.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.44.0...HEAD
+[0.44.0]: https://github.com/Artui/django-admin-agent/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/Artui/django-admin-agent/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/Artui/django-admin-agent/compare/v0.41.0...v0.42.0
 [0.41.0]: https://github.com/Artui/django-admin-agent/compare/v0.40.0...v0.41.0
