@@ -115,9 +115,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Also expose the admin tools as an MCP server over HTTP via the user's
-# djangorestframework-mcp-server stack.
-mcp = ["djangorestframework-mcp-server>=0.37"]
+# For ``AdminAgentServer(drf_mcp_server=...)``: a djangorestframework-mcp-server
+# ``MCPServer``'s tools, exposed to the agent in-process through
+# django-pydantic-agent's bridge, beside the built-in tools. It is that direction
+# only; nothing here serves the admin's own tools over MCP.
+# Floored at 0.44, where the tools that bridge lists and calls caught up with
+# drf-services' affordances. Below it a chain tool ran a step whose service's own
+# affordances refuse it, and reported success, and the ``outputSchema`` handed to
+# the model as its return schema left out the ``affordances`` object
+# drf-services renders into each item of a spec declaring them.
+mcp = ["djangorestframework-mcp-server>=0.44"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"

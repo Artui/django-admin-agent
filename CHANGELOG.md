@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The `[mcp]` extra is floored at `djangorestframework-mcp-server>=0.44` (was
+  `>=0.37`).** A server passed as `AdminAgentServer(drf_mcp_server=...)` reaches
+  the agent through django-pydantic-agent's in-process bridge, and below 0.44 two
+  things went wrong once its specs declared drf-services affordances: a chain tool
+  ran a step whose service's own affordances refuse it and reported success, and
+  the `outputSchema` handed to the model as its return schema left out the
+  `affordances` object each rendered item carries. 0.44 floors
+  `djangorestframework-services` at 0.52 in turn. The floor stated in `CLAUDE.md`,
+  `docs/installation.md` and the upstream-drift workflow moves with it.
+
 ## [0.43.0] — 2026-09-14
 
 ### Changed
