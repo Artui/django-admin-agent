@@ -501,10 +501,27 @@ model produces one.
     to `False` in `DJANGO_AG_UI` — the events are then stripped server-side and
     never reach the browser.
 
-### `DRF_MCP_SERVER` and the `[mcp]` extra
+### `drf_mcp_server=` and the `[mcp]` extra
 
-Installing `django-admin-agent[mcp]` and pointing `DRF_MCP_SERVER` at a
-`djangorestframework-mcp-server` `MCPServer` instance exposes that server's
-tools to the agent in-process — no network MCP hop — alongside the built-in
-`shell.*` / `introspect.*` tools. The bridge is imported lazily by
-`django-ag-ui`; the dependency is never loaded unless the setting is configured.
+Installing `django-admin-agent[mcp]` and passing a
+`djangorestframework-mcp-server` `MCPServer` instance as
+`AdminAgentServer(drf_mcp_server=...)` exposes that server's tools to the agent
+in-process — no network MCP hop — alongside the built-in `shell.*` /
+`introspect.*` tools. The argument is forwarded to django-ag-ui's
+[`drf_mcp_server=`](https://artui.github.io/django-ag-ui/configuration/#drf_mcp_server),
+which imports the bridge lazily, so the dependency is never loaded unless the
+argument is given.
+
+```python title="urls.py"
+from django_admin_agent import AdminAgentServer
+from myproject.mcp import mcp_server  # your djangorestframework-mcp-server MCPServer
+
+urlpatterns = [
+    path("admin-agent/", AdminAgentServer(drf_mcp_server=mcp_server).urls),
+]
+```
+
+It is a constructor argument rather than a setting, like every other
+collaborator: `DRF_MCP_SERVER` in `DJANGO_AG_UI` is refused with
+`ImproperlyConfigured` (see the warning under
+[Inherited `DJANGO_AG_UI`](#inherited-django_ag_ui)).
