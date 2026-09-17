@@ -19,7 +19,7 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `MESSAGE_ACTIONS` | `"copy,retry"` | Which per-message actions the sidebar offers, from `copy` / `retry` / `feedback`. Rendered as `data-message-actions`. Matches the component's own default from 0.31.0. The rating buttons fire an `ag-ui-feedback` event and store nothing by design, and nothing here listens for it. **Set `"copy,retry,feedback"` once you have wired your own listener on the sidebar element** — that is what this setting is for. |
 | `THEME` | _unset_ | Web Component theme: `"light"`, `"dark"`, `"auto"`, or `"code"`. Rendered as the `theme` attribute; left off (component default, light) when unset. |
 | `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |
-| `PLACEMENT` | _unset_ | Where the panel sits: `"sidebar"`, `"embedded"`, `"page"`, or the older `"bottom-left"`, `"side"` and `"full"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. `"sidebar"` is a full-height docked panel that collapses to an icon rail (pair it with `SIDE`); `"page"` is a full-screen route with no collapsed state at all. The last three are no longer in the component's own documented four but still parse and still work. |
+| `PLACEMENT` | _unset_ | Where the panel sits: `"sidebar"`, `"embedded"`, `"page"`, or the older `"bottom-left"`, `"side"` and `"full"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. `"sidebar"` is a full-height docked panel that collapses to an icon rail (pair it with `SIDE`); `"page"` is a full-screen route with no collapsed state at all, and greets the signed-in user by name over an empty conversation, with the composer centred beneath (the name is the one the admin header welcomes them by; see [Admin wiring](admin-wiring.md)). The last three are no longer in the component's own documented four but still parse and still work. |
 | `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
 | `SIDE` | _unset_ | For `PLACEMENT="sidebar"`: which edge it docks to — `"left"` or `"right"`. Rendered as the `data-side` attribute; left off (component default, right) when unset. |
 | `THEME_TOGGLE` | `False` | Show the Web Component's built-in light⇄dark header toggle (it flips `theme` and persists per tab). Rendered as the `data-theme-toggle` attribute. Off by default, since the admin's own theme usually governs. |
@@ -297,13 +297,16 @@ just read. Three things follow:
     !!! danger "Both floors have to move together"
         On django-ag-ui **0.48** nothing redacted the `RUN_ERROR` path, so with
         django-pydantic-agent 0.18 the gate's message reached the browser
-        verbatim with `INCLUDE_DETAIL` off. This package floors at
-        `django-ag-ui>=0.59` for exactly that reason. A project pinning the
-        transport lower while taking the newer substrate re-opens it.
+        verbatim with `INCLUDE_DETAIL` off. This package's `django-ag-ui` floor
+        is above 0.49 for exactly that reason. A project pinning the transport
+        lower while taking the newer substrate re-opens it.
 
     **Every other refusal still reaches the model as a failure**, and by default
     the *reason* is not part of it — `TOOL_FAILURE.INCLUDE_DETAIL` is `False`,
-    on the grounds that an exception message is written for an operator. A
+    on the grounds that an exception message is written for an operator. (A tool
+    bridged from `drf_mcp_server=` is the exception: its refusal is the server's
+    answer rather than an exception here, and
+    [carries its own sentence](#drf_mcp_server-and-the-mcp-extra).) A
     redacted-field lookup is the one you are most likely to meet: it raises
     `ValueError`, so the full explanation goes to your log and audit trail and
     the user sees only that the tool failed. If you would rather the agent could
@@ -525,3 +528,13 @@ It is a constructor argument rather than a setting, like every other
 collaborator: `DRF_MCP_SERVER` in `DJANGO_AG_UI` is refused with
 `ImproperlyConfigured` (see the warning under
 [Inherited `DJANGO_AG_UI`](#inherited-django_ag_ui)).
+
+A call the server refuses reaches the sidebar as a **failed** call, from
+django-pydantic-agent 0.23, which raises the refusal rather than returning it as
+the tool's value; below that the card settled it to done. Its text is the
+server's own error sentence, followed by the refusal's `code` where it has one
+and, for a chain, the step that failed: what the server would send any MCP
+client that made the call. `TOOL_FAILURE.INCLUDE_DETAIL` does not redact it,
+because nothing was raised on this side to redact. The server has already
+decided what its caller may read, so word a `ServiceError` for whoever calls the
+tool, a staff member reading the sidebar included.

@@ -34,9 +34,9 @@ def build_sidebar_context(
             to reverse against — the one it was constructed with. An argument
             rather than a setting, because a project may mount more than one
             sidebar.
-        user: The signed-in principal, used only to scope the stored
-            conversation to them. Optional, and ``None`` reproduces the previous
-            behaviour exactly.
+        user: The signed-in principal, used to scope the stored conversation to
+            them and to name them in the greeting a full-page chat shows.
+            Optional, and ``None`` reproduces the previous behaviour exactly.
     """
     config = get_settings()
     attachments_url = _attachments_url(namespace)
@@ -70,6 +70,7 @@ def build_sidebar_context(
         "admin_base_url": _admin_base_url(),
         "route_map": build_route_map(),
         "user_key": _user_key(user),
+        "user_name": _user_name(user),
     }
 
 
@@ -97,6 +98,37 @@ def _user_key(user: Any) -> str | None:
     if pk is None or not getattr(user, "is_authenticated", False):
         return None
     return str(pk)
+
+
+def _user_name(user: Any) -> str | None:
+    """The name the component greets the signed-in principal by, or ``None``.
+
+    Only ``placement="page"`` shows the greeting by default, as *Hello, {name}*
+    over an empty conversation; every other placement ignores the attribute. It
+    is presentation only: unlike ``user-key`` the component never sends it and
+    scopes nothing by it, so a rename changing it costs nothing.
+
+    The same name the admin's own header welcomes the user by --
+    ``{% firstof user.get_short_name user.get_username %}`` in
+    ``admin/base.html`` -- so the page never greets somebody by a different name
+    than the header above it. Each method is looked up rather than called, the
+    way ``firstof`` resolves them: a custom user model built on
+    ``AbstractBaseUser`` need not define ``get_short_name``, and the admin's
+    template renders for such a model rather than raising, so the sidebar must
+    too.
+
+    ``None`` for an anonymous or absent user, or a blank name, which leaves the
+    attribute off and gives the component's nameless *Hello there*.
+    """
+    # ``None`` has no ``is_authenticated`` either, so one check covers both.
+    if not getattr(user, "is_authenticated", False):
+        return None
+    for method_name in ("get_short_name", "get_username"):
+        method = getattr(user, method_name, None)
+        name = method() if callable(method) else ""
+        if name:
+            return str(name)
+    return None
 
 
 def _attachment_limits(attachments_url: str | None) -> tuple[int | None, str | None]:

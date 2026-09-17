@@ -380,3 +380,30 @@ def test_a_project_can_keep_the_panel_tools_out_of_every_request(admin_page, liv
     assert after is not None
     assert after["x"] == pytest.approx(before["x"], abs=1)
     assert after["y"] == pytest.approx(before["y"], abs=1)
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"PLACEMENT": "page"})
+def test_a_full_page_chat_greets_the_admin_by_the_header_name(live_server, page, django_user_model):  # noqa: ANN001, ANN201
+    """The greeting needs a name only the host knows, and the sidebar supplies it.
+
+    Without ``user-name`` the component still greets, as *Hello there*, so the
+    assertion worth making is on the name. The account has a first name that
+    differs from its username, so a sidebar sending the username would fail
+    here rather than pass, and the header is read in the same test so the two
+    names are compared rather than assumed to agree.
+    """
+    django_user_model.objects.create_superuser(
+        "ada.l", "ada@example.com", "password", first_name="Ada"
+    )
+    page.goto(f"{live_server.url}/admin/login/")
+    page.fill("#id_username", "ada.l")
+    page.fill("#id_password", "password")
+    page.click("input[type=submit]")
+    page.wait_for_url("**/admin/")
+
+    chat = page.locator("ag-ui-chat#django-admin-agent")
+    expect(chat).to_have_attribute("placement", "page")
+    expect(chat).to_have_attribute("user-name", "Ada")
+    expect(page.locator("#user-tools strong")).to_have_text("Ada")
+    expect(chat.locator(".greeting")).to_be_visible()
+    expect(chat.locator(".greeting")).to_have_text("Hello, Ada")

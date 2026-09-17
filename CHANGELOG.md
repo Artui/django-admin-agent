@@ -7,6 +7,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.44.0] — 2026-09-17
+
+### Changed
+
+- **Vendors `@artooi/ag-ui-web-component` 0.39.0, and renders the signed-in
+  user's name as `user-name`.** Under `PLACEMENT="page"`, an empty conversation
+  now greets the user as *Hello, {name}* with the composer centred beneath it,
+  and the composer slides to its usual place when the first message is sent.
+  The name is the one the admin's own header welcomes them by --
+  `get_short_name()`, else `get_username()` -- so the page never greets
+  somebody differently from the header above it. It is presentation only: the
+  component never sends it and scopes nothing by it, unlike `user-key`. The
+  default floating panel, `"sidebar"` and `"embedded"` show no greeting, so for
+  them the attribute changes nothing.
+
+  What else 0.39.0 changes in the admin, with nothing to configure:
+
+  - Every tool call gets an answer before the next request. A call cut off by
+    Stop, or naming a tool the page does not have, used to go out with no
+    result, which some model providers refuse; it is now answered as *not
+    finished*, and its card says so rather than claiming it was done. (A call
+    cut off by a run error was already answered by django-ag-ui.)
+  - A reload while a tool call waits for approval restores that card as not
+    finished, where it showed a spinner that never stopped.
+  - The conversation list slides over the transcript at every width, where a
+    wide `"page"` panel used to dock it beside the transcript and push the
+    conversation sideways.
+  - Under `"sidebar"` and `"page"`, the corners inside the panel stay round
+    while its frame stays square.
+  - Focus moves into the composer on *New chat*, and into the conversation list
+    or the checkpoints panel when either opens.
+
+  **A project overriding `noResult` in `STRINGS` should move that text to
+  `callNotFinished`.** 0.39.0 no longer draws `noResult`, so the override is
+  silently unused; `toolInterrupted` and `interruptedLabel` label the new card
+  status.
+
+- **`django-ag-ui` is floored at `>=0.60` (was `>=0.59`) and
+  `django-pydantic-agent` at `>=0.23` (was `>=0.21`), so a refused tool from
+  `AdminAgentServer(drf_mcp_server=...)` renders as failed.** That server's tools
+  reach the agent through django-pydantic-agent's in-process bridge, and below
+  0.23 the bridge returned a refused call as the tool's value, which pydantic-ai
+  records as a success: `TOOL_CALL_RESULT` carried no `outcome`, and the vendored
+  card settled the call to done. 0.23 raises `ToolFailed` with the server's
+  sentence and the refusal's code, so the card shows it failed. django-ag-ui
+  0.60 floors django-pydantic-agent at 0.23 and holds this with a test. The
+  configuration page now says that the failed call's text is the server's own
+  and that `TOOL_FAILURE.INCLUDE_DETAIL` does not redact it, where its note on
+  refusal reasons had said every non-permission refusal withholds its reason by
+  default. The floor stated in `README.md`, `CLAUDE.md`, `docs/installation.md`
+  and the upstream-drift workflow moves with it.
+
+- **The `[mcp]` extra is floored at `djangorestframework-mcp-server>=0.45` (was
+  `>=0.37`).** Below 0.44, once a bridged server's specs declared drf-services
+  affordances, a chain tool ran a step whose service's own affordances refuse it
+  and reported success, and the `outputSchema` handed to the model as its return
+  schema left out the `affordances` object each rendered item carries. 0.45
+  serves a refusal's `code`, which the bridge appends to the failed call's text,
+  and resolves a chain tool's `RETRIEVE` step to its row before the object-level
+  permission judges it: below it a selector returning a queryset skipped that
+  check, and a chain step rendered without an output serializer answered with
+  the text of the row the rule refuses. It also refuses a `many=True` service
+  spec at registration. 0.45 floors `djangorestframework-services` at 0.52.1 in
+  turn. The floor stated in `CLAUDE.md`, `docs/installation.md` and the
+  upstream-drift workflow moves with it.
+
 ## [0.43.0] — 2026-09-14
 
 ### Changed
@@ -1843,7 +1909,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.43.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.44.0...HEAD
+[0.44.0]: https://github.com/Artui/django-admin-agent/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/Artui/django-admin-agent/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/Artui/django-admin-agent/compare/v0.41.0...v0.42.0
 [0.41.0]: https://github.com/Artui/django-admin-agent/compare/v0.40.0...v0.41.0

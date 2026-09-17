@@ -87,8 +87,8 @@ dependencies = [
     # on rendering as a successful one -- the two halves are only right
     # together, which is why the pin and the floor moved in one release.
     #
-    # The current floor is adopted for documentation rather than behaviour, and
-    # is worth stating anyway. It carries the correction to
+    # 0.59 was adopted for documentation rather than behaviour, and was worth
+    # stating anyway. It carries the correction to
     # ``FORWARD_REASONING``, which had been documented as though a
     # chain-of-thought could only reach a browser once an operator enabled a
     # thinking budget. It cannot be relied on: some models reason by default and
@@ -96,7 +96,16 @@ dependencies = [
     # renders reasoning to every staff member who can open a changelist -- so a
     # reader following our docs to the upstream setting should land on the page
     # that says so, not on the one that talked them out of checking.
-    "django-ag-ui>=0.59",
+    #
+    # The current floor, 0.60, extends the ``outcome`` argument above to a tool
+    # bridged from ``AdminAgentServer(drf_mcp_server=...)``. 0.60 floors
+    # django-pydantic-agent at 0.23, whose bridge raises ``ToolFailed`` for a call
+    # the server refuses. Below it the refusal came back as the tool's returned
+    # value, so ``TOOL_CALL_RESULT`` carried no ``outcome`` and the vendored card
+    # settled a refused call to done -- the same false success, one route over.
+    # django-ag-ui's own suite holds that, driving a refused bridged tool through
+    # a whole session.
+    "django-ag-ui>=0.60",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -111,13 +120,31 @@ dependencies = [
     # floor would arrive on its own with a later transport release, and the
     # question this row answers is which version *works*, not which version the
     # dependency happens to require today.
-    "django-pydantic-agent>=0.21",
+    # Raised to 0.23 with the transport, for the refused bridged tool described
+    # above: that bridge is this package's, and django-ag-ui 0.60 requires it
+    # anyway, so the floor is stated here rather than left to arrive transitively.
+    "django-pydantic-agent>=0.23",
 ]
 
 [project.optional-dependencies]
-# Also expose the admin tools as an MCP server over HTTP via the user's
-# djangorestframework-mcp-server stack.
-mcp = ["djangorestframework-mcp-server>=0.37"]
+# For ``AdminAgentServer(drf_mcp_server=...)``: a djangorestframework-mcp-server
+# ``MCPServer``'s tools, exposed to the agent in-process through
+# django-pydantic-agent's bridge, beside the built-in tools. It is that direction
+# only; nothing here serves the admin's own tools over MCP.
+# Floored at 0.45, the release that serves a refusal's ``code`` in a tool's error
+# result, which the bridge appends to the failed call's text the card shows. 0.45
+# also resolves a chain tool's RETRIEVE step to its row before the object-level
+# permission judges it: below it a selector returning a queryset skipped that
+# check, and a chain step rendered without an output serializer answered with the
+# text of the row the rule refuses. And it refuses a ``many=True`` service spec at
+# registration.
+#
+# 0.44 was the previous floor, where the tools that bridge lists and calls caught
+# up with drf-services' affordances: below it a chain tool ran a step whose
+# service's own affordances refuse it, and reported success, and the
+# ``outputSchema`` handed to the model left out the ``affordances`` object.
+# Subsumed.
+mcp = ["djangorestframework-mcp-server>=0.45"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"
@@ -226,7 +253,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.43.0"
+current_version = "0.44.0"
 allow_dirty = false
 commit = false
 tag = false

@@ -44,6 +44,8 @@ def test_context_keys_and_values() -> None:
     assert context["strings_json"] is None
     assert context["icon_url"] is None
     assert context["side"] is None
+    # No user, no name: the greeting falls back to its nameless form.
+    assert context["user_name"] is None
     assert context["bootstrap_url"].endswith("django_admin_agent/admin_agent.js")
     assert context["admin_base_url"] == "/admin/"
     route_ids = {r["id"] for r in context["route_map"]}
