@@ -838,6 +838,11 @@ navigate, and the two attachment paths.</p>
 <td>The <code>user-key</code> attribute, which scopes the component's per-tab conversation to the signed-in principal. <code>sessionStorage</code> outlives the navigation a logout is, so without it the next person to sign in at the same desk lands on the previous one's transcript; changing the value purges everything the previous principal left behind. <code>pk</code> rather than <code>username</code>, because a renamed account is the same principal. <code>None</code> (attribute omitted) for an anonymous or absent user.</td>
 </tr>
 <tr>
+<td><code>user_name</code></td>
+<td><code>request.user.get_short_name()</code>, else <code>get_username()</code> (or <code>None</code>)</td>
+<td>The <code>user-name</code> attribute: the name the greeting on an empty <code>placement="page"</code> conversation uses (<em>Hello, {name}</em>). The same name the admin's own header welcomes the user by. Presentation only: the component never sends it and scopes nothing by it. Other placements show no greeting. <code>None</code> (attribute omitted, <em>Hello there</em>) for an anonymous or absent user.</td>
+</tr>
+<tr>
 <td><code>bootstrap_url</code></td>
 <td><code>static("django_admin_agent/admin_agent.js")</code></td>
 <td>The ES-module entry point.</td>

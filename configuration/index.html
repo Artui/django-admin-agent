@@ -564,7 +564,7 @@
   <a href="#drf_mcp_server-and-the-mcp-extra" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DRF_MCP_SERVER and the [mcp] extra
+        drf_mcp_server= and the [mcp] extra
       
     </span>
   </a>
@@ -900,7 +900,7 @@
   <a href="#drf_mcp_server-and-the-mcp-extra" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DRF_MCP_SERVER and the [mcp] extra
+        drf_mcp_server= and the [mcp] extra
       
     </span>
   </a>
@@ -988,7 +988,7 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <tr>
 <td><code>PLACEMENT</code></td>
 <td><em>unset</em></td>
-<td>Where the panel sits: <code>"sidebar"</code>, <code>"embedded"</code>, <code>"page"</code>, or the older <code>"bottom-left"</code>, <code>"side"</code> and <code>"full"</code>. Rendered as the <code>placement</code> attribute; left off for the default floating bottom-right. <code>"sidebar"</code> is a full-height docked panel that collapses to an icon rail (pair it with <code>SIDE</code>); <code>"page"</code> is a full-screen route with no collapsed state at all. The last three are no longer in the component's own documented four but still parse and still work.</td>
+<td>Where the panel sits: <code>"sidebar"</code>, <code>"embedded"</code>, <code>"page"</code>, or the older <code>"bottom-left"</code>, <code>"side"</code> and <code>"full"</code>. Rendered as the <code>placement</code> attribute; left off for the default floating bottom-right. <code>"sidebar"</code> is a full-height docked panel that collapses to an icon rail (pair it with <code>SIDE</code>); <code>"page"</code> is a full-screen route with no collapsed state at all, and greets the signed-in user by name over an empty conversation, with the composer centred beneath (the name is the one the admin header welcomes them by; see <a href="../admin-wiring/">Admin wiring</a>). The last three are no longer in the component's own documented four but still parse and still work.</td>
 </tr>
 <tr>
 <td><code>TEXT_ANIMATION</code></td>
@@ -1330,13 +1330,16 @@ agent carrying on around a failed tool.</p>
 <p class="admonition-title">Both floors have to move together</p>
 <p>On django-ag-ui <strong>0.48</strong> nothing redacted the <code>RUN_ERROR</code> path, so with
 django-pydantic-agent 0.18 the gate's message reached the browser
-verbatim with <code>INCLUDE_DETAIL</code> off. This package floors at
-<code>django-ag-ui&gt;=0.59</code> for exactly that reason. A project pinning the
-transport lower while taking the newer substrate re-opens it.</p>
+verbatim with <code>INCLUDE_DETAIL</code> off. This package's <code>django-ag-ui</code> floor
+is above 0.49 for exactly that reason. A project pinning the transport
+lower while taking the newer substrate re-opens it.</p>
 </div>
 <p><strong>Every other refusal still reaches the model as a failure</strong>, and by default
 the <em>reason</em> is not part of it — <code>TOOL_FAILURE.INCLUDE_DETAIL</code> is <code>False</code>,
-on the grounds that an exception message is written for an operator. A
+on the grounds that an exception message is written for an operator. (A tool
+bridged from <code>drf_mcp_server=</code> is the exception: its refusal is the server's
+answer rather than an exception here, and
+<a href="#drf_mcp_server-and-the-mcp-extra">carries its own sentence</a>.) A
 redacted-field lookup is the one you are most likely to meet: it raises
 <code>ValueError</code>, so the full explanation goes to your log and audit trail and
 the user sees only that the tool failed. If you would rather the agent could
@@ -1522,12 +1525,35 @@ want, set <a href="https://artui.github.io/django-ag-ui/configuration/#forward_r
 to <code>False</code> in <code>DJANGO_AG_UI</code> — the events are then stripped server-side and
 never reach the browser.</p>
 </div>
-<h3 id="drf_mcp_server-and-the-mcp-extra"><code>DRF_MCP_SERVER</code> and the <code>[mcp]</code> extra<a class="headerlink" href="#drf_mcp_server-and-the-mcp-extra" title="Permanent link">&para;</a></h3>
-<p>Installing <code>django-admin-agent[mcp]</code> and pointing <code>DRF_MCP_SERVER</code> at a
-<code>djangorestframework-mcp-server</code> <code>MCPServer</code> instance exposes that server's
-tools to the agent in-process — no network MCP hop — alongside the built-in
-<code>shell.*</code> / <code>introspect.*</code> tools. The bridge is imported lazily by
-<code>django-ag-ui</code>; the dependency is never loaded unless the setting is configured.</p>
+<h3 id="drf_mcp_server-and-the-mcp-extra"><code>drf_mcp_server=</code> and the <code>[mcp]</code> extra<a class="headerlink" href="#drf_mcp_server-and-the-mcp-extra" title="Permanent link">&para;</a></h3>
+<p>Installing <code>django-admin-agent[mcp]</code> and passing a
+<code>djangorestframework-mcp-server</code> <code>MCPServer</code> instance as
+<code>AdminAgentServer(drf_mcp_server=...)</code> exposes that server's tools to the agent
+in-process — no network MCP hop — alongside the built-in <code>shell.*</code> /
+<code>introspect.*</code> tools. The argument is forwarded to django-ag-ui's
+<a href="https://artui.github.io/django-ag-ui/configuration/#drf_mcp_server"><code>drf_mcp_server=</code></a>,
+which imports the bridge lazily, so the dependency is never loaded unless the
+argument is given.</p>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminAgentServer</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">myproject.mcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">mcp_server</span>  <span class="c1"># your djangorestframework-mcp-server MCPServer</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin-agent/"</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">drf_mcp_server</span><span class="o">=</span><span class="n">mcp_server</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">]</span>
+</span></code></pre></div>
+<p>It is a constructor argument rather than a setting, like every other
+collaborator: <code>DRF_MCP_SERVER</code> in <code>DJANGO_AG_UI</code> is refused with
+<code>ImproperlyConfigured</code> (see the warning under
+<a href="#inherited-django_ag_ui">Inherited <code>DJANGO_AG_UI</code></a>).</p>
+<p>A call the server refuses reaches the sidebar as a <strong>failed</strong> call, from
+django-pydantic-agent 0.23, which raises the refusal rather than returning it as
+the tool's value; below that the card settled it to done. Its text is the
+server's own error sentence, followed by the refusal's <code>code</code> where it has one
+and, for a chain, the step that failed: what the server would send any MCP
+client that made the call. <code>TOOL_FAILURE.INCLUDE_DETAIL</code> does not redact it,
+because nothing was raised on this side to redact. The server has already
+decided what its caller may read, so word a <code>ServiceError</code> for whoever calls the
+tool, a staff member reading the sidebar included.</p>
 
 
 
