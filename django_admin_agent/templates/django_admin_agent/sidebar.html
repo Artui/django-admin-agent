@@ -34,6 +34,7 @@ template) still renders.
   {% if not launcher_drag %}data-launcher-drag="false"{% endif %}
   {% if theme_toggle %}data-theme-toggle=""{% endif %}
   {% if user_key %}user-key="{{ user_key }}"{% endif %}
+  {% if user_name %}user-name="{{ user_name }}"{% endif %}
   data-admin-base="{{ admin_base_url }}"></ag-ui-chat>
 {{ route_map|json_script:"django-admin-agent-routes" }}
 {{ skills|json_script:"django-admin-agent-skills" }}

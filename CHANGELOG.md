@@ -7,9 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.44.0] — 2026-09-16
+## [0.44.0] — 2026-09-17
 
 ### Changed
+
+- **Vendors `@artooi/ag-ui-web-component` 0.39.0, and renders the signed-in
+  user's name as `user-name`.** Under `PLACEMENT="page"`, an empty conversation
+  now greets the user as *Hello, {name}* with the composer centred beneath it,
+  and the composer slides to its usual place when the first message is sent.
+  The name is the one the admin's own header welcomes them by --
+  `get_short_name()`, else `get_username()` -- so the page never greets
+  somebody differently from the header above it. It is presentation only: the
+  component never sends it and scopes nothing by it, unlike `user-key`. The
+  default floating panel, `"sidebar"` and `"embedded"` show no greeting, so for
+  them the attribute changes nothing.
+
+  What else 0.39.0 changes in the admin, with nothing to configure:
+
+  - Every tool call gets an answer before the next request. A call cut off by
+    Stop, or naming a tool the page does not have, used to go out with no
+    result, which some model providers refuse; it is now answered as *not
+    finished*, and its card says so rather than claiming it was done. (A call
+    cut off by a run error was already answered by django-ag-ui.)
+  - A reload while a tool call waits for approval restores that card as not
+    finished, where it showed a spinner that never stopped.
+  - The conversation list slides over the transcript at every width, where a
+    wide `"page"` panel used to dock it beside the transcript and push the
+    conversation sideways.
+  - Under `"sidebar"` and `"page"`, the corners inside the panel stay round
+    while its frame stays square.
+  - Focus moves into the composer on *New chat*, and into the conversation list
+    or the checkpoints panel when either opens.
+
+  **A project overriding `noResult` in `STRINGS` should move that text to
+  `callNotFinished`.** 0.39.0 no longer draws `noResult`, so the override is
+  silently unused; `toolInterrupted` and `interruptedLabel` label the new card
+  status.
 
 - **The `[mcp]` extra is floored at `djangorestframework-mcp-server>=0.44` (was
   `>=0.37`).** A server passed as `AdminAgentServer(drf_mcp_server=...)` reaches

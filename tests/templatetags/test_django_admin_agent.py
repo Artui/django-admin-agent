@@ -141,6 +141,97 @@ def test_an_anonymous_user_is_not_a_principal() -> None:
     assert build_sidebar_context(user=AnonymousUser())["user_key"] is None
 
 
+@pytest.mark.django_db
+def test_the_greeting_names_the_user_the_way_the_admin_header_does() -> None:
+    """``get_short_name()`` first, as ``admin/base.html``'s welcome line does.
+
+    Sized so the username cannot answer for it: the two differ, so a builder
+    reading ``get_username()`` first fails here rather than passing.
+    """
+    user = User.objects.create_user(username="ada.l", first_name="Ada", is_staff=True)
+
+    assert build_sidebar_context(user=user)["user_name"] == "Ada"
+    rendered = _render_for(_request_from(user))
+    assert 'user-name="Ada"' in rendered
+    assert "ada.l" not in rendered
+
+
+@pytest.mark.django_db
+def test_a_user_with_no_short_name_is_greeted_by_username() -> None:
+    user = User.objects.create_user(username="ada.l", is_staff=True)
+
+    assert build_sidebar_context(user=user)["user_name"] == "ada.l"
+
+
+def test_a_user_model_without_get_short_name_is_greeted_by_username() -> None:
+    """A custom model on ``AbstractBaseUser`` need not define ``get_short_name``.
+
+    The admin's header tolerates that, so the sidebar must not raise on it.
+    """
+
+    class _BareUser:
+        is_authenticated = True
+        pk = 7
+
+        def get_username(self) -> str:
+            return "ada.l"
+
+    assert build_sidebar_context(user=_BareUser())["user_name"] == "ada.l"
+
+
+def test_a_blank_name_leaves_the_greeting_nameless() -> None:
+    """An empty string is not a name: the attribute stays off for *Hello there*."""
+
+    class _NamelessUser:
+        is_authenticated = True
+        pk = 7
+
+        def get_short_name(self) -> str:
+            return ""
+
+        def get_username(self) -> str:
+            return ""
+
+    assert build_sidebar_context(user=_NamelessUser())["user_name"] is None
+
+
+@pytest.mark.django_db
+def test_the_name_is_escaped_into_the_attribute() -> None:
+    """A name is typed by whoever edits the account, so it must not break out."""
+    user = User.objects.create_user(username="ada.l", first_name='Ada" onload="x', is_staff=True)
+
+    rendered = _render_for(_request_from(user))
+
+    assert 'user-name="Ada&quot; onload=&quot;x"' in rendered
+    assert 'onload="x"' not in rendered
+
+
+def test_no_user_leaves_the_name_off_entirely() -> None:
+    assert build_sidebar_context()["user_name"] is None
+    assert build_sidebar_context(user=AnonymousUser())["user_name"] is None
+    assert "user-name=" not in _render()
+
+
+def test_a_named_but_unauthenticated_user_is_not_greeted() -> None:
+    """The authentication check, held on its own.
+
+    ``AnonymousUser`` cannot hold it: its username is empty, so it would come
+    back nameless with the check deleted. This one has a name to leak.
+    """
+
+    class _SignedOutUser:
+        is_authenticated = False
+        pk = 7
+
+        def get_short_name(self) -> str:
+            return "Ada"
+
+        def get_username(self) -> str:
+            return "ada.l"
+
+    assert build_sidebar_context(user=_SignedOutUser())["user_name"] is None
+
+
 @override_settings(DJANGO_ADMIN_AGENT={"LAUNCHER_DRAG": False})
 def test_tag_pins_the_sidebar_when_dragging_is_turned_off() -> None:
     """One attribute governs both drags from web component 0.34.0.
