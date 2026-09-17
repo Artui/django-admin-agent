@@ -297,13 +297,16 @@ just read. Three things follow:
     !!! danger "Both floors have to move together"
         On django-ag-ui **0.48** nothing redacted the `RUN_ERROR` path, so with
         django-pydantic-agent 0.18 the gate's message reached the browser
-        verbatim with `INCLUDE_DETAIL` off. This package floors at
-        `django-ag-ui>=0.59` for exactly that reason. A project pinning the
-        transport lower while taking the newer substrate re-opens it.
+        verbatim with `INCLUDE_DETAIL` off. This package's `django-ag-ui` floor
+        is above 0.49 for exactly that reason. A project pinning the transport
+        lower while taking the newer substrate re-opens it.
 
     **Every other refusal still reaches the model as a failure**, and by default
     the *reason* is not part of it — `TOOL_FAILURE.INCLUDE_DETAIL` is `False`,
-    on the grounds that an exception message is written for an operator. A
+    on the grounds that an exception message is written for an operator. (A tool
+    bridged from `drf_mcp_server=` is the exception: its refusal is the server's
+    answer rather than an exception here, and
+    [carries its own sentence](#drf_mcp_server-and-the-mcp-extra).) A
     redacted-field lookup is the one you are most likely to meet: it raises
     `ValueError`, so the full explanation goes to your log and audit trail and
     the user sees only that the tool failed. If you would rather the agent could
@@ -525,3 +528,13 @@ It is a constructor argument rather than a setting, like every other
 collaborator: `DRF_MCP_SERVER` in `DJANGO_AG_UI` is refused with
 `ImproperlyConfigured` (see the warning under
 [Inherited `DJANGO_AG_UI`](#inherited-django_ag_ui)).
+
+A call the server refuses reaches the sidebar as a **failed** call, from
+django-pydantic-agent 0.23, which raises the refusal rather than returning it as
+the tool's value; below that the card settled it to done. Its text is the
+server's own error sentence, followed by the refusal's `code` where it has one
+and, for a chain, the step that failed: what the server would send any MCP
+client that made the call. `TOOL_FAILURE.INCLUDE_DETAIL` does not redact it,
+because nothing was raised on this side to redact. The server has already
+decided what its caller may read, so word a `ServiceError` for whoever calls the
+tool, a staff member reading the sidebar included.

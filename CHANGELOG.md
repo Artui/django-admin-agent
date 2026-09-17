@@ -44,15 +44,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   silently unused; `toolInterrupted` and `interruptedLabel` label the new card
   status.
 
-- **The `[mcp]` extra is floored at `djangorestframework-mcp-server>=0.44` (was
-  `>=0.37`).** A server passed as `AdminAgentServer(drf_mcp_server=...)` reaches
-  the agent through django-pydantic-agent's in-process bridge, and below 0.44 two
-  things went wrong once its specs declared drf-services affordances: a chain tool
-  ran a step whose service's own affordances refuse it and reported success, and
-  the `outputSchema` handed to the model as its return schema left out the
-  `affordances` object each rendered item carries. 0.44 floors
-  `djangorestframework-services` at 0.52 in turn. The floor stated in `CLAUDE.md`,
-  `docs/installation.md` and the upstream-drift workflow moves with it.
+- **`django-ag-ui` is floored at `>=0.60` (was `>=0.59`) and
+  `django-pydantic-agent` at `>=0.23` (was `>=0.21`), so a refused tool from
+  `AdminAgentServer(drf_mcp_server=...)` renders as failed.** That server's tools
+  reach the agent through django-pydantic-agent's in-process bridge, and below
+  0.23 the bridge returned a refused call as the tool's value, which pydantic-ai
+  records as a success: `TOOL_CALL_RESULT` carried no `outcome`, and the vendored
+  card settled the call to done. 0.23 raises `ToolFailed` with the server's
+  sentence and the refusal's code, so the card shows it failed. django-ag-ui
+  0.60 floors django-pydantic-agent at 0.23 and holds this with a test. The
+  configuration page now says that the failed call's text is the server's own
+  and that `TOOL_FAILURE.INCLUDE_DETAIL` does not redact it, where its note on
+  refusal reasons had said every non-permission refusal withholds its reason by
+  default. The floor stated in `README.md`, `CLAUDE.md`, `docs/installation.md`
+  and the upstream-drift workflow moves with it.
+
+- **The `[mcp]` extra is floored at `djangorestframework-mcp-server>=0.45` (was
+  `>=0.37`).** Below 0.44, once a bridged server's specs declared drf-services
+  affordances, a chain tool ran a step whose service's own affordances refuse it
+  and reported success, and the `outputSchema` handed to the model as its return
+  schema left out the `affordances` object each rendered item carries. 0.45
+  serves a refusal's `code`, which the bridge appends to the failed call's text,
+  and resolves a chain tool's `RETRIEVE` step to its row before the object-level
+  permission judges it: below it a selector returning a queryset skipped that
+  check, and a chain step rendered without an output serializer answered with
+  the text of the row the rule refuses. It also refuses a `many=True` service
+  spec at registration. 0.45 floors `djangorestframework-services` at 0.52.1 in
+  turn. The floor stated in `CLAUDE.md`, `docs/installation.md` and the
+  upstream-drift workflow moves with it.
 
 ## [0.43.0] — 2026-09-14
 
