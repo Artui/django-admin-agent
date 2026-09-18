@@ -97,7 +97,7 @@ dependencies = [
     # reader following our docs to the upstream setting should land on the page
     # that says so, not on the one that talked them out of checking.
     #
-    # The current floor, 0.60, extends the ``outcome`` argument above to a tool
+    # 0.60 extended the ``outcome`` argument above to a tool
     # bridged from ``AdminAgentServer(drf_mcp_server=...)``. 0.60 floors
     # django-pydantic-agent at 0.23, whose bridge raises ``ToolFailed`` for a call
     # the server refuses. Below it the refusal came back as the tool's returned
@@ -105,7 +105,20 @@ dependencies = [
     # settled a refused call to done -- the same false success, one route over.
     # django-ag-ui's own suite holds that, driving a refused bridged tool through
     # a whole session.
-    "django-ag-ui>=0.60",
+    #
+    # The current floor, 0.61, is about a run surviving the network between this
+    # admin and the model. Its SSE response carries a heartbeat, so the silence
+    # while a model thinks or a slow admin tool runs stops reading as a dead
+    # connection to the proxies in front of a Django deployment: an AWS
+    # Application Load Balancer and nginx each cut an idle stream at 60 seconds by
+    # default, and a sidebar answering a real question is regularly quieter than
+    # that. Below the floor the connection is closed mid-run and the answer never
+    # arrives, which is indistinguishable from the agent failing. 0.61 also stops
+    # a delegated sub-agent running on after the client that asked for it has
+    # gone -- in an admin that is the ordinary case rather than an edge one, since
+    # the sidebar lives on a changelist and a user clicks through to the next page
+    # mid-run.
+    "django-ag-ui>=0.61",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -123,7 +136,13 @@ dependencies = [
     # Raised to 0.23 with the transport, for the refused bridged tool described
     # above: that bridge is this package's, and django-ag-ui 0.60 requires it
     # anyway, so the floor is stated here rather than left to arrive transitively.
-    "django-pydantic-agent>=0.23",
+    # Raised to 0.24 with the transport again, and this time it buys this package
+    # no behaviour at all: that release changes no code in django-pydantic-agent,
+    # it only raises that package's own extras onto the drf-mcp band the ``[mcp]``
+    # extra below now declares. It is stated for the reason the whole row is
+    # stated -- django-ag-ui 0.61 requires it anyway, and this row answers which
+    # version works rather than which one would arrive on its own.
+    "django-pydantic-agent>=0.24",
 ]
 
 [project.optional-dependencies]
@@ -131,20 +150,33 @@ dependencies = [
 # ``MCPServer``'s tools, exposed to the agent in-process through
 # django-pydantic-agent's bridge, beside the built-in tools. It is that direction
 # only; nothing here serves the admin's own tools over MCP.
-# Floored at 0.45, the release that serves a refusal's ``code`` in a tool's error
-# result, which the bridge appends to the failed call's text the card shows. 0.45
+# Floored at 0.46, where a ``ServiceSpec`` declaring ``many=True`` registers as a
+# tool and takes its list under one named argument. An ``MCPServer`` carrying a
+# bulk spec therefore reaches the agent as a tool whose result the card renders as
+# a list, where below this floor registration refused the spec and the agent was
+# offered nothing for it. 0.46 also stops a ``many=True`` chain step collapsing
+# its list to one row through an output re-fetch, and refuses a chain inheriting
+# such a step's ``input_serializer`` rather than handing the bulk service one item
+# as its whole data. It floors drf-services at 0.53.0 in turn, and hard: every
+# service dispatch passes ``many_as_argument``, which first exists there, so below
+# it a bridged tool call raises ``TypeError`` at the call while the package still
+# imports.
+#
+# 0.45 was the previous floor, the release that serves a refusal's ``code`` in a
+# tool's error result, which the bridge appends to the failed call's text the card
+# shows. 0.45
 # also resolves a chain tool's RETRIEVE step to its row before the object-level
 # permission judges it: below it a selector returning a queryset skipped that
 # check, and a chain step rendered without an output serializer answered with the
-# text of the row the rule refuses. And it refuses a ``many=True`` service spec at
-# registration.
+# text of the row the rule refuses. And it refused a ``many=True`` service spec at
+# registration, which is exactly what 0.46 reverses. Subsumed.
 #
-# 0.44 was the previous floor, where the tools that bridge lists and calls caught
+# 0.44 was the floor before that, where the tools that bridge lists and calls caught
 # up with drf-services' affordances: below it a chain tool ran a step whose
 # service's own affordances refuse it, and reported success, and the
 # ``outputSchema`` handed to the model left out the ``affordances`` object.
 # Subsumed.
-mcp = ["djangorestframework-mcp-server>=0.45"]
+mcp = ["djangorestframework-mcp-server>=0.46"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"

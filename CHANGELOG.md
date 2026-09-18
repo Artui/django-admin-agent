@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The vendored web component is `@artooi/ag-ui-web-component@0.40.0` (was
+  `0.39.0`).** The committed bundle is byte-identical to the published package,
+  which `vendor-bundle-verify` asserts on every run.
+
+  Most of what it brings is repair rather than new surface. A tool card called
+  with no arguments stops drawing an empty ARGUMENTS region, and an empty row of
+  skill chips stops taking space above the composer. A checkpoint continuation
+  now waits for the run in flight, is let go of when its first save fails, keeps
+  the continued exchange with its conversation, and parks a turn typed between
+  picking a checkpoint and its run starting. An element removed from the document
+  and inserted again is treated as one element rather than two.
+
+  Two changes are visible on a phone, which is where the admin sidebar is
+  hardest to use. A full-screen panel stays on the visible screen when a keyboard
+  opens under it, and no longer runs under Safari's bars when there is no
+  keyboard. On a viewport 600px wide or narrower the composer now stays at the
+  foot of the panel with the greeting over the space above it, instead of being
+  centred halfway up with an empty band under it -- which matters for
+  `PLACEMENT = "page"`, the one placement that shows a greeting by default.
+
+- **The adoption pass found no host wiring owed, which is a result rather than a
+  skipped step.** 0.40.0 has no `Added` section at all: both of its changes are
+  on by default. `askUserRenderer` falling back to the built-in question card on
+  a throw needs no call here, because this package sets no renderer; and the
+  small-viewport composer is the default shape, with `data-small-viewport="off"`
+  available as an opt-out that no setting surfaces, because the docked shape is
+  the one an admin on a phone wants.
+
+- **Floored at `django-ag-ui>=0.61` (was `>=0.60`).** 0.61's SSE response carries
+  a heartbeat, so the silence while a model thinks or a slow admin tool runs
+  stops reading as a dead connection to the proxies in front of a Django
+  deployment -- an AWS Application Load Balancer and nginx each cut an idle
+  stream at 60 seconds by default, and a sidebar answering a real question is
+  regularly quieter than that. Below the floor the connection closes mid-run and
+  the answer never arrives, which is indistinguishable from the agent failing.
+  0.61 also stops a delegated sub-agent running on after the client that asked
+  for it has gone, which in an admin is the ordinary case rather than an edge
+  one: the sidebar lives on a changelist and a user clicks through mid-run.
+
+- **The `[mcp]` extra is floored at `djangorestframework-mcp-server>=0.46` (was
+  `>=0.45`).** A `ServiceSpec` declaring `many=True` now registers as a tool
+  taking its list under one named argument, so an `MCPServer` carrying a bulk
+  spec reaches the agent as a tool whose result the card renders as a list, where
+  registration below this floor refused the spec and offered the agent nothing
+  for it. 0.46 also stops a `many=True` chain step collapsing its list to one
+  row, and refuses a chain inheriting such a step's `input_serializer`. It floors
+  `djangorestframework-services` at 0.53.0 in turn, and hard: below it a bridged
+  tool call raises `TypeError` while the package still imports.
+
+- **Floored at `django-pydantic-agent>=0.24` (was `>=0.23`), which buys this
+  package no behaviour.** That release changes no code in
+  `django-pydantic-agent`; it raises that package's own extras onto the drf-mcp
+  band the `[mcp]` extra now declares. It is stated for the reason the whole
+  dependency is stated rather than left transitive: `django-ag-ui` 0.61 requires
+  it anyway, and the row answers which version works rather than which one would
+  arrive on its own.
+
 ## [0.44.0] — 2026-09-17
 
 ### Changed
