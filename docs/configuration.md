@@ -538,3 +538,18 @@ client that made the call. `TOOL_FAILURE.INCLUDE_DETAIL` does not redact it,
 because nothing was raised on this side to redact. The server has already
 decided what its caller may read, so word a `ServiceError` for whoever calls the
 tool, a staff member reading the sidebar included.
+
+A tool an **operation-scope affordance** refuses right now is not offered at
+all, and the agent is told why. From django-pydantic-agent 0.25 the bridge asks
+the server on every model step which of its tools a listing would leave out, so
+a condition that closes part-way through a conversation takes its tool away and
+one that clears brings it back, without the conversation restarting. Each
+missing tool is named in that step's instructions with the condition's own
+`reason`, so a staff member who asks for the operation is answered with the
+sentence whoever wrote the rule chose -- *"the books are closed for the
+quarter"* -- rather than with the model's guess at why a tool it cannot see is
+absent.
+
+Nothing there is a weaker gate than the call itself: the affordance is enforced
+when the tool runs, so a call made from a listing a moment out of date is still
+refused, with the `code`, as above.

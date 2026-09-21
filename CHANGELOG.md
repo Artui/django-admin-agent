@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.46.0] — 2026-09-21
+
+### Changed
+
+- **Floored at `django-pydantic-agent>=0.25` (was `>=0.24`), and the `[mcp]`
+  extra at `djangorestframework-mcp-server>=0.48` (was `>=0.46`). The two move
+  together, because the first is built on the second.** These are the floors an
+  `AdminAgentServer(drf_mcp_server=...)` installation feels; an admin wiring no
+  `MCPServer` is unaffected.
+
+  django-pydantic-agent's bridge used to list a drf-mcp registry once per run
+  and memoise it. A tool an operation-scope affordance refused when the
+  conversation started was therefore missing until it ended, and one whose
+  condition closed part-way through stayed on offer until a call came back
+  refused. From 0.25 the bridge builds every tool definition once and asks only
+  availability on each model step, so the agent's tools track the registry as a
+  fresh `tools/list` would.
+
+  It also says what is missing. Each tool an unmet condition left out is named
+  in that step's instructions with the condition's own `reason`, so a staff user
+  asking the chat beside a changelist for an operation that cannot run right now
+  is answered in the sentence whoever wrote the rule chose, instead of with
+  whatever the model infers from a tool's absence.
+
+  drf-mcp 0.48 is what makes that possible: a server answers in process which
+  tools a listing leaves out and why, and lists every tool the caller may see on
+  request, whether or not a condition refuses it right now. The second exists
+  because a bridge memoising definitions from a filtered listing has no
+  definition for a tool that becomes available later. Neither is a wire change,
+  and nothing about the admin's own tools changed.
+
+- **Floored at `django-ag-ui>=0.62` (was `>=0.61`).** That release carries the
+  same two floors for the transport itself, so stating it here keeps this
+  package's row answering which version works rather than which one would
+  arrive transitively.
+
 ## [0.45.0] — 2026-09-18
 
 ### Changed
@@ -1970,7 +2006,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.45.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.46.0...HEAD
+[0.46.0]: https://github.com/Artui/django-admin-agent/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/Artui/django-admin-agent/compare/v0.44.0...v0.45.0
 [0.44.0]: https://github.com/Artui/django-admin-agent/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/Artui/django-admin-agent/compare/v0.42.0...v0.43.0

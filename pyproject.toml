@@ -106,7 +106,7 @@ dependencies = [
     # django-ag-ui's own suite holds that, driving a refused bridged tool through
     # a whole session.
     #
-    # The current floor, 0.61, is about a run surviving the network between this
+    # 0.61 was the previous floor, about a run surviving the network between this
     # admin and the model. Its SSE response carries a heartbeat, so the silence
     # while a model thinks or a slow admin tool runs stops reading as a dead
     # connection to the proxies in front of a Django deployment: an AWS
@@ -118,7 +118,16 @@ dependencies = [
     # gone -- in an admin that is the ordinary case rather than an edge one, since
     # the sidebar lives on a changelist and a user clicks through to the next page
     # mid-run.
-    "django-ag-ui>=0.61",
+    #
+    # The current floor, 0.62, carries the two floors above into the transport
+    # itself: it declares django-pydantic-agent 0.25 and, in its ``[drf-mcp]``
+    # extra, djangorestframework-mcp-server 0.48. That is the pair a bridged
+    # sidebar needs for a tool to come and go with its operation condition while
+    # a conversation runs, and for the agent to be told the reason it went. The
+    # transport is what constructs the bridge from the ``drf_mcp_server=`` this
+    # package forwards, so a project resolving the transport lower takes the two
+    # rows above and still gets a bridge built the old way.
+    "django-ag-ui>=0.62",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -142,7 +151,16 @@ dependencies = [
     # extra below now declares. It is stated for the reason the whole row is
     # stated -- django-ag-ui 0.61 requires it anyway, and this row answers which
     # version works rather than which one would arrive on its own.
-    "django-pydantic-agent>=0.24",
+    # Raised to 0.25 with the transport again, and unlike 0.24 this one is felt
+    # in the admin. Its drf-mcp bridge follows tool availability on every model
+    # step rather than listing once per run, and names each tool an unmet
+    # operation-scope condition left out, with that condition's reason, in the
+    # step's instructions. So a staff user asking the chat beside a changelist
+    # for an operation that cannot run right now reads the rule's own sentence,
+    # where below this the tool was simply absent and the model explained the
+    # absence however it liked. It requires the ``[mcp]`` band below, which is
+    # why the two rows move together.
+    "django-pydantic-agent>=0.25",
 ]
 
 [project.optional-dependencies]
@@ -150,8 +168,18 @@ dependencies = [
 # ``MCPServer``'s tools, exposed to the agent in-process through
 # django-pydantic-agent's bridge, beside the built-in tools. It is that direction
 # only; nothing here serves the admin's own tools over MCP.
-# Floored at 0.46, where a ``ServiceSpec`` declaring ``many=True`` registers as a
-# tool and takes its list under one named argument. An ``MCPServer`` carrying a
+# Floored at 0.48, where a server answers in process which tools a listing leaves
+# out and why (``unavailable_tools`` / ``aunavailable_tools``) and, on request,
+# lists every tool the caller may see whether or not a condition refuses it
+# (``include_unavailable``). Neither is a wire change. That pair is what
+# django-pydantic-agent's bridge needs to keep the agent's tools in step with
+# the registry while a chat runs, so it is the band the row above requires: an
+# ``MCPServer`` carrying an operation-scope condition reaches the admin as a
+# tool that comes and goes with the condition, and as a named reason when it is
+# gone, rather than as a tool that was missing for the whole conversation.
+#
+# 0.46 was the previous floor, where a ``ServiceSpec`` declaring ``many=True``
+# registers as a tool and takes its list under one named argument. An ``MCPServer`` carrying a
 # bulk spec therefore reaches the agent as a tool whose result the card renders as
 # a list, where below this floor registration refused the spec and the agent was
 # offered nothing for it. 0.46 also stops a ``many=True`` chain step collapsing
@@ -160,7 +188,7 @@ dependencies = [
 # as its whole data. It floors drf-services at 0.53.0 in turn, and hard: every
 # service dispatch passes ``many_as_argument``, which first exists there, so below
 # it a bridged tool call raises ``TypeError`` at the call while the package still
-# imports.
+# imports. Subsumed.
 #
 # 0.45 was the previous floor, the release that serves a refusal's ``code`` in a
 # tool's error result, which the bridge appends to the failed call's text the card
@@ -176,7 +204,7 @@ dependencies = [
 # service's own affordances refuse it, and reported success, and the
 # ``outputSchema`` handed to the model left out the ``affordances`` object.
 # Subsumed.
-mcp = ["djangorestframework-mcp-server>=0.46"]
+mcp = ["djangorestframework-mcp-server>=0.48"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"
@@ -285,7 +313,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.45.0"
+current_version = "0.46.0"
 allow_dirty = false
 commit = false
 tag = false
