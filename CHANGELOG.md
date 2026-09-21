@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.46.0] — 2026-09-21
+
 ### Changed
 
 - **Floored at `django-pydantic-agent>=0.25` (was `>=0.24`), and the `[mcp]`
@@ -2004,7 +2006,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.45.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.46.0...HEAD
+[0.46.0]: https://github.com/Artui/django-admin-agent/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/Artui/django-admin-agent/compare/v0.44.0...v0.45.0
 [0.44.0]: https://github.com/Artui/django-admin-agent/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/Artui/django-admin-agent/compare/v0.42.0...v0.43.0
