@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Vendors `@artooi/ag-ui-web-component` 0.41.0 (was 0.40.0) and floors
+- **Vendors `@artooi/ag-ui-web-component` 0.41.1 (was 0.40.0) and floors
   `django-ag-ui>=0.63` (was `>=0.62`). The two move together, because neither
   is safe without the other.** The component now runs on the AG-UI 1.0 client,
   which deletes every field its schema does not declare, both from an event it
@@ -27,11 +27,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   succeeds, the chip shows, and the model is asked about a document it was
   never given. The floor is what rules that pairing out.
 
-  Nothing else is owed on upgrade. 0.41.0 adds no host opt-in, and the one API
-  it deprecates, `AgUiClient.annotatedMessages`, is not called by this
+  Nothing else is owed on upgrade. The component adds no host opt-in, and the
+  one API it deprecates, `AgUiClient.annotatedMessages`, is not called by this
   package's scripts. A conversation stored before the upgrade keeps its tool
   outcomes and attachment chips: the component reads the older top-level
   fields as a fallback.
+
+  The bundle every admin page loads is about a tenth larger than the one it
+  replaces rather than nearly half as large again: 1.0 made it import zod in a
+  way no bundler can tree-shake, which carried every locale zod has, and the
+  component's own build now resolves that before it is vendored here.
 
 ## [0.46.0] — 2026-09-21
 
