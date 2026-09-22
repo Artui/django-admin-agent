@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.0] — 2026-09-22
+
+### Changed
+
+- **Vendors `@artooi/ag-ui-web-component` 0.41.1 (was 0.40.0) and floors
+  `django-ag-ui>=0.63` (was `>=0.62`). The two move together, because neither
+  is safe without the other.** The component now runs on the AG-UI 1.0 client,
+  which deletes every field its schema does not declare, both from an event it
+  receives and from a request it sends. Two of the sidebar's fields were
+  exactly that: the `outcome` that settles a refused or declined tool call's
+  card as an error instead of done, and the refs to files a user attached,
+  which the next message carries to the server. django-ag-ui 0.63 moves both
+  into the `metadata` the 1.0 schema does declare, and the vendored component
+  reads them there.
+
+  Against an older server this bundle would render every refused tool call as
+  a success, and an attached file would never reach the agent -- the upload
+  succeeds, the chip shows, and the model is asked about a document it was
+  never given. The floor is what rules that pairing out.
+
+  Nothing else is owed on upgrade. The component adds no host opt-in, and the
+  one API it deprecates, `AgUiClient.annotatedMessages`, is not called by this
+  package's scripts. A conversation stored before the upgrade keeps its tool
+  outcomes and attachment chips: the component reads the older top-level
+  fields as a fallback.
+
+  The bundle every admin page loads is about a tenth larger than the one it
+  replaces rather than nearly half as large again: 1.0 made it import zod in a
+  way no bundler can tree-shake, which carried every locale zod has, and the
+  component's own build now resolves that before it is vendored here.
+
 ## [0.46.0] — 2026-09-21
 
 ### Changed
@@ -2006,7 +2037,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.46.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.47.0...HEAD
+[0.47.0]: https://github.com/Artui/django-admin-agent/compare/v0.46.0...v0.47.0
 [0.46.0]: https://github.com/Artui/django-admin-agent/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/Artui/django-admin-agent/compare/v0.44.0...v0.45.0
 [0.44.0]: https://github.com/Artui/django-admin-agent/compare/v0.43.0...v0.44.0
