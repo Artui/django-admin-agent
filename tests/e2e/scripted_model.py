@@ -31,6 +31,7 @@ from pydantic_ai.models.function import (
 from tests.e2e.chart_tool import CHART_REPLY
 
 _AUTHOR_ARGS = '{"app_label": "testapp", "model": "Author"}'
+_MISSING_MODEL_ARGS = '{"app_label": "testapp", "model": "Widget"}'
 
 
 def _latest_user_text(messages: Sequence[ModelMessage]) -> str:
@@ -91,6 +92,14 @@ def _decision(messages: Sequence[ModelMessage], info: AgentInfo) -> tuple[str, s
         # the assistant claims a chart is on screen, so the test can assert that
         # the claim and the transcript agree.
         return ("text", CHART_REPLY, "")
+    # A tool call the server refuses, as a model makes one when it guesses a
+    # name: ``count_model`` raises for a model that is not installed, and the
+    # failure policy hands that back as a tool failure rather than ending the
+    # run. Checked before the count branch below, which "how many" also opens.
+    if "widgets" in text:
+        if "count_model" not in returned:
+            return ("tool", "count_model", _MISSING_MODEL_ARGS)
+        return ("text", "That model is not installed here.", "")
     if "how many" in text or "count" in text:
         if "count_model" not in returned:
             return ("tool", "count_model", _AUTHOR_ARGS)

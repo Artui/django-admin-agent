@@ -119,15 +119,31 @@ dependencies = [
     # the sidebar lives on a changelist and a user clicks through to the next page
     # mid-run.
     #
-    # The current floor, 0.62, carries the two floors above into the transport
-    # itself: it declares django-pydantic-agent 0.25 and, in its ``[drf-mcp]``
-    # extra, djangorestframework-mcp-server 0.48. That is the pair a bridged
-    # sidebar needs for a tool to come and go with its operation condition while
-    # a conversation runs, and for the agent to be told the reason it went. The
+    # 0.62 carried the two floors above into the transport itself: it declares
+    # django-pydantic-agent 0.25 and, in its ``[drf-mcp]`` extra,
+    # djangorestframework-mcp-server 0.48. That is the pair a bridged sidebar
+    # needs for a tool to come and go with its operation condition while a
+    # conversation runs, and for the agent to be told the reason it went. The
     # transport is what constructs the bridge from the ``drf_mcp_server=`` this
     # package forwards, so a project resolving the transport lower takes the two
     # rows above and still gets a bridge built the old way.
-    "django-ag-ui>=0.62",
+    #
+    # The current floor, 0.63, is the other half of the bundle pinned in the
+    # Makefile, and neither is safe without the other. That bundle is built on
+    # the AG-UI 1.0 client, which deletes every field its schema does not
+    # declare from an event it receives and from a request it sends. Two of
+    # this sidebar's fields were exactly that: the ``outcome`` argued for above,
+    # and the refs to files a user attached, which the upload view hands back
+    # and the next message carries. 0.63 moves both into the ``metadata`` the
+    # 1.0 schema does declare. Below it the refused-tool card goes back to
+    # settling as done, the same false success as before the ``outcome`` floor,
+    # and an attached file never reaches the agent at all -- the upload
+    # succeeds, the chip shows, and the model is asked about a document it was
+    # never given. The browser suite holds the first half:
+    # ``tests/e2e/test_refused_tool_card.py`` fails against 0.62 with this
+    # bundle, finding the card settled to done, and it is the only test that
+    # loads both.
+    "django-ag-ui>=0.63",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
