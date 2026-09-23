@@ -23,7 +23,7 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import expect
 
-from tests.e2e.conftest import send_message
+from tests.e2e.conftest import open_sidebar, send_message
 
 pytestmark = [pytest.mark.e2e, pytest.mark.django_db(transaction=True)]
 
@@ -39,6 +39,32 @@ def test_a_refused_tool_call_settles_its_card_as_an_error(admin_page, live_serve
         admin_page.locator("ag-ui-chat .message--assistant", has_text="not installed here"),
     ).to_be_visible(timeout=15000)
 
+    card = admin_page.locator("ag-ui-chat .tool-call")
+    expect(card).to_have_count(1)
+    expect(card).to_have_attribute("data-status", "error")
+
+
+def test_a_refused_tool_call_still_reads_as_refused_after_a_reload(admin_page, live_server):  # noqa: ANN001, ANN201
+    """The stored copy says what the live stream said.
+
+    With a conversation store mounted, a reload replays the server's copy of the
+    thread rather than the tab's, so the card is settled a second time from
+    whatever the store kept. Before django-ag-ui 0.64 that was pydantic-ai's
+    dump, which drops the outcome, and a call the page had just shown as refused
+    came back from the reload as done.
+    """
+    admin_page.goto(f"{live_server.url}/admin/")
+    send_message(admin_page, "how many widgets are there?")
+    reply = admin_page.locator("ag-ui-chat .message--assistant", has_text="not installed here")
+    expect(reply).to_be_visible(timeout=15000)
+    expect(admin_page.locator("ag-ui-chat .tool-call")).to_have_attribute("data-status", "error")
+
+    admin_page.reload()
+    open_sidebar(admin_page)
+
+    # The reply is what shows the thread was replayed at all; only then is the
+    # card's status a statement about the stored copy.
+    expect(reply).to_be_visible(timeout=15000)
     card = admin_page.locator("ag-ui-chat .tool-call")
     expect(card).to_have_count(1)
     expect(card).to_have_attribute("data-status", "error")

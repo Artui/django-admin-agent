@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **A tool that opens another admin page now reads done once it has, instead
+  of "not finished".** Vendors `@artooi/ag-ui-web-component` 0.41.2 (was
+  0.41.1). The navigating tools -- opening a changelist or a change form,
+  applying a filter -- reload the page, and the sidebar on the landed page
+  answers the call and carries on the run. The answer always reached the
+  agent, but the call's card was never told: it spun through the rest of the
+  run, and when the run ended it was marked "not finished" on the one call
+  known to have finished.
+- **A tool call the server refused still reads as refused after a page load.**
+  Floors `django-ag-ui>=0.64` (was `>=0.63`). A project that mounts a
+  conversation store gets a thread index in the sidebar, and each page load
+  then replays the server's copy of the conversation rather than the tab's.
+  Before 0.64 that copy lost each call's outcome, so a refused call shown as
+  an error came back from the next click as done. A project with no
+  conversation store was not affected. Conversations stored before the server
+  is upgraded are not rewritten, so a refused call in one of those still
+  reloads as done.
+
+  Nothing else is owed on upgrade. The component adds no host opt-in between
+  the two pins, and both fixes are on the default path.
+
 ## [0.47.0] — 2026-09-22
 
 ### Changed

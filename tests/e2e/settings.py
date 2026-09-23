@@ -17,6 +17,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django_admin_agent",
+    # The conversation store `urls.py` mounts, so the sidebar gets a thread
+    # index and a reload replays the server's copy of the conversation.
+    "django_pydantic_agent.contrib.store",
     "tests.testapp",
 ]
 
