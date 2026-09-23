@@ -128,22 +128,30 @@ dependencies = [
     # package forwards, so a project resolving the transport lower takes the two
     # rows above and still gets a bridge built the old way.
     #
-    # The current floor, 0.63, is the other half of the bundle pinned in the
-    # Makefile, and neither is safe without the other. That bundle is built on
-    # the AG-UI 1.0 client, which deletes every field its schema does not
-    # declare from an event it receives and from a request it sends. Two of
-    # this sidebar's fields were exactly that: the ``outcome`` argued for above,
-    # and the refs to files a user attached, which the upload view hands back
-    # and the next message carries. 0.63 moves both into the ``metadata`` the
-    # 1.0 schema does declare. Below it the refused-tool card goes back to
-    # settling as done, the same false success as before the ``outcome`` floor,
-    # and an attached file never reaches the agent at all -- the upload
-    # succeeds, the chip shows, and the model is asked about a document it was
-    # never given. The browser suite holds the first half:
-    # ``tests/e2e/test_refused_tool_card.py`` fails against 0.62 with this
-    # bundle, finding the card settled to done, and it is the only test that
-    # loads both.
-    "django-ag-ui>=0.63",
+    # 0.63 is the other half of the bundle pinned in the Makefile, and neither
+    # is safe without the other. That bundle is built on the AG-UI 1.0 client,
+    # which deletes every field its schema does not declare from an event it
+    # receives and from a request it sends. Two of this sidebar's fields were
+    # exactly that: the ``outcome`` argued for above, and the refs to files a
+    # user attached, which the upload view hands back and the next message
+    # carries. 0.63 moves both into the ``metadata`` the 1.0 schema does
+    # declare. Below it the refused-tool card goes back to settling as done, the
+    # same false success as before the ``outcome`` floor, and an attached file
+    # never reaches the agent at all -- the upload succeeds, the chip shows, and
+    # the model is asked about a document it was never given. The browser suite
+    # holds the first half: ``tests/e2e/test_refused_tool_card.py`` fails
+    # against 0.62 with this bundle, finding the card settled to done, and it is
+    # the only test that loads both.
+    #
+    # The current floor, 0.64, carries that ``outcome`` onto the stored thread.
+    # A project that mounts a conversation store gets a thread index in the
+    # sidebar, and a reload then replays the server's copy of the conversation
+    # rather than the tab's. Below 0.64 that copy was pydantic-ai's dump, which
+    # drops the outcome, so a call the sidebar had just shown as refused came
+    # back from the next page load as done -- and in an admin every click is a
+    # page load. The reload test in ``tests/e2e/test_refused_tool_card.py``
+    # fails against 0.63 with this bundle.
+    "django-ag-ui>=0.64",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -329,7 +337,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.47.0"
+current_version = "0.48.0"
 allow_dirty = false
 commit = false
 tag = false

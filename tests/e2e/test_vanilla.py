@@ -44,3 +44,10 @@ def test_navigating_tool_reloads_and_the_run_resumes(admin_page, live_server):  
     expect(
         admin_page.locator("ag-ui-chat .message--assistant", has_text="Opened the authors list."),
     ).to_be_visible(timeout=15000)
+    # ...and its card says it finished. The run resuming proves the landed page
+    # answered the call; it does not prove the card was told. Before web
+    # component 0.41.2 it was not, and the sweep that closes any card still
+    # open when a run ends marked this one "not finished".
+    card = admin_page.locator("ag-ui-chat .tool-call")
+    expect(card).to_have_count(1)
+    expect(card).to_have_attribute("data-status", "done")
