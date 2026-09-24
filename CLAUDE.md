@@ -30,7 +30,7 @@ ourselves is a release schedule, not a compatibility statement. What replaces
 the ceiling is two measurements: the `floor` job in `tests.yml` resolves the
 bottom of every declared window per PR, and `upstream-drift.yml` resolves the
 top weekly. `uv.lock` pins the top for development only. The same applies to
-the `[mcp]` extra's `djangorestframework-mcp-server>=0.48`. To develop both
+the `[mcp]` extra's `djangorestframework-mcp-server>=0.49`. To develop both
 packages together against a local checkout, add a `[tool.uv.sources]` override
 *locally* (do not commit it) and `uv sync`:
 
@@ -164,7 +164,7 @@ Change a rule here and change the config with it, or they drift apart again.
 | Django | 4.2 LTS | 4.2, 5.0, 5.1, 5.2, 6.0, 6.1 |
 | django-ag-ui | 0.64 | from PyPI (`>=0.64`, no ceiling) |
 | django-pydantic-agent | 0.25 | from PyPI (`>=0.25`, no ceiling) |
-| djangorestframework-mcp-server (`[mcp]` extra) | 0.48 | from PyPI (`>=0.48`, no ceiling) |
+| djangorestframework-mcp-server (`[mcp]` extra) | 0.49 | from PyPI (`>=0.49`, no ceiling) |
 | Django Unfold (supported, optional) | 0.40 | latest in matrix |
 
 This table and the "Compatibility floor" admonition in `docs/installation.md`
