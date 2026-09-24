@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.49.0] — 2026-09-24
+
+### Fixed
+
+- **A field selection a bridged tool refuses while rendering is now one retry
+  the model can correct, not a failed call.** Floors the `[mcp]` extra at
+  `djangorestframework-mcp-server>=0.49` (was `>=0.48`), `django-ag-ui>=0.65`
+  (was `>=0.64`) and `django-pydantic-agent>=0.26` (was `>=0.25`), which move
+  together. On a sidebar given `drf_mcp_server=`, a read-shaping argument the
+  tool's serializer rejected while rendering its result -- most often a
+  selection written against a paged changelist's envelope rather than its rows
+  -- escaped the tool, so the call failed with its reason withheld and the
+  model could not tell what to change. It now comes back as a retry that names
+  the argument and quotes the serializer, and the next call returns the page.
+  The retry's text reaches the browser, as every argument-validation retry's
+  already does; it is the serializer's own client-facing wording, and it is
+  produced only for a value the model sent.
+
 ## [0.48.0] — 2026-09-23
 
 ### Fixed
@@ -2062,7 +2080,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.48.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.49.0...HEAD
+[0.49.0]: https://github.com/Artui/django-admin-agent/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/Artui/django-admin-agent/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/Artui/django-admin-agent/compare/v0.46.0...v0.47.0
 [0.46.0]: https://github.com/Artui/django-admin-agent/compare/v0.45.0...v0.46.0
