@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.50.0] — 2026-10-06
+
+### Changed
+
+- **A call that leaves out the argument naming a row is now one retry the
+  model can correct, not a failed call.** Floors the `[mcp]` extra at
+  `djangorestframework-mcp-server>=0.50` (was `>=0.49`), `django-ag-ui>=0.67`
+  (was `>=0.65`) and `django-pydantic-agent>=0.27` (was `>=0.26`), which move
+  together. On a sidebar given `drf_mcp_server=`, a bridged tool's input schema
+  now requires what a call needs: the lookup a service tool resolves its row
+  through, typically `pk`, and a selector parameter with no default. Below the
+  floor a call that left the argument out raised the lookup's `TypeError`.
+  Under the default `TOOL_FAILURE` policy that reached the sidebar as a failed
+  call with its text withheld, and the model was told not to retry. It is now a
+  retry naming the argument, and the next call reaches the row. drf-mcp 0.50
+  floors `djangorestframework-services` at 0.55. The retry's text reaches the
+  browser, as every argument-validation retry's already does; it names only the
+  arguments the model left out, never a value it sent.
+- **A capability or audit logger forwarded to the server sees the tool's own
+  exception.** `django-pydantic-agent` 0.27 pins its tool-failure policy
+  outermost and its audit capability innermost. The admin uses neither
+  directly; it forwards `capabilities=` and `audit_logger=` to `AGUIServer`
+  through its keyword arguments, so two things change for what a project
+  forwards. A capability passed through is handed the tool's own exception in
+  its error hook, where it was handed the policy's redacted copy, unless it
+  pins itself innermost. And a call the tool guard held is recorded by
+  `audit_logger=` only once it is resumed and runs; a tool that defers itself
+  is no longer recorded as a failure. 0.27 also raises that package's own
+  extras onto drf-mcp 0.50 and `djangorestframework-pydantic-ai` 0.33, the
+  paired band.
+- **An install now reaches the current pydantic-ai.** `django-ag-ui` 0.67
+  depends on `pydantic-ai-slim[ui]` where it had `[ag-ui]`. From 2.47 the
+  `[ag-ui]` extra caps `ag-ui-protocol` below 1.0 while `django-ag-ui` has needed
+  1.0 since 0.63, so below 0.67 a resolver settled on `pydantic-ai-slim` 2.46 at
+  most and said nothing; this repository's lock was on 2.43. 0.67 is the floor at
+  which an admin install reaches the pydantic-ai that `django-pydantic-agent`
+  0.27's work targets. **The floor alone does not move an already-resolved
+  `pydantic-ai-slim`**, because 2.46 still satisfies `django-ag-ui`'s own floor
+  on it. Upgrade it by name: `uv lock --upgrade-package django-admin-agent
+  --upgrade-package pydantic-ai-slim`, or `pip install -U django-admin-agent
+  pydantic-ai-slim`. A project that depends on `pydantic-ai-slim[ag-ui]` or
+  `pydantic-ai[ag-ui]` itself should switch it to `[ui]`, since either one
+  brings the cap back. `uv.lock` here now resolves `pydantic-ai-slim` 2.54.0
+  (was 2.43.0).
+
+  Nothing else is owed on upgrade. No web component change ships in this
+  release, and the sidebar needs no code change for any of the three floors.
+
 ## [0.49.0] — 2026-09-24
 
 ### Fixed
@@ -2080,7 +2128,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.49.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.50.0...HEAD
+[0.50.0]: https://github.com/Artui/django-admin-agent/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/Artui/django-admin-agent/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/Artui/django-admin-agent/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/Artui/django-admin-agent/compare/v0.46.0...v0.47.0
