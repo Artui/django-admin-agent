@@ -152,8 +152,7 @@ dependencies = [
     # page load. The reload test in ``tests/e2e/test_refused_tool_card.py``
     # fails against 0.63 with this bundle.
     #
-    # The current floor, 0.65, carries the ``[mcp]`` band below into the
-    # transport again, as 0.62 did: it declares django-pydantic-agent 0.26 and,
+    # 0.65 carried the ``[mcp]`` band below into the transport again, as 0.62 did: it declares django-pydantic-agent 0.26 and,
     # in its ``[drf-mcp]`` extra, djangorestframework-mcp-server 0.49. That is
     # the pair in which a field selection a bridged tool's serializer refuses
     # while rendering -- one written against a paged changelist's envelope
@@ -164,7 +163,30 @@ dependencies = [
     # returns the page. It buys no code in the transport itself; it is taken so
     # the transport that builds the bridge does not resolve below the band the
     # bridge needs.
-    "django-ag-ui>=0.65",
+    #
+    # The current floor, 0.67, carries the next band into the transport: it
+    # declares django-pydantic-agent 0.27 and, through the pair 0.66 moved, the
+    # ``[drf-mcp]`` extra's djangorestframework-mcp-server 0.50 with the
+    # ``[spec-tools]`` extra's djangorestframework-pydantic-ai 0.33. That is the
+    # pair in which a bridged tool's input schema requires what a call needs, so
+    # a staff user asking the chat beside a changelist to change one row is told
+    # which argument names it, and a call that leaves it out is one retry naming
+    # the argument rather than a failed call with its reason withheld and an
+    # instruction not to try again. The retry streams as a ``TOOL_CALL_RESULT``
+    # with no ``outcome``, so the card settles and the next call reaches the row.
+    #
+    # What 0.67 buys on its own is the pydantic-ai an install resolves. It
+    # depends on ``pydantic-ai-slim[ui]`` where it had ``[ag-ui]``, and from 2.47
+    # the ``[ag-ui]`` extra caps ``ag-ui-protocol`` below 1.0 while the transport
+    # has needed 1.0 since 0.63. A resolver satisfies both by holding
+    # pydantic-ai-slim at 2.46 and says nothing, so below this floor every
+    # admin install, and this repo's own lock, ran an older pydantic-ai than the
+    # one the transport and the package above it are tested against. 0.67 is the
+    # floor at which an install reaches the pydantic-ai that django-pydantic-agent
+    # 0.27's tool-hook ordering targets. The floor alone does not move a resolved install,
+    # because 2.46 still satisfies the transport's own pydantic-ai-slim floor;
+    # an upgrader names ``pydantic-ai-slim`` in the upgrade.
+    "django-ag-ui>=0.67",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -203,7 +225,20 @@ dependencies = [
     # serializer refuses while rendering reaches the model as one retry naming
     # the argument rather than as a failed call with its reason withheld. Stated
     # for the reason 0.24 was.
-    "django-pydantic-agent>=0.26",
+    # Raised to 0.27 with the transport again, and this one is felt wherever the
+    # admin forwards ``capabilities=`` or ``audit_logger=`` to ``AGUIServer``
+    # through its keyword arguments, which it does without using either itself.
+    # It raises that package's own extras onto the drf-mcp 0.50 and
+    # djangorestframework-pydantic-ai 0.33 band, the pair in which a call that
+    # leaves out the argument naming a row is one retry rather than a failed call
+    # with its reason withheld. It also fixes the tool-failure policy outermost
+    # and the audit capability innermost, which changes what a forwarded value
+    # sees. A capability passed through is handed the tool's own exception in its
+    # error hook, where below it that hook was handed the policy's redacted copy,
+    # unless the capability pins itself innermost. And an ``audit_logger=`` records
+    # a call the tool guard held for approval only once it is resumed and runs,
+    # and a tool that defers itself is no longer recorded as a failure.
+    "django-pydantic-agent>=0.27",
 ]
 
 [project.optional-dependencies]
@@ -211,7 +246,19 @@ dependencies = [
 # ``MCPServer``'s tools, exposed to the agent in-process through
 # django-pydantic-agent's bridge, beside the built-in tools. It is that direction
 # only; nothing here serves the admin's own tools over MCP.
-# Floored at 0.49, where a read-shaping ``QueryParam`` value the output
+# Floored at 0.50, where a bridged tool's input schema requires what a call needs:
+# the lookup a service tool resolves its row through, typically ``pk``, and a
+# selector parameter with no default. The admin declares no tool of its own
+# through this extra, but the ``MCPServer`` passed in is the consumer's, and this
+# extra rather than django-ag-ui's decides which drf-mcp an ``[mcp]`` install
+# gets. Below it a call that left the argument out raised the lookup's
+# ``TypeError``, which under the default ``TOOL_FAILURE`` policy reached the
+# sidebar as a failed call with its text withheld, and the model was told not to
+# retry; now it is a retry naming the argument, and the agent's next call reaches
+# the row. It floors drf-services at 0.55, below which listing such a tool raises
+# ``TypeError``.
+#
+# 0.49 was the previous floor, where a read-shaping ``QueryParam`` value the output
 # serializer refuses while rendering is a ``validation_error`` result naming the
 # argument, which the bridge raises as a retry. The admin declares no
 # ``QueryParam`` of its own, but the ``MCPServer`` passed in is the consumer's,
@@ -219,7 +266,7 @@ dependencies = [
 # ``[mcp]`` install gets. Below it a selection the serializer refused, most often
 # one written against a paged tool's envelope, reached the sidebar as a failed
 # call whose text is withheld, and the agent could not correct it; now it is a
-# retry, and the agent's next call gets the page.
+# retry, and the agent's next call gets the page. Subsumed.
 #
 # 0.48 was the previous floor, where a server answers in process which tools a listing leaves
 # out and why (``unavailable_tools`` / ``aunavailable_tools``) and, on request,
@@ -258,7 +305,7 @@ dependencies = [
 # service's own affordances refuse it, and reported success, and the
 # ``outputSchema`` handed to the model left out the ``affordances`` object.
 # Subsumed.
-mcp = ["djangorestframework-mcp-server>=0.49"]
+mcp = ["djangorestframework-mcp-server>=0.50"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"
