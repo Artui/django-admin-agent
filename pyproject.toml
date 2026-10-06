@@ -152,9 +152,9 @@ dependencies = [
     # page load. The reload test in ``tests/e2e/test_refused_tool_card.py``
     # fails against 0.63 with this bundle.
     #
-    # 0.65 carried the ``[mcp]`` band below into the transport again, as 0.62 did: it declares django-pydantic-agent 0.26 and,
-    # in its ``[drf-mcp]`` extra, djangorestframework-mcp-server 0.49. That is
-    # the pair in which a field selection a bridged tool's serializer refuses
+    # 0.65 carried the ``[mcp]`` band below into the transport again, as 0.62
+    # did: it declared django-pydantic-agent 0.26 and, in its ``[drf-mcp]``
+    # extra, djangorestframework-mcp-server 0.49. That was the pair in which a field selection a bridged tool's serializer refuses
     # while rendering -- one written against a paged changelist's envelope
     # rather than its rows -- reaches the model as one retry naming the argument,
     # where below it the call failed with its reason withheld and the model had
