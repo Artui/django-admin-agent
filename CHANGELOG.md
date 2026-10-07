@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.51.0] — 2026-10-07
+
 ### Changed
 
 - **A call that leaves out a required argument is worded the same way
@@ -2157,7 +2159,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.50.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.51.0...HEAD
+[0.51.0]: https://github.com/Artui/django-admin-agent/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/Artui/django-admin-agent/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/Artui/django-admin-agent/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/Artui/django-admin-agent/compare/v0.47.0...v0.48.0
