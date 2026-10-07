@@ -164,7 +164,25 @@ dependencies = [
     # itself; it is taken so the transport that builds the bridge does not resolve
     # below the band the bridge needs.
     #
-    # The current floor, 0.67, carries the next band into the transport: it
+    # The current floor carries the next band into the transport and is what the
+    # two below it need to be felt in a sidebar: it declares
+    # django-pydantic-agent 0.28 and floors the ``[drf-mcp]`` extra's
+    # djangorestframework-mcp-server at 0.52 and the ``[spec-tools]`` extra's
+    # djangorestframework-pydantic-ai at 0.35, which move together. A call that
+    # leaves out a required argument is worded the same way whichever route serves
+    # the tool, so a staff user asking the chat beside a changelist for a change
+    # that names no row is told ``Missing required argument(s): `pk`.`` once, and
+    # the next call reaches the row. Below it the ``drf_mcp_server=`` route said
+    # ``Invalid arguments`` and left the names to a field detail. It also turns
+    # more refusals into retries rather than failed calls with their text
+    # withheld, and refuses at startup a bridged tool that could never serve a
+    # call, a list selector taking ``page`` or ``limit`` among them, so an
+    # ``MCPServer`` handed in with one now fails when the project starts rather
+    # than on every call the model makes. The retry streams as a
+    # ``TOOL_CALL_RESULT`` with no ``outcome``, so the card settles.
+    #
+    # 0.67 was the previous floor, which carried the band before into the
+    # transport: it
     # declares django-pydantic-agent 0.27 and, through the pair 0.66 moved, the
     # ``[drf-mcp]`` extra's djangorestframework-mcp-server 0.50 with the
     # ``[spec-tools]`` extra's djangorestframework-pydantic-ai 0.33. That is the
@@ -186,7 +204,7 @@ dependencies = [
     # targets. The floor alone does not move a resolved install, because 2.46 still
     # satisfies the transport's own pydantic-ai-slim floor; an upgrader names
     # ``pydantic-ai-slim`` in the upgrade.
-    "django-ag-ui>=0.67",
+    "django-ag-ui>=0.68",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -238,7 +256,16 @@ dependencies = [
     # unless the capability pins itself innermost. And an ``audit_logger=`` records
     # a call the tool guard held for approval only once it is resumed and runs,
     # and a tool that defers itself is no longer recorded as a failure.
-    "django-pydantic-agent>=0.27",
+    # Raised again with the transport, and felt on the ``drf_mcp_server=`` route:
+    # that package's bridge used to append the server's field detail to every
+    # refusal as JSON, so a call leaving out its row lookup showed the model the
+    # sentence naming the argument and then a detail saying the same thing. It
+    # now leaves the detail off when the message already names everything in it,
+    # and keeps it whole otherwise, so the card beside a changelist reads one
+    # sentence where it read two and a generic refusal still carries its fields.
+    # It floors the ``[mcp]`` band below and djangorestframework-pydantic-ai
+    # together, so the two routes refuse the same tools for the same reason.
+    "django-pydantic-agent>=0.28",
 ]
 
 [project.optional-dependencies]
@@ -246,7 +273,20 @@ dependencies = [
 # ``MCPServer``'s tools, exposed to the agent in-process through
 # django-pydantic-agent's bridge, beside the built-in tools. It is that direction
 # only; nothing here serves the admin's own tools over MCP.
-# Floored at 0.50, where a bridged tool's input schema requires what a call needs:
+# Floored where a server refuses at registration a tool that registers and then
+# fails every call, and names a missing argument in one sentence. A required
+# ``data`` with no ``input_serializer``, a reserved pool seed such as ``instance``
+# counted as the caller's in trust mode, and a list selector taking ``page`` or
+# ``limit`` each raised ``TypeError`` or served the wrong page on every call; the
+# ``MCPServer`` passed in is the consumer's, so a project handing in one now gets
+# ``ImproperlyConfigured`` naming the tool and the parameter when it starts. A
+# call that leaves out the argument is told ``Missing required argument(s): `pk`.``
+# where it was told ``Invalid arguments``, which is the sentence the other spec
+# route writes, so the two floors above move with it. This extra rather than
+# django-ag-ui's decides which drf-mcp an ``[mcp]`` install gets. It floors
+# drf-services at 0.56.
+#
+# 0.50 was the previous floor, where a bridged tool's input schema requires what a call needs:
 # the lookup a service tool resolves its row through, typically ``pk``, and a
 # selector parameter with no default. The admin declares no tool of its own
 # through this extra, but the ``MCPServer`` passed in is the consumer's, and this
@@ -305,7 +345,7 @@ dependencies = [
 # service's own affordances refuse it, and reported success, and the
 # ``outputSchema`` handed to the model left out the ``affordances`` object.
 # Subsumed.
-mcp = ["djangorestframework-mcp-server>=0.50"]
+mcp = ["djangorestframework-mcp-server>=0.52"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"

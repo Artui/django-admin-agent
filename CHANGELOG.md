@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **A call that leaves out a required argument is worded the same way
+  whichever route serves the tool, and a tool that could never serve a call is
+  refused at startup.** Floors `django-ag-ui` at `>=0.68` (was `>=0.67`),
+  `django-pydantic-agent` at `>=0.28` (was `>=0.27`) and the `[mcp]` extra at
+  `djangorestframework-mcp-server>=0.52` (was `>=0.50`), which move together.
+  On a sidebar given `drf_mcp_server=`, a call that left out the argument naming
+  a row was refused with `Invalid arguments` and a field detail; it is now
+  refused with ``Missing required argument(s): `pk`.``, once, where the bridge
+  used to append the server's field detail as JSON after a sentence already
+  saying the same thing. A refusal whose message does not name everything in its
+  detail keeps the detail whole. More refusals reach the model as a retry rather
+  than a failed call with its text withheld: a chain step's DRF
+  `ValidationError`, an argument a service tool with no input serializer does not
+  declare, and a required parameter nothing filled. A spec permission reading
+  `view.kwargs` now sees the route the call names. The `[mcp]` floor is the one
+  that decides which drf-mcp an `[mcp]` install gets, and drf-mcp 0.52 floors
+  `djangorestframework-services` at 0.56.
+- **An `MCPServer` handed to `drf_mcp_server=` that registers a tool no call
+  could be served through now fails when the project starts.** drf-mcp 0.52 raises
+  `ImproperlyConfigured` naming the tool and the parameter for a list selector
+  taking `page` or `limit`, a required `data` with no `input_serializer`, a
+  reserved pool seed such as `instance` that nothing fills, and a required
+  positional-only parameter. Each used to register and then raise `TypeError`, or
+  serve the wrong page, on every call the model made. The admin declares no tool
+  of its own that does any of these; a project that passes one in will see the
+  error on its next start.
+
 ## [0.50.0] — 2026-10-06
 
 ### Changed
