@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.52.0] — 2026-10-08
+
 ### Fixed
 
 - **A run resumed or forked from the checkpoint panel shows the turn it was
@@ -2193,7 +2195,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.51.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.52.0...HEAD
+[0.52.0]: https://github.com/Artui/django-admin-agent/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/Artui/django-admin-agent/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/Artui/django-admin-agent/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/Artui/django-admin-agent/compare/v0.48.0...v0.49.0
