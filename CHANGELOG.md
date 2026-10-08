@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.52.0] — 2026-10-08
+
+### Fixed
+
+- **A run resumed or forked from the checkpoint panel shows the turn it was
+  sent with.** Vendors `@artooi/ag-ui-web-component` 0.42.0 (was 0.41.2).
+  Picking Resume or Fork sent what the composer held and streamed the answer
+  under no question, while the save held the turn, so a reload showed a
+  question the live transcript never had. The turn is now drawn ahead of its
+  answer, as Send draws one. The same bundle closes the gaps around a send
+  that the sidebar meets on its default path:
+  - A reload that resumes a navigating tool's run no longer lets a second run
+    start beside it while the conversation store answers. A send made then
+    queues behind the resumed answer.
+  - New chat pressed while a stored conversation is still loading no longer
+    draws the conversation being left into the new one.
+  - A change of the signed-in staff user in the same tab clears the composer.
+    A run that change stops no longer saves the previous user's turn into the
+    next user's storage.
+  - A tool call whose run is stopped while it waits on its confirmation card
+    no longer acts afterwards; it settles as not finished.
+  - ArrowUp recalls a turn queued behind a run, and one sent with Resume or
+    Fork.
+  - DOMPurify 3.4.16 and marked 18.0.14 are inlined.
+- **Each run in the checkpoint panel is named by the prompt it answered.**
+  Floors `django-ag-ui>=0.68.1` (was `>=0.68`). The panel is mounted when a
+  step store is configured, and it named every run in a conversation by the
+  conversation's opening line, because a run's snapshot holds the whole
+  thread. So a staff user choosing which run to resume or fork had nothing to
+  tell the runs apart by. The name is computed when the panel reads the run
+  index, so runs recorded before the upgrade are named correctly too.
+
+  Nothing else is owed on upgrade. Neither component release adds a host
+  opt-in, and the sidebar wires the component through attributes, so every fix
+  is on the default path.
+
 ## [0.51.0] — 2026-10-07
 
 ### Changed
@@ -2159,7 +2195,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.51.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.52.0...HEAD
+[0.52.0]: https://github.com/Artui/django-admin-agent/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/Artui/django-admin-agent/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/Artui/django-admin-agent/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/Artui/django-admin-agent/compare/v0.48.0...v0.49.0

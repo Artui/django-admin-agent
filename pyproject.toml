@@ -164,8 +164,17 @@ dependencies = [
     # itself; it is taken so the transport that builds the bridge does not resolve
     # below the band the bridge needs.
     #
-    # The current floor carries the next band into the transport and is what the
-    # two below it need to be felt in a sidebar: it declares
+    # The current floor is a patch over 0.68, taken for the checkpoint panel this
+    # sidebar mounts when a step store is configured (``data-runs-url``): each
+    # run in it is named by the prompt that run answered. Below it every run in a
+    # conversation, resumed and forked ones included, was named by the
+    # conversation's opening line, because a run's snapshot holds the whole
+    # thread, so a staff user choosing which run to resume or fork had nothing to
+    # tell them apart by. The preview is computed when ``runs/`` is read, so runs
+    # recorded before an upgrade are named correctly too.
+    #
+    # 0.68 was the previous floor, which carries the next band into the transport
+    # and is what the two below it need to be felt in a sidebar: it declares
     # django-pydantic-agent 0.28 and floors the ``[drf-mcp]`` extra's
     # djangorestframework-mcp-server at 0.52 and the ``[spec-tools]`` extra's
     # djangorestframework-pydantic-ai at 0.35, which move together. A call that
@@ -204,7 +213,7 @@ dependencies = [
     # targets. The floor alone does not move a resolved install, because 2.46 still
     # satisfies the transport's own pydantic-ai-slim floor; an upgrader names
     # ``pydantic-ai-slim`` in the upgrade.
-    "django-ag-ui>=0.68",
+    "django-ag-ui>=0.68.1",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -454,7 +463,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.51.0"
+current_version = "0.52.0"
 allow_dirty = false
 commit = false
 tag = false
