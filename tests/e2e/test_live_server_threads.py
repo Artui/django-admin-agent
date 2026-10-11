@@ -20,6 +20,10 @@ import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
+import pytest
+
+pytestmark = [pytest.mark.e2e]
+
 # A page load is two or three requests at once; this is several times that,
 # repeatedly, so the collision that is a coin flip in the browser is a certainty
 # here. Fewer workers than the live server's accept backlog (Django's

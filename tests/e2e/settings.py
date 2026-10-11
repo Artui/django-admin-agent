@@ -40,7 +40,11 @@ ROOT_URLCONF = "tests.e2e.urls"
 # deployment. ``tests/e2e/test_live_server_threads.py`` fails on ``:memory:``.
 #
 # The name carries the pid so two suites on one machine do not clobber each
-# other; Django deletes the file when the session ends.
+# other; Django deletes the file when the session ends. ``NAME`` is the line
+# that matters: the session-scoped ``live_server`` is built before the test
+# database is set up, so pytest-django judges "in memory" from ``NAME``.
+# ``TEST["NAME"]`` keeps the result the same if a ``db`` test happens to run
+# first.
 _DB_FILE = str(Path(tempfile.gettempdir()) / f"django_admin_agent_e2e_{os.getpid()}.sqlite3")
 
 DATABASES = {
@@ -48,10 +52,6 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": _DB_FILE,
         "TEST": {"NAME": _DB_FILE},
-        # Separate connections can now contend for the write lock (a session
-        # save beside a conversation-store write); wait for it rather than
-        # raise ``database is locked`` after the default five seconds.
-        "OPTIONS": {"timeout": 30},
     }
 }
 
