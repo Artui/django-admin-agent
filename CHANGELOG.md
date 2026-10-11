@@ -13,25 +13,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **A message sent while the sidebar is still loading its stored conversation
   no longer goes out without it.** Vendors `@artooi/ag-ui-web-component`
-  0.43.0 (was 0.42.0). The sidebar mounts a conversation store, so every page
-  load, thread pick and change of signed-in staff user first asks the server
-  for the conversation. A send made in that window carried only its own turn,
-  the agent answered without the history, and its save replaced the stored
-  conversation with the new exchange. The composer now holds until the
-  conversation is drawn: what is typed meanwhile shows as "Waiting to send" and
-  goes out afterwards, and a checkpoint pick during the load is refused with a
-  hint to wait. The load has no timeout of its own, so a slow conversation
-  request keeps the composer queueing until it answers or fails. The same
-  bundle closes three smaller gaps:
-  - A second click on the microphone while the browser's permission prompt is
-    open no longer leaves a recording nothing can stop. The latest click wins
-    and the earlier grant is released.
-  - A microphone the browser grants but cannot record now shows "Transcription
-    failed" and releases the stream, instead of failing silently with the
-    recording indicator left on.
+  0.43.0 (was 0.42.0). This applies when the server keeps conversations, that
+  is `AdminAgentServer(conversation_store=...)`: the sidebar then sets
+  `data-threads-url`, so every page load, thread pick and change of signed-in
+  staff user first asks the server for the conversation. A send made in that
+  window carried only its own turn, the agent answered without the history, and
+  its save replaced the stored conversation with the new exchange. The
+  composer now holds until the conversation is drawn: what is typed meanwhile
+  shows as "Waiting to send" and goes out afterwards. The load has no timeout
+  of its own, so a slow conversation request keeps the composer queueing until
+  it answers or fails. With the default `AdminAgentServer()` there is no server
+  store, the sidebar keeps the browser's per-tab storage, and this changes
+  nothing. A checkpoint pick during the load is refused with a hint to wait,
+  which also needs a step store. A project that translates the sidebar through
+  `STRINGS` can translate the hint, `continueWhileLoading`; without a
+  translation it shows in English. The same bundle closes three smaller gaps:
+  - With a transcription backend configured (the sidebar shows no microphone
+    otherwise), a second click on the microphone while the browser's
+    permission prompt is open no longer leaves a recording nothing can stop.
+    The latest click wins and the earlier grant is released.
+  - With a transcription backend configured, a microphone the browser grants
+    but cannot record now shows "Transcription failed" and releases the
+    stream, instead of failing silently with the recording indicator left on.
   - Clearing the conversation (New chat, picking another thread, deleting the
-    active thread) while a tool call is still running no longer leaves a
-    "thinking" indicator in the next conversation.
+    active thread) while one of the sidebar's browser-side tools is still
+    running, or its confirmation card is still open, no longer leaves a
+    "thinking" indicator in the next conversation. Server-side tools never
+    triggered it.
 
 ## [0.52.0] — 2026-10-08
 
