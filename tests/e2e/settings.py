@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import tempfile
 from pathlib import Path
 
 SECRET_KEY = "e2e"
@@ -25,10 +27,31 @@ INSTALLED_APPS = [
 
 ROOT_URLCONF = "tests.e2e.urls"
 
+# A file, not ``:memory:``. The live server answers each request on its own
+# thread, and Django (and pytest-django's ``live_server``) hands a sqlite
+# in-memory database to those threads as ONE shared connection, because a second
+# connection would open a different empty database. The sidebar's page load
+# fires the tool list and the thread list at once, so two threads then drive one
+# sqlite connection concurrently: a session read came back empty (the request
+# looked anonymous: 401 on ``/admin-agent/tools/``) or raised
+# ``sqlite3.InterfaceError`` (500), and a ``get()`` saw another thread's rows.
+# That was an intermittent failure in CI that no test change could explain.
+# Against a file each thread opens its own connection, as it does in any
+# deployment. ``tests/e2e/test_live_server_threads.py`` fails on ``:memory:``.
+#
+# The name carries the pid so two suites on one machine do not clobber each
+# other; Django deletes the file when the session ends.
+_DB_FILE = str(Path(tempfile.gettempdir()) / f"django_admin_agent_e2e_{os.getpid()}.sqlite3")
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+        "NAME": _DB_FILE,
+        "TEST": {"NAME": _DB_FILE},
+        # Separate connections can now contend for the write lock (a session
+        # save beside a conversation-store write); wait for it rather than
+        # raise ``database is locked`` after the default five seconds.
+        "OPTIONS": {"timeout": 30},
     }
 }
 
