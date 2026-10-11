@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.53.0] — 2026-10-11
+
+### Fixed
+
+- **A message sent while the sidebar is still loading its stored conversation
+  no longer goes out without it.** Vendors `@artooi/ag-ui-web-component`
+  0.43.0 (was 0.42.0). The sidebar mounts a conversation store, so every page
+  load, thread pick and change of signed-in staff user first asks the server
+  for the conversation. A send made in that window carried only its own turn,
+  the agent answered without the history, and its save replaced the stored
+  conversation with the new exchange. The composer now holds until the
+  conversation is drawn: what is typed meanwhile shows as "Waiting to send" and
+  goes out afterwards, and a checkpoint pick during the load is refused with a
+  hint to wait. The load has no timeout of its own, so a slow conversation
+  request keeps the composer queueing until it answers or fails. The same
+  bundle closes three smaller gaps:
+  - A second click on the microphone while the browser's permission prompt is
+    open no longer leaves a recording nothing can stop. The latest click wins
+    and the earlier grant is released.
+  - A microphone the browser grants but cannot record now shows "Transcription
+    failed" and releases the stream, instead of failing silently with the
+    recording indicator left on.
+  - Clearing the conversation (New chat, picking another thread, deleting the
+    active thread) while a tool call is still running no longer leaves a
+    "thinking" indicator in the next conversation.
+
 ## [0.52.0] — 2026-10-08
 
 ### Fixed
@@ -2195,7 +2221,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.52.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.53.0...HEAD
+[0.53.0]: https://github.com/Artui/django-admin-agent/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/Artui/django-admin-agent/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/Artui/django-admin-agent/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/Artui/django-admin-agent/compare/v0.49.0...v0.50.0
