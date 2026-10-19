@@ -282,8 +282,22 @@ dependencies = [
 # ``MCPServer``'s tools, exposed to the agent in-process through
 # django-pydantic-agent's bridge, beside the built-in tools. It is that direction
 # only; nothing here serves the admin's own tools over MCP.
-# Floored where a server refuses at registration a tool that registers and then
-# fails every call, and names a missing argument in one sentence. A required
+# Floored where the server is built for the drf-services 0.58 line and refuses at
+# registration what that line refuses on every call. A tool declaring the
+# retired ``SPREAD_CALLER_WINS`` argument binding or the retired
+# ``UnknownArguments.PASSTHROUGH`` policy registers on the release before and
+# then raises on each call, so a project handing in such a server got a sidebar
+# whose tools all failed with nothing at startup to say why; now the
+# ``MCPServer`` the consumer builds raises ``ImproperlyConfigured`` naming the
+# tool when it is constructed, before this package ever sees it. The floor also
+# closes the one resolution the range allowed that no suite here could notice:
+# the release before had no ceiling on drf-services, so it resolved beside
+# the 0.58 line it fails against, and nothing in this package's own tests calls a
+# bridged tool to say so. It floors drf-services at 0.58.0 and
+# django-service-specs at 0.9.0.
+#
+# 0.52 was the previous floor, where a server refuses at registration a tool that
+# registers and then fails every call, and names a missing argument in one sentence. A required
 # ``data`` with no ``input_serializer``, a reserved pool seed such as ``instance``
 # counted as the caller's in trust mode, and a list selector taking ``page`` or
 # ``limit`` each raised ``TypeError`` or served the wrong page on every call; the
@@ -354,7 +368,7 @@ dependencies = [
 # service's own affordances refuse it, and reported success, and the
 # ``outputSchema`` handed to the model left out the ``affordances`` object.
 # Subsumed.
-mcp = ["djangorestframework-mcp-server>=0.52"]
+mcp = ["djangorestframework-mcp-server>=0.53"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"
@@ -463,7 +477,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.53.0"
+current_version = "0.53.1"
 allow_dirty = false
 commit = false
 tag = false
