@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The `[mcp]` extra now requires `djangorestframework-mcp-server>=0.53`**
+  (was `>=0.52`). The floor admitted 0.52.0, which has no ceiling on
+  `djangorestframework-services`, so it resolved beside 0.58.0, a pair in which
+  a tool declaring the retired `SPREAD_CALLER_WINS` argument binding or the
+  retired `UnknownArguments.PASSTHROUGH` policy registers and then fails on every
+  call. 0.53 is built for 0.58 and raises `ImproperlyConfigured` naming the
+  tool when the `MCPServer` is constructed, so a project handing one in to
+  `AdminAgentServer(drf_mcp_server=...)` finds out at startup. It also floors
+  `djangorestframework-services` at 0.58.0 and `django-service-specs` at 0.9.0,
+  so an `[mcp]` install now brings both. Nothing in this package's own tests
+  calls a bridged tool, which is why the previous floor passed its resolution
+  job. No code in this package changes, and an install without the extra is
+  unaffected. The development lock moves to the 0.58 line, with
+  `django-pydantic-agent` 0.28.1.
+
 ## [0.53.0] — 2026-10-11
 
 ### Fixed
