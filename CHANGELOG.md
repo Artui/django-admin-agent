@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   where it is, because nothing in this package stores or reads a rating. The
   `MESSAGE_ACTIONS` documentation now lists the detail's fields. The same bundle
   corrects the component's own README, which said all three message actions are
-  on by default.
+  on by default. The development lock moves to django-ag-ui 0.68.3.
 
 ## [0.53.1] — 2026-10-19
 
