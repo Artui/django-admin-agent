@@ -2702,6 +2702,13 @@ nothing here listens for it.</p>
 listener on the sidebar element sets <code>"copy,retry,feedback"</code> and gets the
 thumbs back; without this it would have no way to ask. Setting it explicitly
 also means the admin's row does not move if the component's default does.</p>
+<p>The event's detail names the rated message: <code>messageId</code> (its AG-UI id),
+<code>threadId</code>, and <code>runId</code> on a message that streamed live (absent on one
+restored from history), beside <code>content</code> and <code>rating</code>. A listener keying
+ratings by <code>messageId</code> matches a rating made after a reload to one made
+live only where the stored conversation keeps the ids the run streamed: with
+a <code>conversation_store</code> that is django-ag-ui 0.68.3 or later, and without
+one the browser's per-tab storage keeps them already.</p>
 
     </div>
 

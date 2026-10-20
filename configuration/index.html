@@ -973,7 +973,7 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <tr>
 <td><code>MESSAGE_ACTIONS</code></td>
 <td><code>"copy,retry"</code></td>
-<td>Which per-message actions the sidebar offers, from <code>copy</code> / <code>retry</code> / <code>feedback</code>. Rendered as <code>data-message-actions</code>. Matches the component's own default from 0.31.0. The rating buttons fire an <code>ag-ui-feedback</code> event and store nothing by design, and nothing here listens for it. <strong>Set <code>"copy,retry,feedback"</code> once you have wired your own listener on the sidebar element</strong> — that is what this setting is for.</td>
+<td>Which per-message actions the sidebar offers, from <code>copy</code> / <code>retry</code> / <code>feedback</code>. Rendered as <code>data-message-actions</code>. Matches the component's own default from 0.31.0. The rating buttons fire an <code>ag-ui-feedback</code> event and store nothing by design, and nothing here listens for it. <strong>Set <code>"copy,retry,feedback"</code> once you have wired your own listener on the sidebar element</strong> — that is what this setting is for. The event's detail carries <code>content</code>, <code>rating</code>, <code>messageId</code> (the rated message's AG-UI id), <code>threadId</code>, and <code>runId</code> on a message that streamed live (absent on one restored from history). Keying ratings by <code>messageId</code> holds across a reload with the browser's per-tab storage, and with a <code>conversation_store</code> from django-ag-ui 0.68.3 or later, which stores messages under the ids the run streamed.</td>
 </tr>
 <tr>
 <td><code>THEME</code></td>
