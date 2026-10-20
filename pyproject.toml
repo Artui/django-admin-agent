@@ -477,7 +477,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.53.1"
+current_version = "0.54.0"
 allow_dirty = false
 commit = false
 tag = false

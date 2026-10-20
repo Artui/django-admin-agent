@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.54.0] — 2026-10-20
+
+### Fixed
+
+- **The `ag-ui-feedback` event now names the message that was rated.**
+  Vendors `@artooi/ag-ui-web-component` 0.44.0 (was 0.43.0). Its detail carried
+  only the rated text and the rating, so a listener could not tell two answers
+  that read the same apart, or find a rated message again after a reload. It now
+  also carries `messageId`, the rated assistant message's AG-UI id, `threadId`,
+  and `runId` on a message that streamed live (absent on one restored from
+  history). Additive: `content` and `rating` are unchanged. The sidebar still
+  offers no rating pair by default (`MESSAGE_ACTIONS` is `"copy,retry"`) and
+  listens for nothing, so an install that has not opted in sees no change. A
+  project that has wired its own listener and set `"copy,retry,feedback"` reads
+  the new fields from the same event. Keying ratings by `messageId` holds across
+  a reload with the browser's per-tab storage, and with a
+  `conversation_store` from django-ag-ui 0.68.3 or later, which stores a
+  completed run's messages under the ids it streamed; below it a restored
+  message carries an id the live one did not. The `django-ag-ui` floor stays
+  where it is, because nothing in this package stores or reads a rating. The
+  `MESSAGE_ACTIONS` documentation now lists the detail's fields. The same bundle
+  corrects the component's own README, which said all three message actions are
+  on by default. The development lock moves to django-ag-ui 0.68.3.
+
 ## [0.53.1] — 2026-10-19
 
 ### Changed
@@ -2248,7 +2272,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.53.1...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.54.0...HEAD
+[0.54.0]: https://github.com/Artui/django-admin-agent/compare/v0.53.1...v0.54.0
 [0.53.1]: https://github.com/Artui/django-admin-agent/compare/v0.53.0...v0.53.1
 [0.53.0]: https://github.com/Artui/django-admin-agent/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/Artui/django-admin-agent/compare/v0.51.0...v0.52.0
