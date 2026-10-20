@@ -43,7 +43,15 @@ class AdminAgentSettings:
     **The setting exists for the other direction.** A project that wires its own
     listener on the sidebar element sets ``"copy,retry,feedback"`` and gets the
     thumbs back; without this it would have no way to ask. Setting it explicitly
-    also means the admin's row does not move if the component's default does."""
+    also means the admin's row does not move if the component's default does.
+
+    The event's detail names the rated message: ``messageId`` (its AG-UI id),
+    ``threadId``, and ``runId`` on a message that streamed live (absent on one
+    restored from history), beside ``content`` and ``rating``. A listener keying
+    ratings by ``messageId`` matches a rating made after a reload to one made
+    live only where the stored conversation keeps the ids the run streamed: with
+    a ``conversation_store`` that is django-ag-ui 0.68.3 or later, and without
+    one the browser's per-tab storage keeps them already."""
 
     skills: list[dict[str, Any]] | None
     """Optional override for the skill catalog (client ``Skill`` dicts). ``None``
