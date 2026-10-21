@@ -375,13 +375,13 @@ durability). Passing no store keeps the server stateless; the client store still
 provides single-tab continuity.
 
 ```python title="urls.py"
-from django_pydantic_agent import DjangoSessionConversationStore
+from django_spec_agents import DjangoSessionConversationStore
 
 AdminAgentServer(conversation_store=DjangoSessionConversationStore())
 ```
 
 For **durable, cross-device** history, opt into the reference store instead: add
-`"django_pydantic_agent.contrib.store"` to `INSTALLED_APPS`, run `migrate`, and
+`"django_spec_agents.contrib.store"` to `INSTALLED_APPS`, run `migrate`, and
 pass `DefaultConversationStore`.
 
 ### The chat-history drawer
@@ -409,7 +409,7 @@ runs the server marks continuable are offered — one that never reached a
 provider-valid boundary has no snapshot to seed from.
 
 ```python title="urls.py"
-from django_pydantic_agent.contrib.store.default_step_store import DefaultStepStore
+from django_spec_agents.contrib.store.default_step_store import DefaultStepStore
 
 AdminAgentServer(step_store=DefaultStepStore)
 ```
@@ -432,10 +432,10 @@ the agent reads their contents server-side via the built-in `read_attachment` to
 Uploads are **off by default** — with no attachment store the sub-view isn't
 mounted (no affordance). Turn them on by passing one. For **durable,
 per-admin-user** files, opt into the reference store: add
-`"django_pydantic_agent.contrib.store"` to `INSTALLED_APPS`, run `migrate`, then
+`"django_spec_agents.contrib.store"` to `INSTALLED_APPS`, run `migrate`, then
 
 ```python title="urls.py"
-from django_pydantic_agent.contrib.store.default_attachment_store import (
+from django_spec_agents.contrib.store.default_attachment_store import (
     DefaultAttachmentStore,
 )
 

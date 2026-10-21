@@ -59,7 +59,7 @@ dependencies = [
     # Raised to 0.49 for the ``RUN_ERROR`` redaction, which stops a failing run
     # streaming ``str(exception)`` to the browser when
     # ``TOOL_FAILURE["INCLUDE_DETAIL"]`` is off. That was a latent hole here
-    # until the django-pydantic-agent floor below moved: from 0.18 a
+    # until the agent runtime's floor below moved, on django-pydantic-agent: from 0.18 a
     # ``PermissionDenied`` ends the run instead of being converted into a tool
     # failure, so the permission gate's message started taking the ``RUN_ERROR``
     # path -- the one path no failure policy covered. On 0.48 it reached the
@@ -164,14 +164,21 @@ dependencies = [
     # itself; it is taken so the transport that builds the bridge does not resolve
     # below the band the bridge needs.
     #
-    # The current floor is a patch over 0.68, taken for the checkpoint panel this
+    # The current floor is 0.69, the release that runs on django-spec-agents in
+    # place of django-pydantic-agent, which the row below now declares. The two
+    # move together: below it the transport hands back the old package's
+    # ``AgentDeps`` while this package builds the new one. It also floors its
+    # ``[drf-mcp]`` extra at 0.53.1, where a selector raising ``Http404`` is a
+    # missing row on that route as it is on the other.
+    #
+    # 0.68.1 was the previous floor, a patch over 0.68, taken for the checkpoint panel this
     # sidebar mounts when a step store is configured (``data-runs-url``): each
     # run in it is named by the prompt that run answered. Below it every run in a
     # conversation, resumed and forked ones included, was named by the
     # conversation's opening line, because a run's snapshot holds the whole
     # thread, so a staff user choosing which run to resume or fork had nothing to
     # tell them apart by. The preview is computed when ``runs/`` is read, so runs
-    # recorded before an upgrade are named correctly too.
+    # recorded before an upgrade are named correctly too. Subsumed.
     #
     # 0.68 was the previous floor, which carries the next band into the transport
     # and is what the two below it need to be felt in a sidebar: it declares
@@ -217,72 +224,31 @@ dependencies = [
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
-    # without re-exporting it. Floored at 0.18 for ``ToolGuard``, which is where
-    # it learned the two vocabularies it had been deaf to: the MCP annotations
-    # an in-process ``SpecToolset`` writes, and the ``x-destructive`` schema
-    # stamp. Below that floor, an admin deployment that turns on
-    # ``DJANGO_AG_UI["TOOL_GUARD"]`` -- which this package has surfaced since
-    # 0.13.0 -- and attaches its own drf-services specs got a guard reading as
-    # on while it gated nothing arriving by that route. This floor is
-    # deliberately ahead of the one django-ag-ui 0.48 declares: the transitive
-    # floor would arrive on its own with a later transport release, and the
-    # question this row answers is which version *works*, not which version the
-    # dependency happens to require today.
-    # Raised to 0.23 with the transport, for the refused bridged tool described
-    # above: that bridge is this package's, and django-ag-ui 0.60 requires it
-    # anyway, so the floor is stated here rather than left to arrive transitively.
-    # Raised to 0.24 with the transport again, and this time it buys this package
-    # no behaviour at all: that release changes no code in django-pydantic-agent,
-    # it only raises that package's own extras onto the drf-mcp band the ``[mcp]``
-    # extra below now declares. It is stated for the reason the whole row is
-    # stated -- django-ag-ui 0.61 requires it anyway, and this row answers which
-    # version works rather than which one would arrive on its own.
-    # Raised to 0.25 with the transport again, and unlike 0.24 this one is felt
-    # in the admin. Its drf-mcp bridge follows tool availability on every model
-    # step rather than listing once per run, and names each tool an unmet
-    # operation-scope condition left out, with that condition's reason, in the
-    # step's instructions. So a staff user asking the chat beside a changelist
-    # for an operation that cannot run right now reads the rule's own sentence,
-    # where below this the tool was simply absent and the model explained the
-    # absence however it liked. It requires the ``[mcp]`` band below, which is
-    # why the two rows move together.
-    # Raised to 0.26 with the transport again, and like 0.24 it buys no code: it
-    # raises that package's own extras onto the drf-mcp 0.49 band the ``[mcp]``
-    # extra below declares, the band in which a field selection a tool's
-    # serializer refuses while rendering reaches the model as one retry naming
-    # the argument rather than as a failed call with its reason withheld. Stated
-    # for the reason 0.24 was.
-    # Raised to 0.27 with the transport again, and this one is felt wherever the
-    # admin forwards ``capabilities=`` or ``audit_logger=`` to ``AGUIServer``
-    # through its keyword arguments, which it does without using either itself.
-    # It raises that package's own extras onto the drf-mcp 0.50 and
-    # djangorestframework-pydantic-ai 0.33 band, the pair in which a call that
-    # leaves out the argument naming a row is one retry rather than a failed call
-    # with its reason withheld. It also fixes the tool-failure policy outermost
-    # and the audit capability innermost, which changes what a forwarded value
-    # sees. A capability passed through is handed the tool's own exception in its
-    # error hook, where below it that hook was handed the policy's redacted copy,
-    # unless the capability pins itself innermost. And an ``audit_logger=`` records
-    # a call the tool guard held for approval only once it is resumed and runs,
-    # and a tool that defers itself is no longer recorded as a failure.
-    # Raised again with the transport, and felt on the ``drf_mcp_server=`` route:
-    # that package's bridge used to append the server's field detail to every
-    # refusal as JSON, so a call leaving out its row lookup showed the model the
-    # sentence naming the argument and then a detail saying the same thing. It
-    # now leaves the detail off when the message already names everything in it,
-    # and keeps it whole otherwise, so the card beside a changelist reads one
-    # sentence where it read two and a generic refusal still carries its fields.
-    # It floors the ``[mcp]`` band below and djangorestframework-pydantic-ai
-    # together, so the two routes refuse the same tools for the same reason.
-    "django-pydantic-agent>=0.28",
+    # without re-exporting it. django-spec-agents is the agent runtime that
+    # merged django-pydantic-agent with djangorestframework-pydantic-ai, and
+    # 0.1.0 is the release carrying the import paths this package and
+    # django-ag-ui read. Its gates hold it equal in behaviour to
+    # django-pydantic-agent 0.28.2 and djangorestframework-pydantic-ai 0.36.1, so
+    # everything earlier floors of the old package bought holds here: the tool
+    # guard reading both destructive vocabularies, the bridge following tool
+    # availability on every step, the tool-failure policy outermost and the audit
+    # capability innermost. It also offers a registry tool under its registered
+    # name, so a ``TOOL_GUARD`` gate and an approval prompt keyed by that name
+    # now meet the name the model calls.
+    "django-spec-agents>=0.1.0",
 ]
 
 [project.optional-dependencies]
 # For ``AdminAgentServer(drf_mcp_server=...)``: a djangorestframework-mcp-server
 # ``MCPServer``'s tools, exposed to the agent in-process through
-# django-pydantic-agent's bridge, beside the built-in tools. It is that direction
+# django-spec-agents' bridge, beside the built-in tools. It is that direction
 # only; nothing here serves the admin's own tools over MCP.
-# Floored where the server is built for the drf-services 0.58 line and refuses at
+# Floored at 0.53.1, where a selector raising ``Http404`` answers not found: a
+# missing row, where 0.53.0 served a LIST's as a successful empty list. It is the
+# floor django-ag-ui's ``[drf-mcp]`` extra declares from 0.69, and this extra
+# rather than that one decides which drf-mcp an ``[mcp]`` install gets.
+#
+# 0.53 was the previous floor, where the server is built for the drf-services 0.58 line and refuses at
 # registration what that line refuses on every call. A tool declaring the
 # retired ``SPREAD_CALLER_WINS`` argument binding or the retired
 # ``UnknownArguments.PASSTHROUGH`` policy registers on the release before and
@@ -294,7 +260,7 @@ dependencies = [
 # the release before had no ceiling on drf-services, so it resolved beside
 # the 0.58 line it fails against, and nothing in this package's own tests calls a
 # bridged tool to say so. It floors drf-services at 0.58.0 and
-# django-service-specs at 0.9.0.
+# django-service-specs at 0.9.0. Subsumed.
 #
 # 0.52 was the previous floor, where a server refuses at registration a tool that
 # registers and then fails every call, and names a missing argument in one sentence. A required
@@ -335,7 +301,7 @@ dependencies = [
 # out and why (``unavailable_tools`` / ``aunavailable_tools``) and, on request,
 # lists every tool the caller may see whether or not a condition refuses it
 # (``include_unavailable``). Neither is a wire change. That pair is what
-# django-pydantic-agent's bridge needs to keep the agent's tools in step with
+# django-spec-agents' bridge needs to keep the agent's tools in step with
 # the registry while a chat runs, so it is the band the row above requires: an
 # ``MCPServer`` carrying an operation-scope condition reaches the admin as a
 # tool that comes and goes with the condition, and as a named reason when it is
@@ -368,7 +334,7 @@ dependencies = [
 # service's own affordances refuse it, and reported success, and the
 # ``outputSchema`` handed to the model left out the ``affordances`` object.
 # Subsumed.
-mcp = ["djangorestframework-mcp-server>=0.53"]
+mcp = ["djangorestframework-mcp-server>=0.53.1"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"
