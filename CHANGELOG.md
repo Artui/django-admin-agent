@@ -14,7 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   that merges it with `djangorestframework-pydantic-ai`, and `django-ag-ui` is
   floored at 0.69.0, the release that runs on it; the two move together, because
   this package hands `django-ag-ui` the `AgentDeps` it builds. 0.1.0 is held equal
-  in behaviour to django-pydantic-agent 0.28.2, so the sidebar behaves as it did.
+  in behaviour to django-pydantic-agent 0.28.2 on every call a tool answers, so
+  the sidebar answers as it did; a model or failure-policy error now starts
+  `django-spec-agents: `, and django-ag-ui 0.69.0's changelog lists the rest a
+  run can see.
   A project that installs the reference store app changes its `INSTALLED_APPS`
   entry to `"django_spec_agents.contrib.store"` and runs `migrate` once, which
   renames the store's tables in place; a project importing the old package
