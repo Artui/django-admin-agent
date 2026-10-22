@@ -220,7 +220,7 @@ dependencies = [
     # targets. The floor alone does not move a resolved install, because 2.46 still
     # satisfies the transport's own pydantic-ai-slim floor; an upgrader names
     # ``pydantic-ai-slim`` in the upgrade.
-    "django-ag-ui>=0.68.1",
+    "django-ag-ui>=0.69.0",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
