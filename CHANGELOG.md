@@ -15,22 +15,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `django-pydantic-agent>=0.28` becomes `django-spec-agents>=0.1.0`, the package
   that merges it with `djangorestframework-pydantic-ai`, and `django-ag-ui` is
   floored at 0.69.0, the release that runs on it; the two move together, because
-  this package hands `django-ag-ui` the `AgentDeps` it builds. 0.1.0 is held equal
-  in behaviour to django-pydantic-agent 0.28.2 on every call a tool answers, so
-  the sidebar answers as it did; a model or failure-policy error now starts
-  `django-spec-agents: `, and django-ag-ui 0.69.0's changelog lists the rest a
-  run can see.
+  this package hands `django-ag-ui` the `AgentDeps` it builds. 0.1.0 carries
+  django-pydantic-agent 0.28.2's host and its tests across under a new import
+  root; django-ag-ui 0.69.0's changelog lists what a run can see change.
   A project that installs the reference store app changes its `INSTALLED_APPS`
   entry to `"django_spec_agents.contrib.store"` and runs `migrate` once, which
-  renames the store's tables in place; a project importing the old package
+  renames the store's tables in place; it needs django-pydantic-agent's own store
+  migrations applied first, which any project on 0.54 that has migrated already
+  has. A project importing the old package
   directly moves those imports to `django_spec_agents`. A tool registered with
   `@tool(registry, name="...")` under a name other than its function's is now
   offered, gated and audited under that name, so a `TOOL_GUARD` entry naming it
   by its function name must use the registered name. The admin registers no
   such tool of its own.
 - **The `[mcp]` extra requires `djangorestframework-mcp-server>=0.53.1`**, where
-  a selector raising `Http404` answers not found rather than, for a LIST, a
-  successful empty list.
+  a list selector raising `Http404` through the bridge is a failed call reading
+  not found rather than a successful empty list.
+- Two tests hold the new floors where the lowest-declared-versions job resolves
+  them: one drives a bridged list selector raising `Http404`, and one asserts
+  neither replaced runtime is installed.
 
 ## [0.54.0] — 2026-10-20
 

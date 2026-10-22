@@ -540,7 +540,7 @@ decided what its caller may read, so word a `ServiceError` for whoever calls the
 tool, a staff member reading the sidebar included.
 
 A tool an **operation-scope affordance** refuses right now is not offered at
-all, and the agent is told why. From django-pydantic-agent 0.25 the bridge asks
+all, and the agent is told why. The bridge django-spec-agents carries asks
 the server on every model step which of its tools a listing would leave out, so
 a condition that closes part-way through a conversation takes its tool away and
 one that clears brings it back, without the conversation restarting. Each

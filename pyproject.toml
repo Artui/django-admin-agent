@@ -227,9 +227,9 @@ dependencies = [
     # without re-exporting it. django-spec-agents is the agent runtime that
     # merged django-pydantic-agent with djangorestframework-pydantic-ai, and
     # 0.1.0 is the release carrying the import paths this package and
-    # django-ag-ui read. Its gates hold it equal in behaviour to
-    # django-pydantic-agent 0.28.2 and djangorestframework-pydantic-ai 0.36.1, so
-    # everything earlier floors of the old package bought holds here: the tool
+    # django-ag-ui read. It carries django-pydantic-agent 0.28.2's host and its
+    # tests across, so everything earlier floors of the old package bought
+    # holds here: the tool
     # guard reading both destructive vocabularies, the bridge following tool
     # availability on every step, the tool-failure policy outermost and the audit
     # capability innermost. It also offers a registry tool under its registered

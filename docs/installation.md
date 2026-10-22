@@ -23,7 +23,7 @@ pip install django-admin-agent[mcp]
     with the `[mcp]` extra above, `djangorestframework-mcp-server>=0.53.1`.
     Django Unfold 0.40+ is optional.
 
-    Neither sibling window has an upper bound, so this package installs
+    None of these windows has an upper bound, so this package installs
     alongside the current `django-ag-ui` on the day that ships rather than
     waiting for a release here. The floors are what is tested; nothing above
     them is excluded.

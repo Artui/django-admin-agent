@@ -5,8 +5,9 @@ unless flagged as a heuristic.
 
 ## What this package is
 
-An always-present chat-agent sidebar embedded in the Django admin. It depends
-on two sibling packages:
+An always-present chat-agent sidebar embedded in the Django admin. It builds on
+two sibling packages, and also imports `AgentDeps` from `django-spec-agents`, the
+agent runtime under `django-ag-ui`, as a declared dependency of its own:
 - **`django-ag-ui`** — the Django ↔ Pydantic-AI ↔ AG-UI bridge. Provides
   `ToolRegistry`, the `@tool` decorator, `DjangoAGUIView`, `AGUIServer`, the
   audit logger. This package *builds on* those; it does not reimplement them.
