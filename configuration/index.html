@@ -1420,12 +1420,12 @@ authenticated staff user, so sessions always exist —
 <code>DjangoSessionConversationStore</code> is the natural choice (no migration, per-user
 durability). Passing no store keeps the server stateless; the client store still
 provides single-tab continuity.</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoSessionConversationStore</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_spec_agents</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoSessionConversationStore</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">conversation_store</span><span class="o">=</span><span class="n">DjangoSessionConversationStore</span><span class="p">())</span>
 </span></code></pre></div>
 <p>For <strong>durable, cross-device</strong> history, opt into the reference store instead: add
-<code>"django_pydantic_agent.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, and
+<code>"django_spec_agents.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, and
 pass <code>DefaultConversationStore</code>.</p>
 <h3 id="the-chat-history-drawer">The chat-history drawer<a class="headerlink" href="#the-chat-history-drawer" title="Permanent link">&para;</a></h3>
 <p>When a conversation store is configured, <code>AdminAgentServer</code> mounts an
@@ -1446,7 +1446,7 @@ its last server-side checkpoint rather than restarted: type the next turn, then
 <strong>Resume</strong> to carry on or <strong>Fork</strong> to branch without touching the original. Only
 runs the server marks continuable are offered — one that never reached a
 provider-valid boundary has no snapshot to seed from.</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent.contrib.store.default_step_store</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultStepStore</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_spec_agents.contrib.store.default_step_store</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultStepStore</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">step_store</span><span class="o">=</span><span class="n">DefaultStepStore</span><span class="p">)</span>
 </span></code></pre></div>
@@ -1465,8 +1465,8 @@ the agent reads their contents server-side via the built-in <code>read_attachmen
 <p>Uploads are <strong>off by default</strong> — with no attachment store the sub-view isn't
 mounted (no affordance). Turn them on by passing one. For <strong>durable,
 per-admin-user</strong> files, opt into the reference store: add
-<code>"django_pydantic_agent.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, then</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_pydantic_agent.contrib.store.default_attachment_store</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<code>"django_spec_agents.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, then</p>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_spec_agents.contrib.store.default_attachment_store</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="n">DefaultAttachmentStore</span><span class="p">,</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="p">)</span>
 </span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
@@ -1555,7 +1555,7 @@ because nothing was raised on this side to redact. The server has already
 decided what its caller may read, so word a <code>ServiceError</code> for whoever calls the
 tool, a staff member reading the sidebar included.</p>
 <p>A tool an <strong>operation-scope affordance</strong> refuses right now is not offered at
-all, and the agent is told why. From django-pydantic-agent 0.25 the bridge asks
+all, and the agent is told why. The bridge django-spec-agents carries asks
 the server on every model step which of its tools a listing would leave out, so
 a condition that closes part-way through a conversation takes its tool away and
 one that clears brings it back, without the conversation restarting. Each
