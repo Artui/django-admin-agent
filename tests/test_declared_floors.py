@@ -28,7 +28,7 @@ _ROOT = Path(__file__).resolve().parent.parent
 _PYPROJECT = _ROOT / "pyproject.toml"
 _PACKAGES = [
     "django-ag-ui",
-    "django-pydantic-agent",
+    "django-spec-agents",
     "djangorestframework-mcp-server",
 ]
 

@@ -375,13 +375,13 @@ durability). Passing no store keeps the server stateless; the client store still
 provides single-tab continuity.
 
 ```python title="urls.py"
-from django_pydantic_agent import DjangoSessionConversationStore
+from django_spec_agents import DjangoSessionConversationStore
 
 AdminAgentServer(conversation_store=DjangoSessionConversationStore())
 ```
 
 For **durable, cross-device** history, opt into the reference store instead: add
-`"django_pydantic_agent.contrib.store"` to `INSTALLED_APPS`, run `migrate`, and
+`"django_spec_agents.contrib.store"` to `INSTALLED_APPS`, run `migrate`, and
 pass `DefaultConversationStore`.
 
 ### The chat-history drawer
@@ -409,7 +409,7 @@ runs the server marks continuable are offered — one that never reached a
 provider-valid boundary has no snapshot to seed from.
 
 ```python title="urls.py"
-from django_pydantic_agent.contrib.store.default_step_store import DefaultStepStore
+from django_spec_agents.contrib.store.default_step_store import DefaultStepStore
 
 AdminAgentServer(step_store=DefaultStepStore)
 ```
@@ -432,10 +432,10 @@ the agent reads their contents server-side via the built-in `read_attachment` to
 Uploads are **off by default** — with no attachment store the sub-view isn't
 mounted (no affordance). Turn them on by passing one. For **durable,
 per-admin-user** files, opt into the reference store: add
-`"django_pydantic_agent.contrib.store"` to `INSTALLED_APPS`, run `migrate`, then
+`"django_spec_agents.contrib.store"` to `INSTALLED_APPS`, run `migrate`, then
 
 ```python title="urls.py"
-from django_pydantic_agent.contrib.store.default_attachment_store import (
+from django_spec_agents.contrib.store.default_attachment_store import (
     DefaultAttachmentStore,
 )
 
@@ -540,7 +540,7 @@ decided what its caller may read, so word a `ServiceError` for whoever calls the
 tool, a staff member reading the sidebar included.
 
 A tool an **operation-scope affordance** refuses right now is not offered at
-all, and the agent is told why. From django-pydantic-agent 0.25 the bridge asks
+all, and the agent is told why. The bridge django-spec-agents carries asks
 the server on every model step which of its tools a listing would leave out, so
 a condition that closes part-way through a conversation takes its tool away and
 one that clears brings it back, without the conversation restarting. Each

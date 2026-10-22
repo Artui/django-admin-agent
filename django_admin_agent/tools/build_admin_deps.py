@@ -10,7 +10,7 @@ from django.http import HttpRequest
 # *construct* the default reaches the package that owns it. Nothing else here
 # does: every other import in this package comes off django-ag-ui's public
 # surface, as the conventions require.
-from django_pydantic_agent import AgentDeps
+from django_spec_agents import AgentDeps
 
 from django_admin_agent.tools.utils import ACTING_REQUEST
 

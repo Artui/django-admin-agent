@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.contrib import admin
 from django.urls import path
 from django_ag_ui import ToolCategory, ToolRegistry, tool
-from django_pydantic_agent.contrib.store.default_conversation_store import (
+from django_spec_agents.contrib.store.default_conversation_store import (
     DefaultConversationStore,
 )
 
