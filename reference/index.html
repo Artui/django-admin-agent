@@ -2267,6 +2267,11 @@ per request, with the live request, on the run's own context. Binding here
 is what lets a plain server-side tool — handed only the arguments the model
 chose, and nothing about who asked — answer as the staff user actually
 driving the sidebar.</p>
+<p>The default deps are django-ag-ui's own default, which this replaces: the
+user, the address, and the request in <code>call_context</code>, which the spec
+toolset behind <code>service_specs=</code> hands to every spec callable declaring
+<code>request</code>. Left out, such a callable would be handed <code>None</code> here and the
+request everywhere else django-ag-ui is mounted.</p>
 <p><code>factory</code> is the project's own <code>deps_factory</code> when it passed one. It
 still decides what the deps are; the binding happens either way, so
 replacing the deps cannot quietly unbind the acting user and leave the

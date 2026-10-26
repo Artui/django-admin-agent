@@ -1254,7 +1254,11 @@ more, not less.</p>
 <p>Establishing <em>who</em> that is happens on the endpoint's per-run hook: the mounted
 <code>AdminAgentServer</code> binds the acting request for the run before the agent starts.
 Passing your own <code>deps_factory</code> cannot switch that off — yours still decides
-what the deps are, and the binding happens either way. If you drive the tools
+what the deps are, and the binding happens either way. What yours must carry
+itself is the request for <code>service_specs=</code>: a spec callable is handed
+<code>call_context["request"]</code>, so build the deps with
+<code>call_context={"request": request}</code> as the default factory does, or every spec
+behind the sidebar sees <code>request=None</code>. If you drive the tools
 from somewhere other than the endpoint (a management command, a bespoke agent
 loop, a test), bind it yourself, because a tool with no acting request refuses
 rather than guessing:</p>
