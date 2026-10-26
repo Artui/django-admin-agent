@@ -39,6 +39,9 @@ def test_the_run_hook_binds_the_acting_request_and_builds_the_default_deps(
     assert ACTING_REQUEST.get() is request
     assert deps.user is superuser
     assert deps.ip_address == request.META.get("REMOTE_ADDR")
+    # django-ag-ui's default carries the request here for the spec toolset, and
+    # this replaces that default, so it carries it too.
+    assert deps.call_context == {"request": request}
 
 
 def test_a_projects_own_deps_factory_still_gets_the_binding(superuser: Any) -> None:
@@ -67,6 +70,7 @@ def test_the_mounted_endpoint_binds_the_request_the_transport_hands_it(
     deps = _view(AdminAgentServer())._build_deps(request)
 
     assert deps.user is superuser
+    assert deps.call_context["request"] is request
     assert count_model("testapp", "Author") == 1
 
 

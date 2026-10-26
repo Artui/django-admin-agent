@@ -27,6 +27,12 @@ def build_admin_deps(
     chose, and nothing about who asked — answer as the staff user actually
     driving the sidebar.
 
+    The default deps are django-ag-ui's own default, which this replaces: the
+    user, the address, and the request in ``call_context``, which the spec
+    toolset behind ``service_specs=`` hands to every spec callable declaring
+    ``request``. Left out, such a callable would be handed ``None`` here and the
+    request everywhere else django-ag-ui is mounted.
+
     ``factory`` is the project's own ``deps_factory`` when it passed one. It
     still decides what the deps are; the binding happens either way, so
     replacing the deps cannot quietly unbind the acting user and leave the
@@ -38,6 +44,7 @@ def build_admin_deps(
     return AgentDeps(
         user=getattr(request, "user", None),
         ip_address=request.META.get("REMOTE_ADDR"),
+        call_context={"request": request},
     )
 
 

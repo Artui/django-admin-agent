@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`django-ag-ui` is floored at 0.70.0 and `django-spec-agents` at 0.2.0.** The
+  two move together: 0.70.0 is the transport release that runs on
+  django-spec-agents 0.2.0, whose spec toolset serves django-service-specs
+  specs on `service_specs=`; django-ag-ui 0.70.0's changelog lists what that
+  changes for a project passing them. Its `[spec-tools]` extra is gone, which
+  this package never named.
+
+### Fixed
+
+- **A spec tool behind the sidebar is handed the acting request.** The
+  sidebar's deps replace django-ag-ui's default, which from 0.70 carries the
+  run's request in `AgentDeps.call_context` for the spec toolset, so a project
+  passing `service_specs=` to `AdminAgentServer` gave a spec callable declaring
+  `request` `None` where any other mount gave it the request. The admin's
+  deps now carry it the same way. A project passing its own `deps_factory`
+  decides its deps and carries it itself.
+
 ## [0.55.0] — 2026-10-22
 
 ### Changed
