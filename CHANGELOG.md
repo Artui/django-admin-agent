@@ -26,7 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   passing `service_specs=` to `AdminAgentServer` gave a spec callable declaring
   `request` `None` where any other mount gave it the request. The admin's
   deps now carry it the same way. A project passing its own `deps_factory`
-  decides its deps and carries it itself.
+  decides its deps and carries it itself, as `docs/configuration.md` now says
+  beside the `deps_factory` paragraph.
 
 ## [0.55.0] — 2026-10-22
 
