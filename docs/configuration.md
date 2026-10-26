@@ -209,7 +209,11 @@ The net effect is the rule to hold in your head:
 Establishing *who* that is happens on the endpoint's per-run hook: the mounted
 `AdminAgentServer` binds the acting request for the run before the agent starts.
 Passing your own `deps_factory` cannot switch that off — yours still decides
-what the deps are, and the binding happens either way. If you drive the tools
+what the deps are, and the binding happens either way. What yours must carry
+itself is the request for `service_specs=`: a spec callable is handed
+`call_context["request"]`, so build the deps with
+`call_context={"request": request}` as the default factory does, or every spec
+behind the sidebar sees `request=None`. If you drive the tools
 from somewhere other than the endpoint (a management command, a bespoke agent
 loop, a test), bind it yourself, because a tool with no acting request refuses
 rather than guessing:

@@ -164,12 +164,20 @@ dependencies = [
     # itself; it is taken so the transport that builds the bridge does not resolve
     # below the band the bridge needs.
     #
-    # The current floor is 0.69, the release that runs on django-spec-agents in
-    # place of django-pydantic-agent, which the row below now declares. The two
-    # move together: below it the transport hands back the old package's
-    # ``AgentDeps`` while this package builds the new one. It also floors its
-    # ``[drf-mcp]`` extra at 0.53.1, where a selector raising ``Http404`` is a
-    # missing row on that route as it is on the other.
+    # The current floor is 0.70, the release that runs on django-spec-agents
+    # 0.2.0, which the row below now declares; the two move together. 0.69.0
+    # imports drf-services for its ``service_specs=`` pre-check and 0.69.1 caps
+    # django-spec-agents below 0.2.0, so below this floor a resolve either breaks
+    # ``service_specs=`` or walks the runtime back below the ``AgentDeps`` this
+    # package builds. From 0.70 the transport's default deps carry the run's
+    # request in ``call_context`` for the spec toolset, and ``build_admin_deps``,
+    # which replaces that default, carries it the same way.
+    #
+    # 0.69 was the previous floor, the release that runs on django-spec-agents in
+    # place of django-pydantic-agent. Below it the transport hands back the old
+    # package's ``AgentDeps`` while this package builds the new one. It also
+    # floors its ``[drf-mcp]`` extra at 0.53.1, where a selector raising
+    # ``Http404`` is a missing row on that route as it is on the other.
     #
     # 0.68.1 was the previous floor, a patch over 0.68, taken for the checkpoint panel this
     # sidebar mounts when a step store is configured (``data-runs-url``): each
@@ -220,7 +228,7 @@ dependencies = [
     # targets. The floor alone does not move a resolved install, because 2.46 still
     # satisfies the transport's own pydantic-ai-slim floor; an upgrader names
     # ``pydantic-ai-slim`` in the upgrade.
-    "django-ag-ui>=0.69.0",
+    "django-ag-ui>=0.70.0",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -234,8 +242,10 @@ dependencies = [
     # availability on every step, the tool-failure policy outermost and the audit
     # capability innermost. It also offers a registry tool under its registered
     # name, so a ``TOOL_GUARD`` gate and an approval prompt keyed by that name
-    # now meet the name the model calls.
-    "django-spec-agents>=0.1.0",
+    # now meet the name the model calls. Floored at 0.2.0, where ``AgentDeps``
+    # first carries ``call_context``, which ``build_admin_deps`` fills with the
+    # acting request, and the release django-ag-ui's floor above runs on.
+    "django-spec-agents>=0.2.0",
 ]
 
 [project.optional-dependencies]
@@ -364,6 +374,12 @@ dev = [
     # parses the workflow files, and a transitive dependency is one upstream
     # release away from not being there.
     "pyyaml>=6.0",
+    # The spec toolset, so tests/test_spec_request.py can drive a
+    # ``service_specs=`` run through the sidebar: the default install has no
+    # django-service-specs, and a deps record that holds the request proves
+    # nothing about the callable that is meant to receive it. The floor is the
+    # runtime dependency's above.
+    "django-ag-ui[specs]",
 ]
 docs = [
     "mkdocs>=1.6",
@@ -443,7 +459,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.55.0"
+current_version = "0.56.0"
 allow_dirty = false
 commit = false
 tag = false
