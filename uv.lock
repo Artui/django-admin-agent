@@ -459,6 +459,7 @@ mcp = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "django-ag-ui", extra = ["specs"] },
     { name = "django-stubs", version = "6.0.9", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "django-stubs", version = "6.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "flake8-tidy-imports" },
@@ -496,6 +497,7 @@ provides-extras = ["mcp"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "django-ag-ui", extras = ["specs"] },
     { name = "django-stubs", specifier = ">=5.0" },
     { name = "flake8-tidy-imports", specifier = ">=4.12.0" },
     { name = "httpx", specifier = ">=0.27" },
@@ -534,6 +536,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/5b/71/28e88b684e4a46fff8b53da7006dc926dfbe364925442be55ecb5c528eb5/django_ag_ui-0.70.0-py3-none-any.whl", hash = "sha256:0c5eabbc59e09b53e957be8d80465e0d62aba9ca574e221184711cc10e44517c", size = 160236, upload-time = "2026-10-26T11:13:08.423Z" },
 ]
 
+[package.optional-dependencies]
+specs = [
+    { name = "django-spec-agents", extra = ["specs"] },
+]
+
 [[package]]
 name = "django-service-specs"
 version = "0.15.0"
@@ -558,6 +565,11 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e9/92/40a46bed8e353d785c931944b29245f67749479809b873716e3cc9f53f84/django_spec_agents-0.2.0.tar.gz", hash = "sha256:254099310570a87d670b9b9de465cef93a923dbfd088685cf33e1c48890ffde5", size = 605378, upload-time = "2026-10-24T05:44:29.702Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bc/1d/b7083f4acaca7b8aad9ab450c082690ab9963c33783e5eabb7ba3a80e978/django_spec_agents-0.2.0-py3-none-any.whl", hash = "sha256:141fd62547d0b9cdf8d731efb97949ba02c13f60a3d827fc7b396a6dffb912ba", size = 189846, upload-time = "2026-10-24T05:44:28.173Z" },
+]
+
+[package.optional-dependencies]
+specs = [
+    { name = "django-service-specs" },
 ]
 
 [[package]]

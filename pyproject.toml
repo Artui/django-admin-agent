@@ -374,6 +374,12 @@ dev = [
     # parses the workflow files, and a transitive dependency is one upstream
     # release away from not being there.
     "pyyaml>=6.0",
+    # The spec toolset, so tests/test_spec_request.py can drive a
+    # ``service_specs=`` run through the sidebar: the default install has no
+    # django-service-specs, and a deps record that holds the request proves
+    # nothing about the callable that is meant to receive it. The floor is the
+    # runtime dependency's above.
+    "django-ag-ui[specs]",
 ]
 docs = [
     "mkdocs>=1.6",
