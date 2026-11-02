@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.57.0] — 2026-11-02
+
+### Security
+
+- **Every install now resolves pydantic-ai 2.58 or later (GHSA-5pfm-2g3g-gh85).**
+  On the sidebar's resumed or forked runs, the AG-UI adapter below 2.58 could
+  let a client arrange its history so that a tool call it wrote ran with its
+  own arguments, before any model request. The detail is in django-ag-ui
+  0.71.0's changelog. A project that stays on 0.56.x for Python 3.10 remains
+  exposed, and the advisory's mitigations apply there: authorize inside each
+  tool against the acting user, and put tool guardrails in
+  `before_tool_execute`.
+
+### Changed
+
+- **Python 3.11 is the floor; `django-ag-ui` is floored at 0.71.0 and
+  `django-spec-agents` at 0.5.0.** pydantic-ai 2.55 and later require Python
+  3.11, so a version marker would have kept 3.10 on the vulnerable releases,
+  and 3.10 is dropped instead. The lock now holds django-ag-ui 0.72.0,
+  django-spec-agents 0.5.0, djangorestframework-mcp-server 0.54.1,
+  django-service-specs 0.23.0 and pydantic-ai-slim 2.64.0.
+
 ## [0.56.0] — 2026-10-26
 
 ### Changed
@@ -2322,7 +2344,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.56.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.57.0...HEAD
+[0.57.0]: https://github.com/Artui/django-admin-agent/compare/v0.56.0...v0.57.0
 [0.56.0]: https://github.com/Artui/django-admin-agent/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/Artui/django-admin-agent/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/Artui/django-admin-agent/compare/v0.53.1...v0.54.0

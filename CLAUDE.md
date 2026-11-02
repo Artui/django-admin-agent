@@ -24,7 +24,7 @@ The AG-UI stack design doc (`django-ag-ui-plan.md`) lives in the private ecosyst
 
 ## Local development
 
-`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.70.0` floor in
+`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.71.0` floor in
 `pyproject.toml` (so CI, which has no sibling checkout, syncs cleanly). There is
 deliberately no upper bound — a one-minor ceiling over a package we ship
 ourselves is a release schedule, not a compatibility statement. What replaces
@@ -96,7 +96,7 @@ of a method a host calls.
    admin boundaries where the type genuinely is `Any`.
 6. **`__init__.py` is the only re-export point.** Internal modules import from
    leaf paths, never from the package `__init__`.
-7. **Always `from __future__ import annotations`.** Python 3.10+, no PEP 695
+7. **Always `from __future__ import annotations`.** Python 3.11+, no PEP 695
    `type` statements, no `match`.
 8. **Absolute imports only**, ordered stdlib → third-party → first-party
    (`django_admin_agent`). Never relative.
@@ -161,10 +161,10 @@ Change a rule here and change the config with it, or they drift apart again.
 
 | Component | Floor | Tested |
 | --- | --- | --- |
-| Python | 3.10 | 3.10–3.14 |
+| Python | 3.11 | 3.11–3.14 |
 | Django | 4.2 LTS | 4.2, 5.0, 5.1, 5.2, 6.0, 6.1 |
-| django-ag-ui | 0.70.0 | from PyPI (`>=0.70.0`, no ceiling) |
-| django-spec-agents | 0.2.0 | from PyPI (`>=0.2.0`, no ceiling) |
+| django-ag-ui | 0.71.0 | from PyPI (`>=0.71.0`, no ceiling) |
+| django-spec-agents | 0.5.0 | from PyPI (`>=0.5.0`, no ceiling) |
 | djangorestframework-mcp-server (`[mcp]` extra) | 0.53.1 | from PyPI (`>=0.53.1`, no ceiling) |
 | Django Unfold (supported, optional) | 0.40 | latest in matrix |
 

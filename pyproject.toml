@@ -7,7 +7,7 @@ name = "django-admin-agent"
 dynamic = ["version"]
 description = "An always-present chat-agent sidebar in the Django admin, powered by django-ag-ui."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
     { name = "Artur Veres", email = "artur8118@gmail.com" },
@@ -27,7 +27,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -164,7 +163,14 @@ dependencies = [
     # itself; it is taken so the transport that builds the bridge does not resolve
     # below the band the bridge needs.
     #
-    # The current floor is 0.70, the release that runs on django-spec-agents
+    # The current floor is 0.71, the release that requires pydantic-ai 2.58 and
+    # Python 3.11. 2.58 is the first release past GHSA-5pfm-2g3g-gh85, which is
+    # reachable through the AG-UI adapter this sidebar serves on, and a Python
+    # 3.10 install could not reach it, so this package drops 3.10 with the floor:
+    # a lock on 3.10 resolved pydantic-ai 2.54.0. django-spec-agents 0.5.0 moves
+    # with it, requiring the same pydantic-ai and Python.
+    #
+    # 0.70 was the previous floor, the release that runs on django-spec-agents
     # 0.2.0, which the row below now declares; the two move together. 0.69.0
     # imports drf-services for its ``service_specs=`` pre-check and 0.69.1 caps
     # django-spec-agents below 0.2.0, so below this floor a resolve either breaks
@@ -217,7 +223,7 @@ dependencies = [
     # instruction not to try again. The retry streams as a ``TOOL_CALL_RESULT``
     # with no ``outcome``, so the card settles and the next call reaches the row.
     #
-    # What 0.67 buys on its own is the pydantic-ai an install resolves. It depends
+    # What 0.67 bought on its own was the pydantic-ai an install resolves. It depends
     # on ``pydantic-ai-slim[ui]`` where it had ``[ag-ui]``, and from 2.47 the
     # ``[ag-ui]`` extra caps ``ag-ui-protocol`` below 1.0 while the transport has
     # needed 1.0 since 0.63. A resolver satisfies both by holding pydantic-ai-slim
@@ -225,10 +231,11 @@ dependencies = [
     # repo's own lock, ran an older pydantic-ai than the one the transport and the
     # package above it are tested against. 0.67 is the floor at which an install
     # reaches the pydantic-ai that django-pydantic-agent 0.27's tool-hook ordering
-    # targets. The floor alone does not move a resolved install, because 2.46 still
-    # satisfies the transport's own pydantic-ai-slim floor; an upgrader names
-    # ``pydantic-ai-slim`` in the upgrade.
-    "django-ag-ui>=0.70.0",
+    # targets. 0.67's floor alone did not move a resolved install, because 2.46
+    # still satisfied the transport's own pydantic-ai-slim floor; an upgrader named
+    # ``pydantic-ai-slim`` in the upgrade. 0.71 does move it: it requires
+    # ``pydantic-ai-slim[ui]>=2.58``.
+    "django-ag-ui>=0.71.0",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -244,8 +251,10 @@ dependencies = [
     # name, so a ``TOOL_GUARD`` gate and an approval prompt keyed by that name
     # now meet the name the model calls. Floored at 0.2.0, where ``AgentDeps``
     # first carries ``call_context``, which ``build_admin_deps`` fills with the
-    # acting request, and the release django-ag-ui's floor above runs on.
-    "django-spec-agents>=0.2.0",
+    # acting request, and the release django-ag-ui's floor above runs on. Raised
+    # to 0.5.0 with that floor, for the pydantic-ai 2.58 and Python 3.11 it
+    # requires.
+    "django-spec-agents>=0.5.0",
 ]
 
 [project.optional-dependencies]
@@ -412,7 +421,7 @@ fail_under = 100
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "UP", "B", "SIM", "I", "TID"]
@@ -459,7 +468,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.56.0"
+current_version = "0.57.0"
 allow_dirty = false
 commit = false
 tag = false
