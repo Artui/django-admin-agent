@@ -223,7 +223,7 @@ dependencies = [
     # instruction not to try again. The retry streams as a ``TOOL_CALL_RESULT``
     # with no ``outcome``, so the card settles and the next call reaches the row.
     #
-    # What 0.67 buys on its own is the pydantic-ai an install resolves. It depends
+    # What 0.67 bought on its own was the pydantic-ai an install resolves. It depends
     # on ``pydantic-ai-slim[ui]`` where it had ``[ag-ui]``, and from 2.47 the
     # ``[ag-ui]`` extra caps ``ag-ui-protocol`` below 1.0 while the transport has
     # needed 1.0 since 0.63. A resolver satisfies both by holding pydantic-ai-slim
@@ -231,9 +231,10 @@ dependencies = [
     # repo's own lock, ran an older pydantic-ai than the one the transport and the
     # package above it are tested against. 0.67 is the floor at which an install
     # reaches the pydantic-ai that django-pydantic-agent 0.27's tool-hook ordering
-    # targets. The floor alone does not move a resolved install, because 2.46 still
-    # satisfies the transport's own pydantic-ai-slim floor; an upgrader names
-    # ``pydantic-ai-slim`` in the upgrade.
+    # targets. 0.67's floor alone did not move a resolved install, because 2.46
+    # still satisfied the transport's own pydantic-ai-slim floor; an upgrader named
+    # ``pydantic-ai-slim`` in the upgrade. 0.71 does move it: it requires
+    # ``pydantic-ai-slim[ui]>=2.58``.
     "django-ag-ui>=0.71.0",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request

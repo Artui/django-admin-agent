@@ -43,7 +43,7 @@ install. Works with the vanilla Django admin and with
   on the re-vendored web component; voice is off until a backend is configured.
 - **Unfold-aware** — a runtime JS shim adapts the sidebar to Unfold's chrome;
   any Python Unfold introspection is lazy and guarded, so Unfold stays optional.
-- **100% test coverage**, type-checked, Python 3.11–3.14, Django 4.2–6.0.
+- **100% test coverage**, type-checked, Python 3.11–3.14, Django 4.2–6.1.
 
 **Full documentation:** <https://artui.github.io/django-admin-agent/>
 
