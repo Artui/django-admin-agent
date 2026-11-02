@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Python 3.11 is the floor; `django-ag-ui` is floored at 0.71.0 and
+  `django-spec-agents` at 0.5.0.** GHSA-5pfm-2g3g-gh85 is a pydantic-ai
+  advisory, fixed in 2.58.0, that is reachable through the AG-UI adapter this
+  sidebar serves on. A Python 3.10 install could not leave pydantic-ai 2.54.0,
+  because pydantic-ai 2.55 and later require 3.11, and this package's own lock
+  resolved that version. django-ag-ui 0.71.0 requires the patched pydantic-ai
+  and Python 3.11, and django-spec-agents 0.5.0 moves with it for the same
+  floor, so Python 3.10 is dropped rather than carried on a version marker. The
+  lock now holds django-ag-ui 0.72.0, django-spec-agents 0.5.0,
+  djangorestframework-mcp-server 0.54.1, django-service-specs 0.23.0 and
+  pydantic-ai-slim 2.64.0.
+
 ## [0.56.0] — 2026-10-26
 
 ### Changed

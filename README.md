@@ -35,7 +35,7 @@ install. Works with the vanilla Django admin and with
 - **Themeable, with skills** — configure the theme (light / dark / auto / code),
   density, placement, text animation, and tool-call display mode from
   `DJANGO_ADMIN_AGENT`, and surface a catalog of one-click skills as composer
-  chips and a `/`-command palette. Built on `django-ag-ui>=0.70.0` and the matching
+  chips and a `/`-command palette. Built on `django-ag-ui>=0.71.0` and the matching
   `@artooi/ag-ui-web-component`.
 - **Voice & model thoughts** — set `DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]` to add a
   mic to the composer (server-side transcription), and a reasoning model's
@@ -43,7 +43,7 @@ install. Works with the vanilla Django admin and with
   on the re-vendored web component; voice is off until a backend is configured.
 - **Unfold-aware** — a runtime JS shim adapts the sidebar to Unfold's chrome;
   any Python Unfold introspection is lazy and guarded, so Unfold stays optional.
-- **100% test coverage**, type-checked, Python 3.10–3.14, Django 4.2–6.0.
+- **100% test coverage**, type-checked, Python 3.11–3.14, Django 4.2–6.0.
 
 **Full documentation:** <https://artui.github.io/django-admin-agent/>
 
