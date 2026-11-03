@@ -561,10 +561,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#drf_mcp_server-and-the-mcp-extra" class="md-nav__link">
+  <a href="#mcp_server-and-the-mcp-extra" class="md-nav__link">
     <span class="md-ellipsis">
       
-        drf_mcp_server= and the [mcp] extra
+        mcp_server= and the [mcp] extra
       
     </span>
   </a>
@@ -897,10 +897,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#drf_mcp_server-and-the-mcp-extra" class="md-nav__link">
+  <a href="#mcp_server-and-the-mcp-extra" class="md-nav__link">
     <span class="md-ellipsis">
       
-        drf_mcp_server= and the [mcp] extra
+        mcp_server= and the [mcp] extra
       
     </span>
   </a>
@@ -1340,10 +1340,12 @@ lower while taking the newer substrate re-opens it.</p>
 </div>
 <p><strong>Every other refusal still reaches the model as a failure</strong>, and by default
 the <em>reason</em> is not part of it — <code>TOOL_FAILURE.INCLUDE_DETAIL</code> is <code>False</code>,
-on the grounds that an exception message is written for an operator. (A tool
-bridged from <code>drf_mcp_server=</code> is the exception: its refusal is the server's
-answer rather than an exception here, and
-<a href="#drf_mcp_server-and-the-mcp-extra">carries its own sentence</a>.) A
+on the grounds that an exception message is written for an operator. (A
+refusal a tool bridged from <code>mcp_server=</code> raises in its service is the
+exception: it is the server's answer rather than an exception here, and
+<a href="#mcp_server-and-the-mcp-extra">carries its own sentence</a>. That server's
+<em>permission</em> refusal is not: the bridge raises it here, so it is redacted
+like any other failure, and it does not end the run.) A
 redacted-field lookup is the one you are most likely to meet: it raises
 <code>ValueError</code>, so the full explanation goes to your log and audit trail and
 the user sees only that the tool failed. If you would rather the agent could
@@ -1529,35 +1531,59 @@ want, set <a href="https://artui.github.io/django-ag-ui/configuration/#forward_r
 to <code>False</code> in <code>DJANGO_AG_UI</code> — the events are then stripped server-side and
 never reach the browser.</p>
 </div>
-<h3 id="drf_mcp_server-and-the-mcp-extra"><code>drf_mcp_server=</code> and the <code>[mcp]</code> extra<a class="headerlink" href="#drf_mcp_server-and-the-mcp-extra" title="Permanent link">&para;</a></h3>
+<h3 id="mcp_server-and-the-mcp-extra"><code>mcp_server=</code> and the <code>[mcp]</code> extra<a class="headerlink" href="#mcp_server-and-the-mcp-extra" title="Permanent link">&para;</a></h3>
 <p>Installing <code>django-admin-agent[mcp]</code> and passing a
-<code>djangorestframework-mcp-server</code> <code>MCPServer</code> instance as
-<code>AdminAgentServer(drf_mcp_server=...)</code> exposes that server's tools to the agent
+<a href="https://artui.github.io/django-spec-mcp/">django-spec-mcp</a> <code>MCPServer</code> as
+<code>AdminAgentServer(mcp_server=...)</code> exposes that server's tools to the agent
 in-process — no network MCP hop — alongside the built-in <code>shell.*</code> /
-<code>introspect.*</code> tools. The argument is forwarded to django-ag-ui's
-<a href="https://artui.github.io/django-ag-ui/configuration/#drf_mcp_server"><code>drf_mcp_server=</code></a>,
+<code>introspect.*</code> tools. The agent acts as the request's user, and the server's
+advertised schemas, argument validation and permissions are the ones its HTTP
+transport applies. The argument is forwarded to django-ag-ui's
+<a href="https://artui.github.io/django-ag-ui/configuration/#mcp_server"><code>mcp_server=</code></a>,
 which imports the bridge lazily, so the dependency is never loaded unless the
-argument is given.</p>
+argument is given. It is that direction only: nothing here serves the admin's
+own tools over MCP.</p>
 <div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminAgentServer</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">myproject.mcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">mcp_server</span>  <span class="c1"># your djangorestframework-mcp-server MCPServer</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">myproject.mcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">mcp_server</span>  <span class="c1"># your django-spec-mcp MCPServer</span>
 </span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
 </span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin-agent/"</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">drf_mcp_server</span><span class="o">=</span><span class="n">mcp_server</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin-agent/"</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">mcp_server</span><span class="o">=</span><span class="n">mcp_server</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
 </span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">]</span>
 </span></code></pre></div>
 <p>It is a constructor argument rather than a setting, like every other
 collaborator: <code>DRF_MCP_SERVER</code> in <code>DJANGO_AG_UI</code> is refused with
 <code>ImproperlyConfigured</code> (see the warning under
 <a href="#inherited-django_ag_ui">Inherited <code>DJANGO_AG_UI</code></a>).</p>
-<p>A call the server refuses reaches the sidebar as a <strong>failed</strong> call, from
-django-pydantic-agent 0.23, which raises the refusal rather than returning it as
-the tool's value; below that the card settled it to done. Its text is the
-server's own error sentence, followed by the refusal's <code>code</code> where it has one
-and, for a chain, the step that failed: what the server would send any MCP
-client that made the call. <code>TOOL_FAILURE.INCLUDE_DETAIL</code> does not redact it,
-because nothing was raised on this side to redact. The server has already
-decided what its caller may read, so word a <code>ServiceError</code> for whoever calls the
-tool, a staff member reading the sidebar included.</p>
+<div class="admonition warning">
+<p class="admonition-title"><code>drf_mcp_server=</code> and the <code>[drf-mcp]</code> extra are deprecated</p>
+<p>Until 0.58 the <code>[mcp]</code> extra installed <code>djangorestframework-mcp-server</code>, and
+its server was passed as <code>drf_mcp_server=</code>. Both still work for one minor:
+install <code>django-admin-agent[drf-mcp]</code> for the same line, and
+<code>AdminAgentServer(drf_mcp_server=...)</code> warns <code>DeprecationWarning</code> at your
+line and bridges that server as before. Passing both keywords raises
+<code>TypeError</code>. The next minor removes them; move to a django-spec-mcp server
+and <code>mcp_server=</code>.</p>
+</div>
+<p>A call the server refuses reaches the sidebar as a <strong>failed</strong> call, never as
+the tool's value, so the card does not settle it to done. What the sidebar reads
+depends on where the refusal came from:</p>
+<ul>
+<li><strong>A refusal the service raises</strong> (a <code>ServiceError</code>, an <code>ActionUnavailable</code>, a
+  row not found) is the server's own error sentence, followed by the refusal's
+  <code>code</code> where it has one -- <code>The books are closed. (code: books_closed)</code> --
+  which is what the server would send any MCP client that made the call.
+  <code>TOOL_FAILURE.INCLUDE_DETAIL</code> does not redact it, because nothing was raised
+  on this side to redact. The server has already decided what its caller may
+  read, so word a <code>ServiceError</code> for whoever calls the tool, a staff member
+  reading the sidebar included.</li>
+<li><strong>A protocol refusal</strong> (a permission check refusing the acting user, an
+  authentication or rate-limit answer, an internal error) is raised here by the
+  bridge, so it follows the <code>TOOL_FAILURE</code> policy like any other failure:
+  redacted unless <code>INCLUDE_DETAIL</code> is on, and the run carries on. Unlike a
+  built-in tool's permission refusal, it does not end the run.</li>
+</ul>
+<p>Arguments the server rejects are neither: they are a retry, and the model is
+told which fields to fix and calls again.</p>
 <p>A tool an <strong>operation-scope affordance</strong> refuses right now is not offered at
 all, and the agent is told why. The bridge django-spec-agents carries asks
 the server on every model step which of its tools a listing would leave out, so

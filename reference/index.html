@@ -1970,10 +1970,10 @@ is for. It binds the acting request for the run and then defers to any
 <code>deps_factory</code> you pass, so supplying your own cannot switch the gate off.</p>
 <p><strong>Every keyword below this class's own passes straight through</strong> to
 <code>django_ag_ui.AGUIServer</code> via <code>**kwargs</code> — the model, the stores,
-the toolsets and capabilities, the drf-mcp bridge, the per-request model and
-instructions hooks, the throttle, and anything added there later. They are
-deliberately not enumerated here; the ones below are re-declared only because
-this package overrides their defaults, and a test asserts the rest keep
+the toolsets and capabilities, the per-request model and instructions hooks,
+the throttle, and anything added there later. They are deliberately not
+enumerated here; the ones below are re-declared only because this package
+overrides their defaults or their warnings, and a test asserts the rest keep
 flowing through.</p>
 
 
@@ -2093,6 +2093,43 @@ when it is not the default:</p>
             </td>
             <td>
                   <code><span title="django_admin_agent.admin_agent_server.DEFAULT_URL_NAMESPACE">DEFAULT_URL_NAMESPACE</span></code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>mcp_server</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A django-spec-mcp <code>MCPServer</code> whose tools the agent is
+offered in process, beside the built-in ones, acting as the
+request's user. Requires the <code>django-admin-agent[mcp]</code> extra.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>drf_mcp_server</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Deprecated alias of <code>mcp_server</code> for a
+djangorestframework-mcp-server <code>MCPServer</code>, kept for one minor
+with the <code>[drf-mcp]</code> extra. It warns <code>DeprecationWarning</code> and
+still bridges that server; passing both raises <code>TypeError</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
             </td>
           </tr>
       </tbody>
