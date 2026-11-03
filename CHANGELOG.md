@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.58.0] — 2026-11-03
+
 ### Changed
 
 - **The `[mcp]` extra now installs the django-spec-mcp route, and
@@ -2375,7 +2377,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.57.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.58.0...HEAD
+[0.58.0]: https://github.com/Artui/django-admin-agent/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Artui/django-admin-agent/compare/v0.56.0...v0.57.0
 [0.56.0]: https://github.com/Artui/django-admin-agent/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/Artui/django-admin-agent/compare/v0.54.0...v0.55.0
