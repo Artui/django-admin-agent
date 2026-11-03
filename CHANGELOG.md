@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **`AdminAgentServer(drf_mcp_server=)` and the `[drf-mcp]` extra**, deprecated
+  in 0.58.0. Passing `drf_mcp_server=` now raises `TypeError`, and there is no
+  `django-admin-agent[drf-mcp]` to install. Move a djangorestframework-mcp-server
+  setup to a django-spec-mcp `MCPServer` passed as `mcp_server=`, with the
+  `[mcp]` extra. The lock no longer holds djangorestframework-mcp-server or
+  djangorestframework-services.
+
+### Changed
+
+- **A permission refusal from a server passed as `mcp_server=` ends the run.**
+  From django-spec-agents 0.6.2 the bridge raises `PermissionDenied` when the
+  server refuses the acting user (JSON-RPC `-32006`), so the run ends with a
+  `RUN_ERROR`, redacted under `TOOL_FAILURE.INCLUDE_DETAIL` as a built-in
+  tool's permission refusal is. Until now it was a failed call and the run went
+  on, which left the model free to try the next id and learn which rows exist
+  from how the refusals differ. Authentication, rate-limit and internal faults
+  are still failed calls, and the run carries on.
+- **`django-ag-ui` is floored at 0.74.0 and `django-spec-agents` at 0.6.2**,
+  with the `[mcp]` extra's `django-ag-ui[mcp]>=0.74.0`. The two move together:
+  0.74.0 is the transport that removed its own `drf_mcp_server=` alias, and it
+  requires django-spec-agents 0.6.2, the bridge that ends the run on a
+  permission refusal. The lock now holds django-ag-ui 0.74.0 and
+  django-spec-agents 0.6.2.
+- **The classifiers name Django 6.1**, which the test matrix already ran.
+
+### Fixed
+
+- **The `MESSAGE_ACTIONS` docs told a host to key `ag-ui-feedback` ratings by
+  `messageId`.** From django-ag-ui 0.72.0 a fork keeps its source's message
+  ids, and the sidebar mounts `fork/<run_id>/` whenever a step store is
+  configured, so one id can name a message in two threads and a listener keying
+  by it alone merges a fork's ratings with its source's. The setting's docs and
+  the `AdminAgentSettings.message_actions` docstring now say to key by
+  `threadId` and `messageId` together; the event detail carries both.
+
 ## [0.58.0] — 2026-11-03
 
 ### Changed

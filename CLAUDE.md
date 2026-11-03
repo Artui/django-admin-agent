@@ -24,14 +24,13 @@ The AG-UI stack design doc (`django-ag-ui-plan.md`) lives in the private ecosyst
 
 ## Local development
 
-`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.73.0` floor in
+`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.74.0` floor in
 `pyproject.toml` (so CI, which has no sibling checkout, syncs cleanly). There is
 deliberately no upper bound — a one-minor ceiling over a package we ship
 ourselves is a release schedule, not a compatibility statement. What replaces
 the ceiling is two measurements: the `floor` job in `tests.yml` resolves the
 bottom of every declared window per PR, and `upstream-drift.yml` resolves the
-top weekly. `uv.lock` pins the top for development only. The same applies to
-the `[drf-mcp]` extra's `djangorestframework-mcp-server>=0.53.1`. To develop both
+top weekly. `uv.lock` pins the top for development only. To develop both
 packages together against a local checkout, add a `[tool.uv.sources]` override
 *locally* (do not commit it) and `uv sync`:
 
@@ -155,9 +154,7 @@ Change a rule here and change the config with it, or they drift apart again.
 - `unfold` is never imported at module load — the shim is JS, runtime-detected
   in the browser; any Python Unfold introspection is lazy + guarded.
 - The `[mcp]` extra is django-ag-ui's `[mcp]`, which bridges a django-spec-mcp
-  server in process; nothing here imports it, django-ag-ui does, lazily. The
-  deprecated `[drf-mcp]` extra is the djangorestframework-mcp-server route it
-  replaced, kept for one minor.
+  server in process; nothing here imports it, django-ag-ui does, lazily.
 
 ## Compatibility floor
 
@@ -165,10 +162,9 @@ Change a rule here and change the config with it, or they drift apart again.
 | --- | --- | --- |
 | Python | 3.11 | 3.11–3.14 |
 | Django | 4.2 LTS | 4.2, 5.0, 5.1, 5.2, 6.0, 6.1 |
-| django-ag-ui | 0.73.0 | from PyPI (`>=0.73.0`, no ceiling) |
-| django-ag-ui[mcp] (`[mcp]` extra) | 0.73.0 | from PyPI (`>=0.73.0`, no ceiling) |
-| django-spec-agents | 0.6.0 | from PyPI (`>=0.6.0`, no ceiling) |
-| djangorestframework-mcp-server (`[drf-mcp]` extra, deprecated) | 0.53.1 | from PyPI (`>=0.53.1`, no ceiling) |
+| django-ag-ui | 0.74.0 | from PyPI (`>=0.74.0`, no ceiling) |
+| django-ag-ui[mcp] (`[mcp]` extra) | 0.74.0 | from PyPI (`>=0.74.0`, no ceiling) |
+| django-spec-agents | 0.6.2 | from PyPI (`>=0.6.2`, no ceiling) |
 | Django Unfold (supported, optional) | 0.40 | latest in matrix |
 
 This table and the "Compatibility floor" admonition in `docs/installation.md`

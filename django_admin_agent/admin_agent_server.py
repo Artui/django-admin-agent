@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import contextlib
 import functools
-import warnings
-from collections.abc import Callable, Generator
+from collections.abc import Callable
 from typing import Any
 
 from django.http import HttpRequest
@@ -58,8 +56,7 @@ class AdminAgentServer(AGUIServer):
     the toolsets and capabilities, the per-request model and instructions hooks,
     the throttle, and anything added there later. They are deliberately not
     enumerated here; the ones below are re-declared only because this package
-    overrides their defaults or their warnings, and a test asserts the rest keep
-    flowing through.
+    overrides their defaults, and a test asserts the rest keep flowing through.
 
     Args:
         registry: The server-side tool registry. ``None`` uses the built-in admin
@@ -82,10 +79,6 @@ class AdminAgentServer(AGUIServer):
         mcp_server: A django-spec-mcp ``MCPServer`` whose tools the agent is
             offered in process, beside the built-in ones, acting as the
             request's user. Requires the ``django-admin-agent[mcp]`` extra.
-        drf_mcp_server: Deprecated alias of ``mcp_server`` for a
-            djangorestframework-mcp-server ``MCPServer``, kept for one minor
-            with the ``[drf-mcp]`` extra. It warns ``DeprecationWarning`` and
-            still bridges that server; passing both raises ``TypeError``.
     """
 
     def __init__(
@@ -98,53 +91,18 @@ class AdminAgentServer(AGUIServer):
         namespace: str = DEFAULT_URL_NAMESPACE,
         deps_factory: Callable[[HttpRequest], Any] | None = None,
         mcp_server: Any = None,
-        drf_mcp_server: Any = None,
         **kwargs: Any,
     ) -> None:
-        if mcp_server is not None and drf_mcp_server is not None:
-            raise TypeError("AdminAgentServer() takes mcp_server or drf_mcp_server, not both")
-        silenced: contextlib.AbstractContextManager[None] = contextlib.nullcontext()
-        if drf_mcp_server is not None:
-            warnings.warn(
-                "AdminAgentServer(drf_mcp_server=) and the django-admin-agent[drf-mcp] extra "
-                "are deprecated and are removed in the next minor: pass a django-spec-mcp "
-                "server as mcp_server=, with the django-admin-agent[mcp] extra.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            silenced = _without_the_transport_alias_warning()
-        with silenced:
-            super().__init__(
-                registry if registry is not None else build_default_registry(),
-                require_authenticated=require_authenticated,
-                authorize=authorize,
-                csrf_exempt=csrf_exempt,
-                namespace=namespace,
-                deps_factory=functools.partial(build_admin_deps, factory=deps_factory),
-                # Forwarded under the keyword it came in on: the transport picks
-                # the bridge by it, and a drf-mcp server's refusals are not
-                # django-spec-mcp's.
-                mcp_server=mcp_server,
-                drf_mcp_server=drf_mcp_server,
-                **kwargs,
-            )
-
-
-@contextlib.contextmanager
-def _without_the_transport_alias_warning() -> Generator[None]:
-    """Silence django-ag-ui's warning for ``drf_mcp_server=``, and only that one.
-
-    django-ag-ui warns one frame up from its own constructor, which is
-    ``AdminAgentServer.__init__``, and names its own class; the admin has already
-    warned at the caller's line. Anything else construction warns about still
-    reaches the caller. Entered only on the alias path, because
-    ``catch_warnings`` swaps the process-wide filter list for its duration.
-    """
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", message=r"AGUIServer\(drf_mcp_server=\)", category=DeprecationWarning
+        super().__init__(
+            registry if registry is not None else build_default_registry(),
+            require_authenticated=require_authenticated,
+            authorize=authorize,
+            csrf_exempt=csrf_exempt,
+            namespace=namespace,
+            deps_factory=functools.partial(build_admin_deps, factory=deps_factory),
+            mcp_server=mcp_server,
+            **kwargs,
         )
-        yield
 
 
 __all__ = ["DEFAULT_URL_NAMESPACE", "AdminAgentServer"]

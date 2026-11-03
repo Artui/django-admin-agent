@@ -22,6 +22,7 @@ classifiers = [
     "Framework :: Django :: 5.1",
     "Framework :: Django :: 5.2",
     "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -163,15 +164,21 @@ dependencies = [
     # itself; it is taken so the transport that builds the bridge does not resolve
     # below the band the bridge needs.
     #
-    # The current floor is 0.73, the release taking ``mcp_server=``, a
-    # django-spec-mcp server bridged in process, beside ``drf_mcp_server=`` kept
-    # one minor as its deprecated alias. ``AdminAgentServer`` names both keywords
-    # and forwards them, so below 0.73 constructing it is refused as an
-    # unexpected ``mcp_server``. It is also the version the ``[mcp]`` extra
-    # floors, and one lock holds one version, so the lowest-declared-versions
-    # suite runs 0.73 whatever this row says: a lower floor would be a claim no
-    # test reads. 0.73 requires django-spec-agents 0.6.0 and pydantic-ai 2.63;
-    # the row below moves with it.
+    # The current floor is 0.74, the release that removed ``drf_mcp_server=``,
+    # the alias 0.73 kept for one minor beside ``mcp_server=``. This package
+    # removes its own copy of the alias and its ``[drf-mcp]`` extra in the same
+    # release, so the transport it resolves agrees with it: a
+    # djangorestframework-mcp-server handed in is refused as an unexpected
+    # keyword, rather than reaching a transport still willing to bridge it
+    # while this package says the route is gone. It is also the version the
+    # ``[mcp]`` extra floors, and one lock holds one version, so the
+    # lowest-declared-versions suite runs 0.74 whatever this row says. 0.74
+    # requires django-spec-agents 0.6.2; the row below moves with it.
+    #
+    # 0.73 was the previous floor, the release taking ``mcp_server=``, a
+    # django-spec-mcp server bridged in process. ``AdminAgentServer`` names the
+    # keyword and forwards it, so below 0.73 constructing it is refused as an
+    # unexpected ``mcp_server``.
     #
     # 0.71 was the previous floor, the release that requires pydantic-ai 2.58 and
     # Python 3.11. 2.58 is the first release past GHSA-5pfm-2g3g-gh85, which is
@@ -245,7 +252,7 @@ dependencies = [
     # still satisfied the transport's own pydantic-ai-slim floor; an upgrader named
     # ``pydantic-ai-slim`` in the upgrade. 0.71 does move it: it requires
     # ``pydantic-ai-slim[ui]>=2.58``.
-    "django-ag-ui>=0.73.0",
+    "django-ag-ui>=0.74.0",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -264,8 +271,14 @@ dependencies = [
     # acting request, and the release django-ag-ui's floor above runs on. Raised
     # to 0.5.0 with that floor, for the pydantic-ai 2.58 and Python 3.11 it
     # requires. Raised to 0.6.0 with the row above, which requires it: 0.6.0
-    # carries the ``MCPToolset`` the ``mcp_server=`` bridge builds.
-    "django-spec-agents>=0.6.0",
+    # carries the ``MCPToolset`` the ``mcp_server=`` bridge builds. Raised to
+    # 0.6.2, which the row above requires, for what that bridge does with a
+    # permission refusal: from 0.6.2 a ``-32006`` raises ``PermissionDenied``, so
+    # a server refusing the acting user ends the run as a built-in tool's
+    # refusal does. Below it the refusal was a failed call and the run went on,
+    # which left the model free to try the next id and learn which rows exist
+    # from how the refusals differ.
+    "django-spec-agents>=0.6.2",
 ]
 
 [project.optional-dependencies]
@@ -275,18 +288,10 @@ dependencies = [
 # here serves the admin's own tools over MCP. django-ag-ui's ``[mcp]`` extra is
 # what installs the bridge and django-spec-mcp, so this extra names it rather
 # than either package: the transport decides which spec-mcp its bridge reads.
-# Floored at 0.73.0, the first django-ag-ui taking ``mcp_server=``; below it the
-# keyword is refused as unexpected.
-mcp = ["django-ag-ui[mcp]>=0.73.0"]
-# Deprecated, and removed in the next minor: the route ``[mcp]`` was until this
-# release, for ``AdminAgentServer(drf_mcp_server=...)`` with a
-# djangorestframework-mcp-server ``MCPServer``, which warns
-# ``DeprecationWarning``. The line is the one ``[mcp]`` carried, so a project
-# moving its extra's name keeps the install it had. Floored at 0.53.1, where a
-# selector raising ``Http404`` answers not found: a missing row, where 0.53.0
-# served a LIST's as a successful empty list. It is the floor django-ag-ui's own
-# ``[drf-mcp]`` extra declares.
-drf-mcp = ["djangorestframework-mcp-server>=0.53.1"]
+# Floored at 0.74.0 with the base dependency above, because one lock holds one
+# version: the release whose bridge ends the run on a permission refusal, through
+# django-spec-agents 0.6.2. 0.73.0 is the first taking ``mcp_server=``.
+mcp = ["django-ag-ui[mcp]>=0.74.0"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"
