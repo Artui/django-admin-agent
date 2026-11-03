@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+import warnings
 from collections.abc import Callable
 from typing import Any
 
@@ -53,10 +54,10 @@ class AdminAgentServer(AGUIServer):
 
     **Every keyword below this class's own passes straight through** to
     ``django_ag_ui.AGUIServer`` via ``**kwargs`` — the model, the stores,
-    the toolsets and capabilities, the drf-mcp bridge, the per-request model and
-    instructions hooks, the throttle, and anything added there later. They are
-    deliberately not enumerated here; the ones below are re-declared only because
-    this package overrides their defaults, and a test asserts the rest keep
+    the toolsets and capabilities, the per-request model and instructions hooks,
+    the throttle, and anything added there later. They are deliberately not
+    enumerated here; the ones below are re-declared only because this package
+    overrides their defaults or their warnings, and a test asserts the rest keep
     flowing through.
 
     Args:
@@ -77,6 +78,13 @@ class AdminAgentServer(AGUIServer):
             when it is not the default:
 
                 {% django_admin_agent_sidebar namespace="internal-agent" %}
+        mcp_server: A django-spec-mcp ``MCPServer`` whose tools the agent is
+            offered in process, beside the built-in ones, acting as the
+            request's user. Requires the ``django-admin-agent[mcp]`` extra.
+        drf_mcp_server: Deprecated alias of ``mcp_server`` for a
+            djangorestframework-mcp-server ``MCPServer``, kept for one minor
+            with the ``[drf-mcp]`` extra. It warns ``DeprecationWarning`` and
+            still bridges that server; passing both raises ``TypeError``.
     """
 
     def __init__(
@@ -88,17 +96,43 @@ class AdminAgentServer(AGUIServer):
         csrf_exempt: bool = False,
         namespace: str = DEFAULT_URL_NAMESPACE,
         deps_factory: Callable[[HttpRequest], Any] | None = None,
+        mcp_server: Any = None,
+        drf_mcp_server: Any = None,
         **kwargs: Any,
     ) -> None:
-        super().__init__(
-            registry if registry is not None else build_default_registry(),
-            require_authenticated=require_authenticated,
-            authorize=authorize,
-            csrf_exempt=csrf_exempt,
-            namespace=namespace,
-            deps_factory=functools.partial(build_admin_deps, factory=deps_factory),
-            **kwargs,
-        )
+        if mcp_server is not None and drf_mcp_server is not None:
+            raise TypeError("AdminAgentServer() takes mcp_server or drf_mcp_server, not both")
+        if drf_mcp_server is not None:
+            warnings.warn(
+                "AdminAgentServer(drf_mcp_server=) and the django-admin-agent[drf-mcp] extra "
+                "are deprecated and are removed in the next minor: pass a django-spec-mcp "
+                "server as mcp_server=, with the django-admin-agent[mcp] extra.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        with warnings.catch_warnings():
+            # django-ag-ui warns about the same keyword one frame up from its own
+            # constructor, which is this line, and names its own class. The
+            # warning above already told the caller, at the caller's line; only
+            # that one is silenced, so anything else construction warns about
+            # still reaches them.
+            warnings.filterwarnings(
+                "ignore", message=r"AGUIServer\(drf_mcp_server=\)", category=DeprecationWarning
+            )
+            super().__init__(
+                registry if registry is not None else build_default_registry(),
+                require_authenticated=require_authenticated,
+                authorize=authorize,
+                csrf_exempt=csrf_exempt,
+                namespace=namespace,
+                deps_factory=functools.partial(build_admin_deps, factory=deps_factory),
+                # Forwarded under the keyword it came in on: the transport picks
+                # the bridge by it, and a drf-mcp server's refusals are not
+                # django-spec-mcp's.
+                mcp_server=mcp_server,
+                drf_mcp_server=drf_mcp_server,
+                **kwargs,
+            )
 
 
 __all__ = ["DEFAULT_URL_NAMESPACE", "AdminAgentServer"]

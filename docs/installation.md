@@ -10,17 +10,22 @@ This pulls in `django-ag-ui` and ships the vendored `<ag-ui-chat>` Web
 Component bundle as static files — there is no separate npm install for the
 admin sidebar.
 
-To also expose the server-side admin tools as an MCP server over HTTP (via the
-`djangorestframework-mcp-server` stack), install the extra:
+To also offer the agent the tools of a django-spec-mcp server, in process
+([`mcp_server=`](configuration.md#mcp_server-and-the-mcp-extra)), install the
+extra:
 
 ```bash
 pip install django-admin-agent[mcp]
 ```
 
+`[drf-mcp]` is the deprecated route `[mcp]` was before 0.58, for a
+`djangorestframework-mcp-server` server passed as `drf_mcp_server=`; it is
+removed in the next minor.
+
 !!! info "Compatibility floor"
     Python 3.11+ (tested 3.11–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
-    5.2, 6.0, 6.1), `django-ag-ui>=0.71.0`, `django-spec-agents>=0.5.0`, and,
-    with the `[mcp]` extra above, `djangorestframework-mcp-server>=0.53.1`.
+    5.2, 6.0, 6.1), `django-ag-ui>=0.73.0`, `django-spec-agents>=0.6.0`, and,
+    with the deprecated `[drf-mcp]` extra above, `djangorestframework-mcp-server>=0.53.1`.
     Django Unfold 0.40+ is optional.
 
     None of these windows has an upper bound, so this package installs

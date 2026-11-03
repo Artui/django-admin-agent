@@ -15,8 +15,8 @@
 # measurement of which ones do. Do not delete it to quieten a noisy week
 # without replacing what it measures.
 #
-# Here that is not abstract. This package declares `django-ag-ui>=0.71.0` and, in
-# the `[mcp]` extra, `djangorestframework-mcp-server>=0.53.1` — both open at the
+# Here that is not abstract. This package declares `django-ag-ui>=0.73.0` and, in
+# the `[drf-mcp]` extra, `djangorestframework-mcp-server>=0.53.1` — both open at the
 # top. The `floor` job in `tests.yml` measures the oldest end of those windows
 # per PR; this job measures the newest end. Between them they are what a
 # ceiling used to assert by guessing.
@@ -155,7 +155,7 @@ jobs:
         id: install
         # ``--all-extras`` is load-bearing here rather than tidy: the second
         # open window, ``djangorestframework-mcp-server``, is reachable only
-        # through the ``[mcp]`` extra, so a base install would leave half of
+        # through the ``[drf-mcp]`` extra, so a base install would leave half of
         # what this job exists to measure uninstalled.
         run: uv sync --all-groups --all-extras
 

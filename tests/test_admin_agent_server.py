@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import warnings
+
+import pytest
 from django.urls import URLPattern
 from django_ag_ui import (
     AttachmentsView,
@@ -110,6 +113,50 @@ def test_auth_can_be_relaxed_deliberately() -> None:
     view = _patterns(AdminAgentServer(require_authenticated=False, authorize=None))[0].callback
     assert view._require_authenticated is False
     assert view._authorize_predicate is None
+
+
+def test_mcp_server_reaches_the_spec_mcp_bridge_without_a_warning() -> None:
+    server = _ServerStub()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        view = _patterns(AdminAgentServer(mcp_server=server))[0].callback
+    assert [w for w in caught if issubclass(w.category, DeprecationWarning)] == []
+    assert view._mcp_server is server
+    assert view._bridges_drf_mcp is False
+
+
+def test_drf_mcp_server_warns_once_at_the_caller_naming_this_class() -> None:
+    # The transport warns about the same keyword one frame up from its own
+    # constructor. Forwarded through ``**kwargs`` that frame is this package's,
+    # so the warning blamed admin_agent_server.py and named ``AGUIServer``, a
+    # class the caller never wrote.
+    server = _ServerStub()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        view = _patterns(AdminAgentServer(drf_mcp_server=server))[0].callback
+    deprecations = [w for w in caught if issubclass(w.category, DeprecationWarning)]
+    assert len(deprecations) == 1
+    assert deprecations[0].filename == __file__
+    assert str(deprecations[0].message).startswith("AdminAgentServer(drf_mcp_server=)")
+    assert "django-admin-agent[mcp]" in str(deprecations[0].message)
+    # Still the drf-mcp bridge: the transport picks it by the keyword, and a
+    # drf-mcp server's refusals are not the ones ``MCPToolset`` reads.
+    assert view._mcp_server is server
+    assert view._bridges_drf_mcp is True
+
+
+def test_naming_both_servers_is_refused_before_any_warning() -> None:
+    with (
+        warnings.catch_warnings(record=True) as caught,
+        pytest.raises(TypeError, match=r"^AdminAgentServer\(\) takes mcp_server or"),
+    ):
+        warnings.simplefilter("always")
+        AdminAgentServer(mcp_server=_ServerStub(), drf_mcp_server=_ServerStub())
+    assert caught == []
+
+
+class _ServerStub:
+    """An MCP server stand-in: nothing reads it until a request is served."""
 
 
 class _DummyStore:

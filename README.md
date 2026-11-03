@@ -35,7 +35,7 @@ install. Works with the vanilla Django admin and with
 - **Themeable, with skills** — configure the theme (light / dark / auto / code),
   density, placement, text animation, and tool-call display mode from
   `DJANGO_ADMIN_AGENT`, and surface a catalog of one-click skills as composer
-  chips and a `/`-command palette. Built on `django-ag-ui>=0.71.0` and the matching
+  chips and a `/`-command palette. Built on `django-ag-ui>=0.73.0` and the matching
   `@artooi/ag-ui-web-component`.
 - **Voice & model thoughts** — set `DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]` to add a
   mic to the composer (server-side transcription), and a reasoning model's
@@ -49,7 +49,7 @@ install. Works with the vanilla Django admin and with
 
 ```bash
 pip install django-admin-agent
-# expose the admin tools as an HTTP MCP server too:
+# offer the agent a django-spec-mcp server's tools, AdminAgentServer(mcp_server=...):
 pip install "django-admin-agent[mcp]"
 ```
 
@@ -105,8 +105,8 @@ uvicorn myproject.asgi:application
 The model can be set per-mount (`AdminAgentServer(model=...)`) or globally via
 `DJANGO_AG_UI["MODEL"]`. See the
 [docs](https://artui.github.io/django-admin-agent/) for the full tool surface,
-configuration reference, the `SidebarAdminSite` path, Unfold support, and the
-`[mcp]` server.
+configuration reference, the `SidebarAdminSite` path, Unfold support, and an
+MCP server's tools through the `[mcp]` extra.
 
 ## License
 

@@ -1,10 +1,12 @@
-"""The ``[mcp]`` extra's floor, held where it is resolved.
+"""The deprecated ``[drf-mcp]`` extra's floor, held where it is resolved.
 
 ``AdminAgentServer(drf_mcp_server=...)`` hands the server to django-spec-agents'
-bridge untouched, so what the bridge does with a call is what the sidebar shows.
-At the floor a list selector raising ``Http404``, typically a missing parent, is
-a failed call reading not found; below it the bridge returned a successful empty
-list, and the sidebar settled the card as a success for a call naming nothing.
+drf-mcp bridge untouched, so what the bridge does with a call is what the
+sidebar shows. At the floor a list selector raising ``Http404``, typically a
+missing parent, is a failed call reading not found; below it the bridge returned
+a successful empty list, and the sidebar settled the card as a success for a
+call naming nothing. The ``[mcp]`` route's own test, which needs no extra and so
+runs in every job, is ``test_spec_mcp_server.py``.
 
 Skipped unless drf-mcp is installed, which only the lowest-declared-versions job
 does (``--all-extras``), and that is the job that would see the floor lowered.

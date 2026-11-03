@@ -308,9 +308,9 @@ just read. Three things follow:
     **Every other refusal still reaches the model as a failure**, and by default
     the *reason* is not part of it — `TOOL_FAILURE.INCLUDE_DETAIL` is `False`,
     on the grounds that an exception message is written for an operator. (A tool
-    bridged from `drf_mcp_server=` is the exception: its refusal is the server's
+    bridged from `mcp_server=` is the exception: its refusal is the server's
     answer rather than an exception here, and
-    [carries its own sentence](#drf_mcp_server-and-the-mcp-extra).) A
+    [carries its own sentence](#mcp_server-and-the-mcp-extra).) A
     redacted-field lookup is the one you are most likely to meet: it raises
     `ValueError`, so the full explanation goes to your log and audit trail and
     the user sees only that the tool failed. If you would rather the agent could
@@ -508,23 +508,26 @@ model produces one.
     to `False` in `DJANGO_AG_UI` — the events are then stripped server-side and
     never reach the browser.
 
-### `drf_mcp_server=` and the `[mcp]` extra
+### `mcp_server=` and the `[mcp]` extra
 
 Installing `django-admin-agent[mcp]` and passing a
-`djangorestframework-mcp-server` `MCPServer` instance as
-`AdminAgentServer(drf_mcp_server=...)` exposes that server's tools to the agent
+[django-spec-mcp](https://artui.github.io/django-spec-mcp/) `MCPServer` as
+`AdminAgentServer(mcp_server=...)` exposes that server's tools to the agent
 in-process — no network MCP hop — alongside the built-in `shell.*` /
-`introspect.*` tools. The argument is forwarded to django-ag-ui's
-[`drf_mcp_server=`](https://artui.github.io/django-ag-ui/configuration/#drf_mcp_server),
+`introspect.*` tools. The agent acts as the request's user, and the server's
+advertised schemas, argument validation and permissions are the ones its HTTP
+transport applies. The argument is forwarded to django-ag-ui's
+[`mcp_server=`](https://artui.github.io/django-ag-ui/configuration/#mcp_server),
 which imports the bridge lazily, so the dependency is never loaded unless the
-argument is given.
+argument is given. It is that direction only: nothing here serves the admin's
+own tools over MCP.
 
 ```python title="urls.py"
 from django_admin_agent import AdminAgentServer
-from myproject.mcp import mcp_server  # your djangorestframework-mcp-server MCPServer
+from myproject.mcp import mcp_server  # your django-spec-mcp MCPServer
 
 urlpatterns = [
-    path("admin-agent/", AdminAgentServer(drf_mcp_server=mcp_server).urls),
+    path("admin-agent/", AdminAgentServer(mcp_server=mcp_server).urls),
 ]
 ```
 
@@ -533,12 +536,21 @@ collaborator: `DRF_MCP_SERVER` in `DJANGO_AG_UI` is refused with
 `ImproperlyConfigured` (see the warning under
 [Inherited `DJANGO_AG_UI`](#inherited-django_ag_ui)).
 
-A call the server refuses reaches the sidebar as a **failed** call, from
-django-pydantic-agent 0.23, which raises the refusal rather than returning it as
-the tool's value; below that the card settled it to done. Its text is the
+!!! warning "`drf_mcp_server=` and the `[drf-mcp]` extra are deprecated"
+    Until 0.58 the `[mcp]` extra installed `djangorestframework-mcp-server`, and
+    its server was passed as `drf_mcp_server=`. Both still work for one minor:
+    install `django-admin-agent[drf-mcp]` for the same line, and
+    `AdminAgentServer(drf_mcp_server=...)` warns `DeprecationWarning` at your
+    line and bridges that server as before. Passing both keywords raises
+    `TypeError`. The next minor removes them; move to a django-spec-mcp server
+    and `mcp_server=`.
+
+A call the server refuses reaches the sidebar as a **failed** call, never as
+the tool's value, so the card does not settle it to done. Its text is the
 server's own error sentence, followed by the refusal's `code` where it has one
-and, for a chain, the step that failed: what the server would send any MCP
-client that made the call. `TOOL_FAILURE.INCLUDE_DETAIL` does not redact it,
+-- `The books are closed. (code: books_closed)` -- which is what the server
+would send any MCP client that made the call. Arguments the server rejects are
+a retry instead: the model is told which fields to fix and calls again. `TOOL_FAILURE.INCLUDE_DETAIL` does not redact it,
 because nothing was raised on this side to redact. The server has already
 decided what its caller may read, so word a `ServiceError` for whoever calls the
 tool, a staff member reading the sidebar included.
