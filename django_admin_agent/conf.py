@@ -47,11 +47,15 @@ class AdminAgentSettings:
 
     The event's detail names the rated message: ``messageId`` (its AG-UI id),
     ``threadId``, and ``runId`` on a message that streamed live (absent on one
-    restored from history), beside ``content`` and ``rating``. A listener keying
-    ratings by ``messageId`` matches a rating made after a reload to one made
-    live only where the stored conversation keeps the ids the run streamed: with
-    a ``conversation_store`` that is django-ag-ui 0.68.3 or later, and without
-    one the browser's per-tab storage keeps them already."""
+    restored from history), beside ``content`` and ``rating``. Key ratings by
+    ``threadId`` and ``messageId`` together, never by ``messageId`` alone: from
+    django-ag-ui 0.72.0 a fork keeps its source's message ids, and the sidebar
+    mounts ``fork/<run_id>/`` whenever a step store is configured, so one id can
+    name a message in two threads. A rating keyed by the id alone merges the
+    fork's ratings with its source's. The pair matches a rating made after a
+    reload to one made live where the stored conversation keeps the ids the run
+    streamed: with a ``conversation_store`` that is django-ag-ui 0.68.3 or
+    later, and without one the browser's per-tab storage keeps them already."""
 
     skills: list[dict[str, Any]] | None
     """Optional override for the skill catalog (client ``Skill`` dicts). ``None``

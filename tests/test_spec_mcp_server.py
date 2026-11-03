@@ -4,10 +4,12 @@
 transport, which bridges it in process through django-spec-agents'
 ``MCPToolset``. These drive a whole run through the admin's own mount and read
 the tool result off the stream, so they fail if the keyword stops reaching the
-bridge, or the bridge stops answering with the server's result. The two
-refusals are the two halves of what ``docs/configuration.md`` says about them:
-the server's own sentence for a refusal the service raises, and the
-``TOOL_FAILURE`` policy for a permission refusal, which the bridge raises here.
+bridge, or the bridge stops answering with the server's result. The three
+failures are the three parts of what ``docs/configuration.md`` says about them:
+the server's own sentence for a refusal the service raises; a permission
+refusal, which the bridge raises here as ``PermissionDenied`` and which ends the
+run, as a built-in tool's does; and any other protocol refusal, a rate limit
+here, which the ``TOOL_FAILURE`` policy redacts while the run carries on.
 """
 
 from __future__ import annotations
@@ -57,12 +59,22 @@ class _Nobody(PermissionCheck):
         return False
 
 
-def _server(service: Any, permission: PermissionCheck) -> MCPServer:
+class _Exhausted:
+    """A rate limit already spent: every call is told to come back in a minute."""
+
+    def consume(self, request: Any, token: Any) -> int | None:
+        return 60
+
+
+def _server(
+    service: Any, permission: PermissionCheck, rate_limits: list[Any] | None = None
+) -> MCPServer:
     server = MCPServer(name="test")
     server.register_tool(
         ServiceSpec(service=service, reads=_TWO_NUMBERS, permissions=[permission], atomic=False),
         name="add",
         description="Add two numbers.",
+        rate_limits=rate_limits,
     )
     return server
 
@@ -128,13 +140,30 @@ async def test_a_refusal_the_service_raises_carries_the_server_s_sentence(
     assert result["content"] == "The books are closed. (code: books_closed)"
 
 
-async def test_a_permission_refusal_follows_the_tool_failure_policy(superuser: Any) -> None:
+async def test_a_permission_refusal_ends_the_run(superuser: Any) -> None:
     events = await _events(_server(add_numbers, _Nobody()), superuser)
 
+    # The bridge raises ``PermissionDenied``, which the tool-failure policy
+    # passes through, so the run ends where a built-in tool's refusal ends it.
+    # Carried on as a failed call, it would leave the model free to try the
+    # next id and read which rows exist from how the refusals differ.
+    assert events[-1]["type"] == "RUN_ERROR"
+    assert [e for e in events if e["type"] == "RUN_FINISHED"] == []
+    # Redacted on that route too: the server's sentence stays in the log.
+    assert "Insufficient permission" not in events[-1]["message"]
     [result] = _results(events)
     assert result["outcome"] == "failed"
-    # The bridge raises a protocol refusal here, so ``INCLUDE_DETAIL`` decides
-    # what the sidebar reads; by default that is not the server's sentence.
     assert "Insufficient permission" not in result["content"]
-    assert result["content"].startswith("The add tool failed")
+
+
+async def test_any_other_protocol_refusal_is_a_redacted_failed_call(superuser: Any) -> None:
+    events = await _events(_server(add_numbers, Unrestricted(), [_Exhausted()]), superuser)
+
+    # Only a permission refusal ends the run. A rate limit is answered with
+    # another protocol error, which the bridge raises as an ordinary failure,
+    # so the policy converts it and the model goes on.
+    [result] = _results(events)
+    assert result["outcome"] == "failed"
+    assert "Rate limit exceeded" not in result["content"]
     assert events[-1]["type"] == "RUN_FINISHED"
+    assert [e for e in events if e["type"] == "RUN_ERROR"] == []

@@ -18,14 +18,12 @@ extra:
 pip install django-admin-agent[mcp]
 ```
 
-`[drf-mcp]` is the deprecated route `[mcp]` was before 0.58, for a
-`djangorestframework-mcp-server` server passed as `drf_mcp_server=`; it is
-removed in the next minor.
+`[drf-mcp]`, the djangorestframework-mcp-server route `[mcp]` was before 0.58,
+is gone from 0.59, with the `drf_mcp_server=` keyword it served.
 
 !!! info "Compatibility floor"
     Python 3.11+ (tested 3.11–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
-    5.2, 6.0, 6.1), `django-ag-ui>=0.73.0`, `django-spec-agents>=0.6.0`, and,
-    with the deprecated `[drf-mcp]` extra above, `djangorestframework-mcp-server>=0.53.1`.
+    5.2, 6.0, 6.1), `django-ag-ui>=0.74.0` and `django-spec-agents>=0.6.2`.
     Django Unfold 0.40+ is optional.
 
     None of these windows has an upper bound, so this package installs

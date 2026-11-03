@@ -16,7 +16,7 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `TITLE` | `"Admin Copilot"` | Header text shown on the sidebar chat panel. |
 | `AUTO_CONFIRM` | `False` | When `True`, destructive frontend tools run without the confirmation modal. Passed to the Web Component as `autoConfirm`. |
 | `TOOL_DISPLAY` | `"compact"` | How much detail tool-call cards show: `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. |
-| `MESSAGE_ACTIONS` | `"copy,retry"` | Which per-message actions the sidebar offers, from `copy` / `retry` / `feedback`. Rendered as `data-message-actions`. Matches the component's own default from 0.31.0. The rating buttons fire an `ag-ui-feedback` event and store nothing by design, and nothing here listens for it. **Set `"copy,retry,feedback"` once you have wired your own listener on the sidebar element** — that is what this setting is for. The event's detail carries `content`, `rating`, `messageId` (the rated message's AG-UI id), `threadId`, and `runId` on a message that streamed live (absent on one restored from history). Keying ratings by `messageId` holds across a reload with the browser's per-tab storage, and with a `conversation_store` from django-ag-ui 0.68.3 or later, which stores messages under the ids the run streamed. |
+| `MESSAGE_ACTIONS` | `"copy,retry"` | Which per-message actions the sidebar offers, from `copy` / `retry` / `feedback`. Rendered as `data-message-actions`. Matches the component's own default from 0.31.0. The rating buttons fire an `ag-ui-feedback` event and store nothing by design, and nothing here listens for it. **Set `"copy,retry,feedback"` once you have wired your own listener on the sidebar element** — that is what this setting is for. The event's detail carries `content`, `rating`, `messageId` (the rated message's AG-UI id), `threadId`, and `runId` on a message that streamed live (absent on one restored from history). Key ratings by `threadId` and `messageId` together, never by `messageId` alone: from django-ag-ui 0.72.0 a fork keeps its source's message ids, and the sidebar mounts `fork/<run_id>/` whenever a step store is configured (see [Continuing a run](#continuing-a-run)), so one id can name a message in two threads and a rating keyed by it alone merges the fork's ratings with its source's. The pair holds across a reload with the browser's per-tab storage, and with a `conversation_store` from django-ag-ui 0.68.3 or later, which stores messages under the ids the run streamed. |
 | `THEME` | _unset_ | Web Component theme: `"light"`, `"dark"`, `"auto"`, or `"code"`. Rendered as the `theme` attribute; left off (component default, light) when unset. |
 | `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |
 | `PLACEMENT` | _unset_ | Where the panel sits: `"sidebar"`, `"embedded"`, `"page"`, or the older `"bottom-left"`, `"side"` and `"full"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. `"sidebar"` is a full-height docked panel that collapses to an icon rail (pair it with `SIDE`); `"page"` is a full-screen route with no collapsed state at all, and greets the signed-in user by name over an empty conversation, with the composer centred beneath (the name is the one the admin header welcomes them by; see [Admin wiring](admin-wiring.md)). The last three are no longer in the component's own documented four but still parse and still work. |
@@ -311,8 +311,8 @@ just read. Three things follow:
     refusal a tool bridged from `mcp_server=` raises in its service is the
     exception: it is the server's answer rather than an exception here, and
     [carries its own sentence](#mcp_server-and-the-mcp-extra). That server's
-    *permission* refusal is not: the bridge raises it here, so it is redacted
-    like any other failure, and it does not end the run.) A
+    *permission* refusal is not: from django-spec-agents 0.6.2 the bridge raises
+    it as `PermissionDenied`, so it ends the run like a built-in tool's.) A
     redacted-field lookup is the one you are most likely to meet: it raises
     `ValueError`, so the full explanation goes to your log and audit trail and
     the user sees only that the tool failed. If you would rather the agent could
@@ -538,14 +538,12 @@ collaborator: `DRF_MCP_SERVER` in `DJANGO_AG_UI` is refused with
 `ImproperlyConfigured` (see the warning under
 [Inherited `DJANGO_AG_UI`](#inherited-django_ag_ui)).
 
-!!! warning "`drf_mcp_server=` and the `[drf-mcp]` extra are deprecated"
+!!! warning "`drf_mcp_server=` and the `[drf-mcp]` extra are gone"
     Until 0.58 the `[mcp]` extra installed `djangorestframework-mcp-server`, and
-    its server was passed as `drf_mcp_server=`. Both still work for one minor:
-    install `django-admin-agent[drf-mcp]` for the same line, and
-    `AdminAgentServer(drf_mcp_server=...)` warns `DeprecationWarning` at your
-    line and bridges that server as before. Passing both keywords raises
-    `TypeError`. The next minor removes them; move to a django-spec-mcp server
-    and `mcp_server=`.
+    its server was passed as `drf_mcp_server=`; 0.58 kept both for one minor as
+    a deprecated route. 0.59 removes them: `AdminAgentServer(drf_mcp_server=...)`
+    raises `TypeError`, and there is no `[drf-mcp]` extra to install. Move to a
+    django-spec-mcp server, `mcp_server=` and the `[mcp]` extra.
 
 A call the server refuses reaches the sidebar as a **failed** call, never as
 the tool's value, so the card does not settle it to done. What the sidebar reads
@@ -559,11 +557,18 @@ depends on where the refusal came from:
   on this side to redact. The server has already decided what its caller may
   read, so word a `ServiceError` for whoever calls the tool, a staff member
   reading the sidebar included.
-- **A protocol refusal** (a permission check refusing the acting user, an
-  authentication or rate-limit answer, an internal error) is raised here by the
-  bridge, so it follows the `TOOL_FAILURE` policy like any other failure:
-  redacted unless `INCLUDE_DETAIL` is on, and the run carries on. Unlike a
-  built-in tool's permission refusal, it does not end the run.
+- **A permission refusal** (a permission check refusing the acting user,
+  JSON-RPC `-32006`) **ends the run**, as a built-in tool's does. From
+  django-spec-agents 0.6.2 the bridge raises it as `PermissionDenied`, which the
+  `TOOL_FAILURE` policy passes through, so it leaves by `RUN_ERROR`, redacted
+  under the same `INCLUDE_DETAIL` setting (see
+  [where a refusal's reason goes](#prompt-injection-is-part-of-the-threat-model)).
+  Carried on as a failed call, it would leave the model free to try the next
+  id and learn which rows exist from how the refusals differ.
+- **Any other protocol refusal** (an authentication or rate-limit answer, an
+  internal error) is raised here by the bridge, so it follows the
+  `TOOL_FAILURE` policy like any other failure: redacted unless
+  `INCLUDE_DETAIL` is on, and the run carries on.
 
 Arguments the server rejects are neither: they are a retry, and the model is
 told which fields to fix and calls again.

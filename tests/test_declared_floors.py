@@ -30,7 +30,6 @@ _PACKAGES = [
     "django-ag-ui",
     "django-ag-ui[mcp]",
     "django-spec-agents",
-    "djangorestframework-mcp-server",
 ]
 
 _CLAIM_FILES = sorted(
