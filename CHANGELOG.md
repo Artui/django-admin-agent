@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.58.0] — 2026-11-03
+
+### Changed
+
+- **The `[mcp]` extra now installs the django-spec-mcp route, and
+  `AdminAgentServer` takes `mcp_server=`.** Pass a django-spec-mcp `MCPServer`
+  as `AdminAgentServer(mcp_server=...)` and the agent is offered its tools in
+  process, beside the built-in ones, acting as the request's user. `[mcp]` is
+  `django-ag-ui[mcp]>=0.73.0`, which installs django-spec-agents' `MCPToolset`
+  and django-spec-mcp; it **no longer installs
+  `djangorestframework-mcp-server`**. A project on a drf-mcp server installs
+  `django-admin-agent[drf-mcp]` instead, which carries the line `[mcp]` had.
+- **`django-ag-ui` is floored at 0.73.0 and `django-spec-agents` at 0.6.0.**
+  0.73.0 is the first transport taking `mcp_server=`, which `AdminAgentServer`
+  now names and forwards, and it requires django-spec-agents 0.6.0. The lock
+  now holds django-ag-ui 0.73.0, django-spec-agents 0.6.0 and django-spec-mcp
+  0.6.0.
+
+### Deprecated
+
+- **`AdminAgentServer(drf_mcp_server=)` and the `[drf-mcp]` extra**, removed in
+  the next minor. The keyword still bridges a djangorestframework-mcp-server
+  server as before, and warns `DeprecationWarning` when the server is built, at
+  the caller's line and naming `AdminAgentServer`; forwarded untouched,
+  django-ag-ui's own warning blamed this package's constructor and named
+  `AGUIServer`. The drf-mcp bridge django-spec-agents builds for each request
+  warns as well, naming `DRFMCPToolset`. Passing both `mcp_server=` and
+  `drf_mcp_server=` raises `TypeError`.
+
+### Fixed
+
+- **The README and the installation guide said `[mcp]` served the admin's
+  tools over HTTP.** It never has: the extra brings another server's tools to
+  the agent, and nothing here serves the admin's own tools over MCP.
+
 ## [0.57.0] — 2026-11-02
 
 ### Security
@@ -2344,7 +2379,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.57.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.58.0...HEAD
+[0.58.0]: https://github.com/Artui/django-admin-agent/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Artui/django-admin-agent/compare/v0.56.0...v0.57.0
 [0.56.0]: https://github.com/Artui/django-admin-agent/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/Artui/django-admin-agent/compare/v0.54.0...v0.55.0

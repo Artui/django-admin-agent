@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import warnings
+from typing import Any
+
+import django_ag_ui.agent.agui_server as agui_server
+import pytest
 from django.urls import URLPattern
 from django_ag_ui import (
     AttachmentsView,
@@ -110,6 +115,84 @@ def test_auth_can_be_relaxed_deliberately() -> None:
     view = _patterns(AdminAgentServer(require_authenticated=False, authorize=None))[0].callback
     assert view._require_authenticated is False
     assert view._authorize_predicate is None
+
+
+def test_mcp_server_reaches_the_spec_mcp_bridge_without_a_warning() -> None:
+    server = _ServerStub()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        view = _patterns(AdminAgentServer(mcp_server=server))[0].callback
+    assert [w for w in caught if issubclass(w.category, DeprecationWarning)] == []
+    assert view._mcp_server is server
+    assert view._bridges_drf_mcp is False
+
+
+def test_drf_mcp_server_warns_once_at_the_caller_naming_this_class() -> None:
+    # The transport warns about the same keyword one frame up from its own
+    # constructor. Forwarded through ``**kwargs`` that frame is this package's,
+    # so the warning blamed admin_agent_server.py and named ``AGUIServer``, a
+    # class the caller never wrote.
+    server = _ServerStub()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        view = _patterns(AdminAgentServer(drf_mcp_server=server))[0].callback
+    deprecations = [w for w in caught if issubclass(w.category, DeprecationWarning)]
+    assert len(deprecations) == 1
+    assert deprecations[0].filename == __file__
+    assert str(deprecations[0].message).startswith("AdminAgentServer(drf_mcp_server=)")
+    assert "django-admin-agent[mcp]" in str(deprecations[0].message)
+    # Still the drf-mcp bridge: the transport picks it by the keyword, and a
+    # drf-mcp server's refusals are not the ones ``MCPToolset`` reads.
+    assert view._mcp_server is server
+    assert view._bridges_drf_mcp is True
+
+
+def test_only_the_transport_s_alias_warning_is_silenced(monkeypatch: pytest.MonkeyPatch) -> None:
+    def deprecated_setting() -> None:
+        warnings.warn("an unrelated deprecation", DeprecationWarning, stacklevel=2)
+
+    # Something the transport's constructor calls, warning inside the window in
+    # which the admin silences the transport's own alias warning.
+    monkeypatch.setattr(agui_server, "check_removed_settings", deprecated_setting)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        AdminAgentServer(drf_mcp_server=_ServerStub())
+    messages = [str(w.message) for w in caught if issubclass(w.category, DeprecationWarning)]
+    assert "an unrelated deprecation" in messages
+    assert [m for m in messages if m.startswith("AdminAgentServer(drf_mcp_server=)")] != []
+    assert [m for m in messages if m.startswith("AGUIServer(")] == []
+
+
+@pytest.mark.parametrize("keywords", [{}, {"mcp_server": object()}])
+def test_the_warning_filters_are_left_alone_without_the_alias(
+    keywords: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # ``catch_warnings`` swaps the process-wide filter list while it is open and
+    # resets every module's once-registry, so the default path never enters it.
+    entered: list[object] = []
+    real = warnings.catch_warnings
+
+    def spy(*args: Any, **kwargs: Any) -> Any:
+        entered.append(object())
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(warnings, "catch_warnings", spy)
+    AdminAgentServer(**keywords)
+    assert entered == []
+
+
+def test_naming_both_servers_is_refused_before_any_warning() -> None:
+    with (
+        warnings.catch_warnings(record=True) as caught,
+        pytest.raises(TypeError, match=r"^AdminAgentServer\(\) takes mcp_server or"),
+    ):
+        warnings.simplefilter("always")
+        AdminAgentServer(mcp_server=_ServerStub(), drf_mcp_server=_ServerStub())
+    assert caught == []
+
+
+class _ServerStub:
+    """An MCP server stand-in: nothing reads it until a request is served."""
 
 
 class _DummyStore:

@@ -163,12 +163,22 @@ dependencies = [
     # itself; it is taken so the transport that builds the bridge does not resolve
     # below the band the bridge needs.
     #
-    # The current floor is 0.71, the release that requires pydantic-ai 2.58 and
+    # The current floor is 0.73, the release taking ``mcp_server=``, a
+    # django-spec-mcp server bridged in process, beside ``drf_mcp_server=`` kept
+    # one minor as its deprecated alias. ``AdminAgentServer`` names both keywords
+    # and forwards them, so below 0.73 constructing it is refused as an
+    # unexpected ``mcp_server``. It is also the version the ``[mcp]`` extra
+    # floors, and one lock holds one version, so the lowest-declared-versions
+    # suite runs 0.73 whatever this row says: a lower floor would be a claim no
+    # test reads. 0.73 requires django-spec-agents 0.6.0 and pydantic-ai 2.63;
+    # the row below moves with it.
+    #
+    # 0.71 was the previous floor, the release that requires pydantic-ai 2.58 and
     # Python 3.11. 2.58 is the first release past GHSA-5pfm-2g3g-gh85, which is
     # reachable through the AG-UI adapter this sidebar serves on, and a Python
     # 3.10 install could not reach it, so this package drops 3.10 with the floor:
     # a lock on 3.10 resolved pydantic-ai 2.54.0. django-spec-agents 0.5.0 moves
-    # with it, requiring the same pydantic-ai and Python.
+    # with it, requiring the same pydantic-ai and Python. Subsumed.
     #
     # 0.70 was the previous floor, the release that runs on django-spec-agents
     # 0.2.0, which the row below now declares; the two move together. 0.69.0
@@ -235,7 +245,7 @@ dependencies = [
     # still satisfied the transport's own pydantic-ai-slim floor; an upgrader named
     # ``pydantic-ai-slim`` in the upgrade. 0.71 does move it: it requires
     # ``pydantic-ai-slim[ui]>=2.58``.
-    "django-ag-ui>=0.71.0",
+    "django-ag-ui>=0.73.0",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -253,107 +263,30 @@ dependencies = [
     # first carries ``call_context``, which ``build_admin_deps`` fills with the
     # acting request, and the release django-ag-ui's floor above runs on. Raised
     # to 0.5.0 with that floor, for the pydantic-ai 2.58 and Python 3.11 it
-    # requires.
-    "django-spec-agents>=0.5.0",
+    # requires. Raised to 0.6.0 with the row above, which requires it: 0.6.0
+    # carries the ``MCPToolset`` the ``mcp_server=`` bridge builds.
+    "django-spec-agents>=0.6.0",
 ]
 
 [project.optional-dependencies]
-# For ``AdminAgentServer(drf_mcp_server=...)``: a djangorestframework-mcp-server
-# ``MCPServer``'s tools, exposed to the agent in-process through
-# django-spec-agents' bridge, beside the built-in tools. It is that direction
-# only; nothing here serves the admin's own tools over MCP.
-# Floored at 0.53.1, where a selector raising ``Http404`` answers not found: a
-# missing row, where 0.53.0 served a LIST's as a successful empty list. It is the
-# floor django-ag-ui's ``[drf-mcp]`` extra declares from 0.69, and this extra
-# rather than that one decides which drf-mcp an ``[mcp]`` install gets.
-#
-# 0.53 was the previous floor, where the server is built for the drf-services 0.58 line and refuses at
-# registration what that line refuses on every call. A tool declaring the
-# retired ``SPREAD_CALLER_WINS`` argument binding or the retired
-# ``UnknownArguments.PASSTHROUGH`` policy registers on the release before and
-# then raises on each call, so a project handing in such a server got a sidebar
-# whose tools all failed with nothing at startup to say why; now the
-# ``MCPServer`` the consumer builds raises ``ImproperlyConfigured`` naming the
-# tool when it is constructed, before this package ever sees it. The floor also
-# closes the one resolution the range allowed that no suite here could notice:
-# the release before had no ceiling on drf-services, so it resolved beside
-# the 0.58 line it fails against, and nothing in this package's own tests calls a
-# bridged tool to say so. It floors drf-services at 0.58.0 and
-# django-service-specs at 0.9.0. Subsumed.
-#
-# 0.52 was the previous floor, where a server refuses at registration a tool that
-# registers and then fails every call, and names a missing argument in one sentence. A required
-# ``data`` with no ``input_serializer``, a reserved pool seed such as ``instance``
-# counted as the caller's in trust mode, and a list selector taking ``page`` or
-# ``limit`` each raised ``TypeError`` or served the wrong page on every call; the
-# ``MCPServer`` passed in is the consumer's, so a project handing in one now gets
-# ``ImproperlyConfigured`` naming the tool and the parameter when it starts. A
-# call that leaves out the argument is told ``Missing required argument(s): `pk`.``
-# where it was told ``Invalid arguments``, which is the sentence the other spec
-# route writes, so the two floors above move with it. This extra rather than
-# django-ag-ui's decides which drf-mcp an ``[mcp]`` install gets. It floors
-# drf-services at 0.56.
-#
-# 0.50 was the previous floor, where a bridged tool's input schema requires what a call needs:
-# the lookup a service tool resolves its row through, typically ``pk``, and a
-# selector parameter with no default. The admin declares no tool of its own
-# through this extra, but the ``MCPServer`` passed in is the consumer's, and this
-# extra rather than django-ag-ui's decides which drf-mcp an ``[mcp]`` install
-# gets. Below it a call that left the argument out raised the lookup's
-# ``TypeError``, which under the default ``TOOL_FAILURE`` policy reached the
-# sidebar as a failed call with its text withheld, and the model was told not to
-# retry; now it is a retry naming the argument, and the agent's next call reaches
-# the row. It floors drf-services at 0.55, below which listing such a tool raises
-# ``TypeError``.
-#
-# 0.49 was the previous floor, where a read-shaping ``QueryParam`` value the output
-# serializer refuses while rendering is a ``validation_error`` result naming the
-# argument, which the bridge raises as a retry. The admin declares no
-# ``QueryParam`` of its own, but the ``MCPServer`` passed in is the consumer's,
-# and this extra rather than django-ag-ui's decides which drf-mcp an
-# ``[mcp]`` install gets. Below it a selection the serializer refused, most often
-# one written against a paged tool's envelope, reached the sidebar as a failed
-# call whose text is withheld, and the agent could not correct it; now it is a
-# retry, and the agent's next call gets the page. Subsumed.
-#
-# 0.48 was the previous floor, where a server answers in process which tools a listing leaves
-# out and why (``unavailable_tools`` / ``aunavailable_tools``) and, on request,
-# lists every tool the caller may see whether or not a condition refuses it
-# (``include_unavailable``). Neither is a wire change. That pair is what
-# django-spec-agents' bridge needs to keep the agent's tools in step with
-# the registry while a chat runs, so it is the band the row above requires: an
-# ``MCPServer`` carrying an operation-scope condition reaches the admin as a
-# tool that comes and goes with the condition, and as a named reason when it is
-# gone, rather than as a tool that was missing for the whole conversation.
-# Subsumed.
-#
-# 0.46 was the floor before that, where a ``ServiceSpec`` declaring ``many=True``
-# registers as a tool and takes its list under one named argument. An ``MCPServer`` carrying a
-# bulk spec therefore reaches the agent as a tool whose result the card renders as
-# a list, where below this floor registration refused the spec and the agent was
-# offered nothing for it. 0.46 also stops a ``many=True`` chain step collapsing
-# its list to one row through an output re-fetch, and refuses a chain inheriting
-# such a step's ``input_serializer`` rather than handing the bulk service one item
-# as its whole data. It floors drf-services at 0.53.0 in turn, and hard: every
-# service dispatch passes ``many_as_argument``, which first exists there, so below
-# it a bridged tool call raises ``TypeError`` at the call while the package still
-# imports. Subsumed.
-#
-# 0.45 was the previous floor, the release that serves a refusal's ``code`` in a
-# tool's error result, which the bridge appends to the failed call's text the card
-# shows. 0.45
-# also resolves a chain tool's RETRIEVE step to its row before the object-level
-# permission judges it: below it a selector returning a queryset skipped that
-# check, and a chain step rendered without an output serializer answered with the
-# text of the row the rule refuses. And it refused a ``many=True`` service spec at
-# registration, which is exactly what 0.46 reverses. Subsumed.
-#
-# 0.44 was the floor before that, where the tools that bridge lists and calls caught
-# up with drf-services' affordances: below it a chain tool ran a step whose
-# service's own affordances refuse it, and reported success, and the
-# ``outputSchema`` handed to the model left out the ``affordances`` object.
-# Subsumed.
-mcp = ["djangorestframework-mcp-server>=0.53.1"]
+# For ``AdminAgentServer(mcp_server=...)``: a django-spec-mcp ``MCPServer``'s
+# tools, exposed to the agent in-process through django-spec-agents'
+# ``MCPToolset``, beside the built-in tools. It is that direction only; nothing
+# here serves the admin's own tools over MCP. django-ag-ui's ``[mcp]`` extra is
+# what installs the bridge and django-spec-mcp, so this extra names it rather
+# than either package: the transport decides which spec-mcp its bridge reads.
+# Floored at 0.73.0, the first django-ag-ui taking ``mcp_server=``; below it the
+# keyword is refused as unexpected.
+mcp = ["django-ag-ui[mcp]>=0.73.0"]
+# Deprecated, and removed in the next minor: the route ``[mcp]`` was until this
+# release, for ``AdminAgentServer(drf_mcp_server=...)`` with a
+# djangorestframework-mcp-server ``MCPServer``, which warns
+# ``DeprecationWarning``. The line is the one ``[mcp]`` carried, so a project
+# moving its extra's name keeps the install it had. Floored at 0.53.1, where a
+# selector raising ``Http404`` answers not found: a missing row, where 0.53.0
+# served a LIST's as a successful empty list. It is the floor django-ag-ui's own
+# ``[drf-mcp]`` extra declares.
+drf-mcp = ["djangorestframework-mcp-server>=0.53.1"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"
@@ -387,8 +320,11 @@ dev = [
     # ``service_specs=`` run through the sidebar: the default install has no
     # django-service-specs, and a deps record that holds the request proves
     # nothing about the callable that is meant to receive it. The floor is the
-    # runtime dependency's above.
-    "django-ag-ui[specs]",
+    # runtime dependency's above. And the ``[mcp]`` bridge, so
+    # tests/test_spec_mcp_server.py serves a django-spec-mcp server through the
+    # sidebar in every cell of the matrix rather than only where an extra is
+    # installed; the ``[mcp]`` extra above floors it.
+    "django-ag-ui[specs,mcp]",
 ]
 docs = [
     "mkdocs>=1.6",
@@ -468,7 +404,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.57.0"
+current_version = "0.58.0"
 allow_dirty = false
 commit = false
 tag = false
