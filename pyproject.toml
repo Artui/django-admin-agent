@@ -124,8 +124,8 @@ dependencies = [
     # djangorestframework-mcp-server 0.48. That is the pair a bridged sidebar
     # needs for a tool to come and go with its operation condition while a
     # conversation runs, and for the agent to be told the reason it went. The
-    # transport is what constructs the bridge from the ``drf_mcp_server=`` this
-    # package forwards, so a project resolving the transport lower takes the two
+    # transport is what constructed the bridge from the ``drf_mcp_server=`` this
+    # package forwarded, so a project resolving the transport lower takes the two
     # rows above and still gets a bridge built the old way.
     #
     # 0.63 is the other half of the bundle pinned in the Makefile, and neither
