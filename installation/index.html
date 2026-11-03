@@ -861,14 +861,12 @@ admin sidebar.</p>
 extra:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>django-admin-agent<span class="o">[</span>mcp<span class="o">]</span>
 </span></code></pre></div>
-<p><code>[drf-mcp]</code> is the deprecated route <code>[mcp]</code> was before 0.58, for a
-<code>djangorestframework-mcp-server</code> server passed as <code>drf_mcp_server=</code>; it is
-removed in the next minor.</p>
+<p><code>[drf-mcp]</code>, the djangorestframework-mcp-server route <code>[mcp]</code> was before 0.58,
+is gone from 0.59, with the <code>drf_mcp_server=</code> keyword it served.</p>
 <div class="admonition info">
 <p class="admonition-title">Compatibility floor</p>
 <p>Python 3.11+ (tested 3.11–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
-5.2, 6.0, 6.1), <code>django-ag-ui&gt;=0.73.0</code>, <code>django-spec-agents&gt;=0.6.0</code>, and,
-with the deprecated <code>[drf-mcp]</code> extra above, <code>djangorestframework-mcp-server&gt;=0.53.1</code>.
+5.2, 6.0, 6.1), <code>django-ag-ui&gt;=0.74.0</code> and <code>django-spec-agents&gt;=0.6.2</code>.
 Django Unfold 0.40+ is optional.</p>
 <p>None of these windows has an upper bound, so this package installs
 alongside the current <code>django-ag-ui</code> on the day that ships rather than

@@ -973,7 +973,7 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <tr>
 <td><code>MESSAGE_ACTIONS</code></td>
 <td><code>"copy,retry"</code></td>
-<td>Which per-message actions the sidebar offers, from <code>copy</code> / <code>retry</code> / <code>feedback</code>. Rendered as <code>data-message-actions</code>. Matches the component's own default from 0.31.0. The rating buttons fire an <code>ag-ui-feedback</code> event and store nothing by design, and nothing here listens for it. <strong>Set <code>"copy,retry,feedback"</code> once you have wired your own listener on the sidebar element</strong> — that is what this setting is for. The event's detail carries <code>content</code>, <code>rating</code>, <code>messageId</code> (the rated message's AG-UI id), <code>threadId</code>, and <code>runId</code> on a message that streamed live (absent on one restored from history). Keying ratings by <code>messageId</code> holds across a reload with the browser's per-tab storage, and with a <code>conversation_store</code> from django-ag-ui 0.68.3 or later, which stores messages under the ids the run streamed.</td>
+<td>Which per-message actions the sidebar offers, from <code>copy</code> / <code>retry</code> / <code>feedback</code>. Rendered as <code>data-message-actions</code>. Matches the component's own default from 0.31.0. The rating buttons fire an <code>ag-ui-feedback</code> event and store nothing by design, and nothing here listens for it. <strong>Set <code>"copy,retry,feedback"</code> once you have wired your own listener on the sidebar element</strong> — that is what this setting is for. The event's detail carries <code>content</code>, <code>rating</code>, <code>messageId</code> (the rated message's AG-UI id), <code>threadId</code>, and <code>runId</code> on a message that streamed live (absent on one restored from history). Key ratings by <code>threadId</code> and <code>messageId</code> together, never by <code>messageId</code> alone: from django-ag-ui 0.72.0 a fork keeps its source's message ids, and the sidebar mounts <code>fork/&lt;run_id&gt;/</code> whenever a step store is configured (see <a href="#continuing-a-run">Continuing a run</a>), so one id can name a message in two threads and a rating keyed by it alone merges the fork's ratings with its source's. The pair holds across a reload with the browser's per-tab storage, and with a <code>conversation_store</code> from django-ag-ui 0.68.3 or later, which stores messages under the ids the run streamed.</td>
 </tr>
 <tr>
 <td><code>THEME</code></td>
@@ -1344,8 +1344,8 @@ on the grounds that an exception message is written for an operator. (A
 refusal a tool bridged from <code>mcp_server=</code> raises in its service is the
 exception: it is the server's answer rather than an exception here, and
 <a href="#mcp_server-and-the-mcp-extra">carries its own sentence</a>. That server's
-<em>permission</em> refusal is not: the bridge raises it here, so it is redacted
-like any other failure, and it does not end the run.) A
+<em>permission</em> refusal is not: from django-spec-agents 0.6.2 the bridge raises
+it as <code>PermissionDenied</code>, so it ends the run like a built-in tool's.) A
 redacted-field lookup is the one you are most likely to meet: it raises
 <code>ValueError</code>, so the full explanation goes to your log and audit trail and
 the user sees only that the tool failed. If you would rather the agent could
@@ -1555,14 +1555,12 @@ collaborator: <code>DRF_MCP_SERVER</code> in <code>DJANGO_AG_UI</code> is refuse
 <code>ImproperlyConfigured</code> (see the warning under
 <a href="#inherited-django_ag_ui">Inherited <code>DJANGO_AG_UI</code></a>).</p>
 <div class="admonition warning">
-<p class="admonition-title"><code>drf_mcp_server=</code> and the <code>[drf-mcp]</code> extra are deprecated</p>
+<p class="admonition-title"><code>drf_mcp_server=</code> and the <code>[drf-mcp]</code> extra are gone</p>
 <p>Until 0.58 the <code>[mcp]</code> extra installed <code>djangorestframework-mcp-server</code>, and
-its server was passed as <code>drf_mcp_server=</code>. Both still work for one minor:
-install <code>django-admin-agent[drf-mcp]</code> for the same line, and
-<code>AdminAgentServer(drf_mcp_server=...)</code> warns <code>DeprecationWarning</code> at your
-line and bridges that server as before. Passing both keywords raises
-<code>TypeError</code>. The next minor removes them; move to a django-spec-mcp server
-and <code>mcp_server=</code>.</p>
+its server was passed as <code>drf_mcp_server=</code>; 0.58 kept both for one minor as
+a deprecated route. 0.59 removes them: <code>AdminAgentServer(drf_mcp_server=...)</code>
+raises <code>TypeError</code>, and there is no <code>[drf-mcp]</code> extra to install. Move to a
+django-spec-mcp server, <code>mcp_server=</code> and the <code>[mcp]</code> extra.</p>
 </div>
 <p>A call the server refuses reaches the sidebar as a <strong>failed</strong> call, never as
 the tool's value, so the card does not settle it to done. What the sidebar reads
@@ -1576,11 +1574,18 @@ depends on where the refusal came from:</p>
   on this side to redact. The server has already decided what its caller may
   read, so word a <code>ServiceError</code> for whoever calls the tool, a staff member
   reading the sidebar included.</li>
-<li><strong>A protocol refusal</strong> (a permission check refusing the acting user, an
-  authentication or rate-limit answer, an internal error) is raised here by the
-  bridge, so it follows the <code>TOOL_FAILURE</code> policy like any other failure:
-  redacted unless <code>INCLUDE_DETAIL</code> is on, and the run carries on. Unlike a
-  built-in tool's permission refusal, it does not end the run.</li>
+<li><strong>A permission refusal</strong> (a permission check refusing the acting user,
+  JSON-RPC <code>-32006</code>) <strong>ends the run</strong>, as a built-in tool's does. From
+  django-spec-agents 0.6.2 the bridge raises it as <code>PermissionDenied</code>, which the
+  <code>TOOL_FAILURE</code> policy passes through, so it leaves by <code>RUN_ERROR</code>, redacted
+  under the same <code>INCLUDE_DETAIL</code> setting (see
+  <a href="#prompt-injection-is-part-of-the-threat-model">where a refusal's reason goes</a>).
+  Carried on as a failed call, it would leave the model free to try the next
+  id and learn which rows exist from how the refusals differ.</li>
+<li><strong>Any other protocol refusal</strong> (an authentication or rate-limit answer, an
+  internal error) is raised here by the bridge, so it follows the
+  <code>TOOL_FAILURE</code> policy like any other failure: redacted unless
+  <code>INCLUDE_DETAIL</code> is on, and the run carries on.</li>
 </ul>
 <p>Arguments the server rejects are neither: they are a retry, and the model is
 told which fields to fix and calls again.</p>

@@ -1973,8 +1973,7 @@ is for. It binds the acting request for the run and then defers to any
 the toolsets and capabilities, the per-request model and instructions hooks,
 the throttle, and anything added there later. They are deliberately not
 enumerated here; the ones below are re-declared only because this package
-overrides their defaults or their warnings, and a test asserts the rest keep
-flowing through.</p>
+overrides their defaults, and a test asserts the rest keep flowing through.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2107,25 +2106,6 @@ when it is not the default:</p>
                 <p>A django-spec-mcp <code>MCPServer</code> whose tools the agent is
 offered in process, beside the built-in ones, acting as the
 request's user. Requires the <code>django-admin-agent[mcp]</code> extra.</p>
-              </div>
-            </td>
-            <td>
-                  <code>None</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>drf_mcp_server</code>
-            </td>
-            <td>
-                  <code><span title="typing.Any">Any</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Deprecated alias of <code>mcp_server</code> for a
-djangorestframework-mcp-server <code>MCPServer</code>, kept for one minor
-with the <code>[drf-mcp]</code> extra. It warns <code>DeprecationWarning</code> and
-still bridges that server; passing both raises <code>TypeError</code>.</p>
               </div>
             </td>
             <td>
@@ -2746,11 +2726,15 @@ thumbs back; without this it would have no way to ask. Setting it explicitly
 also means the admin's row does not move if the component's default does.</p>
 <p>The event's detail names the rated message: <code>messageId</code> (its AG-UI id),
 <code>threadId</code>, and <code>runId</code> on a message that streamed live (absent on one
-restored from history), beside <code>content</code> and <code>rating</code>. A listener keying
-ratings by <code>messageId</code> matches a rating made after a reload to one made
-live only where the stored conversation keeps the ids the run streamed: with
-a <code>conversation_store</code> that is django-ag-ui 0.68.3 or later, and without
-one the browser's per-tab storage keeps them already.</p>
+restored from history), beside <code>content</code> and <code>rating</code>. Key ratings by
+<code>threadId</code> and <code>messageId</code> together, never by <code>messageId</code> alone: from
+django-ag-ui 0.72.0 a fork keeps its source's message ids, and the sidebar
+mounts <code>fork/&lt;run_id&gt;/</code> whenever a step store is configured, so one id can
+name a message in two threads. A rating keyed by the id alone merges the
+fork's ratings with its source's. The pair matches a rating made after a
+reload to one made live where the stored conversation keeps the ids the run
+streamed: with a <code>conversation_store</code> that is django-ag-ui 0.68.3 or
+later, and without one the browser's per-tab storage keeps them already.</p>
 
     </div>
 
