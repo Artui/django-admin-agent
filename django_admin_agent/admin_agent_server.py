@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import contextlib
 import functools
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 from typing import Any
 
 from django.http import HttpRequest
@@ -102,6 +103,7 @@ class AdminAgentServer(AGUIServer):
     ) -> None:
         if mcp_server is not None and drf_mcp_server is not None:
             raise TypeError("AdminAgentServer() takes mcp_server or drf_mcp_server, not both")
+        silenced: contextlib.AbstractContextManager[None] = contextlib.nullcontext()
         if drf_mcp_server is not None:
             warnings.warn(
                 "AdminAgentServer(drf_mcp_server=) and the django-admin-agent[drf-mcp] extra "
@@ -110,15 +112,8 @@ class AdminAgentServer(AGUIServer):
                 DeprecationWarning,
                 stacklevel=2,
             )
-        with warnings.catch_warnings():
-            # django-ag-ui warns about the same keyword one frame up from its own
-            # constructor, which is this line, and names its own class. The
-            # warning above already told the caller, at the caller's line; only
-            # that one is silenced, so anything else construction warns about
-            # still reaches them.
-            warnings.filterwarnings(
-                "ignore", message=r"AGUIServer\(drf_mcp_server=\)", category=DeprecationWarning
-            )
+            silenced = _without_the_transport_alias_warning()
+        with silenced:
             super().__init__(
                 registry if registry is not None else build_default_registry(),
                 require_authenticated=require_authenticated,
@@ -133,6 +128,23 @@ class AdminAgentServer(AGUIServer):
                 drf_mcp_server=drf_mcp_server,
                 **kwargs,
             )
+
+
+@contextlib.contextmanager
+def _without_the_transport_alias_warning() -> Generator[None]:
+    """Silence django-ag-ui's warning for ``drf_mcp_server=``, and only that one.
+
+    django-ag-ui warns one frame up from its own constructor, which is
+    ``AdminAgentServer.__init__``, and names its own class; the admin has already
+    warned at the caller's line. Anything else construction warns about still
+    reaches the caller. Entered only on the alias path, because
+    ``catch_warnings`` swaps the process-wide filter list for its duration.
+    """
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", message=r"AGUIServer\(drf_mcp_server=\)", category=DeprecationWarning
+        )
+        yield
 
 
 __all__ = ["DEFAULT_URL_NAMESPACE", "AdminAgentServer"]

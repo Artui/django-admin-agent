@@ -307,10 +307,12 @@ just read. Three things follow:
 
     **Every other refusal still reaches the model as a failure**, and by default
     the *reason* is not part of it — `TOOL_FAILURE.INCLUDE_DETAIL` is `False`,
-    on the grounds that an exception message is written for an operator. (A tool
-    bridged from `mcp_server=` is the exception: its refusal is the server's
-    answer rather than an exception here, and
-    [carries its own sentence](#mcp_server-and-the-mcp-extra).) A
+    on the grounds that an exception message is written for an operator. (A
+    refusal a tool bridged from `mcp_server=` raises in its service is the
+    exception: it is the server's answer rather than an exception here, and
+    [carries its own sentence](#mcp_server-and-the-mcp-extra). That server's
+    *permission* refusal is not: the bridge raises it here, so it is redacted
+    like any other failure, and it does not end the run.) A
     redacted-field lookup is the one you are most likely to meet: it raises
     `ValueError`, so the full explanation goes to your log and audit trail and
     the user sees only that the tool failed. If you would rather the agent could
@@ -546,14 +548,25 @@ collaborator: `DRF_MCP_SERVER` in `DJANGO_AG_UI` is refused with
     and `mcp_server=`.
 
 A call the server refuses reaches the sidebar as a **failed** call, never as
-the tool's value, so the card does not settle it to done. Its text is the
-server's own error sentence, followed by the refusal's `code` where it has one
--- `The books are closed. (code: books_closed)` -- which is what the server
-would send any MCP client that made the call. Arguments the server rejects are
-a retry instead: the model is told which fields to fix and calls again. `TOOL_FAILURE.INCLUDE_DETAIL` does not redact it,
-because nothing was raised on this side to redact. The server has already
-decided what its caller may read, so word a `ServiceError` for whoever calls the
-tool, a staff member reading the sidebar included.
+the tool's value, so the card does not settle it to done. What the sidebar reads
+depends on where the refusal came from:
+
+- **A refusal the service raises** (a `ServiceError`, an `ActionUnavailable`, a
+  row not found) is the server's own error sentence, followed by the refusal's
+  `code` where it has one -- `The books are closed. (code: books_closed)` --
+  which is what the server would send any MCP client that made the call.
+  `TOOL_FAILURE.INCLUDE_DETAIL` does not redact it, because nothing was raised
+  on this side to redact. The server has already decided what its caller may
+  read, so word a `ServiceError` for whoever calls the tool, a staff member
+  reading the sidebar included.
+- **A protocol refusal** (a permission check refusing the acting user, an
+  authentication or rate-limit answer, an internal error) is raised here by the
+  bridge, so it follows the `TOOL_FAILURE` policy like any other failure:
+  redacted unless `INCLUDE_DETAIL` is on, and the run carries on. Unlike a
+  built-in tool's permission refusal, it does not end the run.
+
+Arguments the server rejects are neither: they are a retry, and the model is
+told which fields to fix and calls again.
 
 A tool an **operation-scope affordance** refuses right now is not offered at
 all, and the agent is told why. The bridge django-spec-agents carries asks

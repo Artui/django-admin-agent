@@ -29,10 +29,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`AdminAgentServer(drf_mcp_server=)` and the `[drf-mcp]` extra**, removed in
   the next minor. The keyword still bridges a djangorestframework-mcp-server
-  server as before, and warns `DeprecationWarning` once, at the caller's line
-  and naming `AdminAgentServer`; forwarded untouched, django-ag-ui's own warning
-  blamed this package's constructor and named `AGUIServer`. Passing both
-  `mcp_server=` and `drf_mcp_server=` raises `TypeError`.
+  server as before, and warns `DeprecationWarning` when the server is built, at
+  the caller's line and naming `AdminAgentServer`; forwarded untouched,
+  django-ag-ui's own warning blamed this package's constructor and named
+  `AGUIServer`. The drf-mcp bridge django-spec-agents builds for each request
+  warns as well, naming `DRFMCPToolset`. Passing both `mcp_server=` and
+  `drf_mcp_server=` raises `TypeError`.
 
 ### Fixed
 

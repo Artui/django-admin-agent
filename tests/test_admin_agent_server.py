@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import warnings
+from typing import Any
 
+import django_ag_ui.agent.agui_server as agui_server
 import pytest
 from django.urls import URLPattern
 from django_ag_ui import (
@@ -143,6 +145,40 @@ def test_drf_mcp_server_warns_once_at_the_caller_naming_this_class() -> None:
     # drf-mcp server's refusals are not the ones ``MCPToolset`` reads.
     assert view._mcp_server is server
     assert view._bridges_drf_mcp is True
+
+
+def test_only_the_transport_s_alias_warning_is_silenced(monkeypatch: pytest.MonkeyPatch) -> None:
+    def deprecated_setting() -> None:
+        warnings.warn("an unrelated deprecation", DeprecationWarning, stacklevel=2)
+
+    # Something the transport's constructor calls, warning inside the window in
+    # which the admin silences the transport's own alias warning.
+    monkeypatch.setattr(agui_server, "check_removed_settings", deprecated_setting)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        AdminAgentServer(drf_mcp_server=_ServerStub())
+    messages = [str(w.message) for w in caught if issubclass(w.category, DeprecationWarning)]
+    assert "an unrelated deprecation" in messages
+    assert [m for m in messages if m.startswith("AdminAgentServer(drf_mcp_server=)")] != []
+    assert [m for m in messages if m.startswith("AGUIServer(")] == []
+
+
+@pytest.mark.parametrize("keywords", [{}, {"mcp_server": object()}])
+def test_the_warning_filters_are_left_alone_without_the_alias(
+    keywords: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # ``catch_warnings`` swaps the process-wide filter list while it is open and
+    # resets every module's once-registry, so the default path never enters it.
+    entered: list[object] = []
+    real = warnings.catch_warnings
+
+    def spy(*args: Any, **kwargs: Any) -> Any:
+        entered.append(object())
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(warnings, "catch_warnings", spy)
+    AdminAgentServer(**keywords)
+    assert entered == []
 
 
 def test_naming_both_servers_is_refused_before_any_warning() -> None:
