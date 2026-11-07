@@ -108,6 +108,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     turns on (`data-slash-commands="true"`).
   - The 0.46.0 wheel-scroll fix and the 0.45.0 internal restructuring are on
     the default path and owe nothing.
+- **The lock holds the family's current releases**: django-spec-agents 0.10.0,
+  django-spec-mcp 0.9.0 and django-service-specs 0.27.0 (0.59.0 shipped with
+  0.6.2, 0.6.0 and 0.23.0), with django-ag-ui still 0.74.0. No floor moves.
+  django-spec-agents 0.10.0 and django-spec-mcp 0.9.0 return a list result as
+  `{"items": [...]}`; nothing in the package reads a tool result as an array,
+  and the sidebar's own MCP test tool returns one object.
 
 ## [0.59.0] — 2026-11-03
 
