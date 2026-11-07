@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   admin's toggle until they press it back. An admin with its dark mode taken
   out (an empty `dark-mode-vars` block) and Django Unfold keep a light panel.
 
+### Documentation
+
+- **The installation guide names the browser floor.** Its "Compatibility floor"
+  note now lists Chrome 123, Firefox 120 and Safari 17.5, the versions 0.60.0
+  raised the supported browsers to.
+
 ## [0.60.0] — 2026-11-07
 
 ### Changed
