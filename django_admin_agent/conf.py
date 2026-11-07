@@ -68,11 +68,15 @@ class AdminAgentSettings:
     """Web Component theme: up to two words, in any order, a theme name and a
     scheme. The names are ``"quiet"`` (the default), ``"soft"``, ``"ledger"``
     and ``"classic"`` (the look before web component 0.45.0); the schemes are
-    ``"light"`` (the default), ``"dark"`` and ``"auto"``, which follows
-    ``prefers-color-scheme``. So ``"soft dark"``, or ``"dark"`` alone for
-    Quiet in the dark scheme. ``None`` leaves the component default (Quiet,
-    light). The accent is not set here: it follows Django admin's
-    ``--primary`` through the sidebar's stylesheet."""
+    ``"light"``, ``"dark"`` and ``"auto"``. So ``"soft dark"``, or ``"dark"``
+    alone for Quiet in the dark scheme. ``None`` leaves the component default
+    (Quiet).
+
+    Without ``"light"`` or ``"dark"`` (unset, a name alone, or ``"auto"``) the
+    panel's light and dark follow the admin's, both its ``prefers-color-scheme``
+    styles and its ``html[data-theme]`` toggle, through the sidebar's
+    stylesheet. ``"light"`` or ``"dark"`` pins the panel to that scheme. The
+    accent is not set here either: it follows Django admin's ``--primary``."""
 
     density: str | None
     """``"comfortable"`` / ``"compact"``. ``None`` leaves the default."""
@@ -147,8 +151,10 @@ class AdminAgentSettings:
     """When ``True``, show the Web Component's built-in light/dark header toggle
     (``data-theme-toggle``), which flips only the scheme word of
     [`theme`][django_admin_agent.conf.AdminAgentSettings.theme] (``"soft"`` to
-    ``"soft dark"``) and saves only that word. Defaults to ``False`` — the
-    admin's own theme usually governs."""
+    ``"soft dark"``) and saves only that word. The saved word pins the panel as
+    a scheme word in ``theme`` does, so a user who presses it stops following
+    the admin's own toggle until they press it back. Defaults to ``False``: the
+    panel already follows the admin's toggle."""
 
     shell_field_redaction: bool | str
     """Sensitive-field redaction for the ``shell.*`` tools. ``True`` (default)

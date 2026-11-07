@@ -223,7 +223,7 @@ def _contrast(first, second):  # noqa: ANN001, ANN202
     return (lighter + 0.05) / (darker + 0.05)
 
 
-@pytest.mark.parametrize("theme", [None, "dark"])
+@pytest.mark.parametrize("theme", [None, "light", "dark"])
 @pytest.mark.parametrize("scheme", ["light", "dark"])
 def test_the_folded_row_focus_outline_holds_three_to_one(admin_page, live_server, theme, scheme):  # noqa: ANN001, ANN201
     settings = {} if theme is None else {"THEME": theme}
@@ -322,11 +322,122 @@ def _panel_is_dark(page):  # noqa: ANN001, ANN202
     return _contrast(rgb, (0, 0, 0)) < _contrast(rgb, (255, 255, 255))
 
 
-def test_with_theme_unset_the_panel_stays_light_on_a_dark_admin(admin_page, live_server):  # noqa: ANN001, ANN201
-    """The accent follows the admin into the dark; the panel's scheme does not."""
-    admin_page.emulate_media(color_scheme="dark")
-    page = _open_admin(admin_page, live_server)
+def _open_panel(page, live_server, scheme, theme=None, toggle=False):  # noqa: ANN001, ANN202
+    """The changelist under ``scheme``, with the sidebar open, and THEME set."""
+    settings = {} if theme is None else {"THEME": theme}
+    if toggle:
+        settings["THEME_TOGGLE"] = True
+    page.emulate_media(color_scheme=scheme)
+    with override_settings(DJANGO_ADMIN_AGENT=settings):
+        _open_admin(page, live_server)
     open_sidebar(page)
+    return page
+
+
+@pytest.mark.parametrize("theme", [None, "soft", "auto"])
+@pytest.mark.parametrize("scheme", ["light", "dark"])
+def test_the_panel_follows_the_admin_scheme(admin_page, live_server, theme, scheme):  # noqa: ANN001, ANN201
+    """THEME unset, a theme name alone, or "auto": the panel is the admin's scheme.
+
+    "auto" is in the list because the component reads it as the operating
+    system's preference, which is the admin's only while its toggle is on auto.
+    """
+    page = _open_panel(admin_page, live_server, scheme, theme)
+
+    _assert_follows_the_page(_tokens(page))
+    assert _panel_is_dark(page) is (scheme == "dark")
+
+
+@pytest.mark.parametrize("theme", [None, "auto"])
+def test_the_panel_follows_the_admin_toggle(admin_page, live_server, theme):  # noqa: ANN001, ANN201
+    """Django's toggle is a different rule from the media query, both ways.
+
+    Dark under a light system is the case a panel following only
+    prefers-color-scheme gets wrong; light under a dark system is the one the
+    component's own "auto" gets wrong.
+    """
+    page = _open_panel(admin_page, live_server, "light", theme)
+    page.evaluate("document.documentElement.dataset.theme = 'dark'")
+    assert _panel_is_dark(page)
+
+    page.emulate_media(color_scheme="dark")
+    page.evaluate("document.documentElement.dataset.theme = 'light'")
+    assert not _panel_is_dark(page)
+
+
+def test_an_admin_without_its_theme_script_keeps_a_light_panel(admin_page, live_server):  # noqa: ANN001, ANN201
+    """No ``data-theme`` on html is an admin whose dark-mode-vars block is empty.
+
+    Django's theme script writes the attribute on every page, so its absence
+    means the project took dark mode out; the panel then stays light even under
+    a dark system preference, rather than turning dark on an always-light admin.
+    """
+    page = _open_panel(admin_page, live_server, "dark")
+    assert _panel_is_dark(page)
+
+    page.evaluate("delete document.documentElement.dataset.theme")
+    assert not _panel_is_dark(page)
+
+
+@pytest.mark.parametrize(
+    ("theme", "dark"),
+    [("light", False), ("soft light", False), ("dark", True), ("code", True)],
+)
+def test_a_scheme_word_in_theme_pins_the_panel(admin_page, live_server, theme, dark):  # noqa: ANN001, ANN201
+    """THEME="light" on a dark admin stays light, and the other way round.
+
+    The accent still follows the admin while the panel's scheme is pinned.
+    "code" is a theme with no light half, so it counts as a pin. Its own tokens
+    paint a dark background whatever the scheme, so for it the background
+    cannot tell; the host's resolved color-scheme can, and it is what the
+    focus outline's CanvasText and every light-dark() token still read.
+    """
+    admin_scheme = "light" if dark else "dark"
+    page = _open_panel(admin_page, live_server, admin_scheme, theme)
+    assert _panel_is_dark(page) is dark
+    resolved = page.evaluate("(s) => getComputedStyle(document.querySelector(s)).colorScheme", CHAT)
+    assert resolved == ("dark" if dark else "light"), resolved
+
+    toggled = "light" if dark else "dark"
+    page.evaluate(f"document.documentElement.dataset.theme = '{toggled}'")
+    assert _panel_is_dark(page) is dark
+    _assert_follows_the_page(_tokens(page))
+
+
+def test_the_header_toggle_pins_until_flipped_back(admin_page, live_server):  # noqa: ANN001, ANN201
+    """The toggle saves a scheme word, and a saved word pins as THEME's does."""
+    page = _open_panel(admin_page, live_server, "light", toggle=True)
+    chat = page.locator(CHAT)
+    toggle = chat.locator(".header-btn--theme")
+    assert not _panel_is_dark(page)
+
+    toggle.click()
+    assert _panel_is_dark(page)
+    page.evaluate("document.documentElement.dataset.theme = 'light'")
+    assert _panel_is_dark(page)
+
+    toggle.click()
+    assert not _panel_is_dark(page)
+    page.evaluate("document.documentElement.dataset.theme = 'dark'")
+    assert not _panel_is_dark(page)
+
+    # The saved word outlives the page: a reload still pins.
+    with override_settings(DJANGO_ADMIN_AGENT={"THEME_TOGGLE": True}):
+        page.reload()
+        expect(chat).to_be_attached()
+    open_sidebar(page)
+    assert "light" in (chat.get_attribute("theme") or "").split()
+    assert not _panel_is_dark(page)
+
+
+def test_with_theme_light_the_panel_stays_light_on_a_dark_admin(admin_page, live_server):  # noqa: ANN001, ANN201
+    """The accent follows the admin into the dark; a pinned scheme does not.
+
+    Until 0.61.0 this held with THEME unset. The panel now follows the admin
+    by default, so the claim belongs to the explicit pin, which is the way
+    back to the old behaviour.
+    """
+    page = _open_panel(admin_page, live_server, "dark", "light")
     tokens = _tokens(page)
 
     _assert_follows_the_page(tokens)

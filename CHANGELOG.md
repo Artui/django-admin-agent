@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The panel follows the admin's light and dark.** With `THEME` unset, naming
+  only a theme (`"soft"`), or `"auto"`, a dark admin page now gets a dark
+  panel: the sidebar's stylesheet sets the element's `color-scheme` from
+  Django's `prefers-color-scheme` styles and its theme toggle
+  (`html[data-theme]`), with no script. Before, the panel stayed light on a
+  dark admin. An explicit `"light"` or `"dark"` pins the panel, so
+  `THEME = "light"` is the way back to the old behaviour. `THEME_TOGGLE`'s
+  saved word pins in the same way: a user who presses it stops following the
+  admin's toggle until they press it back. An admin with its dark mode taken
+  out (an empty `dark-mode-vars` block) and Django Unfold keep a light panel.
+
 ## [0.60.0] — 2026-11-07
 
 ### Changed

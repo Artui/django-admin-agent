@@ -17,12 +17,12 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `AUTO_CONFIRM` | `False` | When `True`, destructive frontend tools run without the confirmation modal. Passed to the Web Component as `autoConfirm`. |
 | `TOOL_DISPLAY` | `"grouped"` | How tool calls are drawn: `"grouped"`, `"inline"`, `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. `"grouped"` folds a run's consecutive calls into one "Worked through N steps" row, with the full cards one click down; `"full"` keeps a card per call. |
 | `MESSAGE_ACTIONS` | `"copy,retry"` | Which per-message actions the sidebar offers, from `copy` / `retry` / `feedback`. Rendered as `data-message-actions`. Matches the component's own default from 0.31.0. The rating buttons fire an `ag-ui-feedback` event and store nothing by design, and nothing here listens for it. **Set `"copy,retry,feedback"` once you have wired your own listener on the sidebar element** — that is what this setting is for. The event's detail carries `content`, `rating`, `messageId` (the rated message's AG-UI id), `threadId`, and `runId` on a message that streamed live (absent on one restored from history). Key ratings by `threadId` and `messageId` together, never by `messageId` alone: from django-ag-ui 0.72.0 a fork keeps its source's message ids, and the sidebar mounts `fork/<run_id>/` whenever a step store is configured (see [Continuing a run](#continuing-a-run)), so one id can name a message in two threads and a rating keyed by it alone merges the fork's ratings with its source's. The pair holds across a reload with the browser's per-tab storage, and with a `conversation_store` from django-ag-ui 0.68.3 or later, which stores messages under the ids the run streamed. |
-| `THEME` | _unset_ | Web Component theme: up to two words, a theme name (`"quiet"`, the default, `"soft"`, `"ledger"`, `"classic"`) and/or a scheme (`"light"`, the default, `"dark"`, `"auto"`), such as `"soft dark"`. Rendered as the `theme` attribute; left off (component default, Quiet in the light scheme) when unset. The accent is not part of it: see [Colours](#colours). |
+| `THEME` | _unset_ | Web Component theme: up to two words, a theme name (`"quiet"`, the default, `"soft"`, `"ledger"`, `"classic"`) and/or a scheme (`"light"`, `"dark"`, `"auto"`), such as `"soft dark"`. Rendered as the `theme` attribute; left off (Quiet) when unset. Without `"light"` or `"dark"` the panel follows the admin's light and dark, its system preference and its theme toggle; either word pins the panel to that scheme. `"auto"` follows the admin too. The accent is not part of it: see [Colours](#colours). |
 | `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |
 | `PLACEMENT` | _unset_ | Where the panel sits: `"sidebar"`, `"embedded"`, `"page"`, or the older `"bottom-left"`, `"side"` and `"full"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. `"sidebar"` is a full-height docked panel that collapses to an icon rail (pair it with `SIDE`); `"page"` is a full-screen route with no collapsed state at all, and greets the signed-in user by name over an empty conversation, with the composer centred beneath (the name is the one the admin header welcomes them by; see [Admin wiring](admin-wiring.md)). The last three are no longer in the component's own documented four but still parse and still work. |
 | `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
 | `SIDE` | _unset_ | For `PLACEMENT="sidebar"`: which edge it docks to — `"left"` or `"right"`. Rendered as the `data-side` attribute; left off (component default, right) when unset. |
-| `THEME_TOGGLE` | `False` | Show the Web Component's built-in light⇄dark header toggle (it flips only the scheme word of `theme`, so `"soft"` becomes `"soft dark"`, and saves only that word). Rendered as the `data-theme-toggle` attribute. Off by default, since the admin's own theme usually governs. |
+| `THEME_TOGGLE` | `False` | Show the Web Component's built-in light⇄dark header toggle (it flips only the scheme word of `theme`, so `"soft"` becomes `"soft dark"`, and saves only that word). Rendered as the `data-theme-toggle` attribute. The saved word pins the panel as a `THEME` scheme word does: see [Colours](#colours). Off by default, since the panel already follows the admin's own toggle. |
 | `CHAT_SURFACE_TOOLS` | `True` | Whether the agent may move, minimise and restore its own panel -- four tools it calls to get out of the way of the page it is being asked about. Every move it makes is written into the transcript with an undo beside it. On by default, unlike `render_chart`: these reach the sidebar and nothing else, so the only cost is four tool definitions per request. `False` renders `data-chat-surface-tools="false"` and registers none of them, which is worth doing for a placement that owns its position and has no collapsed state. |
 | `START_OPEN` | `False` | Whether a corner placement opens on a first visit rather than resting at its launcher. Rendered as the `data-start-open` attribute. From web component 0.35.0 the panel rests as a bubble on a first visit; before that it opened itself, so set this to `True` to keep the old behaviour. A user's own collapse or expand outlives it -- this decides only the first visit, and the stored preference wins after. Does nothing under `"sidebar"`, `"embedded"` or `"page"`, which have no collapsed state to rest in. |
 | `LAUNCHER_DRAG` | `True` | Whether users may move the sidebar: drag the collapsed bubble around the screen, and drag the open panel by its header. `False` renders `data-launcher-drag="false"` and pins it where your CSS puts it. A docked `PLACEMENT` already fixes the position, so this is for the floating one. |
@@ -65,7 +65,7 @@ component's own attribute values:
 | Setting | Attribute | Values | Default |
 | --- | --- | --- | --- |
 | `TOOL_DISPLAY` | `data-tool-display` | `grouped` · `inline` · `minimal` · `compact` · `full` | `grouped` |
-| `THEME` | `theme` | a name `quiet` · `soft` · `ledger` · `classic`, a scheme `light` · `dark` · `auto`, or one of each | _component default (Quiet, light)_ |
+| `THEME` | `theme` | a name `quiet` · `soft` · `ledger` · `classic`, a scheme `light` · `dark` · `auto`, or one of each | _component default (Quiet), in the admin's scheme_ |
 | `DENSITY` | `density` | `comfortable` · `compact` | _component default_ |
 | `PLACEMENT` | `placement` | `sidebar` · `embedded` · `page` · `bottom-left` · `side` · `full` | _floating bottom-right_ |
 | `TEXT_ANIMATION` | `data-text-animation` | `none` · `fade` · `word` | `none` |
@@ -75,8 +75,8 @@ component's own attribute values:
 | `CHAT_SURFACE_TOOLS` | `data-chat-surface-tools` | `True` · `False` | `True` |
 
 `THEME_TOGGLE` adds the Web Component's built-in light⇄dark header toggle (it
-flips only the scheme word of `theme` and saves only that word) — off by default, since the admin's own theme
-usually governs.
+flips only the scheme word of `theme` and saves only that word) — off by default,
+since the panel already follows the admin's own toggle.
 
 `LAUNCHER_DRAG` is the one that reads inverted: it is `True` by default, and
 setting it to `False` is what emits an attribute. It governs **both** ways the
@@ -107,9 +107,25 @@ toggle (`html[data-theme]`), with no script involved. Text on the accent is left
 to the component, which picks black or white by the accent's luminance: black on
 the light primary (8.70:1), white on the dark one (9.35:1).
 
-The panel's own scheme is still `THEME`: it does not follow the admin's toggle,
-so with `THEME` unset the panel stays light on a dark admin page, in the dark
-primary.
+The panel's own light and dark follow the admin's too: Django's
+`prefers-color-scheme` styles and its theme toggle, again with no script. The
+same stylesheet sets the element's `color-scheme` from the `html[data-theme]`
+that Django's theme script writes, `"dark"`, or `"auto"` under a dark system
+preference. An admin that empties its `dark-mode-vars` block has no theme
+script and no `data-theme`, so it keeps a light panel, as its pages stay light.
+
+A scheme word pins the panel. With `THEME = "light"` the panel stays light on
+a dark admin page, in the dark primary, which is how this package behaved
+before 0.61.0; `"dark"` keeps it dark on a light one. `"auto"` is not a pin:
+the component reads it as the system preference alone, and the sidebar makes
+it follow the admin, toggle included.
+
+`THEME_TOGGLE`'s button pins in the same way. Its first press saves a scheme
+word, so from then on that user's panel stops following the admin's toggle,
+on every page and visit, until they press it back. The button decides from the
+words in `theme`, not from what the panel shows: on a dark admin with no word
+saved, its first press selects dark, which the panel already is, and the
+second selects light.
 
 To use colours of your own, target the element in your admin CSS. The
 stylesheet's rule is wrapped in `:where()`, so it has no specificity and any
@@ -131,7 +147,9 @@ Django Unfold defines none of `--primary`, `--link-fg` or
 `--font-family-primary`. There those three declarations are invalid when the
 browser computes them and the component keeps its own Quiet colours and font
 (the focus outline still takes `CanvasText`);
-set the tokens on the element as above to give it Unfold's.
+set the tokens on the element as above to give it Unfold's. Unfold's dark mode
+writes no `html[data-theme]` either, so there the panel stays light unless
+`THEME` names a scheme.
 
 ### Skills
 

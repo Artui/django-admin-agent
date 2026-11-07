@@ -28,6 +28,41 @@
      draws it from the accent at 55%, which on the panel is 1.58:1 with the
      light primary and 1.38:1 with the dark one on a dark panel, under the 3:1
      a focus indicator needs. CanvasText follows the panel's own scheme, so it
-     is black on a light panel and white on a dark one, whatever THEME says. */
+     is black on a light panel and white on a dark one, whether that scheme
+     came from the admin or from a scheme word in THEME. */
   --ag-ui-ring: CanvasText;
+}
+
+/*
+ * The panel's light and dark follow the admin's, unless THEME names a scheme.
+ *
+ * The component draws every colour with light-dark() and picks the half from
+ * color-scheme on its host. A rule here on the host outranks the component's
+ * own :host rules whatever their specificity, because the page's styles come
+ * before a shadow tree's in the cascade. So the component's "auto" (which
+ * follows the operating system, not the admin's toggle) is overridden too,
+ * while the words that pin are excluded: "light" and "dark" from THEME or from
+ * the header toggle, which rewrites the attribute, and "code", a theme with no
+ * light half.
+ *
+ * Keyed on the html[data-theme] Django's theme script writes, rather than on
+ * an inherited color-scheme: Django declares color-scheme on html only from
+ * 5.1, and an admin that empties its dark-mode-vars block (no theme script, so
+ * no data-theme) is an admin that stays light, which this follows too. The
+ * selectors mirror Django's own: "dark" always, "auto" under the system's dark
+ * preference. All three rules are inside :where(), so they have no specificity
+ * and the dark ones win by coming later; a project's own rule still wins.
+ */
+:where(ag-ui-chat#django-admin-agent:not([theme~="light"], [theme~="dark"], [theme~="code"])) {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :where(html[data-theme="auto"] ag-ui-chat#django-admin-agent:not([theme~="light"], [theme~="dark"], [theme~="code"])) {
+    color-scheme: dark;
+  }
+}
+
+:where(html[data-theme="dark"] ag-ui-chat#django-admin-agent:not([theme~="light"], [theme~="dark"], [theme~="code"])) {
+  color-scheme: dark;
 }
