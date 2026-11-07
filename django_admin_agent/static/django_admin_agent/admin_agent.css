@@ -24,4 +24,10 @@
      CSS-wide keyword in a custom property inherits the property itself, which
      nothing above the element sets, so the component would fall back. */
   --ag-ui-font: var(--font-family-primary);
+  /* The keyboard focus outline on the folded tool-call row. The component
+     draws it from the accent at 55%, which on the panel is 1.58:1 with the
+     light primary and 1.38:1 with the dark one on a dark panel, under the 3:1
+     a focus indicator needs. CanvasText follows the panel's own scheme, so it
+     is black on a light panel and white on a dark one, whatever THEME says. */
+  --ag-ui-ring: CanvasText;
 }

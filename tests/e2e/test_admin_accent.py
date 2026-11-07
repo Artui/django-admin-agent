@@ -16,7 +16,10 @@ from __future__ import annotations
 import re
 
 import pytest
+from django.test import override_settings
 from playwright.sync_api import expect
+
+from tests.e2e.conftest import send_message
 
 pytestmark = [pytest.mark.e2e, pytest.mark.django_db(transaction=True)]
 
@@ -163,3 +166,83 @@ def test_the_ring_drawn_in_the_page_is_the_admin_link_colour(admin_page, live_se
     # The two differ, so a ring left on the accent cannot pass.
     assert drawn["linkFg"] != drawn["primary"], drawn
     assert drawn["outline"] == drawn["linkFg"], drawn
+
+
+# The keyboard focus outline on the folded tool-call row, against the panel it
+# sits on, both flattened to one sRGB pixel so an alpha outline is measured as
+# it is drawn.
+_FOCUS_ACTIVE = """(selector) => {
+  const active = document.querySelector(selector).shadowRoot.activeElement;
+  return active ? active.className : null;
+}"""
+
+_FOCUS_PIXELS = """(selector) => {
+  const head = document.querySelector(selector).shadowRoot.activeElement;
+  const style = getComputedStyle(head);
+  let node = head;
+  let background = "rgba(0, 0, 0, 0)";
+  while (node) {
+    if (node.nodeType === 1) {
+      const colour = getComputedStyle(node).backgroundColor;
+      if (colour !== "rgba(0, 0, 0, 0)" && colour !== "transparent") {
+        background = colour;
+        break;
+      }
+    }
+    node = node.parentNode || node.host;
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 1;
+  const context = canvas.getContext("2d", { colorSpace: "srgb" });
+  const pixel = (...colours) => {
+    context.clearRect(0, 0, 1, 1);
+    for (const colour of colours) {
+      context.fillStyle = colour;
+      context.fillRect(0, 0, 1, 1);
+    }
+    return Array.from(context.getImageData(0, 0, 1, 1).data.slice(0, 3));
+  };
+  return {
+    outlineStyle: style.outlineStyle,
+    outline: pixel(background, style.outlineColor),
+    panel: pixel(background),
+  };
+}"""
+
+
+def _contrast(first, second):  # noqa: ANN001, ANN202
+    def luminance(rgb):  # noqa: ANN001, ANN202
+        def channel(value):  # noqa: ANN001, ANN202
+            value /= 255
+            return value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4
+
+        red, green, blue = (channel(value) for value in rgb)
+        return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+    lighter, darker = sorted((luminance(first), luminance(second)), reverse=True)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+@pytest.mark.parametrize("theme", [None, "dark"])
+@pytest.mark.parametrize("scheme", ["light", "dark"])
+def test_the_folded_row_focus_outline_holds_three_to_one(admin_page, live_server, theme, scheme):  # noqa: ANN001, ANN201
+    settings = {} if theme is None else {"THEME": theme}
+    with override_settings(DJANGO_ADMIN_AGENT=settings):
+        admin_page.emulate_media(color_scheme=scheme)
+        admin_page.goto(f"{live_server.url}/admin/")
+        send_message(admin_page, "how many widgets are there?")
+        expect(admin_page.locator(f"{CHAT} .tool-group-head")).to_be_attached(timeout=15000)
+        expect(
+            admin_page.locator(f"{CHAT} .message--assistant", has_text="not installed here")
+        ).to_be_visible(timeout=15000)
+        admin_page.locator(f"{CHAT} .input").focus()
+        for _ in range(40):
+            if admin_page.evaluate(_FOCUS_ACTIVE, CHAT) == "tool-group-head":
+                break
+            admin_page.keyboard.press("Shift+Tab")
+        assert admin_page.evaluate(_FOCUS_ACTIVE, CHAT) == "tool-group-head"
+
+        drawn = admin_page.evaluate(_FOCUS_PIXELS, CHAT)
+
+    assert drawn["outlineStyle"] != "none", drawn
+    assert _contrast(drawn["outline"], drawn["panel"]) >= 3, drawn

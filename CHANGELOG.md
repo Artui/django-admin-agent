@@ -23,8 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `django_admin_agent/admin_agent.css`, is linked by the sidebar tag ahead of
   the element, for a signed-in visitor only, like the rest of the tag. It sets
   `--ag-ui-accent` to the admin's `--primary`, `--ag-ui-highlight-ring-color`
-  to `--link-fg`, and `--ag-ui-font` to `--font-family-primary`. Each resolves
-  at the element, so the sidebar follows Django's light and dark styles and the
+  to `--link-fg`, `--ag-ui-font` to `--font-family-primary`, and the step
+  group's keyboard focus outline, `--ag-ui-ring`, to `CanvasText` (see the
+  opt-in record below). Each resolves at the element, so the sidebar follows Django's light and dark styles and the
   admin's theme toggle with no script. Text on the accent is left to the
   component, which picks black on the light primary (8.70:1, where white would
   be 2.41:1) and white on the dark one (9.35:1). The rings the agent draws in
@@ -36,9 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   element**: the element's own value now beats the one it would inherit. Set
   `--ag-ui-highlight-ring-color` there as well, since from web component
   0.47.0 the chat's ring token is read ahead of a page element's accent. Under
-  Django Unfold, which defines none of the three admin tokens, the declarations
-  are invalid when the browser computes them and the panel keeps the
-  component's own colours and font. Being a linked sheet, it loads under a
+  Django Unfold, which defines none of the three admin tokens, those
+  declarations are invalid when the browser computes them and the panel keeps
+  the component's own colours and font; the focus outline still takes
+  `CanvasText`. Being a linked sheet, it loads under a
   strict `style-src` CSP that admits the admin's static files.
 - **`THEME` takes the component's two-word grammar.** Up to two words in any
   order, a theme name (`quiet`, the default, `soft`, `ledger`, `classic`) and a
@@ -99,15 +101,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `toolGroupDeclined`, `toolStepRepeat`) need nothing here: the package ships
     no strings table of its own, and `STRINGS` passes a project's table through
     whole. A project that translates the sidebar adds these keys to its table.
-  - **The step group's focus outline, `--ag-ui-ring`, is left to the
-    component** and falls short. It is the accent at 55%, so on the default
-    light panel it is 1.58:1 on the light primary, and 2.86:1 on the dark
-    primary a dark admin page brings, under the 3:1 a focus indicator needs;
-    with `THEME="dark"` on a dark admin page it is 1.38:1. Quiet's own outline
-    gave 3.63:1 and 5.52:1. The component is to hold the ring at 3:1 whatever
-    accent a host sets. Until it does, a project can set
-    `--ag-ui-ring: CanvasText` on the element, which draws the outline black
-    on a light panel and white on a dark one.
+  - **The step group's focus outline, `--ag-ui-ring`, is set to
+    `CanvasText`.** The component draws it from the accent at 55%, which with
+    the admin's primary as the accent is 1.58:1 on the default light panel,
+    2.86:1 with the dark primary a dark admin page brings, and 1.38:1 with
+    `THEME="dark"` on a dark admin page, under the 3:1 a focus indicator needs
+    (Quiet's own outline gave 3.63:1 and 5.52:1). `CanvasText` follows the
+    panel's scheme, so the outline is black on a light panel and white on a
+    dark one, in every pairing of `THEME` and the admin's scheme. An e2e test
+    measures the drawn outline against the panel in all four. Once the
+    component holds its ring at 3:1 for any accent, this line can go.
   - **Charts read the theme's palette** for their first two series; the
     sidebar sets no `--ag-ui-chart-*`, and the charts it turns on take them.
   - **One chip row per answer**: the skill chips show on the empty state and,

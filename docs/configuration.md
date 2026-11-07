@@ -92,13 +92,14 @@ palette.
 
 The sidebar links one stylesheet of its own,
 `django_admin_agent/admin_agent.css`, which maps three of the component's tokens
-onto Django admin's:
+onto Django admin's and sets a fourth, the keyboard focus outline:
 
 | Token | Set to | Why |
 | --- | --- | --- |
 | `--ag-ui-accent` | `var(--primary)` | The panel takes the admin's brand colour. |
 | `--ag-ui-highlight-ring-color` | `var(--link-fg)` | The rings the agent draws around page elements sit on the page, where the light `--primary` is 2.41:1 against white; `--link-fg` is Django's colour for text on that background (4.85:1 light, 11.36:1 dark). |
 | `--ag-ui-font` | `var(--font-family-primary)` | The admin's font rather than the theme's own stack. |
+| `--ag-ui-ring` | `CanvasText` | The focus outline on a folded tool-call row. The component draws it from the accent at 55%, which falls under 3:1 on the panel with either admin primary (1.58:1 light, 1.38:1 dark on a dark panel); `CanvasText` follows the panel's scheme, black on a light panel and white on a dark one. |
 
 Each `var()` resolves at the element, so the colours follow Django's own light
 and dark styles, both the `prefers-color-scheme` ones and the admin's theme
@@ -127,8 +128,9 @@ reaches the sidebar. Set the ring token there too: the rings read the chat's
 `--ag-ui-highlight-ring-color` ahead of a page element's own `--ag-ui-accent`.
 
 Django Unfold defines none of `--primary`, `--link-fg` or
-`--font-family-primary`. There the three declarations are invalid when the
-browser computes them and the component keeps its own Quiet colours and font;
+`--font-family-primary`. There those three declarations are invalid when the
+browser computes them and the component keeps its own Quiet colours and font
+(the focus outline still takes `CanvasText`);
 set the tokens on the element as above to give it Unfold's.
 
 ### Skills

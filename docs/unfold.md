@@ -42,7 +42,8 @@ every function is a no-op and `admin_tools.js` can call them unconditionally.
 The sidebar's stylesheet maps its accent, highlight ring and font onto Django
 admin's `--primary`, `--link-fg` and `--font-family-primary`. Unfold defines none
 of the three, so under Unfold the panel keeps the component's own Quiet colours
-and font. To give it Unfold's, set the tokens on the element in your own CSS; see
+and font. The stylesheet's fourth line, the keyboard focus outline at
+`CanvasText`, names no admin token and applies there too. To give it Unfold's, set the tokens on the element in your own CSS; see
 [Configuration → Colours](configuration.md#colours).
 
 ## The end-to-end suite
