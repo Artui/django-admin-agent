@@ -119,3 +119,47 @@ def test_a_project_rule_on_the_element_wins(admin_page, live_server):  # noqa: A
     )
 
     assert _tokens(page)["accent"] == "#123456"
+
+
+# The ring a tool draws in the page, read off the drawn outline. The custom
+# property on the element is the same on every bundle; only a bundle that reads
+# the chat's ring token (web component 0.47.0 and later) draws it, and an older
+# one draws the package indigo. ``clickElement`` is what ``admin_tools.js``
+# calls for ``click_element``, and it rings the target before the click.
+_DRAWN_RING = """async () => {
+  const src = document.querySelector('script[type=module][src*="admin_agent"]').src;
+  const bundle = await import(new URL("ag-ui-web-component.bundle.js", src).href);
+  const target = document.createElement("button");
+  target.type = "button";
+  target.textContent = "ring";
+  document.querySelector("#content").appendChild(target);
+  const pending = bundle.clickElement(target, { highlightMs: 1500 });
+  for (let i = 0; i < 200 && target.style.outline === ""; i++) {
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+  }
+  const outline = getComputedStyle(target).outlineColor;
+  await pending;
+  // The page's tokens resolved to the same rgb() form as the outline.
+  const probe = document.createElement("span");
+  document.body.appendChild(probe);
+  const resolve = (name) => {
+    probe.style.color = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return getComputedStyle(probe).color;
+  };
+  const linkFg = resolve("--link-fg");
+  const primary = resolve("--primary");
+  probe.remove();
+  return { outline, linkFg, primary };
+}"""
+
+
+@pytest.mark.parametrize("scheme", ["light", "dark"])
+def test_the_ring_drawn_in_the_page_is_the_admin_link_colour(admin_page, live_server, scheme):  # noqa: ANN001, ANN201
+    page = _open_admin(admin_page, live_server)
+    page.emulate_media(color_scheme=scheme)
+
+    drawn = page.evaluate(_DRAWN_RING)
+
+    # The two differ, so a ring left on the accent cannot pass.
+    assert drawn["linkFg"] != drawn["primary"], drawn
+    assert drawn["outline"] == drawn["linkFg"], drawn

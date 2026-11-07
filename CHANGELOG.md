@@ -58,9 +58,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **The highlight rings take the stylesheet's `--link-fg`.** From 0.47.0 the
     rings read `--ag-ui-highlight-ring-color` on the chat, ahead of a target's
     `--ag-ui-accent`, which is what the stylesheet's ring line sets. The press
-    and toggle halo is that colour at 40%. The sidebar is the page's one chat,
-    so no ring call passes `chat`. The overlay paragraph in
-    `docs/installation.md` now names the chat's ring token.
+    and toggle halo is that colour at 40%. No ring call passes `chat`, so the
+    rings read the most recently connected sidebar; every sidebar on a page
+    carries the same stylesheet, so which one does not change the colour. The
+    overlay paragraph in `docs/installation.md` now names the chat's ring
+    token. An e2e test reads the drawn outline: `--link-fg` in both schemes,
+    where the 0.44.0 bundle drew the package indigo.
   - **The thread API is not needed.** Nothing in the package switches threads,
     observes the running state or reads `conversationStore.threadId()`; the
     drawer and `newChat()` stay the component's own.
@@ -99,10 +102,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **The step group's focus outline, `--ag-ui-ring`, is left to the
     component** and falls short. It is the accent at 55%, so on the default
     light panel it is 1.58:1 on the light primary, and 2.86:1 on the dark
-    primary a dark admin page brings, under the 3:1 a focus indicator needs.
-    Quiet's own graphite gave 3.63:1. No admin token reads on the panel in
-    both of the admin's schemes while the panel's scheme comes from `THEME`
-    rather than from the admin, so it is left for the change that syncs them.
+    primary a dark admin page brings, under the 3:1 a focus indicator needs;
+    with `THEME="dark"` on a dark admin page it is 1.38:1. Quiet's own outline
+    gave 3.63:1 and 5.52:1. The component is to hold the ring at 3:1 whatever
+    accent a host sets. Until it does, a project can set
+    `--ag-ui-ring: CanvasText` on the element, which draws the outline black
+    on a light panel and white on a dark one.
   - **Charts read the theme's palette** for their first two series; the
     sidebar sets no `--ag-ui-chart-*`, and the charts it turns on take them.
   - **One chip row per answer**: the skill chips show on the empty state and,
