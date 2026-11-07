@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -29,10 +29,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -2686,9 +2686,11 @@ Passed to the Web Component as <code>autoConfirm</code>.</p>
 
     <div class="doc doc-contents ">
 
-        <p>How much detail tool-call cards show: <code>"minimal"</code>, <code>"compact"</code>, or
-<code>"full"</code>. Passed to the Web Component as the <code>data-tool-display</code>
-attribute; defaults to <code>"compact"</code> for a dense admin sidebar.</p>
+        <p>How tool calls are drawn: <code>"grouped"</code>, <code>"inline"</code>, <code>"minimal"</code>,
+<code>"compact"</code> or <code>"full"</code>. Passed to the Web Component as the
+<code>data-tool-display</code> attribute. Defaults to <code>"grouped"</code>, which folds a
+run's consecutive calls into one "Worked through N steps" row with the
+<code>full</code> cards one click down; <code>"full"</code> keeps a card per call.</p>
 
     </div>
 
@@ -2784,8 +2786,14 @@ uses the built-in admin catalog
 
     <div class="doc doc-contents ">
 
-        <p>Web Component theme: <code>"light"</code> / <code>"dark"</code> / <code>"auto"</code> / <code>"code"</code>.
-<code>None</code> leaves the component default (light).</p>
+        <p>Web Component theme: up to two words, in any order, a theme name and a
+scheme. The names are <code>"quiet"</code> (the default), <code>"soft"</code>, <code>"ledger"</code>
+and <code>"classic"</code> (the look before web component 0.45.0); the schemes are
+<code>"light"</code> (the default), <code>"dark"</code> and <code>"auto"</code>, which follows
+<code>prefers-color-scheme</code>. So <code>"soft dark"</code>, or <code>"dark"</code> alone for
+Quiet in the dark scheme. <code>None</code> leaves the component default (Quiet,
+light). The accent is not set here: it follows Django admin's
+<code>--primary</code> through the sidebar's stylesheet.</p>
 
     </div>
 
@@ -3068,14 +3076,15 @@ floating one.</p>
     <div class="doc doc-contents ">
 
         <p>When <code>True</code>, show the Web Component's built-in light/dark header toggle
-(<code>data-theme-toggle</code>), which flips
+(<code>data-theme-toggle</code>), which flips only the scheme word of
 <a class="autorefs autorefs-internal" title="theme
 
 
   
       instance-attribute
-  " href="#django_admin_agent.conf.AdminAgentSettings.theme"><code>theme</code></a> and persists per
-tab. Defaults to <code>False</code> — the admin's own theme usually governs.</p>
+  " href="#django_admin_agent.conf.AdminAgentSettings.theme"><code>theme</code></a> (<code>"soft"</code> to
+<code>"soft dark"</code>) and saves only that word. Defaults to <code>False</code> — the
+admin's own theme usually governs.</p>
 
     </div>
 
@@ -3867,10 +3876,10 @@ admin — including one that is not registered there at all.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

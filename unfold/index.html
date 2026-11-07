@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -486,6 +486,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#colours-under-unfold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Colours under Unfold
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-end-to-end-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -580,6 +591,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#colours-under-unfold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Colours under Unfold
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-end-to-end-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -649,6 +671,13 @@ every function is a no-op and <code>admin_tools.js</code> can call them uncondit
    <code>run_admin_action</code> clicks it. Harmless on vanilla admin, where the button is
    always visible.</li>
 </ol>
+<h2 id="colours-under-unfold">Colours under Unfold<a class="headerlink" href="#colours-under-unfold" title="Permanent link">&para;</a></h2>
+<p>The sidebar's stylesheet maps its accent, highlight ring and font onto Django
+admin's <code>--primary</code>, <code>--link-fg</code> and <code>--font-family-primary</code>. Unfold defines none
+of the three, so under Unfold the panel keeps the component's own Quiet colours
+and font. The stylesheet's fourth line, the keyboard focus outline at
+<code>CanvasText</code>, names no admin token and applies there too. To give it Unfold's, set the tokens on the element in your own CSS; see
+<a href="../configuration/#colours">Configuration → Colours</a>.</p>
 <h2 id="the-end-to-end-suite">The end-to-end suite<a class="headerlink" href="#the-end-to-end-suite" title="Permanent link">&para;</a></h2>
 <p>Behaviour against a live admin is verified by a browser end-to-end suite under
 <code>tests/e2e/</code>, driven by Playwright against a live server. It is <strong>separate</strong> from
@@ -666,7 +695,10 @@ HTTP, so it has its own settings and no coverage gate.</p>
   <strong>without</strong> navigating;</li>
 <li>a navigating tool reloads the browser to the target changelist and the
   resumable loop completes the run on the new page (the rehydrated chat shows
-  the final assistant message).</li>
+  the final assistant message);</li>
+<li>the sidebar's accent, highlight ring and font resolve to the admin's own
+  <code>--primary</code>, <code>--link-fg</code> and <code>--font-family-primary</code>, in the light and dark
+  schemes and under the admin's theme toggle.</li>
 </ul>
 <p>The e2e settings install <code>django-unfold</code> (via the <code>e2e</code> dependency group), so
 the shim can be exercised alongside vanilla admin. <code>make test-e2e</code> requires a
@@ -726,10 +758,10 @@ browser (Playwright) and is excluded from the default <code>make test</code>.</p
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>
