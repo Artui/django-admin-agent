@@ -442,3 +442,18 @@ def test_with_theme_light_the_panel_stays_light_on_a_dark_admin(admin_page, live
 
     _assert_follows_the_page(tokens)
     assert not _panel_is_dark(page)
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="web component 0.47.0's toggle picks the next scheme from the theme "
+    "attribute's words, so on a panel following a dark admin its first press "
+    "selects dark; 0.48.0 reads the scheme the panel shows",
+)
+def test_the_header_toggle_first_press_flips_a_followed_dark_panel(admin_page, live_server):  # noqa: ANN001, ANN201
+    """On a dark admin with no word saved, one press gives a light panel."""
+    page = _open_panel(admin_page, live_server, "dark", toggle=True)
+    assert _panel_is_dark(page)
+
+    page.locator(CHAT).locator(".header-btn--theme").click()
+    assert not _panel_is_dark(page)

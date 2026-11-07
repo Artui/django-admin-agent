@@ -122,10 +122,7 @@ it follow the admin, toggle included.
 
 `THEME_TOGGLE`'s button pins in the same way. Its first press saves a scheme
 word, so from then on that user's panel stops following the admin's toggle,
-on every page and visit, until they press it back. The button decides from the
-words in `theme`, not from what the panel shows: on a dark admin with no word
-saved, its first press selects dark, which the panel already is, and the
-second selects light.
+on every page and visit, until they press it back.
 
 To use colours of your own, target the element in your admin CSS. The
 stylesheet's rule is wrapped in `:where()`, so it has no specificity and any
