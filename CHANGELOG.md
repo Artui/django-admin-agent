@@ -51,11 +51,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Its themes declare their colours with `light-dark()`, which those versions are
   the first to support; below them the sidebar draws without its colours.
 - **Vendors `@artooi/ag-ui-web-component` 0.47.0 (was 0.44.0).**
-  PLACEHOLDER, filled after the 0.47.0 publish: the 0.47.0 items and their
-  opt-in pass. Known so far: the highlight rings read
-  `--ag-ui-highlight-ring-color` from the chat from 0.47.0, so the stylesheet's
-  ring line is inert on 0.44.0, and the overlay paragraph in
-  `docs/installation.md` (colours read "on the target") goes stale with it.
+
+  The host opt-ins in 0.47.0, each checked:
+  - **The highlight rings take the stylesheet's `--link-fg`.** From 0.47.0 the
+    rings read `--ag-ui-highlight-ring-color` on the chat, ahead of a target's
+    `--ag-ui-accent`, which is what the stylesheet's ring line sets. The press
+    and toggle halo is that colour at 40%. The sidebar is the page's one chat,
+    so no ring call passes `chat`. The overlay paragraph in
+    `docs/installation.md` now names the chat's ring token.
+  - **The thread API is not needed.** Nothing in the package switches threads,
+    observes the running state or reads `conversationStore.threadId()`; the
+    drawer and `newChat()` stay the component's own.
+  - **The dragged size owes nothing.** The sidebar has no sized state of its
+    own and sets no `--ag-ui-width` or `--ag-ui-height`, so it never calls
+    `resetSize()` and reads no size back from the element.
+  - **The status parts and the `above-composer` slot are unused.** Nothing
+    here styles `::part(tool-card)` or slots content into the element; a
+    project can do either in its own CSS and template.
 
   The host opt-ins in 0.45.0 and 0.46.0, each checked:
   - **Quiet, the new default look, is wanted.** The sidebar renders no `theme`
