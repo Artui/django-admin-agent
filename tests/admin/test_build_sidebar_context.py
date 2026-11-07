@@ -14,7 +14,7 @@ def test_context_keys_and_values() -> None:
     assert context["endpoint"] == "/admin-agent/"
     assert context["title"] == "Admin Copilot"
     assert context["auto_confirm"] is False
-    assert context["tool_display"] == "compact"
+    assert context["tool_display"] == "grouped"
     assert context["message_actions"] == "copy,retry"
     assert {s["name"] for s in context["skills"]} >= {"summarize-changelist"}
     # The server-tool catalog URL the Web Component fetches (data-tools-url).

@@ -13,9 +13,9 @@ navigate, and the two attachment paths.
 | `endpoint` | `reverse("<namespace>:endpoint")` | The AG-UI endpoint the chat POSTs to. |
 | `title` | `DJANGO_ADMIN_AGENT["TITLE"]` | The chat panel header. |
 | `auto_confirm` | `DJANGO_ADMIN_AGENT["AUTO_CONFIRM"]` | Surfaced to the component as `autoConfirm`. |
-| `tool_display` | `DJANGO_ADMIN_AGENT["TOOL_DISPLAY"]` | The `data-tool-display` attribute (`minimal` / `compact` / `full`). |
+| `tool_display` | `DJANGO_ADMIN_AGENT["TOOL_DISPLAY"]` | The `data-tool-display` attribute (`grouped` / `inline` / `minimal` / `compact` / `full`; default `grouped`). |
 | `theme`, `density`, `placement`, `text_animation` | the matching `DJANGO_ADMIN_AGENT` keys | Themeable presentation attributes (`theme` / `density` / `placement` / `data-text-animation`), rendered only when set. See [Configuration → Presentation](configuration.md#presentation). |
-| `theme_toggle` | `DJANGO_ADMIN_AGENT["THEME_TOGGLE"]` | The `data-theme-toggle` attribute — opts into the built-in light⇄dark header toggle (off by default). |
+| `theme_toggle` | `DJANGO_ADMIN_AGENT["THEME_TOGGLE"]` | The `data-theme-toggle` attribute — opts into the built-in light⇄dark header toggle, which flips only the scheme word of `theme` (off by default). |
 | `launcher_drag` | `DJANGO_ADMIN_AGENT["LAUNCHER_DRAG"]` | The `data-launcher-drag` attribute, rendered as `"false"` only when dragging is turned off — it governs both the collapsed bubble and the open panel's header. |
 | `side` | `DJANGO_ADMIN_AGENT["SIDE"]` | The `data-side` attribute for `placement="sidebar"` (`left` / `right`), rendered only when set. |
 | `icon_url` | `DJANGO_ADMIN_AGENT["ICON_URL"]` | The `data-icon-url` attribute (header/launcher icon), rendered only when set. |

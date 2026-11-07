@@ -32,7 +32,8 @@ install. Works with the vanilla Django admin and with
   Schema are intercepted by a confirmation modal before they run.
 - **Drop-in sidebar** — a `{% django_admin_agent_sidebar %}` template tag (no
   admin-site swap) or a `SidebarAdminSite` for those who prefer to subclass.
-- **Themeable, with skills** — configure the theme (light / dark / auto / code),
+- **Themeable, with skills** — the panel takes the admin's own accent and font;
+  configure the theme (Quiet / Soft / Ledger / Classic; light / dark / auto),
   density, placement, text animation, and tool-call display mode from
   `DJANGO_ADMIN_AGENT`, and surface a catalog of one-click skills as composer
   chips and a `/`-command palette. Built on `django-ag-ui>=0.74.0` and the matching

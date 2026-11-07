@@ -379,3 +379,37 @@ def test_a_request_without_a_user_still_renders_the_sidebar() -> None:
 
     assert not hasattr(request, "user")
     assert "<ag-ui-chat" in _render_for(request)
+
+
+_STYLESHEET = '<link rel="stylesheet" href="/static/django_admin_agent/admin_agent.css">'
+
+
+@pytest.mark.django_db
+def test_the_sidebar_links_its_stylesheet_ahead_of_the_element() -> None:
+    """The admin's colours arrive as a linked sheet, before the element.
+
+    Linked rather than inline, so a strict ``style-src`` admits it and a
+    project's own rule can outrank it; ahead of the element, so the panel is
+    never drawn in the component's colours first. What the sheet does once it
+    is in the page is ``tests/e2e/test_admin_accent.py``.
+    """
+    user = User.objects.create_user(username="ada", is_staff=True)
+
+    rendered = _render_for(_request_from(user))
+
+    assert _STYLESHEET in rendered
+    assert rendered.index(_STYLESHEET) < rendered.index("<ag-ui-chat")
+    assert " style=" not in rendered
+
+
+def test_a_signed_out_visitor_gets_no_stylesheet() -> None:
+    """The sheet sits inside the guard, like everything else the tag renders."""
+    rendered = _render_for(_request_from(AnonymousUser()))
+
+    assert "admin_agent.css" not in rendered
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"THEME": "soft dark"})
+def test_a_two_word_theme_reaches_the_element_whole() -> None:
+    """A theme name and a scheme are one attribute value, passed as written."""
+    assert 'theme="soft dark"' in _render()
