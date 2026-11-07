@@ -31,7 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The rule is wrapped in `:where()`, so any rule a project writes for
   `ag-ui-chat#django-admin-agent` (or plain `ag-ui-chat`) wins. **A project
   that themed `--ag-ui-accent` on `:root` or on a wrapper must move it onto the
-  element**: the element's own value now beats the one it would inherit. Under
+  element**: the element's own value now beats the one it would inherit. Set
+  `--ag-ui-highlight-ring-color` there as well, since from web component
+  0.47.0 the chat's ring token is read ahead of a page element's accent. Under
   Django Unfold, which defines none of the three admin tokens, the declarations
   are invalid when the browser computes them and the panel keeps the
   component's own colours and font. Being a linked sheet, it loads under a

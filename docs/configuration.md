@@ -123,7 +123,8 @@ ag-ui-chat#django-admin-agent {
 
 Set it on the element, not on `:root` or a wrapper. A value set on the element
 always beats one it would inherit, so an accent themed on an ancestor no longer
-reaches the sidebar.
+reaches the sidebar. Set the ring token there too: the rings read the chat's
+`--ag-ui-highlight-ring-color` ahead of a page element's own `--ag-ui-accent`.
 
 Django Unfold defines none of `--primary`, `--link-fg` or
 `--font-family-primary`. There the three declarations are invalid when the

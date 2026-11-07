@@ -102,11 +102,20 @@ def test_the_admin_theme_toggle_reaches_the_sidebar(admin_page, live_server):  #
 def test_a_project_rule_on_the_element_wins(admin_page, live_server):  # noqa: ANN001, ANN201
     """The sidebar's rule has no specificity, so the plainest override wins.
 
-    A bare ``ag-ui-chat`` selector is the least a project would write; it loses
-    to an id selector, which is what the shipped rule would be without
-    ``:where()``.
+    A bare ``ag-ui-chat`` selector is the least a project would write, and it
+    is written where Django's ``extrastyle`` block puts a project's CSS: in the
+    head, ahead of the sidebar's link in the body. Placed there, source order
+    is on the sidebar's side, so the project's rule wins only by specificity:
+    it loses to the id selector the shipped rule would be without ``:where()``,
+    and to a bare ``ag-ui-chat`` one.
     """
     page = _open_admin(admin_page, live_server)
-    page.add_style_tag(content="ag-ui-chat { --ag-ui-accent: #123456; }")
+    page.evaluate(
+        """() => {
+            const style = document.createElement("style");
+            style.textContent = "ag-ui-chat { --ag-ui-accent: #123456; }";
+            document.head.prepend(style);
+        }"""
+    )
 
     assert _tokens(page)["accent"] == "#123456"
