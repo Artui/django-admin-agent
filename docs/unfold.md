@@ -37,6 +37,15 @@ every function is a no-op and `admin_tools.js` can call them unconditionally.
    `run_admin_action` clicks it. Harmless on vanilla admin, where the button is
    always visible.
 
+## Colours under Unfold
+
+The sidebar's stylesheet maps its accent, highlight ring and font onto Django
+admin's `--primary`, `--link-fg` and `--font-family-primary`. Unfold defines none
+of the three, so under Unfold the panel keeps the component's own Quiet colours
+and font. The stylesheet's fourth line, the keyboard focus outline at
+`CanvasText`, names no admin token and applies there too. To give it Unfold's, set the tokens on the element in your own CSS; see
+[Configuration → Colours](configuration.md#colours).
+
 ## The end-to-end suite
 
 Behaviour against a live admin is verified by a browser end-to-end suite under
@@ -59,7 +68,10 @@ The suite logs into the live admin as a superuser, then asserts that:
   **without** navigating;
 - a navigating tool reloads the browser to the target changelist and the
   resumable loop completes the run on the new page (the rehydrated chat shows
-  the final assistant message).
+  the final assistant message);
+- the sidebar's accent, highlight ring and font resolve to the admin's own
+  `--primary`, `--link-fg` and `--font-family-primary`, in the light and dark
+  schemes and under the admin's theme toggle.
 
 The e2e settings install `django-unfold` (via the `e2e` dependency group), so
 the shim can be exercised alongside vanilla admin. `make test-e2e` requires a

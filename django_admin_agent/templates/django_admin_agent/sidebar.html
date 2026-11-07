@@ -7,6 +7,7 @@ way round on purpose: a context that never sets it (any other caller of this
 template) still renders.
 {% endcomment %}
 {% if not anonymous_visitor %}
+<link rel="stylesheet" href="{% static 'django_admin_agent/admin_agent.css' %}">
 <ag-ui-chat
   id="django-admin-agent"
   endpoint="{{ endpoint }}"

@@ -7,6 +7,124 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.60.0] — 2026-11-07
+
+### Changed
+
+- **Tool calls fold into one step group by default.** `TOOL_DISPLAY` defaults
+  to `"grouped"` (was `"compact"`). A run's consecutive tool calls fold into one
+  row, "Worked through 5 steps", with a note such as "1 failed", and the full
+  card for each call one click down. The group opens itself while a step waits
+  on an approval, so the Approve button is in view as it was. Set `"compact"` to
+  keep the previous look, or `"full"` for a card per call. The documented values
+  are now `grouped`, `inline`, `minimal`, `compact` and `full`. `grouped` needs
+  web component 0.46.0 or later; an older bundle reads it as `full`.
+- **The sidebar takes Django admin's own accent and font.** A new stylesheet,
+  `django_admin_agent/admin_agent.css`, is linked by the sidebar tag ahead of
+  the element, for a signed-in visitor only, like the rest of the tag. It sets
+  `--ag-ui-accent` to the admin's `--primary`, `--ag-ui-highlight-ring-color`
+  to `--link-fg`, `--ag-ui-font` to `--font-family-primary`, and the step
+  group's keyboard focus outline, `--ag-ui-ring`, to `CanvasText` (see the
+  opt-in record below). Each resolves at the element, so the sidebar follows Django's light and dark styles and the
+  admin's theme toggle with no script. Text on the accent is left to the
+  component, which picks black on the light primary (8.70:1, where white would
+  be 2.41:1) and white on the dark one (9.35:1). The rings the agent draws in
+  the page take `--link-fg` rather than the accent, which is 2.41:1 on the
+  admin's white page: `--link-fg` is 4.85:1 there and 11.36:1 on the dark page.
+  The rule is wrapped in `:where()`, so any rule a project writes for
+  `ag-ui-chat#django-admin-agent` (or plain `ag-ui-chat`) wins. **A project
+  that themed `--ag-ui-accent` on `:root` or on a wrapper must move it onto the
+  element**: the element's own value now beats the one it would inherit. Set
+  `--ag-ui-highlight-ring-color` there as well, since from web component
+  0.47.0 the chat's ring token is read ahead of a page element's accent. Under
+  Django Unfold, which defines none of the three admin tokens, those
+  declarations are invalid when the browser computes them and the panel keeps
+  the component's own colours and font; the focus outline still takes
+  `CanvasText`. Being a linked sheet, it loads under a
+  strict `style-src` CSP that admits the admin's static files.
+- **`THEME` takes the component's two-word grammar.** Up to two words in any
+  order, a theme name (`quiet`, the default, `soft`, `ledger`, `classic`) and a
+  scheme (`light`, the default, `dark`, `auto`), such as `"soft dark"`, passed
+  whole to the `theme` attribute. Unset leaves the component's default, Quiet
+  in the light scheme. `classic` is the look before web component 0.45.0, and
+  `code` still parses but is no longer documented. The panel's scheme stays on
+  `THEME` and does not follow the admin's theme toggle. The `THEME_TOGGLE`
+  documentation now says the toggle flips and saves only the scheme word.
+- **The supported browsers rise to Chrome 123, Firefox 120 and Safari 17.5**
+  (from Chrome 120 and Safari 17), with the web component this release vendors.
+  Its themes declare their colours with `light-dark()`, which those versions are
+  the first to support; below them the sidebar draws without its colours.
+- **Vendors `@artooi/ag-ui-web-component` 0.47.0 (was 0.44.0).**
+
+  The host opt-ins in 0.47.0, each checked:
+  - **The highlight rings take the stylesheet's `--link-fg`.** From 0.47.0 the
+    rings read `--ag-ui-highlight-ring-color` on the chat, ahead of a target's
+    `--ag-ui-accent`, which is what the stylesheet's ring line sets. The press
+    and toggle halo is that colour at 40%. No ring call passes `chat`, so the
+    rings read the most recently connected sidebar; every sidebar on a page
+    carries the same stylesheet, so which one does not change the colour. The
+    overlay paragraph in `docs/installation.md` now names the chat's ring
+    token. An e2e test reads the drawn outline: `--link-fg` in both schemes,
+    where the 0.44.0 bundle drew the package indigo.
+  - **The thread API is not needed.** Nothing in the package switches threads,
+    observes the running state or reads `conversationStore.threadId()`; the
+    drawer and `newChat()` stay the component's own.
+  - **The dragged size owes nothing.** The sidebar has no sized state of its
+    own and sets no `--ag-ui-width` or `--ag-ui-height`, so it never calls
+    `resetSize()` and reads no size back from the element.
+  - **The status parts and the `above-composer` slot are unused.** Nothing
+    here styles `::part(tool-card)` or slots content into the element; a
+    project can do either in its own CSS and template.
+
+  The host opt-ins in 0.45.0 and 0.46.0, each checked:
+  - **Quiet, the new default look, is wanted.** The sidebar renders no `theme`
+    attribute unless `THEME` is set, so it takes Quiet. Quiet draws the header,
+    launcher and tool names in the panel's colours even with an accent set;
+    that is the look chosen, so `--ag-ui-header-bg` and the rest stay unset.
+    `THEME="classic"` gives a project the old look back.
+  - **The page's font is kept**, by `--ag-ui-font: var(--font-family-primary)`.
+    The component's own advice, `--ag-ui-font: inherit`, does not do it: a
+    CSS-wide keyword in a custom property inherits the property itself, which
+    nothing above the element sets, so the token computes to nothing and the
+    panel falls back to Quiet's stack. The e2e test fails on `inherit`.
+  - **`extraStyles` is not used.** Nothing in the package, its templates or
+    its scripts adopts a stylesheet into the component; the tokens are enough.
+  - **Text on the accent is left to the component.** `--ag-ui-on-accent` is
+    not set. Firefox 120 to 127 and Safari 17.5 and 17.6 cannot compute the
+    luminance pick and keep white under Quiet light, 2.41:1 on the light
+    primary. A fixed colour cannot fix it, since black on the dark primary is
+    2.25:1.
+  - **The theme toggle saves only the scheme word.** `THEME_TOGGLE` is off by
+    default, so the sidebar is unaffected unless a project turned it on.
+  - **The step group's strings** (`toolGroupSteps`, `toolGroupWorking`,
+    `toolGroupWorked`, `toolGroupWaiting`, `toolGroupFailed`,
+    `toolGroupDeclined`, `toolStepRepeat`) need nothing here: the package ships
+    no strings table of its own, and `STRINGS` passes a project's table through
+    whole. A project that translates the sidebar adds these keys to its table.
+  - **The step group's focus outline, `--ag-ui-ring`, is set to
+    `CanvasText`.** The component draws it from the accent at 55%, which with
+    the admin's primary as the accent is 1.58:1 on the default light panel,
+    2.86:1 with the dark primary a dark admin page brings, and 1.38:1 with
+    `THEME="dark"` on a dark admin page, under the 3:1 a focus indicator needs
+    (Quiet's own outline gave 3.63:1 and 5.52:1). `CanvasText` follows the
+    panel's scheme, so the outline is black on a light panel and white on a
+    dark one, in every pairing of `THEME` and the admin's scheme. An e2e test
+    measures the drawn outline against the panel in all four. Once the
+    component holds its ring at 3:1 for any accent, this line can go.
+  - **Charts read the theme's palette** for their first two series; the
+    sidebar sets no `--ag-ui-chart-*`, and the charts it turns on take them.
+  - **One chip row per answer**: the skill chips show on the empty state and,
+    after the first message, in the slash palette, which the sidebar always
+    turns on (`data-slash-commands="true"`).
+  - The 0.46.0 wheel-scroll fix and the 0.45.0 internal restructuring are on
+    the default path and owe nothing.
+- **The lock holds the family's current releases**: django-spec-agents 0.10.0,
+  django-spec-mcp 0.9.0 and django-service-specs 0.27.0 (0.59.0 shipped with
+  0.6.2, 0.6.0 and 0.23.0), with django-ag-ui still 0.74.0. No floor moves.
+  django-spec-agents 0.10.0 and django-spec-mcp 0.9.0 return a list result as
+  `{"items": [...]}`; nothing in the package reads a tool result as an array,
+  and the sidebar's own MCP test tool returns one object.
+
 ## [0.59.0] — 2026-11-03
 
 ### Removed
@@ -2418,7 +2536,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.59.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.60.0...HEAD
+[0.60.0]: https://github.com/Artui/django-admin-agent/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/Artui/django-admin-agent/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Artui/django-admin-agent/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Artui/django-admin-agent/compare/v0.56.0...v0.57.0

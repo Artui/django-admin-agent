@@ -1,0 +1,33 @@
+/*
+ * The sidebar in Django admin's own colours and type.
+ *
+ * A linked sheet rather than an inline style: a strict style-src CSP refuses
+ * inline styles, and an inline declaration would outrank any rule a project
+ * writes. :where() takes the id's specificity away, so a project's plain
+ * `ag-ui-chat { ... }` in its own admin CSS wins over every line here.
+ *
+ * Each var() resolves at the element, so Django's prefers-color-scheme styles
+ * and its html[data-theme] toggle reach the panel without a script. Where the
+ * page defines none of these (Django Unfold does not), the declaration is
+ * invalid at computed-value time and the component keeps its own default.
+ */
+:where(ag-ui-chat#django-admin-agent) {
+  /* The admin's brand colour, light and dark. Text on it is left to the
+     component, which picks black or white by the accent's luminance: white on
+     the light primary would be 2.41:1, black is 8.70:1. */
+  --ag-ui-accent: var(--primary);
+  /* The highlight rings the agent draws in the page sit on the page's
+     background, where the light primary is 2.41:1. --link-fg is the colour
+     Django designs to read there: 4.85:1 light, 11.36:1 dark. */
+  --ag-ui-highlight-ring-color: var(--link-fg);
+  /* The admin's font rather than the theme's own stack. Not `inherit`: a
+     CSS-wide keyword in a custom property inherits the property itself, which
+     nothing above the element sets, so the component would fall back. */
+  --ag-ui-font: var(--font-family-primary);
+  /* The keyboard focus outline on the folded tool-call row. The component
+     draws it from the accent at 55%, which on the panel is 1.58:1 with the
+     light primary and 1.38:1 with the dark one on a dark panel, under the 3:1
+     a focus indicator needs. CanvasText follows the panel's own scheme, so it
+     is black on a light panel and white on a dark one, whatever THEME says. */
+  --ag-ui-ring: CanvasText;
+}

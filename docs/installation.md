@@ -264,9 +264,12 @@ const dismiss = showHighlightOverlay(document.querySelector("#result_list"), {
 // Call dismiss() to take it down -- it does not retire itself.
 ```
 
-It reads its colours from `--ag-ui-accent` and the `--ag-ui-highlight-*` tokens
-**on the target**, not on the chat element, because the overlay lives in your
-page rather than in the component's shadow tree.
+Its ring takes `--ag-ui-highlight-ring-color` from the sidebar element, which the
+sidebar's stylesheet sets to the admin's `--link-fg`, ahead of the target's own
+`--ag-ui-accent`. A value set on the page, on the target or above it, reaches the
+target and wins over the sidebar's. The other `--ag-ui-highlight-*` tokens are
+read on the target, because the overlay lives in your page rather than in the
+component's shadow tree.
 
 Wiring it to a tool the agent can call is a step further again, and the same
 judgement applies as above: nothing here registers one for you.

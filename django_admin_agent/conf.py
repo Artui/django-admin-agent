@@ -25,9 +25,11 @@ class AdminAgentSettings:
     Passed to the Web Component as ``autoConfirm``."""
 
     tool_display: str
-    """How much detail tool-call cards show: ``"minimal"``, ``"compact"``, or
-    ``"full"``. Passed to the Web Component as the ``data-tool-display``
-    attribute; defaults to ``"compact"`` for a dense admin sidebar."""
+    """How tool calls are drawn: ``"grouped"``, ``"inline"``, ``"minimal"``,
+    ``"compact"`` or ``"full"``. Passed to the Web Component as the
+    ``data-tool-display`` attribute. Defaults to ``"grouped"``, which folds a
+    run's consecutive calls into one "Worked through N steps" row with the
+    ``full`` cards one click down; ``"full"`` keeps a card per call."""
 
     message_actions: str
     """Which per-message actions the sidebar offers, as a comma-separated list of
@@ -63,8 +65,14 @@ class AdminAgentSettings:
     ([`build_skills`][django_admin_agent.admin.build_skills.build_skills])."""
 
     theme: str | None
-    """Web Component theme: ``"light"`` / ``"dark"`` / ``"auto"`` / ``"code"``.
-    ``None`` leaves the component default (light)."""
+    """Web Component theme: up to two words, in any order, a theme name and a
+    scheme. The names are ``"quiet"`` (the default), ``"soft"``, ``"ledger"``
+    and ``"classic"`` (the look before web component 0.45.0); the schemes are
+    ``"light"`` (the default), ``"dark"`` and ``"auto"``, which follows
+    ``prefers-color-scheme``. So ``"soft dark"``, or ``"dark"`` alone for
+    Quiet in the dark scheme. ``None`` leaves the component default (Quiet,
+    light). The accent is not set here: it follows Django admin's
+    ``--primary`` through the sidebar's stylesheet."""
 
     density: str | None
     """``"comfortable"`` / ``"compact"``. ``None`` leaves the default."""
@@ -137,9 +145,10 @@ class AdminAgentSettings:
 
     theme_toggle: bool
     """When ``True``, show the Web Component's built-in light/dark header toggle
-    (``data-theme-toggle``), which flips
-    [`theme`][django_admin_agent.conf.AdminAgentSettings.theme] and persists per
-    tab. Defaults to ``False`` — the admin's own theme usually governs."""
+    (``data-theme-toggle``), which flips only the scheme word of
+    [`theme`][django_admin_agent.conf.AdminAgentSettings.theme] (``"soft"`` to
+    ``"soft dark"``) and saves only that word. Defaults to ``False`` — the
+    admin's own theme usually governs."""
 
     shell_field_redaction: bool | str
     """Sensitive-field redaction for the ``shell.*`` tools. ``True`` (default)
@@ -171,7 +180,7 @@ def get_settings() -> AdminAgentSettings:
     return AdminAgentSettings(
         title=raw.get("TITLE", "Admin Copilot"),
         auto_confirm=bool(raw.get("AUTO_CONFIRM", False)),
-        tool_display=raw.get("TOOL_DISPLAY", "compact"),
+        tool_display=raw.get("TOOL_DISPLAY", "grouped"),
         message_actions=raw.get("MESSAGE_ACTIONS", "copy,retry"),
         skills=raw.get("SKILLS"),
         theme=raw.get("THEME"),
