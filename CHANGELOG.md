@@ -19,6 +19,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   saved word pins in the same way: a user who presses it stops following the
   admin's toggle until they press it back. An admin with its dark mode taken
   out (an empty `dark-mode-vars` block) and Django Unfold keep a light panel.
+- **The step group's focus outline is the component's again.** The sidebar's
+  stylesheet no longer sets `--ag-ui-ring: CanvasText`. Web component 0.48.0
+  mixes the ring from the accent and the panel's ink, which measures 7.44:1 to
+  13.97:1 against the panel with the admin's primaries in every pairing of
+  `THEME` and the admin's scheme, over the 3:1 a focus indicator needs, and
+  keeps the admin's brand tint where `CanvasText` drew black or white. The e2e
+  test that measures it fails on the 0.47.0 bundle without the old line.
+- **Vendors `@artooi/ag-ui-web-component` 0.48.0 (was 0.47.0).**
+
+  The host opt-ins in 0.48.0, each checked:
+  - **The theme toggle reads the drawn scheme.** Its first press on a panel
+    following a dark admin now gives a light panel, where 0.47.0 wrote `dark`
+    over a dark panel; an e2e test holds it and fails on the 0.47.0 bundle. A
+    `light` or `dark` word in `THEME` also now holds against a project rule
+    that sets `color-scheme` on the element. Nothing owed.
+  - **The rings hold 3:1.** The focus outline is the entry above. The field
+    highlight ring's new fallback applies only when no ring colour is set,
+    and the stylesheet sets `--ag-ui-highlight-ring-color` to `--link-fg`, so
+    the rings the agent draws in the page are unchanged. Nothing owed.
+  - **`data-tool-group-display`, the step group's inner mode, is not exposed
+    yet.** Absent, an opened group draws its calls as `full` cards, as it did
+    on 0.47.0. A setting for it is a later release.
+  - **`collapse-to`, `anchor` and `--ag-ui-anchor-gap` are not exposed yet.**
+    Absent, `collapse-to` reads as `auto` and every placement stays as it was.
+    A bottom bar needs the page padded by the bar's height (`barHeight`, the
+    `ag-ui-bar-height` event), and `none` needs an admin control to anchor to;
+    both are a later release.
+  - **The chat surface tools' new wording reaches the sidebar**, which turns
+    them on by default (`CHAT_SURFACE_TOOLS`): `minimise_chat` no longer
+    promises a launcher, and `read_chat_surface` reports `collapseTo`. No
+    prompt or test here quotes the old text. Nothing owed.
+  - **`--ag-ui-font: inherit` is no longer advised.** The stylesheet already
+    sets `var(--font-family-primary)`, the route the component now documents.
+  - The `@ag-ui` 1.0.4 refresh, the `newChat()` and `switchThread()` fixes
+    (nothing here calls either), the collapsed embedded slot, the dragged
+    size, the history drawer's rejection and the empty arguments box are on
+    the component's own path and owe nothing.
+  - **The browser floor holds** at Chrome 123, Firefox 120 and Safari 17.5:
+    0.48.0 adds no CSS or DOM feature newer than `light-dark()`.
 
 ### Documentation
 

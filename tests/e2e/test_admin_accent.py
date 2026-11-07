@@ -170,7 +170,9 @@ def test_the_ring_drawn_in_the_page_is_the_admin_link_colour(admin_page, live_se
 
 # The keyboard focus outline on the folded tool-call row, against the panel it
 # sits on, both flattened to one sRGB pixel so an alpha outline is measured as
-# it is drawn.
+# it is drawn. The sidebar sets no ring of its own: web component 0.47.0 drew
+# the admin's light primary at 1.58:1 here, and 0.48.0 holds 3:1 for any
+# accent, so this is what keeps the sidebar off a bundle that does not.
 _FOCUS_ACTIVE = """(selector) => {
   const active = document.querySelector(selector).shadowRoot.activeElement;
   return active ? active.className : null;
@@ -390,7 +392,7 @@ def test_a_scheme_word_in_theme_pins_the_panel(admin_page, live_server, theme, d
     "code" is a theme with no light half, so it counts as a pin. Its own tokens
     paint a dark background whatever the scheme, so for it the background
     cannot tell; the host's resolved color-scheme can, and it is what the
-    focus outline's CanvasText and every light-dark() token still read.
+    every light-dark() token still reads.
     """
     admin_scheme = "light" if dark else "dark"
     page = _open_panel(admin_page, live_server, admin_scheme, theme)
@@ -444,12 +446,6 @@ def test_with_theme_light_the_panel_stays_light_on_a_dark_admin(admin_page, live
     assert not _panel_is_dark(page)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="web component 0.47.0's toggle picks the next scheme from the theme "
-    "attribute's words, so on a panel following a dark admin its first press "
-    "selects dark; 0.48.0 reads the scheme the panel shows",
-)
 def test_the_header_toggle_first_press_flips_a_followed_dark_panel(admin_page, live_server):  # noqa: ANN001, ANN201
     """On a dark admin with no word saved, one press gives a light panel."""
     page = _open_panel(admin_page, live_server, "dark", toggle=True)
