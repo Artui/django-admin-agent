@@ -19,7 +19,7 @@ import pytest
 from django.test import override_settings
 from playwright.sync_api import expect
 
-from tests.e2e.conftest import send_message
+from tests.e2e.conftest import open_sidebar, send_message
 
 pytestmark = [pytest.mark.e2e, pytest.mark.django_db(transaction=True)]
 
@@ -246,3 +246,88 @@ def test_the_folded_row_focus_outline_holds_three_to_one(admin_page, live_server
 
     assert drawn["outlineStyle"] != "none", drawn
     assert _contrast(drawn["outline"], drawn["panel"]) >= 3, drawn
+
+
+def _open_under_csp(page, live_server, policy):  # noqa: ANN001, ANN202
+    """The changelist served with ``policy`` as its Content-Security-Policy.
+
+    Only the document gets the header, as Django's own CSP middleware would
+    send it; the static files it links are fetched untouched.
+    """
+    url = f"{live_server.url}/admin/testapp/author/"
+
+    def with_policy(route):  # noqa: ANN001, ANN202
+        response = route.fetch()
+        route.fulfill(
+            response=response,
+            headers={**response.headers, "content-security-policy": policy},
+        )
+
+    page.route(url, with_policy)
+    page.emulate_media(color_scheme="light")
+    page.goto(url)
+    expect(page.locator(CHAT)).to_be_attached()
+    return _tokens(page)
+
+
+def test_the_sheet_loads_under_a_style_src_that_admits_the_admin_static_files(  # noqa: ANN201
+    admin_page,  # noqa: ANN001
+    live_server,  # noqa: ANN001
+):
+    """A linked sheet is what a strict ``style-src`` admits; an inline one is not.
+
+    ``'self'`` is the policy a project serving its admin's static files from
+    its own origin writes, and under it the accent still arrives. ``'none'`` is
+    the control: it refuses the sheet too, so an accent that survived it would
+    mean the header never reached the page and the first half proved nothing.
+    """
+    admitted = _open_under_csp(admin_page, live_server, "style-src 'self'")
+    assert admitted["primary"], admitted
+    assert admitted["accent"] == admitted["primary"], admitted
+
+    refused = _open_under_csp(admin_page, live_server, "style-src 'none'")
+    assert refused["accent"] == "", refused
+
+
+# The panel's own background, flattened to one sRGB pixel, beside the page's
+# primary resolved to the same form. Walked up from the composer to the first
+# element that paints a background, as the focus measurement above does.
+_PANEL = """(selector) => {
+  const chat = document.querySelector(selector);
+  let node = chat.shadowRoot.querySelector(".input");
+  let background = "rgba(0, 0, 0, 0)";
+  while (node) {
+    if (node.nodeType === 1) {
+      const colour = getComputedStyle(node).backgroundColor;
+      if (colour !== "rgba(0, 0, 0, 0)" && colour !== "transparent") {
+        background = colour;
+        break;
+      }
+    }
+    node = node.parentNode || node.host;
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 1;
+  const context = canvas.getContext("2d", { colorSpace: "srgb" });
+  context.fillStyle = background;
+  context.fillRect(0, 0, 1, 1);
+  return Array.from(context.getImageData(0, 0, 1, 1).data.slice(0, 3));
+}"""
+
+
+def _panel_is_dark(page):  # noqa: ANN001, ANN202
+    rgb = page.evaluate(_PANEL, CHAT)
+    # Quiet's two backgrounds are #ffffff and #161618; the midpoint of the
+    # luminance scale separates them with room for any theme's tint.
+    return _contrast(rgb, (0, 0, 0)) < _contrast(rgb, (255, 255, 255))
+
+
+def test_with_theme_unset_the_panel_stays_light_on_a_dark_admin(admin_page, live_server):  # noqa: ANN001, ANN201
+    """The accent follows the admin into the dark; the panel's scheme does not."""
+    admin_page.emulate_media(color_scheme="dark")
+    page = _open_admin(admin_page, live_server)
+    open_sidebar(page)
+    tokens = _tokens(page)
+
+    _assert_follows_the_page(tokens)
+    assert not _panel_is_dark(page)
