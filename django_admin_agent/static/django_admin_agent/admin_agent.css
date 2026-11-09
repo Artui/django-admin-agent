@@ -44,13 +44,15 @@
  *
  * Keyed on the html[data-theme] Django's theme script writes, rather than on
  * an inherited color-scheme: Django declares color-scheme on html only from
- * 5.1, and an admin that empties its dark-mode-vars block (no theme script, so
- * no data-theme) is an admin that stays light, which this follows too. The
- * selectors mirror Django's own: "dark" always, "auto" under the system's dark
- * preference. All three rules are inside :where(), so they have no specificity
- * and the dark ones win by coming later; a project's own rule still wins.
+ * 5.1. An admin with no data-theme (one that empties its dark-mode-vars block,
+ * so has no theme script, or Unfold) has nothing here to follow, so all three
+ * rules stand aside and the component's own apply: light, or under "auto" the
+ * operating system. The selectors mirror Django's own: "dark" always, "auto"
+ * under the system's dark preference. All three rules are inside :where(), so
+ * they have no specificity and the dark ones win by coming later; a project's
+ * own rule still wins.
  */
-:where(ag-ui-chat#django-admin-agent) {
+:where(html[data-theme] ag-ui-chat#django-admin-agent) {
   color-scheme: light;
 }
 

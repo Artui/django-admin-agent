@@ -17,8 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dark admin. An explicit `"light"` or `"dark"` pins the panel, so
   `THEME = "light"` is the way back to the old behaviour. `THEME_TOGGLE`'s
   saved word pins in the same way: a user who presses it stops following the
-  admin's toggle until they press it back. An admin with its dark mode taken
-  out (an empty `dark-mode-vars` block) and Django Unfold keep a light panel.
+  admin's toggle for good in that browser, since pressing it again only changes
+  the word, and turning `THEME_TOGGLE` off stops the pin. An admin writing no
+  `html[data-theme]`, which is one with its dark mode taken out (an empty
+  `dark-mode-vars` block) and Django Unfold, has nothing to follow: it keeps a
+  light panel, and `"auto"` still means the system's preference, so it does not
+  follow Unfold's own toggle, and on a dark system it gives an admin with its
+  dark mode taken out a dark panel on a light page, as before.
 - **The step group's focus outline is the component's again.** The sidebar's
   stylesheet no longer sets `--ag-ui-ring: CanvasText`. From 0.48.0 the web
   component mixes the ring from the accent and the panel's ink, which measures

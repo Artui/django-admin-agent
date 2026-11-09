@@ -75,8 +75,11 @@ class AdminAgentSettings:
     Without ``"light"`` or ``"dark"`` (unset, a name alone, or ``"auto"``) the
     panel's light and dark follow the admin's, both its ``prefers-color-scheme``
     styles and its ``html[data-theme]`` toggle, through the sidebar's
-    stylesheet. ``"light"`` or ``"dark"`` pins the panel to that scheme. The
-    accent is not set here either: it follows Django admin's ``--primary``."""
+    stylesheet. ``"light"`` or ``"dark"`` pins the panel to that scheme. An admin
+    writing no ``html[data-theme]``, as under Unfold or with its dark mode taken
+    out, has nothing to follow: there the panel is light, and ``"auto"`` means the
+    system's preference. The accent is not set here either: it follows Django
+    admin's ``--primary``."""
 
     density: str | None
     """``"comfortable"`` / ``"compact"``. ``None`` leaves the default."""
@@ -153,8 +156,10 @@ class AdminAgentSettings:
     [`theme`][django_admin_agent.conf.AdminAgentSettings.theme] (``"soft"`` to
     ``"soft dark"``) and saves only that word. The saved word pins the panel as
     a scheme word in ``theme`` does, so a user who presses it stops following
-    the admin's own toggle until they press it back. Defaults to ``False``: the
-    panel already follows the admin's toggle."""
+    the admin's own toggle for good in that browser: pressing it again only
+    changes the word. Setting this back to ``False`` stops the pin, because the
+    word is read only while the button is on. Defaults to ``False``: the panel
+    already follows the admin's toggle."""
 
     shell_field_redaction: bool | str
     """Sensitive-field redaction for the ``shell.*`` tools. ``True`` (default)

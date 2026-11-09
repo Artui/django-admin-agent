@@ -17,7 +17,7 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `AUTO_CONFIRM` | `False` | When `True`, destructive frontend tools run without the confirmation modal. Passed to the Web Component as `autoConfirm`. |
 | `TOOL_DISPLAY` | `"grouped"` | How tool calls are drawn: `"grouped"`, `"inline"`, `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. `"grouped"` folds a run's consecutive calls into one "Worked through N steps" row, with the full cards one click down; `"full"` keeps a card per call. |
 | `MESSAGE_ACTIONS` | `"copy,retry"` | Which per-message actions the sidebar offers, from `copy` / `retry` / `feedback`. Rendered as `data-message-actions`. Matches the component's own default from 0.31.0. The rating buttons fire an `ag-ui-feedback` event and store nothing by design, and nothing here listens for it. **Set `"copy,retry,feedback"` once you have wired your own listener on the sidebar element** — that is what this setting is for. The event's detail carries `content`, `rating`, `messageId` (the rated message's AG-UI id), `threadId`, and `runId` on a message that streamed live (absent on one restored from history). Key ratings by `threadId` and `messageId` together, never by `messageId` alone: from django-ag-ui 0.72.0 a fork keeps its source's message ids, and the sidebar mounts `fork/<run_id>/` whenever a step store is configured (see [Continuing a run](#continuing-a-run)), so one id can name a message in two threads and a rating keyed by it alone merges the fork's ratings with its source's. The pair holds across a reload with the browser's per-tab storage, and with a `conversation_store` from django-ag-ui 0.68.3 or later, which stores messages under the ids the run streamed. |
-| `THEME` | _unset_ | Web Component theme: up to two words, a theme name (`"quiet"`, the default, `"soft"`, `"ledger"`, `"classic"`) and/or a scheme (`"light"`, `"dark"`, `"auto"`), such as `"soft dark"`. Rendered as the `theme` attribute; left off (Quiet) when unset. Without `"light"` or `"dark"` the panel follows the admin's light and dark, its system preference and its theme toggle; either word pins the panel to that scheme. `"auto"` follows the admin too. The accent is not part of it: see [Colours](#colours). |
+| `THEME` | _unset_ | Web Component theme: up to two words, a theme name (`"quiet"`, the default, `"soft"`, `"ledger"`, `"classic"`) and/or a scheme (`"light"`, `"dark"`, `"auto"`), such as `"soft dark"`. Rendered as the `theme` attribute; left off (Quiet) when unset. Without `"light"` or `"dark"` the panel follows the admin's light and dark, its system preference and its theme toggle; either word pins the panel to that scheme. `"auto"` follows the admin too where it writes `html[data-theme]`, and the system where it does not. The accent is not part of it: see [Colours](#colours). |
 | `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |
 | `PLACEMENT` | _unset_ | Where the panel sits: `"sidebar"`, `"embedded"`, `"page"`, or the older `"bottom-left"`, `"side"` and `"full"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. `"sidebar"` is a full-height docked panel that collapses to an icon rail (pair it with `SIDE`); `"page"` is a full-screen route with no collapsed state at all, and greets the signed-in user by name over an empty conversation, with the composer centred beneath (the name is the one the admin header welcomes them by; see [Admin wiring](admin-wiring.md)). The last three are no longer in the component's own documented four but still parse and still work. |
 | `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
@@ -112,18 +112,25 @@ same stylesheet sets the element's `color-scheme` from the `html[data-theme]`
 that Django's theme script writes, `"dark"`, or `"auto"` under a dark system
 preference. An admin that empties its `dark-mode-vars` block has no theme
 script and no `data-theme`, so it keeps a light panel, as its pages stay light.
+The exception is `THEME = "auto"`: with nothing to follow it means the system
+preference, as it did before 0.61.0, so on a dark system that admin gets a dark
+panel on a light page.
 
 A scheme word pins the panel. With `THEME = "light"` the panel stays light on
 a dark admin page, in the dark primary, which is how this package behaved
 before 0.61.0; `"dark"` keeps it dark on a light one. `"auto"` is not a pin:
-the component reads it as the system preference alone, and the sidebar makes
-it follow the admin, toggle included. On Django 4.2 and 5.0 the admin's theme
+the component reads it as the system preference alone, and wherever the admin
+writes `html[data-theme]` the sidebar makes it follow the admin, toggle included.
+On Django 4.2 and 5.0 the admin's theme
 script writes `html[data-theme]` once the window has loaded, so on a dark admin
 the panel draws light until then; from 5.1 it is dark from the first paint.
 
 `THEME_TOGGLE`'s button pins in the same way. Its first press saves a scheme
 word, so from then on that user's panel stops following the admin's toggle,
-on every page and visit, until they press it back.
+on every page and visit, for good in that browser. The button only ever writes
+`light` or `dark`: pressing it again changes which word is saved, and the panel
+stays pinned to it. Turning `THEME_TOGGLE` off stops the pin, because the saved
+word is read only while the button is on.
 
 To use colours of your own, target the element in your admin CSS. The
 stylesheet's rule is wrapped in `:where()`, so it has no specificity and any
@@ -145,8 +152,9 @@ Django Unfold defines none of `--primary`, `--link-fg` or
 `--font-family-primary`. There those three declarations are invalid when the
 browser computes them and the component keeps its own Quiet colours and font;
 set the tokens on the element as above to give it Unfold's. Unfold's dark mode
-writes no `html[data-theme]` either, so there the panel stays light unless
-`THEME` names a scheme.
+writes no `html[data-theme]` either, since it keeps its theme in Alpine. So there
+the panel stays light with `THEME` unset or naming only a theme, `"auto"` follows
+the system rather than Unfold's own toggle, and `"dark"` pins it dark.
 
 ### Skills
 

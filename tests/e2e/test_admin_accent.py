@@ -381,6 +381,25 @@ def test_an_admin_without_its_theme_script_keeps_a_light_panel(admin_page, live_
     assert not _panel_is_dark(page)
 
 
+@pytest.mark.parametrize("theme", ["auto", "soft auto"])
+@pytest.mark.parametrize("scheme", ["light", "dark"])
+def test_auto_follows_the_system_where_the_admin_writes_no_data_theme(  # noqa: ANN201
+    admin_page,  # noqa: ANN001
+    live_server,  # noqa: ANN001
+    theme,  # noqa: ANN001
+    scheme,  # noqa: ANN001
+):
+    """With nothing to follow, "auto" is the component's: the system's preference.
+
+    Unfold is the case that asked for it: it writes no ``data-theme``, so this is
+    the way to a panel that is dark when the system is. On an admin with its dark
+    mode taken out, it is a dark panel on a light page, as before 0.61.0.
+    """
+    page = _open_panel(admin_page, live_server, scheme, theme)
+    page.evaluate("delete document.documentElement.dataset.theme")
+    assert _panel_is_dark(page) is (scheme == "dark")
+
+
 @pytest.mark.parametrize(
     ("theme", "dark"),
     [("light", False), ("soft light", False), ("dark", True), ("code", True)],
@@ -430,8 +449,13 @@ def test_a_project_rule_on_the_element_beats_the_scheme_rules(  # noqa: ANN201
     assert _panel_is_dark(page) is dark
 
 
-def test_the_header_toggle_pins_until_flipped_back(admin_page, live_server):  # noqa: ANN001, ANN201
-    """The toggle saves a scheme word, and a saved word pins as THEME's does."""
+def test_the_header_toggle_pins_until_it_is_turned_off(admin_page, live_server):  # noqa: ANN001, ANN201
+    """The toggle saves a scheme word, and a saved word pins as THEME's does.
+
+    It only ever writes "light" or "dark", so pressing it back changes the word
+    and leaves the pin. Only the button reads the word: with it off, the panel
+    follows the admin again.
+    """
     page = _open_panel(admin_page, live_server, "light", toggle=True)
     chat = page.locator(CHAT)
     toggle = chat.locator(".header-btn--theme")
@@ -454,6 +478,14 @@ def test_the_header_toggle_pins_until_flipped_back(admin_page, live_server):  # 
     open_sidebar(page)
     assert "light" in (chat.get_attribute("theme") or "").split()
     assert not _panel_is_dark(page)
+
+    with override_settings(DJANGO_ADMIN_AGENT={}):
+        page.reload()
+        expect(chat).to_be_attached()
+    open_sidebar(page)
+    assert "light" not in (chat.get_attribute("theme") or "").split()
+    page.evaluate("document.documentElement.dataset.theme = 'dark'")
+    assert _panel_is_dark(page)
 
 
 def test_with_theme_light_the_panel_stays_light_on_a_dark_admin(admin_page, live_server):  # noqa: ANN001, ANN201
