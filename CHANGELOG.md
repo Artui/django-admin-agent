@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.61.0] — 2026-11-09
+
 ### Changed
 
 - **The panel follows the admin's light and dark.** With `THEME` unset, naming
@@ -2657,7 +2659,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.60.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.61.0...HEAD
+[0.61.0]: https://github.com/Artui/django-admin-agent/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/Artui/django-admin-agent/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/Artui/django-admin-agent/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Artui/django-admin-agent/compare/v0.57.0...v0.58.0
