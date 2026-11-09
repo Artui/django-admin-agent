@@ -867,7 +867,12 @@ is gone from 0.59, with the <code>drf_mcp_server=</code> keyword it served.</p>
 <p class="admonition-title">Compatibility floor</p>
 <p>Python 3.11+ (tested 3.11–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
 5.2, 6.0, 6.1), <code>django-ag-ui&gt;=0.74.0</code> and <code>django-spec-agents&gt;=0.6.2</code>.
-Django Unfold 0.40+ is optional.</p>
+Django Unfold 0.40+ is optional, and what <code>COLLAPSE_TO = "bar"</code> clears under it
+<a href="../unfold/#what-each-version-did">depends on the version</a>. Browsers: Chrome 123+, Firefox 120+ and
+Safari 17.5+, the first versions with <code>light-dark()</code>, which the sidebar's
+themes use for their colours; below them it draws without its colours.
+Firefox 120 also lacks <code>:has()</code>, which arrives in 121: under Quiet, Soft and
+Ledger it shows a message's copy and retry under each interim bubble too.</p>
 <p>None of these windows has an upper bound, so this package installs
 alongside the current <code>django-ag-ui</code> on the day that ships rather than
 waiting for a release here. The floors are what is tested; nothing above
@@ -937,6 +942,8 @@ auto-confirm flag, presentation settings, skill catalog, bootstrap module URL,
 admin base URL, and route map), so the admin site does not need swapping. See
 <a href="../configuration/">Configuration</a> for the theming, tool-display, and skills
 settings.</p>
+<p>Under Django Unfold the <code>branding</code> block is hidden below its <code>xl</code> breakpoint, so
+use the mount in <a href="../unfold/#mounting-the-sidebar">Unfold &amp; vanilla support</a>.</p>
 <h3 id="option-b-sidebaradminsite">Option B — <code>SidebarAdminSite</code><a class="headerlink" href="#option-b-sidebaradminsite" title="Permanent link">&para;</a></h3>
 <p>If you prefer to swap the admin site, subclass (or instantiate)
 <code>SidebarAdminSite</code>. It adds the sidebar context to <code>each_context</code> under the

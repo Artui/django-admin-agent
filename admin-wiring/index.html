@@ -773,6 +773,11 @@ navigate, and the two attachment paths.</p>
 <td>The <code>data-tool-display</code> attribute (<code>grouped</code> / <code>inline</code> / <code>minimal</code> / <code>compact</code> / <code>full</code>; default <code>grouped</code>).</td>
 </tr>
 <tr>
+<td><code>tool_group_display</code></td>
+<td><code>DJANGO_ADMIN_AGENT["TOOL_GROUP_DISPLAY"]</code></td>
+<td>The <code>data-tool-group-display</code> attribute (<code>compact</code> / <code>full</code> / <code>minimal</code> / <code>inline</code>; default <code>compact</code>): how an opened step group draws its calls.</td>
+</tr>
+<tr>
 <td><code>theme</code>, <code>density</code>, <code>placement</code>, <code>text_animation</code></td>
 <td>the matching <code>DJANGO_ADMIN_AGENT</code> keys</td>
 <td>Themeable presentation attributes (<code>theme</code> / <code>density</code> / <code>placement</code> / <code>data-text-animation</code>), rendered only when set. See <a href="../configuration/#presentation">Configuration → Presentation</a>.</td>
@@ -781,6 +786,11 @@ navigate, and the two attachment paths.</p>
 <td><code>theme_toggle</code></td>
 <td><code>DJANGO_ADMIN_AGENT["THEME_TOGGLE"]</code></td>
 <td>The <code>data-theme-toggle</code> attribute — opts into the built-in light⇄dark header toggle, which flips only the scheme word of <code>theme</code> (off by default).</td>
+</tr>
+<tr>
+<td><code>collapse_to</code></td>
+<td><code>DJANGO_ADMIN_AGENT["COLLAPSE_TO"]</code></td>
+<td>The <code>collapse-to</code> attribute (<code>bar</code>), rendered only when set. See <a href="../configuration/#the-bottom-bar">Configuration → The bottom bar</a>.</td>
 </tr>
 <tr>
 <td><code>launcher_drag</code></td>
@@ -863,10 +873,11 @@ navigate, and the two attachment paths.</p>
 identical whichever you choose.</p>
 <h2 id="the-sidebar-template">The sidebar template<a class="headerlink" href="#the-sidebar-template" title="Permanent link">&para;</a></h2>
 <p><code>templates/django_admin_agent/sidebar.html</code> renders the <code>&lt;ag-ui-chat&gt;</code> custom
-element with the endpoint, title, auto-confirm, tool-display, and admin-base
-data attributes (plus <code>data-slash-commands="true"</code>, and the optional <code>theme</code> /
-<code>density</code> / <code>placement</code> / <code>data-text-animation</code> attributes when their settings
-are set, plus <code>data-tools-url</code> when the catalog endpoint is mounted); embeds the
+element with the endpoint, title, auto-confirm, tool-display, tool-group-display
+and admin-base data attributes (plus <code>data-slash-commands="true"</code>, and the
+optional <code>theme</code> / <code>density</code> / <code>placement</code> / <code>data-text-animation</code> / <code>collapse-to</code>
+attributes when their settings are set, plus <code>data-tools-url</code> when the catalog
+endpoint is mounted); embeds the
 route map and the skill catalog as two <code>json_script</code> blocks
 (<code>#django-admin-agent-routes</code>, <code>#django-admin-agent-skills</code>); and loads the
 bootstrap module. The bootstrap (<code>static/django_admin_agent/admin_agent.js</code>)
@@ -880,6 +891,9 @@ then:</p>
 <li>Reads the embedded skill catalog and calls <code>el.setSkills(...)</code>, and sets
    <code>el.skillContext</code> to a provider that derives <code>{path}</code> / <code>{selected_ids}</code>
    placeholder values from the current page.</li>
+<li>Under <code>collapse-to="bar"</code>, publishes the bar's height for the sidebar's
+   stylesheet, so the page makes room for it. See
+   <a href="../configuration/#the-bottom-bar">Configuration → The bottom bar</a>.</li>
 <li>Calls <code>registerAdminTools(el)</code> to register the
    <a href="../tools/#frontend-tools">frontend tools</a>.</li>
 </ol>
@@ -887,8 +901,8 @@ then:</p>
 <code>data-tools-url</code> (the <a href="https://artui.github.io/django-ag-ui/concepts/#tool-metadata-catalog"><code>&lt;prefix&gt;tools/</code> catalog endpoint</a>, named
 <code>&lt;namespace&gt;:tools</code>), whose labels come from each tool's <code>@tool(summary=)</code>.</p>
 <p>The themeable attributes (<code>theme</code> / <code>density</code> / <code>placement</code> /
-<code>data-text-animation</code>) and <code>data-tool-display</code> are read by the Web Component
-itself; this template is the seam where the <code>DJANGO_ADMIN_AGENT</code> settings become
+<code>data-text-animation</code>), <code>data-tool-display</code>, <code>data-tool-group-display</code> and
+<code>collapse-to</code> are read by the Web Component itself; this template is the seam where the <code>DJANGO_ADMIN_AGENT</code> settings become
 element attributes.</p>
 <h2 id="the-route-map">The route map<a class="headerlink" href="#the-route-map" title="Permanent link">&para;</a></h2>
 <p><code>build_route_map()</code> walks <code>admin.site._registry</code> and emits, per registered

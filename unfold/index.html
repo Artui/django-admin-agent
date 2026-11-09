@@ -464,6 +464,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#mounting-the-sidebar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mounting the sidebar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#why-one-driver-covers-both" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -493,6 +504,34 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-bottom-bar-under-unfold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The bottom bar under Unfold
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The bottom bar under Unfold">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-each-version-did" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What each version did
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -569,6 +608,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#mounting-the-sidebar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mounting the sidebar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#why-one-driver-covers-both" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -598,6 +648,34 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-bottom-bar-under-unfold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The bottom bar under Unfold
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The bottom bar under Unfold">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-each-version-did" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What each version did
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -641,8 +719,31 @@
 <p>The sidebar works against <strong>vanilla Django admin</strong> and <strong><a href="https://github.com/unfoldadmin/django-unfold">Django
 Unfold</a></strong> through a single shared
 DOM driver. There is no Python dependency on Unfold: the package never imports
-it at module load, and the only Unfold-specific code is a runtime-detected
-JavaScript shim in the browser.</p>
+it at module load. The Unfold-specific code is a runtime-detected JavaScript shim
+in the browser and, under <code>COLLAPSE_TO = "bar"</code>, a few rules in the sidebar's
+stylesheet.</p>
+<h2 id="mounting-the-sidebar">Mounting the sidebar<a class="headerlink" href="#mounting-the-sidebar" title="Permanent link">&para;</a></h2>
+<p>The installation guide's mount puts the tag in the <code>branding</code> block. Under Unfold
+that block sits in a container hidden below its <code>xl</code> breakpoint, so the sidebar
+would be mounted and invisible at a window of 1280px and shown at 1500px. Mount it
+in the <code>base</code> block instead:</p>
+<div class="language-django highlight"><span class="filename">templates/admin/base_site.html</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">{%</span> <span class="k">extends</span> <span class="s2">"admin/base.html"</span> <span class="cp">%}</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">{%</span> <span class="k">load</span> <span class="nv">django_admin_agent</span> <span class="cp">%}</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="cp">{%</span> <span class="k">block</span> <span class="nv">branding</span> <span class="cp">%}</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="cp">{%</span> <span class="k">include</span> <span class="s2">"unfold/helpers/site_branding.html"</span> <span class="cp">%}</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="cp">{%</span> <span class="k">block</span> <span class="nv">base</span> <span class="cp">%}</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="cp">{{</span> <span class="nb">block</span><span class="nv">.super</span> <span class="cp">}}</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="cp">{%</span> <span class="k">django_admin_agent_sidebar</span> <span class="cp">%}</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
+</span></code></pre></div>
+<p>Unfold's dashboard, <code>admin/index.html</code>, extends <code>admin/base.html</code> rather than
+<code>base_site.html</code>, so with this mount the dashboard has no sidebar. Unfold's change
+list and change form override the <code>footer</code> block, so that block does not reach
+them either. Measured on Unfold 0.110.1. The include's path is that version's;
+0.40.0 has no such template.</p>
 <h2 id="why-one-driver-covers-both">Why one driver covers both<a class="headerlink" href="#why-one-driver-covers-both" title="Permanent link">&para;</a></h2>
 <p>Unfold preserves Django's structural DOM contracts, which is exactly what the
 frontend tool handlers target:</p>
@@ -675,19 +776,120 @@ every function is a no-op and <code>admin_tools.js</code> can call them uncondit
 <p>The sidebar's stylesheet maps its accent, highlight ring and font onto Django
 admin's <code>--primary</code>, <code>--link-fg</code> and <code>--font-family-primary</code>. Unfold defines none
 of the three, so under Unfold the panel keeps the component's own Quiet colours
-and font. The stylesheet's fourth line, the keyboard focus outline at
-<code>CanvasText</code>, names no admin token and applies there too. To give it Unfold's, set the tokens on the element in your own CSS; see
+and font. To give it Unfold's, set the tokens on the element in your own CSS; see
 <a href="../configuration/#colours">Configuration → Colours</a>.</p>
+<h2 id="the-bottom-bar-under-unfold">The bottom bar under Unfold<a class="headerlink" href="#the-bottom-bar-under-unfold" title="Permanent link">&para;</a></h2>
+<p><code>COLLAPSE_TO = "bar"</code> works under Unfold, and the sidebar makes room for the bar as
+it does on Django's admin (<a href="../configuration/#the-bottom-bar">Configuration → The bottom bar</a>).
+<strong>How much it clears depends on the version</strong>: every row on 0.110.1, less below it,
+and on 0.40.0 not the Save button. <a href="#what-each-version-did">The table below</a> says what
+was measured.</p>
+<p>A margin on the page is not enough here. From its <code>lg</code> breakpoint, 64rem, Unfold pins
+its save row, its pagination row and its bulk actions to the foot of the window, where
+no margin lifts them. Below it the save and pagination rows sit in the flow after
+<code>#content</code>, at the end of a page that can be exactly a window tall, so the page's
+margin pushes them down rather than clearing them, and a short form would have its
+Save button under the bar with nothing to scroll. So under the bar the stylesheet also
+sets offsets and margins on elements it finds <strong>by Unfold's Tailwind class names</strong>, and
+gives <code>#nav-sidebar-inner</code> a shorter minimum height:</p>
+<table>
+<thead>
+<tr>
+<th>Selector</th>
+<th>What it lifts</th>
+<th>How</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[class~="fixed"][class~="lg:bottom-0"]</code></td>
+<td>The bulk actions</td>
+<td><code>bottom</code></td>
+<td>Always</td>
+</tr>
+<tr>
+<td><code>[class~="lg:sticky"][class~="lg:bottom-0"]</code></td>
+<td>The save row, the pagination row</td>
+<td><code>bottom</code></td>
+<td>From 64rem wide</td>
+</tr>
+<tr>
+<td><code>[class~="lg:sticky"][class~="lg:bottom-0"]</code></td>
+<td>The save row, the pagination row</td>
+<td><code>margin-bottom</code></td>
+<td>Below 64rem wide</td>
+</tr>
+</tbody>
+</table>
+<p>These reach further than a page margin and depend on names Unfold can change in any
+release. If it renames one, the row it named goes back under the bar, and nothing
+else breaks. They have no specificity, so they rely on Unfold's stylesheet being in
+cascade layers, which any unlayered rule beats. The sidebar's other rules have no
+specificity either, and any unlayered rule of your own beats all of them, unless it is
+wrapped in <code>:where()</code> too and comes before the sheet. A rule in a cascade layer loses to them, and an Unfold
+project's Tailwind utilities are layered, so a utility class on a row will not move it.</p>
+<h3 id="what-each-version-did">What each version did<a class="headerlink" href="#what-each-version-did" title="Permanent link">&para;</a></h3>
+<p><strong>Only Chromium was measured, at widths from 390px to 1500px.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Unfold</th>
+<th>Django</th>
+<th>How it was run</th>
+<th>From 64rem wide</th>
+<th>Below 64rem wide</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.110.1</td>
+<td>6.1</td>
+<td><code>tests/e2e_unfold</code> from Python 3.12</td>
+<td>Every row clear of the bar, at any scroll.</td>
+<td>The save and pagination rows clear of the bar at the foot of the page, which is where they are, and the bulk actions always.</td>
+</tr>
+<tr>
+<td>0.91.0</td>
+<td>5.2</td>
+<td><code>tests/e2e_unfold</code> on Python 3.11</td>
+<td>The save and pagination rows and the nav are clear. The bulk actions use <code>lg:bottom-[64px]</code>, which no selector reads: they stay clear of the bar, but lie over the lifted pagination row while rows are selected.</td>
+<td>The save and pagination rows are clear. <strong>The bar covers the bulk actions</strong>, whose <code>bottom-0</code> no selector reads, at <code>[790,832]</code> against the bar's top at 803 in a window of 800x844.</td>
+</tr>
+<tr>
+<td>0.81.0</td>
+<td>5.2</td>
+<td>By hand, once</td>
+<td>As 0.91.0.</td>
+<td>As 0.91.0.</td>
+</tr>
+<tr>
+<td>0.40.0</td>
+<td>5.2</td>
+<td>By hand, once</td>
+<td>Its stylesheet has no layers, and the margin and the nav's padding still apply, so a page's last row comes clear. <strong>Its save row is pinned under class names no selector reads, so the bar covers the Save button</strong>, at <code>[646,684]</code> against the bar's top at 659 on a short form that does not scroll.</td>
+<td><strong>The bar covers the Save button</strong> here too, at <code>[790,828]</code> against 803 in a window of 800x844.</td>
+</tr>
+</tbody>
+</table>
+<p>Do not use the bar on 0.40.0 without lifting its save row yourself. Versions in
+between, Firefox and Safari have not been run. Below 0.110.1, expect the page's margin
+to hold, and check every row your version pins to the foot, the Save button first. A
+project on another version can lift such a row itself with
+<code>--django-admin-agent-bar-height</code>, which is unset without the bar.</p>
 <h2 id="the-end-to-end-suite">The end-to-end suite<a class="headerlink" href="#the-end-to-end-suite" title="Permanent link">&para;</a></h2>
-<p>Behaviour against a live admin is verified by a browser end-to-end suite under
-<code>tests/e2e/</code>, driven by Playwright against a live server. It is <strong>separate</strong> from
-the unit suite (which <code>make test</code> runs with the 100% coverage gate) and is <strong>not</strong>
-part of the default test run — it exercises the JS bundle and the server over
-HTTP, so it has its own settings and no coverage gate.</p>
-<p>Run it with:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>make<span class="w"> </span>test-e2e
+<p>Behaviour against a live admin is verified by two browser end-to-end suites, driven
+by Playwright against a live server: <code>tests/e2e/</code> on Django's admin, and
+<code>tests/e2e_unfold/</code> with Unfold in front of it, since one process holds one settings
+module. They are <strong>separate</strong> from
+the unit suite (which <code>make test</code> runs with the 100% coverage gate) and are <strong>not</strong>
+part of the default test run: they exercise the JS bundle and the server over
+HTTP, so they have their own settings and no coverage gate.</p>
+<p>Run both with:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>make<span class="w"> </span>test-e2e
 </span></code></pre></div>
-<p>The suite logs into the live admin as a superuser, then asserts that:</p>
+<p><code>tests/e2e/</code> logs into the live admin as a superuser, then asserts, among other
+things, that:</p>
 <ul>
 <li>the <code>&lt;ag-ui-chat&gt;</code> sidebar renders and its chat shell is visible on admin
   pages;</li>
@@ -700,9 +902,11 @@ HTTP, so it has its own settings and no coverage gate.</p>
   <code>--primary</code>, <code>--link-fg</code> and <code>--font-family-primary</code>, in the light and dark
   schemes and under the admin's theme toggle.</li>
 </ul>
-<p>The e2e settings install <code>django-unfold</code> (via the <code>e2e</code> dependency group), so
-the shim can be exercised alongside vanilla admin. <code>make test-e2e</code> requires a
-browser (Playwright) and is excluded from the default <code>make test</code>.</p>
+<p><code>tests/e2e_unfold/</code> runs the Unfold version <code>uv.lock</code> resolves from the <code>e2e</code>
+dependency group, which is 0.110.1 from Python 3.12 and 0.91.0 on Python 3.11, and
+covers the bottom bar only. No browser test exercises the shim's tab
+activation or its Go button. <code>make test-e2e</code> requires a browser (Playwright) and is
+excluded from the default <code>make test</code>.</p>
 
 
 

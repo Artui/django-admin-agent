@@ -721,6 +721,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.tool_group_display" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tool_group_display
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#django_admin_agent.conf.AdminAgentSettings.message_actions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -835,6 +846,17 @@
     <span class="md-ellipsis">
       
         start_open
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.collapse_to" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        collapse_to
       
     </span>
   </a>
@@ -1439,6 +1461,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.tool_group_display" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tool_group_display
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#django_admin_agent.conf.AdminAgentSettings.message_actions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1553,6 +1586,17 @@
     <span class="md-ellipsis">
       
         start_open
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.collapse_to" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        collapse_to
       
     </span>
   </a>
@@ -2689,8 +2733,45 @@ Passed to the Web Component as <code>autoConfirm</code>.</p>
         <p>How tool calls are drawn: <code>"grouped"</code>, <code>"inline"</code>, <code>"minimal"</code>,
 <code>"compact"</code> or <code>"full"</code>. Passed to the Web Component as the
 <code>data-tool-display</code> attribute. Defaults to <code>"grouped"</code>, which folds a
-run's consecutive calls into one "Worked through N steps" row with the
-<code>full</code> cards one click down; <code>"full"</code> keeps a card per call.</p>
+run's consecutive calls into one "Worked through N steps" row with the calls
+one click down, drawn as
+<a class="autorefs autorefs-internal" title="tool_group_display
+
+
+  
+      instance-attribute
+  " href="#django_admin_agent.conf.AdminAgentSettings.tool_group_display"><code>tool_group_display</code></a>
+says; <code>"full"</code> keeps a card per call.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.tool_group_display" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">tool_group_display</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.tool_group_display" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">tool_group_display</span><span class="p">:</span> <span class="nb">str</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>How an opened step group draws its calls under <code>tool_display="grouped"</code>:
+<code>"compact"</code>, <code>"full"</code>, <code>"minimal"</code> or <code>"inline"</code>. Passed to the Web
+Component as the <code>data-tool-group-display</code> attribute. Defaults to
+<code>"compact"</code>, one row per call; <code>"full"</code> draws a full card per call, which
+is what an opened group drew before 0.61.0. The component reads an unknown
+value as <code>"full"</code> and ignores this under the four card modes of
+<code>tool_display</code>.</p>
 
     </div>
 
@@ -2789,11 +2870,17 @@ uses the built-in admin catalog
         <p>Web Component theme: up to two words, in any order, a theme name and a
 scheme. The names are <code>"quiet"</code> (the default), <code>"soft"</code>, <code>"ledger"</code>
 and <code>"classic"</code> (the look before web component 0.45.0); the schemes are
-<code>"light"</code> (the default), <code>"dark"</code> and <code>"auto"</code>, which follows
-<code>prefers-color-scheme</code>. So <code>"soft dark"</code>, or <code>"dark"</code> alone for
-Quiet in the dark scheme. <code>None</code> leaves the component default (Quiet,
-light). The accent is not set here: it follows Django admin's
-<code>--primary</code> through the sidebar's stylesheet.</p>
+<code>"light"</code>, <code>"dark"</code> and <code>"auto"</code>. So <code>"soft dark"</code>, or <code>"dark"</code>
+alone for Quiet in the dark scheme. <code>None</code> leaves the component default
+(Quiet).</p>
+<p>Without <code>"light"</code> or <code>"dark"</code> (unset, a name alone, or <code>"auto"</code>) the
+panel's light and dark follow the admin's, both its <code>prefers-color-scheme</code>
+styles and its <code>html[data-theme]</code> toggle, through the sidebar's
+stylesheet. <code>"light"</code> or <code>"dark"</code> pins the panel to that scheme. An admin
+writing no <code>html[data-theme]</code>, as under Unfold or with its dark mode taken
+out, has nothing to follow: there the panel is light, and <code>"auto"</code> means the
+system's preference. The accent is not set here either: it follows Django
+admin's <code>--primary</code>.</p>
 
     </div>
 
@@ -3030,6 +3117,50 @@ visit this decides, and the stored preference wins afterwards.</p>
 
 
 
+<h3 id="django_admin_agent.conf.AdminAgentSettings.collapse_to" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">collapse_to</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.collapse_to" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">collapse_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>What a collapsed panel becomes. <code>"bar"</code> replaces the round launcher with
+a strip along the bottom edge of the window, showing the title and the unread
+badge, and rendered as the <code>collapse-to</code> attribute. It applies to the corner
+placements, <code>"side"</code> and <code>"full"</code>. <code>None</code> (the default) renders nothing,
+and every placement stays as it is.</p>
+<p><code>"bar"</code> is the only value: any other is treated as unset, with no error, as
+the component treats a value it does not know. The component's <code>"none"</code>
+hides the collapsed panel for a host control to bring back, and the admin has
+no such control, so a project setting it would have a panel it cannot reopen.</p>
+<p>The bar is fixed over the page, so the sidebar makes room for it: its script
+publishes the height as <code>--django-admin-agent-bar-height</code> on the root, and
+its stylesheet keeps the page's last row clear of the bar.</p>
+<p>With <a class="autorefs autorefs-internal" title="launcher_drag
+
+
+  
+      instance-attribute
+  " href="#django_admin_agent.conf.AdminAgentSettings.launcher_drag"><code>launcher_drag</code></a>
+on, the open panel moves by its header and remembers its spot, above the bar;
+with it off, the panel stays on its dock at the bar's end: the right, or the
+left under <code>"bottom-left"</code>.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
 <h3 id="django_admin_agent.conf.AdminAgentSettings.launcher_drag" class="doc doc-heading">
             <span class="doc doc-object-name doc-attribute-name">launcher_drag</span>
 
@@ -3083,8 +3214,12 @@ floating one.</p>
   
       instance-attribute
   " href="#django_admin_agent.conf.AdminAgentSettings.theme"><code>theme</code></a> (<code>"soft"</code> to
-<code>"soft dark"</code>) and saves only that word. Defaults to <code>False</code> — the
-admin's own theme usually governs.</p>
+<code>"soft dark"</code>) and saves only that word. The saved word pins the panel as
+a scheme word in <code>theme</code> does, so a user who presses it stops following
+the admin's own toggle for good in that browser: pressing it again only
+changes the word. Setting this back to <code>False</code> stops the pin, because the
+word is read only while the button is on. Defaults to <code>False</code>: the panel
+already follows the admin's toggle.</p>
 
     </div>
 
