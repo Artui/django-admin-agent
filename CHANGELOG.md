@@ -22,16 +22,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The bar is fixed over the page, so the page makes room. `admin_agent.js`
   publishes the bar's height as `--django-admin-agent-bar-height` on the root, and
   `admin_agent.css` gives `#content` a bottom margin and the nav a bottom padding,
-  in rules any project rule beats. It writes no component token. A project's own
+  in rules any unlayered project rule beats. It writes no component token, and under
+  a placement that draws no bar it writes nothing at all. A project's own
   footer below `#content` stays under the bar, and pads itself with that property.
   `LAUNCHER_DRAG` decides what the open panel does above the bar: it moves by its
   header and remembers its spot, or with the setting off stays on its dock.
 
   **Under Django Unfold the sheet reaches further than a margin**, because no
-  margin lifts the rows Unfold pins to the window's foot. It sets `bottom` on
-  selectors that read Unfold's Tailwind class names, so it depends on those names
-  and on Unfold's sheet being in cascade layers. The suite runs 0.110.1; the Unfold
-  guide says what 0.81.0 and 0.40.0 did, and what was not run.
+  margin lifts the rows Unfold pins to the window's foot, and the page's margin only
+  pushes down the rows that follow `#content` below its `lg` breakpoint. It sets
+  `bottom` and, below 64rem, `margin-bottom` on selectors that read Unfold's Tailwind
+  class names, so it depends on those names and on Unfold's sheet being in cascade
+  layers. The suite runs 0.110.1 from Python 3.12 and 0.91.0 on 3.11. **What holds
+  depends on the version**: every row is clear on 0.110.1, the bar covers the bulk
+  actions below 64rem on 0.91.0 and 0.81.0, and it covers the Save button on 0.40.0.
+  The Unfold guide has the table, and what was not run.
 
 ### Changed
 

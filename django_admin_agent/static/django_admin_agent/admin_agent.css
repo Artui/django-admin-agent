@@ -74,8 +74,9 @@
  * what each can set. Django's own #content padding would beat a padding here, so
  * #content takes a margin. Its body padding loses as well, and would not help,
  * since #container overflows a body of height 100% on a long page. #content is
- * what both Django's admin and Unfold have, and it grows with the rows in it. A
- * project's footer below it stays under the bar; pad that with the same property.
+ * what both Django's admin and Unfold have, but its margin reaches only what is in
+ * it or is moved down by it: a row after it needs a rule of its own. A project's
+ * footer below it stays under the bar; pad that with the same property.
  *
  * The nav runs behind the bar too, so it takes a padding, which neither admin
  * sets, for its last row to scroll clear of it. Unfold's inner box is a full
@@ -99,11 +100,16 @@
 }
 
 /*
- * Unfold pins its save row, its pagination row and its bulk actions to the foot of
- * the window, so no margin lifts them: only their own offset does. Its Tailwind
- * sheet is in cascade layers, which an unlayered rule beats whatever the
- * specificity. Below its lg breakpoint the two sticky rows are position: relative,
- * where a bottom offset would shift them over the row above.
+ * From its lg breakpoint Unfold pins its save row, its pagination row and its bulk
+ * actions to the foot of the window, so no margin lifts them: only their own offset
+ * does. Its Tailwind sheet is in cascade layers, which an unlayered rule beats
+ * whatever the specificity.
+ *
+ * Below lg the two sticky rows are position: relative, in the flow after #content,
+ * at the end of a page that can be exactly a window tall. An offset would shift them
+ * over the row above and leave the room where it was, and #content's margin only
+ * pushes them down, so they take a margin of their own. The media query is the exact
+ * complement of the one above it, so one of the two applies at every width.
  */
 :where(html[data-django-admin-agent-bar] [class~="fixed"][class~="lg:bottom-0"]) {
   bottom: var(--django-admin-agent-bar-height);
@@ -112,5 +118,11 @@
 @media (min-width: 64rem) {
   :where(html[data-django-admin-agent-bar] [class~="lg:sticky"][class~="lg:bottom-0"]) {
     bottom: var(--django-admin-agent-bar-height);
+  }
+}
+
+@media not all and (min-width: 64rem) {
+  :where(html[data-django-admin-agent-bar] [class~="lg:sticky"][class~="lg:bottom-0"]) {
+    margin-bottom: var(--django-admin-agent-bar-height);
   }
 }

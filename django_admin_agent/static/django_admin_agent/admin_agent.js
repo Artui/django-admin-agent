@@ -73,8 +73,12 @@ function skillContext() {
 //
 // Never --ag-ui-viewport-inset-bottom: the component would take the bar's height
 // off the room it fills, which can flip the bar it is measuring.
+//
+// data-collapsed-to, not collapse-to: the component writes it from the placement as
+// well, and a placement that keeps its rail, its header or no collapsed state at all
+// never draws a bar, so its page has nothing to make room for.
 function makeRoomForBar(el) {
-  if (el.getAttribute("collapse-to") !== "bar") {
+  if (el.getAttribute("data-collapsed-to") !== "bar") {
     return;
   }
   const root = document.documentElement;

@@ -24,7 +24,8 @@ is gone from 0.59, with the `drf_mcp_server=` keyword it served.
 !!! info "Compatibility floor"
     Python 3.11+ (tested 3.11–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
     5.2, 6.0, 6.1), `django-ag-ui>=0.74.0` and `django-spec-agents>=0.6.2`.
-    Django Unfold 0.40+ is optional. Browsers: Chrome 123+, Firefox 120+ and
+    Django Unfold 0.40+ is optional, and what `COLLAPSE_TO = "bar"` clears under it
+    [depends on the version](unfold.md#what-each-version-did). Browsers: Chrome 123+, Firefox 120+ and
     Safari 17.5+, the first versions with `light-dark()`, which the sidebar's
     themes use for their colours; below them it draws without its colours.
     Firefox 120 also lacks `:has()`, which arrives in 121: under Quiet, Soft and

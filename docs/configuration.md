@@ -100,10 +100,13 @@ emitted, enabling the skill palette.
 
 `COLLAPSE_TO = "bar"` replaces the round launcher with a strip along the bottom of
 the window, showing the title, the unread badge, a running mark and the history
-button. Pressing the strip opens the panel, which rises from the bar's right end.
-It replaces the launcher only, so it applies to the default corner placement,
-`"bottom-left"`, `"side"` and `"full"`; `"sidebar"` keeps its rail, `"embedded"`
-its header, and `"page"` has no collapsed state.
+button. The title button opens the panel; the rest of the strip is not a control.
+The panel rises from the bar's right end, or its left end under `"bottom-left"`, and
+`"side"` and `"full"` keep their own shape and stop at the bar. It replaces the
+launcher only, so it applies to the default corner placement, `"bottom-left"`,
+`"side"` and `"full"`; `"sidebar"` keeps its rail, `"embedded"` its header, and
+`"page"` has no collapsed state, so under those three it does nothing, to the panel
+or to the page.
 
 The component's other value, `"none"`, is not offered: it hides the collapsed
 panel for a control of the host's to bring back, and the admin has no such
@@ -119,9 +122,12 @@ the sidebar makes the room. `admin_agent.js` writes the height to
 - under Django Unfold, lift the rows it pins to the window's foot. See
   [Unfold & vanilla support](unfold.md#the-bottom-bar-under-unfold).
 
-These rules are wrapped in `:where()`, like the rest of the sheet, so any rule of
-your own beats them. Without `COLLAPSE_TO` neither the attribute nor the property
-is written, and the page keeps its own margins.
+These rules are wrapped in `:where()`, like the rest of the sheet, so any unlayered
+rule of your own beats them. A rule in a cascade layer loses to them whatever its
+specificity, which is how the cascade treats every unlayered rule. A rule wrapped in
+`:where()` too has no weight either and loses on order, since the sheet is linked
+from the body. Without `COLLAPSE_TO`, and under a placement that draws no bar, neither
+the attribute nor the property is written, and the page keeps its own margins.
 
 The height goes to 0 when nothing of the bar is left to clear: on a phone's width
 while the open panel covers it, and while a project's CSS sizes the panel to fill
@@ -139,7 +145,7 @@ know it is there. Pad it with the same property, which is unset without the bar:
 
 `LAUNCHER_DRAG` decides what the open panel does above the bar. With it on, the
 default, the panel moves by its header and remembers its spot. With it off, the
-panel stays on its dock at the bar's right end. The bar itself never moves.
+panel stays on its dock at the bar's end. The bar itself never moves.
 
 ### Colours
 

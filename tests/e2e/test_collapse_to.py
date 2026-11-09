@@ -60,6 +60,9 @@ _ROW_AT_THE_FOOT = """([selector, row]) => {
   };
 }"""
 
+_COMPUTED = """([row, property]) =>
+  getComputedStyle(document.querySelector(row)).getPropertyValue(property)"""
+
 _NAV_FOOT = """(selector) => {
   window.scrollTo(0, 400);
   const chat = document.querySelector(selector);
@@ -254,10 +257,42 @@ def test_the_room_is_made_under_a_strict_style_src(admin_page, live_server):  # 
 
 
 @override_settings(DJANGO_ADMIN_AGENT=BAR_SETTINGS)
-def test_a_projects_own_rule_beats_the_room_the_sidebar_makes(admin_page, live_server):  # noqa: ANN001, ANN201
+@pytest.mark.parametrize(
+    ("row", "property_name"),
+    [
+        ("#content", "margin-bottom"),
+        ("#nav-sidebar", "padding-bottom"),
+    ],
+)
+def test_an_unlayered_project_rule_beats_the_room_the_sidebar_makes(  # noqa: ANN201
+    admin_page,  # noqa: ANN001
+    live_server,  # noqa: ANN001
+    row,  # noqa: ANN001
+    property_name,  # noqa: ANN001
+):
+    """The least weight a rule can have, one type selector, wins against none.
+
+    The sheet is linked from the body, after anything in the head, so a rule of no
+    weight at all would lose on order. Dropping ``:where()`` from the sheet's rule
+    gives it more than this one has.
+    """
     _open_bar(admin_page, live_server)
-    admin_page.add_style_tag(content="#content { margin-bottom: 7px; }")
-    assert admin_page.evaluate(_STATE, CHAT)["contentMargin"] == "7px"
+
+    admin_page.add_style_tag(content=f"html :where({row}) {{ {property_name}: 7px; }}")
+
+    assert admin_page.evaluate(_COMPUTED, [row, property_name]) == "7px"
+
+
+@override_settings(DJANGO_ADMIN_AGENT=BAR_SETTINGS)
+def test_a_layered_project_rule_loses_to_the_room_the_sidebar_makes(admin_page, live_server):  # noqa: ANN001, ANN201
+    """The cascade has an unlayered rule beat a layered one whatever the specificity."""
+    state = _open_bar(admin_page, live_server)
+
+    admin_page.add_style_tag(content="@layer mine { #content { margin-bottom: 7px; } }")
+
+    assert admin_page.evaluate(_COMPUTED, ["#content", "margin-bottom"]) == (
+        f"{state['barHeight']}px"
+    )
 
 
 @pytest.mark.parametrize("settings", [{}, {"COLLAPSE_TO": "none"}, {"COLLAPSE_TO": "auto"}])
@@ -280,11 +315,121 @@ def test_without_the_bar_the_page_and_the_launcher_stay_as_they_are(
               ),
               margin: getComputedStyle(document.getElementById("content")).marginBottom,
               padding: getComputedStyle(document.getElementById("nav-sidebar")).paddingBottom,
+              sizing: getComputedStyle(document.getElementById("nav-sidebar")).boxSizing,
             })"""
         )
-        assert state == {"stamped": False, "published": "", "margin": "0px", "padding": "0px"}
+        assert state == {
+            "stamped": False,
+            "published": "",
+            "margin": "0px",
+            "padding": "0px",
+            "sizing": "content-box",
+        }
+
+        # A rule of the sheet's out of its scope would compute to nothing and still
+        # win, since an unlayered rule beats any layered one. Zero alone cannot tell.
+        admin_page.add_style_tag(
+            content="""@layer mine {
+              #content { margin-bottom: 9px; }
+              #nav-sidebar { padding-bottom: 9px; }
+            }"""
+        )
+        assert admin_page.evaluate(_COMPUTED, ["#content", "margin-bottom"]) == "9px"
+        assert admin_page.evaluate(_COMPUTED, ["#nav-sidebar", "padding-bottom"]) == "9px"
 
         open_sidebar(admin_page)
+
+
+@pytest.mark.parametrize("placement", [None, "bottom-left", "side", "full"])
+def test_the_placements_the_launcher_collapses_from_draw_the_bar_and_make_room(  # noqa: ANN201
+    admin_page,  # noqa: ANN001
+    live_server,  # noqa: ANN001
+    placement,  # noqa: ANN001
+):
+    config = {**BAR_SETTINGS, **({"PLACEMENT": placement} if placement else {})}
+    with override_settings(DJANGO_ADMIN_AGENT=config):
+        admin_page.set_viewport_size({"width": 1280, "height": 700})
+        state = _open_bar(admin_page, live_server)
+
+    assert state["stamped"] is True, state
+    assert state["barHeight"] > 0, state
+    assert state["contentMargin"] == f"{state['barHeight']}px", state
+
+
+@pytest.mark.parametrize("placement", ["sidebar", "embedded", "page"])
+def test_a_placement_that_never_draws_the_bar_leaves_the_page_untouched(  # noqa: ANN201
+    admin_page,  # noqa: ANN001
+    live_server,  # noqa: ANN001
+    placement,  # noqa: ANN001
+):
+    """``collapse-to`` is rendered all the same: the component decides it means nothing here."""
+    with override_settings(DJANGO_ADMIN_AGENT={**BAR_SETTINGS, "PLACEMENT": placement}):
+        admin_page.set_viewport_size({"width": 1280, "height": 700})
+        admin_page.goto(f"{live_server.url}/admin/testapp/author/")
+        admin_page.wait_for_function(
+            "(s) => { const c = document.querySelector(s); return c && c.barHeight !== undefined; }",
+            arg=CHAT,
+        )
+
+        chat = admin_page.locator(CHAT)
+        assert chat.get_attribute("collapse-to") == "bar"
+        assert chat.get_attribute("data-collapsed-to") != "bar"
+        state = admin_page.evaluate(
+            """(selector) => ({
+              height: document.querySelector(selector).barHeight,
+              stamped: document.documentElement.hasAttribute("data-django-admin-agent-bar"),
+              published: document.documentElement.style.getPropertyValue(
+                "--django-admin-agent-bar-height"
+              ),
+              margin: getComputedStyle(document.getElementById("content")).marginBottom,
+              padding: getComputedStyle(document.getElementById("nav-sidebar")).paddingBottom,
+              sizing: getComputedStyle(document.getElementById("nav-sidebar")).boxSizing,
+            })""",
+            CHAT,
+        )
+        assert state == {
+            "height": 0,
+            "stamped": False,
+            "published": "",
+            "margin": "0px",
+            "padding": "0px",
+            "sizing": "content-box",
+        }
+
+
+_PANEL_ENDS = """(selector) => {
+  const panel = document.querySelector(selector).getBoundingClientRect();
+  return { left: panel.left, right: innerWidth - panel.right };
+}"""
+
+
+@pytest.mark.parametrize(
+    ("placement", "width"),
+    [(None, 1280), (None, 390), ("bottom-left", 1280), ("bottom-left", 390)],
+)
+def test_the_title_opens_the_panel_at_the_end_of_the_bar_its_placement_keeps(  # noqa: ANN201
+    admin_page,  # noqa: ANN001
+    live_server,  # noqa: ANN001
+    placement,  # noqa: ANN001
+    width,  # noqa: ANN001
+):
+    config = {**BAR_SETTINGS, **({"PLACEMENT": placement} if placement else {})}
+    with override_settings(DJANGO_ADMIN_AGENT=config):
+        admin_page.set_viewport_size({"width": width, "height": 700})
+        state = _open_bar(admin_page, live_server)
+        chat = admin_page.locator(CHAT)
+
+        # The strip itself is not the control: only its title button opens the panel.
+        admin_page.mouse.click(width / 2, state["barBox"][1] + state["barHeight"] / 2)
+        admin_page.wait_for_timeout(200)
+        assert chat.get_attribute("collapsed") is not None
+
+        chat.locator(".launcher").click()
+        expect(chat.locator(".input")).to_be_visible()
+        admin_page.wait_for_timeout(400)
+
+        ends = admin_page.evaluate(_PANEL_ENDS, CHAT)
+        assert ends["left" if placement == "bottom-left" else "right"] <= 24, ends
 
 
 def _drag_header(page, by_x=-200, by_y=-120):  # noqa: ANN001, ANN202
@@ -308,9 +453,13 @@ def test_a_docked_panel_moves_by_its_header_and_remembers_its_spot(admin_page, l
     admin_page.wait_for_timeout(400)
     docked = admin_page.locator(f"{CHAT} .header").bounding_box()
 
+    bar = admin_page.locator(f"{CHAT} [part~='bar']").bounding_box()
+
     moved = _drag_header(admin_page)
     assert moved["x"] < docked["x"] - 100, (docked, moved)
     assert moved["y"] < docked["y"] - 60, (docked, moved)
+    # The panel moves over the bar, which stays along the foot of the window.
+    assert admin_page.locator(f"{CHAT} [part~='bar']").bounding_box() == bar
 
     admin_page.reload()
     expect(admin_page.locator(f"{CHAT} .input")).to_be_visible()

@@ -165,7 +165,7 @@ Change a rule here and change the config with it, or they drift apart again.
 | django-ag-ui | 0.74.0 | from PyPI (`>=0.74.0`, no ceiling) |
 | django-ag-ui[mcp] (`[mcp]` extra) | 0.74.0 | from PyPI (`>=0.74.0`, no ceiling) |
 | django-spec-agents | 0.6.2 | from PyPI (`>=0.6.2`, no ceiling) |
-| Django Unfold (supported, optional) | 0.40 | latest in matrix |
+| Django Unfold (supported, optional) | 0.40; the bottom bar's reach depends on the version, `docs/unfold.md` | the two `uv.lock` resolves, bottom bar only |
 | Browser (Chrome / Firefox / Safari) | 123 / 120 / 17.5 | latest Chromium in the e2e suite only |
 
 This table and the "Compatibility floor" admonition in `docs/installation.md`

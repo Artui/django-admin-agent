@@ -168,7 +168,8 @@ class AdminAgentSettings:
 
     With [`launcher_drag`][django_admin_agent.conf.AdminAgentSettings.launcher_drag]
     on, the open panel moves by its header and remembers its spot, above the bar;
-    with it off, the panel stays on its dock at the bar's right end."""
+    with it off, the panel stays on its dock at the bar's end: the right, or the
+    left under ``"bottom-left"``."""
 
     launcher_drag: bool
     """When ``False``, the sidebar stays where your CSS puts it: the collapsed
