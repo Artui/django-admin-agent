@@ -37,10 +37,10 @@
  * color-scheme on its host. A rule here on the host outranks the component's
  * own :host rules whatever their specificity, because the page's styles come
  * before a shadow tree's in the cascade. So the component's "auto" (which
- * follows the operating system, not the admin's toggle) is overridden too,
- * while the words that pin are excluded: "light" and "dark" from THEME or from
- * the header toggle, which rewrites the attribute, and "code", a theme with no
- * light half.
+ * follows the operating system, not the admin's toggle) is overridden too. The
+ * words that pin are not: the component declares "light" and "dark", from THEME
+ * or from the header toggle, which rewrites the attribute, and "code", a theme
+ * with no light half, as !important, which beats these rules from outside.
  *
  * Keyed on the html[data-theme] Django's theme script writes, rather than on
  * an inherited color-scheme: Django declares color-scheme on html only from
@@ -50,16 +50,16 @@
  * preference. All three rules are inside :where(), so they have no specificity
  * and the dark ones win by coming later; a project's own rule still wins.
  */
-:where(ag-ui-chat#django-admin-agent:not([theme~="light"], [theme~="dark"], [theme~="code"])) {
+:where(ag-ui-chat#django-admin-agent) {
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-  :where(html[data-theme="auto"] ag-ui-chat#django-admin-agent:not([theme~="light"], [theme~="dark"], [theme~="code"])) {
+  :where(html[data-theme="auto"] ag-ui-chat#django-admin-agent) {
     color-scheme: dark;
   }
 }
 
-:where(html[data-theme="dark"] ag-ui-chat#django-admin-agent:not([theme~="light"], [theme~="dark"], [theme~="code"])) {
+:where(html[data-theme="dark"] ag-ui-chat#django-admin-agent) {
   color-scheme: dark;
 }

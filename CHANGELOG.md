@@ -38,7 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **The rings hold 3:1** (0.48.0). The focus outline is the entry above. The
     field highlight ring's new fallback applies only when no ring colour is
     set, and the stylesheet sets `--ag-ui-highlight-ring-color` to `--link-fg`,
-    so the rings the agent draws in the page are unchanged.
+    so on Django's admin the rings the agent draws in the page are unchanged.
+    Unfold defines no `--link-fg`, so there the fallback applies and holds the
+    ring to 3:1.
   - **The chat surface tools' answers**, which the sidebar turns on by default
     (`CHAT_SURFACE_TOOLS`). `minimise_chat` no longer promises a launcher and
     `read_chat_surface` reports `collapseTo` (0.48.0). `draggable` now reports
@@ -69,7 +71,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--ag-ui-accent`, `--ag-ui-font` and `--ag-ui-highlight-ring-color`, and no
   `::part()` rule:
   - **The header buttons and step group colours** (`--ag-ui-header-fg`,
-    `--ag-ui-header-btn-hover`, `--ag-ui-tool-fg`; 0.49.0, 0.50.0).
+    `--ag-ui-header-btn-hover`, `--ag-ui-tool-fg`; 0.49.0, 0.50.0). A project
+    setting them in its own CSS sees them act: `--ag-ui-tool-fg` now colours
+    grouped calls, the sidebar's default display, `--ag-ui-header-btn-hover` now
+    works under Soft, Ledger, Classic and code, and a `::part(header-button):hover`
+    tint of 18% of the text should go, since it holds the glyph at 3.75:1 on a
+    mid-tone accent.
   - **A host's own size and insets** (`--ag-ui-width`, `--ag-ui-height`,
     `--ag-ui-inset`, the `--ag-ui-viewport-inset-*` tokens; 0.50.0, 0.50.1). A
     project that writes them in its own CSS gets the fixes and owes nothing.
@@ -93,7 +100,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   **The browser floor holds** at Chrome 123, Firefox 120 and Safari 17.5. The one
   newer feature in 0.50.1 is relative colour syntax in the header button's hover
   square, behind its own `@supports`, with a fallback the component documents for
-  Firefox 120 to 127 and Safari 17.5 and 17.6.
+  Firefox 120 to 127 and Safari 17.5 and 17.6. `:has()`, already in 0.47.0, needs
+  Firefox 121, which the installation guide now says.
 - **The lock holds the family's current releases**: django-spec-agents 0.12.0,
   django-spec-mcp 0.11.0 and django-service-specs 0.30.0 (0.60.0 shipped with
   0.10.0, 0.9.0 and 0.27.0), with django-ag-ui still 0.74.0. No floor moves:
@@ -110,7 +118,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **The installation guide names the browser floor.** Its "Compatibility floor"
   note now lists Chrome 123, Firefox 120 and Safari 17.5, the versions 0.60.0
-  raised the supported browsers to.
+  raised the supported browsers to, and what Firefox 120 draws without `:has()`.
+- **The configuration guide names the moment of light on older Django.** On 4.2
+  and 5.0 Django's theme script writes `html[data-theme]` once the window has
+  loaded, so on a dark admin the panel draws light until then.
 
 ## [0.60.0] — 2026-11-07
 

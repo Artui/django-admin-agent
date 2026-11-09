@@ -117,7 +117,9 @@ A scheme word pins the panel. With `THEME = "light"` the panel stays light on
 a dark admin page, in the dark primary, which is how this package behaved
 before 0.61.0; `"dark"` keeps it dark on a light one. `"auto"` is not a pin:
 the component reads it as the system preference alone, and the sidebar makes
-it follow the admin, toggle included.
+it follow the admin, toggle included. On Django 4.2 and 5.0 the admin's theme
+script writes `html[data-theme]` once the window has loaded, so on a dark admin
+the panel draws light until then; from 5.1 it is dark from the first paint.
 
 `THEME_TOGGLE`'s button pins in the same way. Its first press saves a scheme
 word, so from then on that user's panel stops following the admin's toggle,

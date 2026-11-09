@@ -391,8 +391,8 @@ def test_a_scheme_word_in_theme_pins_the_panel(admin_page, live_server, theme, d
     The accent still follows the admin while the panel's scheme is pinned.
     "code" is a theme with no light half, so it counts as a pin. Its own tokens
     paint a dark background whatever the scheme, so for it the background
-    cannot tell; the host's resolved color-scheme can, and it is what the
-    every light-dark() token still reads.
+    cannot tell; the host's resolved color-scheme can, and it is what every
+    light-dark() token still reads.
     """
     admin_scheme = "light" if dark else "dark"
     page = _open_panel(admin_page, live_server, admin_scheme, theme)
@@ -404,6 +404,30 @@ def test_a_scheme_word_in_theme_pins_the_panel(admin_page, live_server, theme, d
     page.evaluate(f"document.documentElement.dataset.theme = '{toggled}'")
     assert _panel_is_dark(page) is dark
     _assert_follows_the_page(_tokens(page))
+
+
+@pytest.mark.parametrize(
+    ("scheme", "data_theme", "word", "dark"),
+    [
+        ("light", None, "dark", True),
+        ("dark", None, "light", False),
+        ("light", "dark", "light", False),
+    ],
+)
+def test_a_project_rule_on_the_element_beats_the_scheme_rules(  # noqa: ANN201
+    admin_page,  # noqa: ANN001
+    live_server,  # noqa: ANN001
+    scheme,  # noqa: ANN001
+    data_theme,  # noqa: ANN001
+    word,  # noqa: ANN001
+    dark,  # noqa: ANN001
+):
+    """The three rules have no specificity, so naming the element is enough."""
+    page = _open_panel(admin_page, live_server, scheme)
+    if data_theme is not None:
+        page.evaluate("(word) => { document.documentElement.dataset.theme = word; }", data_theme)
+    page.add_style_tag(content=f"ag-ui-chat {{ color-scheme: {word}; }}")
+    assert _panel_is_dark(page) is dark
 
 
 def test_the_header_toggle_pins_until_flipped_back(admin_page, live_server):  # noqa: ANN001, ANN201

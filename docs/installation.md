@@ -27,6 +27,8 @@ is gone from 0.59, with the `drf_mcp_server=` keyword it served.
     Django Unfold 0.40+ is optional. Browsers: Chrome 123+, Firefox 120+ and
     Safari 17.5+, the first versions with `light-dark()`, which the sidebar's
     themes use for their colours; below them it draws without its colours.
+    Firefox 120 also lacks `:has()`, which arrives in 121: under Quiet, Soft and
+    Ledger it shows a message's copy and retry under each interim bubble too.
 
     None of these windows has an upper bound, so this package installs
     alongside the current `django-ag-ui` on the day that ships rather than
