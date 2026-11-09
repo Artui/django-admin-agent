@@ -125,8 +125,8 @@ the sidebar makes the room. `admin_agent.js` writes the height to
 These rules are wrapped in `:where()`, like the rest of the sheet, so any unlayered
 rule of your own beats them. A rule in a cascade layer loses to them whatever its
 specificity, which is how the cascade treats every unlayered rule. A rule wrapped in
-`:where()` too has no weight either and loses on order, since the sheet is linked
-from the body. Without `COLLAPSE_TO`, and under a placement that draws no bar, neither
+`:where()` too has no weight either, so it wins only if it comes after the sheet, which
+is linked from the body. Without `COLLAPSE_TO`, and under a placement that draws no bar, neither
 the attribute nor the property is written, and the page keeps its own margins.
 
 The height goes to 0 when nothing of the bar is left to clear: on a phone's width

@@ -101,7 +101,7 @@ release. If it renames one, the row it named goes back under the bar, and nothin
 else breaks. They have no specificity, so they rely on Unfold's stylesheet being in
 cascade layers, which any unlayered rule beats. The sidebar's other rules have no
 specificity either, and any unlayered rule of your own beats all of them, unless it is
-wrapped in `:where()` too. A rule in a cascade layer loses to them, and an Unfold
+wrapped in `:where()` too and comes before the sheet. A rule in a cascade layer loses to them, and an Unfold
 project's Tailwind utilities are layered, so a utility class on a row will not move it.
 
 ### What each version did

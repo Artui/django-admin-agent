@@ -397,6 +397,19 @@ def test_a_placement_that_never_draws_the_bar_leaves_the_page_untouched(  # noqa
         }
 
 
+@pytest.mark.parametrize("placement", ["side", "full"])
+def test_the_column_and_the_full_panel_stop_at_the_bar(admin_page, live_server, placement):  # noqa: ANN001, ANN201
+    """The bar stays where the user minimises from, rather than under the panel."""
+    with override_settings(DJANGO_ADMIN_AGENT={**BAR_SETTINGS, "PLACEMENT": placement}):
+        admin_page.set_viewport_size({"width": 1280, "height": 700})
+        state = _open_bar(admin_page, live_server)
+        open_sidebar(admin_page)
+        admin_page.wait_for_timeout(400)
+
+        panel = admin_page.locator(CHAT).bounding_box()
+        assert panel["y"] + panel["height"] == state["barBox"][1], (panel, state)
+
+
 _PANEL_ENDS = """(selector) => {
   const panel = document.querySelector(selector).getBoundingClientRect();
   return { left: panel.left, right: innerWidth - panel.right };
