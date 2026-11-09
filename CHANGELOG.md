@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.61.1] — 2026-11-09
+
+### Fixed
+
+- **The transcript rests at its foot once a run ends, and on a restored thread.**
+  The row of Retry and Copy under the last answer was added after the transcript
+  had followed the answer, so a sidebar pinned to its foot stopped one row short
+  of it: 32px in the admin, which left the last answer's Retry and Copy under the
+  composer until the reader scrolled. This came when a run ended, when a run
+  failed, and when a thread was restored, and also when a floating panel was
+  restored while collapsed. The transcript now follows the row as well. A reader
+  who has scrolled up stays where they are, and the jump-to-latest button behaves
+  as before. The fix is in web component 0.50.2, which this release vendors in
+  place of 0.50.1 (`WEB_COMPONENT_VERSION`); no setting, template or script here
+  changed.
+
+  The host opt-in pass between the two pins, checked rather than assumed: the
+  component's changelog holds one entry between 0.50.1 and 0.50.2, a Fixed one
+  that adds no attribute, event, method or setting and says a host has nothing to
+  do. Nothing is owed.
+
 ## [0.61.0] — 2026-11-09
 
 ### Added
@@ -2702,7 +2723,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.61.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.61.1...HEAD
+[0.61.1]: https://github.com/Artui/django-admin-agent/compare/v0.61.0...v0.61.1
 [0.61.0]: https://github.com/Artui/django-admin-agent/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/Artui/django-admin-agent/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/Artui/django-admin-agent/compare/v0.58.0...v0.59.0
