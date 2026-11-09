@@ -1,0 +1,11 @@
+{% extends "admin/base.html" %}
+{% load django_admin_agent %}
+
+{% block branding %}
+{% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block base %}
+{{ block.super }}
+{% django_admin_agent_sidebar %}
+{% endblock %}

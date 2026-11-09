@@ -11,7 +11,9 @@
 //     ./admin_tools.js
 //   - opt the surface in to server-pushed charts
 //   - let the agent move its own panel out of the way of the page
+//   - under COLLAPSE_TO="bar", make room for the bar in the page
 import {
+  BAR_HEIGHT_EVENT,
   createChatSurfaceTools,
   defineAgUiChat,
 } from "./ag-ui-web-component.bundle.js";
@@ -60,6 +62,28 @@ function skillContext() {
     path: window.location.pathname,
     selected_ids: selected.join(","),
   };
+}
+
+// The bar is fixed over the page and the component writes no CSS of the host's,
+// so this hands the height to the sidebar's stylesheet, which clears the page's
+// last row. A custom property on the root, because one set on the element would
+// inherit down and never reach the page. The attribute is what scopes the
+// stylesheet's rules, so that a page with no bar keeps its own margins; unset,
+// the property alone would make those rules compute to nothing and win anyway.
+//
+// Never --ag-ui-viewport-inset-bottom: the component would take the bar's height
+// off the room it fills, which can flip the bar it is measuring.
+function makeRoomForBar(el) {
+  if (el.getAttribute("collapse-to") !== "bar") {
+    return;
+  }
+  const root = document.documentElement;
+  const publish = () => {
+    root.style.setProperty("--django-admin-agent-bar-height", `${el.barHeight}px`);
+  };
+  root.setAttribute("data-django-admin-agent-bar", "");
+  el.addEventListener(BAR_HEIGHT_EVENT, publish);
+  publish();
 }
 
 function bootstrap() {
@@ -112,6 +136,7 @@ function bootstrap() {
   if (content !== null) {
     el.offerQuoteInPage(content);
   }
+  makeRoomForBar(el);
   registerAdminTools(el);
   // Let the agent move the panel it is speaking from.
   //

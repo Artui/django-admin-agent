@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 from django.test import override_settings
 
 from django_admin_agent.conf import AdminAgentSettings, get_settings
@@ -12,6 +13,10 @@ def test_defaults_when_setting_absent() -> None:
     assert config.title == "Admin Copilot"
     assert config.auto_confirm is False
     assert config.tool_display == "grouped"
+    # Compact, not the component's own full: an opened group is one row a call.
+    assert config.tool_group_display == "compact"
+    # Unset, so every placement stays as it is.
+    assert config.collapse_to is None
     # Not merely a default: dropping ``feedback`` is what stops the sidebar
     # showing two rating buttons whose event nothing in this package listens for.
     assert config.message_actions == "copy,retry"
@@ -44,6 +49,8 @@ def test_defaults_when_setting_absent() -> None:
         "TITLE": "Helper",
         "AUTO_CONFIRM": True,
         "TOOL_DISPLAY": "full",
+        "TOOL_GROUP_DISPLAY": "minimal",
+        "COLLAPSE_TO": "bar",
         "SKILLS": [{"name": "x", "title": "X", "prompt": "p"}],
         "THEME": "dark",
         "DENSITY": "compact",
@@ -65,6 +72,8 @@ def test_reads_overrides() -> None:
     assert config.title == "Helper"
     assert config.auto_confirm is True
     assert config.tool_display == "full"
+    assert config.tool_group_display == "minimal"
+    assert config.collapse_to == "bar"
     assert config.skills == [{"name": "x", "title": "X", "prompt": "p"}]
     assert config.theme == "dark"
     assert config.density == "compact"
@@ -99,3 +108,15 @@ def test_start_open_coerced_to_bool() -> None:
 @override_settings(DJANGO_ADMIN_AGENT={"CHAT_SURFACE_TOOLS": 0})
 def test_chat_surface_tools_coerced_to_bool() -> None:
     assert get_settings().chat_surface_tools is False
+
+
+@pytest.mark.parametrize("value", ["none", "auto", "BAR", "", True, None])
+def test_collapse_to_treats_anything_but_bar_as_unset(value: object) -> None:
+    """Nothing here raises on a bad setting, and a bad value reads as the default.
+
+    ``"none"`` is the one that matters. The component honours it by hiding the
+    collapsed panel for a host control to bring back, and the admin has no such
+    control, so passing it through would leave a panel nobody can reopen.
+    """
+    with override_settings(DJANGO_ADMIN_AGENT={"COLLAPSE_TO": value}):
+        assert get_settings().collapse_to is None

@@ -30,8 +30,11 @@ test:
 
 # Browser end-to-end suite: Playwright drives a live admin through the sidebar.
 # Separate settings + no coverage gate (it exercises JS + the server over HTTP).
+# Two runs, because one process holds one settings module and Unfold replaces the
+# admin's templates and its site.
 test-e2e:
 	DJANGO_ALLOW_ASYNC_UNSAFE=1 uv run pytest tests/e2e --ds=tests.e2e.settings -o addopts="" -p no:cacheprovider
+	DJANGO_ALLOW_ASYNC_UNSAFE=1 uv run pytest tests/e2e_unfold --ds=tests.e2e_unfold.settings -o addopts="" -p no:cacheprovider
 
 lint:
 	uv run ruff check .
