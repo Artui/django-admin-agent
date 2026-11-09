@@ -24,10 +24,105 @@
      CSS-wide keyword in a custom property inherits the property itself, which
      nothing above the element sets, so the component would fall back. */
   --ag-ui-font: var(--font-family-primary);
-  /* The keyboard focus outline on the folded tool-call row. The component
-     draws it from the accent at 55%, which on the panel is 1.58:1 with the
-     light primary and 1.38:1 with the dark one on a dark panel, under the 3:1
-     a focus indicator needs. CanvasText follows the panel's own scheme, so it
-     is black on a light panel and white on a dark one, whatever THEME says. */
-  --ag-ui-ring: CanvasText;
+  /* The keyboard focus outline, --ag-ui-ring, is left to the component: it
+     mixes the accent with the panel's ink, which holds 3:1 against the panel
+     for any accent in either scheme (7.44:1 to 13.97:1 with the admin's
+     primaries), and keeps the brand's tint. */
+}
+
+/*
+ * The panel's light and dark follow the admin's, unless THEME names a scheme.
+ *
+ * The component draws every colour with light-dark() and picks the half from
+ * color-scheme on its host. A rule here on the host outranks the component's
+ * own :host rules whatever their specificity, because the page's styles come
+ * before a shadow tree's in the cascade. So the component's "auto" (which
+ * follows the operating system, not the admin's toggle) is overridden too. The
+ * words that pin are not: the component declares "light" and "dark", from THEME
+ * or from the header toggle, which rewrites the attribute, and "code", a theme
+ * with no light half, as !important, which beats these rules from outside.
+ *
+ * Keyed on the html[data-theme] Django's theme script writes, rather than on
+ * an inherited color-scheme: Django declares color-scheme on html only from
+ * 5.1. An admin with no data-theme (one that empties its dark-mode-vars block,
+ * so has no theme script, or Unfold) has nothing here to follow, so all three
+ * rules stand aside and the component's own apply: light, or under "auto" the
+ * operating system. The selectors mirror Django's own: "dark" always, "auto"
+ * under the system's dark preference. All three rules are inside :where(), so
+ * they have no specificity and the dark ones win by coming later; a project's
+ * own rule still wins.
+ */
+:where(html[data-theme] ag-ui-chat#django-admin-agent) {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :where(html[data-theme="auto"] ag-ui-chat#django-admin-agent) {
+    color-scheme: dark;
+  }
+}
+
+:where(html[data-theme="dark"] ag-ui-chat#django-admin-agent) {
+  color-scheme: dark;
+}
+
+/*
+ * The page makes room for COLLAPSE_TO="bar", which is fixed over it.
+ *
+ * admin_agent.js writes the attribute and the height on the root, only under the
+ * bar. These rules have no specificity, like the rest of this sheet, which decides
+ * what each can set. Django's own #content padding would beat a padding here, so
+ * #content takes a margin. Its body padding loses as well, and would not help,
+ * since #container overflows a body of height 100% on a long page. #content is
+ * what both Django's admin and Unfold have, but its margin reaches only what is in
+ * it or is moved down by it: a row after it needs a rule of its own. A project's
+ * footer below it stays under the bar; pad that with the same property.
+ *
+ * The nav runs behind the bar too, so it takes a padding, which neither admin
+ * sets, for its last row to scroll clear of it. Unfold's inner box is a full
+ * window tall whatever is in it, which would hold its user menu under the bar.
+ */
+:where(html[data-django-admin-agent-bar] #content) {
+  margin-bottom: var(--django-admin-agent-bar-height);
+}
+
+/*
+ * Django's nav is content-box under max-height: 100vh, so padding alone grows its
+ * box past the window and leaves the room below the fold.
+ */
+:where(html[data-django-admin-agent-bar] #nav-sidebar) {
+  box-sizing: border-box;
+  padding-bottom: var(--django-admin-agent-bar-height);
+}
+
+:where(html[data-django-admin-agent-bar] #nav-sidebar-inner) {
+  min-height: calc(100vh - var(--django-admin-agent-bar-height));
+}
+
+/*
+ * From its lg breakpoint Unfold pins its save row, its pagination row and its bulk
+ * actions to the foot of the window, so no margin lifts them: only their own offset
+ * does. Its Tailwind sheet is in cascade layers, which an unlayered rule beats
+ * whatever the specificity.
+ *
+ * Below lg the two sticky rows are position: relative, in the flow after #content,
+ * at the end of a page that can be exactly a window tall. An offset would shift them
+ * over the row above and leave the room where it was, and #content's margin only
+ * pushes them down, so they take a margin of their own. The media query is the exact
+ * complement of the one above it, so one of the two applies at every width.
+ */
+:where(html[data-django-admin-agent-bar] [class~="fixed"][class~="lg:bottom-0"]) {
+  bottom: var(--django-admin-agent-bar-height);
+}
+
+@media (min-width: 64rem) {
+  :where(html[data-django-admin-agent-bar] [class~="lg:sticky"][class~="lg:bottom-0"]) {
+    bottom: var(--django-admin-agent-bar-height);
+  }
+}
+
+@media not all and (min-width: 64rem) {
+  :where(html[data-django-admin-agent-bar] [class~="lg:sticky"][class~="lg:bottom-0"]) {
+    margin-bottom: var(--django-admin-agent-bar-height);
+  }
 }

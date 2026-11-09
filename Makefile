@@ -30,8 +30,11 @@ test:
 
 # Browser end-to-end suite: Playwright drives a live admin through the sidebar.
 # Separate settings + no coverage gate (it exercises JS + the server over HTTP).
+# Two runs, because one process holds one settings module and Unfold replaces the
+# admin's templates and its site.
 test-e2e:
 	DJANGO_ALLOW_ASYNC_UNSAFE=1 uv run pytest tests/e2e --ds=tests.e2e.settings -o addopts="" -p no:cacheprovider
+	DJANGO_ALLOW_ASYNC_UNSAFE=1 uv run pytest tests/e2e_unfold --ds=tests.e2e_unfold.settings -o addopts="" -p no:cacheprovider
 
 lint:
 	uv run ruff check .
@@ -64,7 +67,7 @@ docs-build:
 # published wheel ships exactly the bytes that were reviewed, tested and driven
 # in a browser here.
 WEB_COMPONENT_PKG := @artooi/ag-ui-web-component
-WEB_COMPONENT_VERSION := 0.47.0
+WEB_COMPONENT_VERSION := 0.50.1
 BUNDLE_DEST := django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js
 
 # Fetch the pinned published component into a tmpdir and normalise its bundle

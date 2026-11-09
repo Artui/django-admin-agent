@@ -24,7 +24,12 @@ is gone from 0.59, with the `drf_mcp_server=` keyword it served.
 !!! info "Compatibility floor"
     Python 3.11+ (tested 3.11–3.14), Django 4.2 LTS+ (tested 4.2, 5.0, 5.1,
     5.2, 6.0, 6.1), `django-ag-ui>=0.74.0` and `django-spec-agents>=0.6.2`.
-    Django Unfold 0.40+ is optional.
+    Django Unfold 0.40+ is optional, and what `COLLAPSE_TO = "bar"` clears under it
+    [depends on the version](unfold.md#what-each-version-did). Browsers: Chrome 123+, Firefox 120+ and
+    Safari 17.5+, the first versions with `light-dark()`, which the sidebar's
+    themes use for their colours; below them it draws without its colours.
+    Firefox 120 also lacks `:has()`, which arrives in 121: under Quiet, Soft and
+    Ledger it shows a message's copy and retry under each interim bubble too.
 
     None of these windows has an upper bound, so this package installs
     alongside the current `django-ag-ui` on the day that ships rather than
@@ -108,6 +113,9 @@ auto-confirm flag, presentation settings, skill catalog, bootstrap module URL,
 admin base URL, and route map), so the admin site does not need swapping. See
 [Configuration](configuration.md) for the theming, tool-display, and skills
 settings.
+
+Under Django Unfold the `branding` block is hidden below its `xl` breakpoint, so
+use the mount in [Unfold & vanilla support](unfold.md#mounting-the-sidebar).
 
 ### Option B — `SidebarAdminSite`
 

@@ -14,6 +14,7 @@ template) still renders.
   title-text="{{ title }}"
   data-auto-confirm="{{ auto_confirm|yesno:'true,false' }}"
   data-tool-display="{{ tool_display }}"
+  data-tool-group-display="{{ tool_group_display }}"
   data-message-actions="{{ message_actions }}"
   data-slash-commands="true"
   {% if theme %}theme="{{ theme }}"{% endif %}
@@ -32,6 +33,7 @@ template) still renders.
   {% if transcribe_url %}data-transcribe-url="{{ transcribe_url }}"{% endif %}
   {% if start_open %}data-start-open=""{% endif %}
   {% if not chat_surface_tools %}data-chat-surface-tools="false"{% endif %}
+  {% if collapse_to %}collapse-to="{{ collapse_to }}"{% endif %}
   {% if not launcher_drag %}data-launcher-drag="false"{% endif %}
   {% if theme_toggle %}data-theme-toggle=""{% endif %}
   {% if user_key %}user-key="{{ user_key }}"{% endif %}

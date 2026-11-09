@@ -7,6 +7,172 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.61.0] — 2026-11-09
+
+### Added
+
+- **`COLLAPSE_TO = "bar"` collapses the sidebar into a strip along the bottom of
+  the window**, in place of the round launcher, with the title, the unread badge,
+  a running mark and the history button. Rendered as `collapse-to` only when set,
+  so unset leaves every placement as it is. It applies to the default corner
+  placement, `"bottom-left"`, `"side"` and `"full"`. `"bar"` is the only value and
+  any other reads as unset, since the component's `"none"` needs a control of the
+  host's to reopen the panel and the admin has none.
+
+  The bar is fixed over the page, so the page makes room. `admin_agent.js`
+  publishes the bar's height as `--django-admin-agent-bar-height` on the root, and
+  `admin_agent.css` gives `#content` a bottom margin and the nav a bottom padding,
+  in rules any unlayered project rule beats. It writes no component token, and under
+  a placement that draws no bar it writes nothing at all. A project's own
+  footer below `#content` stays under the bar, and pads itself with that property.
+  `LAUNCHER_DRAG` decides what the open panel does above the bar: it moves by its
+  header and remembers its spot, or with the setting off stays on its dock.
+
+  **Under Django Unfold the sheet reaches further than a margin**, because no
+  margin lifts the rows Unfold pins to the window's foot, and the page's margin only
+  pushes down the rows that follow `#content` below its `lg` breakpoint. It sets
+  `bottom` and, below 64rem, `margin-bottom` on selectors that read Unfold's Tailwind
+  class names, so it depends on those names and on Unfold's sheet being in cascade
+  layers. The suite runs 0.110.1 from Python 3.12 and 0.91.0 on 3.11. **What holds
+  depends on the version**: every row is clear on 0.110.1, the bar covers the bulk
+  actions below 64rem on 0.91.0 and 0.81.0, and it covers the Save button on 0.40.0.
+  The Unfold guide has the table, and what was not run.
+
+### Changed
+
+- **An opened step group draws a row per call, not a full card.** The new
+  `TOOL_GROUP_DISPLAY` setting defaults to `"compact"`, so every project on the
+  grouped `TOOL_DISPLAY`, which is the default, sees this. A call's arguments move
+  behind the toggle its result was already behind, so a row is one line, 27px where
+  a card was 137px. `TOOL_GROUP_DISPLAY = "full"` is the way back. `"minimal"` and `"inline"` are there too, and the value is ignored
+  under the other four `TOOL_DISPLAY` values. A refused call still reads as failed
+  on the group's head and its row, with the reason one click further down. A
+  confirmation is a card of its own outside the group, with its arguments and
+  buttons on screen as before.
+- **The panel follows the admin's light and dark.** With `THEME` unset, naming
+  only a theme (`"soft"`), or `"auto"`, a dark admin page now gets a dark
+  panel: the sidebar's stylesheet sets the element's `color-scheme` from
+  Django's `prefers-color-scheme` styles and its theme toggle
+  (`html[data-theme]`), with no script. Before, the panel stayed light on a
+  dark admin. An explicit `"light"` or `"dark"` pins the panel, so
+  `THEME = "light"` is the way back to the old behaviour. `THEME_TOGGLE`'s
+  saved word pins in the same way: a user who presses it stops following the
+  admin's toggle for good in that browser, since pressing it again only changes
+  the word, and turning `THEME_TOGGLE` off stops the pin. An admin writing no
+  `html[data-theme]`, which is one with its dark mode taken out (an empty
+  `dark-mode-vars` block) and Django Unfold, has nothing to follow: it keeps a
+  light panel, and `"auto"` still means the system's preference, so it does not
+  follow Unfold's own toggle, and on a dark system it gives an admin with its
+  dark mode taken out a dark panel on a light page, as before.
+- **The step group's focus outline is the component's again.** The sidebar's
+  stylesheet no longer sets `--ag-ui-ring: CanvasText`. From 0.48.0 the web
+  component mixes the ring from the accent and the panel's ink, which measures
+  7.44:1 to 13.97:1 against the panel on 0.50.1 with the admin's primaries in
+  every pairing of `THEME` and the admin's scheme, over the 3:1 a focus indicator
+  needs, and keeps the admin's brand tint where `CanvasText` drew black or white.
+  The e2e test that measures it fails on the 0.47.0 bundle without the old line.
+- **Vendors `@artooi/ag-ui-web-component` 0.50.1 (was 0.47.0).** One record of
+  the host opt-ins across 0.48.0, 0.49.0, 0.50.0 and 0.50.1, each checked.
+
+  What reaches the sidebar, with nothing owed:
+  - **The theme toggle reads the drawn scheme** (0.48.0). Its first press on a
+    panel following a dark admin now gives a light panel, where 0.47.0 wrote
+    `dark` over a dark panel; an e2e test holds it and fails on the 0.47.0
+    bundle. A `light` or `dark` word in `THEME` also now holds against a
+    project rule that sets `color-scheme` on the element.
+  - **The rings hold 3:1** (0.48.0). The focus outline is the entry above. The
+    field highlight ring's new fallback applies only when no ring colour is
+    set, and the stylesheet sets `--ag-ui-highlight-ring-color` to `--link-fg`,
+    so on Django's admin the rings the agent draws in the page are unchanged.
+    Unfold defines no `--link-fg`, so there the fallback applies and holds the
+    ring to 3:1.
+  - **The chat surface tools' answers**, which the sidebar turns on by default
+    (`CHAT_SURFACE_TOOLS`). `minimise_chat` no longer promises a launcher and
+    `read_chat_surface` reports `collapseTo` (0.48.0). `draggable` now reports
+    the page's setting for every placement, whether this panel moves stays in
+    `movable`, and a refused `move_chat` names the placement (0.50.0). No prompt
+    or test here quotes the old text.
+  - **A moved corner panel** (0.50.0, 0.50.1). A panel moved by its header, its
+    launcher, `move_chat` or a resize grip now fills a phone's screen with no
+    stray offset and gets its place back on a wider window, and it remembers the
+    corner a grip moved. Under `LAUNCHER_DRAG = False`, a panel moved before the
+    setting went on rests where the project's CSS puts it from the next window
+    resize or reopen, which is what the setting promises.
+  - **`--ag-ui-font: inherit` is no longer advised** (0.48.0). The stylesheet
+    already sets `var(--font-family-primary)`, the route the component documents.
+
+  What the two new settings above turn on:
+  - **`data-tool-group-display`, the step group's inner mode** (0.48.0), by
+    `TOOL_GROUP_DISPLAY`.
+  - **`collapse-to="bar"`** (0.48.0), by `COLLAPSE_TO`. With it comes the docked
+    panel that moves (0.49.0), and a filled docked panel losing its bar and grips
+    (0.50.1), where the page gets the room back.
+
+  What the sidebar still does not offer: **`collapse-to="none"`, `anchor` and
+  `--ag-ui-anchor-gap`** (0.48.0), which need an admin control to anchor to.
+
+  What needs a token the stylesheet does not set, so nothing changes. It sets
+  `--ag-ui-accent`, `--ag-ui-font` and `--ag-ui-highlight-ring-color`, and no
+  `::part()` rule:
+  - **The header buttons and step group colours** (`--ag-ui-header-fg`,
+    `--ag-ui-header-btn-hover`, `--ag-ui-tool-fg`; 0.49.0, 0.50.0). A project
+    setting them in its own CSS sees them act: `--ag-ui-tool-fg` now colours
+    grouped calls, the sidebar's default display, `--ag-ui-header-btn-hover` now
+    works under Soft, Ledger, Classic and code, and a `::part(header-button):hover`
+    tint of 18% of the text should go, since it holds the glyph at 3.75:1 on a
+    mid-tone accent.
+  - **A host's own size and insets** (`--ag-ui-width`, `--ag-ui-height`,
+    `--ag-ui-inset`, the `--ag-ui-viewport-inset-*` tokens; 0.50.0, 0.50.1). A
+    project that writes them in its own CSS gets the fixes and owes nothing.
+
+  **The limits 0.50.1 records for a host.** Those about a fed bar height do not
+  apply: the sidebar writes the bar's height only to its own property, never to a
+  component token. Those about a filled box, a fixed `--ag-ui-inset` and
+  `--ag-ui-edge-gutter` need a token the sidebar does not set. A reload of a filled
+  panel reports the bar's height and then 0, and the page follows both. Those about
+  a hidden host need the element hidden. The template mounts it shown, but a project
+  that mounts it in Unfold's `branding` block gets it hidden at a 1280px window, so
+  the Unfold guide now gives a mount that works. The one about a
+  stored spot removed after a mount needs a script removing it, and nothing here
+  writes the component's storage.
+
+  One limit the sidebar does reach: **a keyboard press can leave focus on the page's
+  body** once the panel opens. On the round launcher that holds at a phone's width
+  and a desktop's, measured in Chromium with the same result on the 0.47.0 bundle.
+  On the bar it holds at a phone's width and while a project's CSS fills the window;
+  at a desktop's width with no fill, focus stays on the bar's launcher.
+
+  On the component's own path, owing nothing: the `@ag-ui` 1.0.4 refresh, the
+  `newChat()` and `switchThread()` fixes (nothing here calls either), the
+  collapsed embedded slot, the dragged size, the history drawer's rejection, the
+  empty arguments box, and the undo after a surface change.
+
+  **The browser floor holds** at Chrome 123, Firefox 120 and Safari 17.5. The one
+  newer feature in 0.50.1 is relative colour syntax in the header button's hover
+  square, behind its own `@supports`, with a fallback the component documents for
+  Firefox 120 to 127 and Safari 17.5 and 17.6. `:has()`, already in 0.47.0, needs
+  Firefox 121, which the installation guide now says.
+- **The lock holds the family's current releases**: django-spec-agents 0.12.0,
+  django-spec-mcp 0.11.0 and django-service-specs 0.30.0 (0.60.0 shipped with
+  0.10.0, 0.9.0 and 0.27.0), with django-ag-ui still 0.74.0. No floor moves:
+  nothing here needs what they add, and nothing here read
+  `RegisteredSpec.agent_contract`, which the kernel removed in 0.28.0. A project
+  whose `service_specs=` Validator declares `call_context` has one thing to check
+  when it installs these. From django-spec-agents 0.12.0 the Validator is also
+  read with `request` `None` when the toolset is built, so reading
+  `call_context["request"].user` past a `None` check makes the sidebar's endpoint
+  raise as a run starts. Guard the request too; a guarded Validator still gets the
+  real request at the call.
+
+### Documentation
+
+- **The installation guide names the browser floor.** Its "Compatibility floor"
+  note now lists Chrome 123, Firefox 120 and Safari 17.5, the versions 0.60.0
+  raised the supported browsers to, and what Firefox 120 draws without `:has()`.
+- **The configuration guide names the moment of light on older Django.** On 4.2
+  and 5.0 Django's theme script writes `html[data-theme]` once the window has
+  loaded, so on a dark admin the panel draws light until then.
+
 ## [0.60.0] — 2026-11-07
 
 ### Changed
@@ -2536,7 +2702,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.60.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.61.0...HEAD
+[0.61.0]: https://github.com/Artui/django-admin-agent/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/Artui/django-admin-agent/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/Artui/django-admin-agent/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Artui/django-admin-agent/compare/v0.57.0...v0.58.0

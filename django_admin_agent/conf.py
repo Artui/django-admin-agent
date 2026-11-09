@@ -28,8 +28,19 @@ class AdminAgentSettings:
     """How tool calls are drawn: ``"grouped"``, ``"inline"``, ``"minimal"``,
     ``"compact"`` or ``"full"``. Passed to the Web Component as the
     ``data-tool-display`` attribute. Defaults to ``"grouped"``, which folds a
-    run's consecutive calls into one "Worked through N steps" row with the
-    ``full`` cards one click down; ``"full"`` keeps a card per call."""
+    run's consecutive calls into one "Worked through N steps" row with the calls
+    one click down, drawn as
+    [`tool_group_display`][django_admin_agent.conf.AdminAgentSettings.tool_group_display]
+    says; ``"full"`` keeps a card per call."""
+
+    tool_group_display: str
+    """How an opened step group draws its calls under ``tool_display="grouped"``:
+    ``"compact"``, ``"full"``, ``"minimal"`` or ``"inline"``. Passed to the Web
+    Component as the ``data-tool-group-display`` attribute. Defaults to
+    ``"compact"``, one row per call; ``"full"`` draws a full card per call, which
+    is what an opened group drew before 0.61.0. The component reads an unknown
+    value as ``"full"`` and ignores this under the four card modes of
+    ``tool_display``."""
 
     message_actions: str
     """Which per-message actions the sidebar offers, as a comma-separated list of
@@ -68,11 +79,18 @@ class AdminAgentSettings:
     """Web Component theme: up to two words, in any order, a theme name and a
     scheme. The names are ``"quiet"`` (the default), ``"soft"``, ``"ledger"``
     and ``"classic"`` (the look before web component 0.45.0); the schemes are
-    ``"light"`` (the default), ``"dark"`` and ``"auto"``, which follows
-    ``prefers-color-scheme``. So ``"soft dark"``, or ``"dark"`` alone for
-    Quiet in the dark scheme. ``None`` leaves the component default (Quiet,
-    light). The accent is not set here: it follows Django admin's
-    ``--primary`` through the sidebar's stylesheet."""
+    ``"light"``, ``"dark"`` and ``"auto"``. So ``"soft dark"``, or ``"dark"``
+    alone for Quiet in the dark scheme. ``None`` leaves the component default
+    (Quiet).
+
+    Without ``"light"`` or ``"dark"`` (unset, a name alone, or ``"auto"``) the
+    panel's light and dark follow the admin's, both its ``prefers-color-scheme``
+    styles and its ``html[data-theme]`` toggle, through the sidebar's
+    stylesheet. ``"light"`` or ``"dark"`` pins the panel to that scheme. An admin
+    writing no ``html[data-theme]``, as under Unfold or with its dark mode taken
+    out, has nothing to follow: there the panel is light, and ``"auto"`` means the
+    system's preference. The accent is not set here either: it follows Django
+    admin's ``--primary``."""
 
     density: str | None
     """``"comfortable"`` / ``"compact"``. ``None`` leaves the default."""
@@ -132,6 +150,27 @@ class AdminAgentSettings:
     user makes by collapsing or expanding outlives this: it is the *first*
     visit this decides, and the stored preference wins afterwards."""
 
+    collapse_to: str | None
+    """What a collapsed panel becomes. ``"bar"`` replaces the round launcher with
+    a strip along the bottom edge of the window, showing the title and the unread
+    badge, and rendered as the ``collapse-to`` attribute. It applies to the corner
+    placements, ``"side"`` and ``"full"``. ``None`` (the default) renders nothing,
+    and every placement stays as it is.
+
+    ``"bar"`` is the only value: any other is treated as unset, with no error, as
+    the component treats a value it does not know. The component's ``"none"``
+    hides the collapsed panel for a host control to bring back, and the admin has
+    no such control, so a project setting it would have a panel it cannot reopen.
+
+    The bar is fixed over the page, so the sidebar makes room for it: its script
+    publishes the height as ``--django-admin-agent-bar-height`` on the root, and
+    its stylesheet keeps the page's last row clear of the bar.
+
+    With [`launcher_drag`][django_admin_agent.conf.AdminAgentSettings.launcher_drag]
+    on, the open panel moves by its header and remembers its spot, above the bar;
+    with it off, the panel stays on its dock at the bar's end: the right, or the
+    left under ``"bottom-left"``."""
+
     launcher_drag: bool
     """When ``False``, the sidebar stays where your CSS puts it: the collapsed
     bubble cannot be dragged around the screen and the open panel cannot be
@@ -147,8 +186,12 @@ class AdminAgentSettings:
     """When ``True``, show the Web Component's built-in light/dark header toggle
     (``data-theme-toggle``), which flips only the scheme word of
     [`theme`][django_admin_agent.conf.AdminAgentSettings.theme] (``"soft"`` to
-    ``"soft dark"``) and saves only that word. Defaults to ``False`` — the
-    admin's own theme usually governs."""
+    ``"soft dark"``) and saves only that word. The saved word pins the panel as
+    a scheme word in ``theme`` does, so a user who presses it stops following
+    the admin's own toggle for good in that browser: pressing it again only
+    changes the word. Setting this back to ``False`` stops the pin, because the
+    word is read only while the button is on. Defaults to ``False``: the panel
+    already follows the admin's toggle."""
 
     shell_field_redaction: bool | str
     """Sensitive-field redaction for the ``shell.*`` tools. ``True`` (default)
@@ -181,6 +224,7 @@ def get_settings() -> AdminAgentSettings:
         title=raw.get("TITLE", "Admin Copilot"),
         auto_confirm=bool(raw.get("AUTO_CONFIRM", False)),
         tool_display=raw.get("TOOL_DISPLAY", "grouped"),
+        tool_group_display=raw.get("TOOL_GROUP_DISPLAY", "compact"),
         message_actions=raw.get("MESSAGE_ACTIONS", "copy,retry"),
         skills=raw.get("SKILLS"),
         theme=raw.get("THEME"),
@@ -192,6 +236,7 @@ def get_settings() -> AdminAgentSettings:
         side=raw.get("SIDE"),
         chat_surface_tools=bool(raw.get("CHAT_SURFACE_TOOLS", True)),
         start_open=bool(raw.get("START_OPEN", False)),
+        collapse_to="bar" if raw.get("COLLAPSE_TO") == "bar" else None,
         launcher_drag=bool(raw.get("LAUNCHER_DRAG", True)),
         theme_toggle=bool(raw.get("THEME_TOGGLE", False)),
         shell_field_redaction=raw.get("SHELL_FIELD_REDACTION", True),

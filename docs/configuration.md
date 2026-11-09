@@ -15,17 +15,19 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | --- | --- | --- |
 | `TITLE` | `"Admin Copilot"` | Header text shown on the sidebar chat panel. |
 | `AUTO_CONFIRM` | `False` | When `True`, destructive frontend tools run without the confirmation modal. Passed to the Web Component as `autoConfirm`. |
-| `TOOL_DISPLAY` | `"grouped"` | How tool calls are drawn: `"grouped"`, `"inline"`, `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. `"grouped"` folds a run's consecutive calls into one "Worked through N steps" row, with the full cards one click down; `"full"` keeps a card per call. |
+| `TOOL_DISPLAY` | `"grouped"` | How tool calls are drawn: `"grouped"`, `"inline"`, `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. `"grouped"` folds a run's consecutive calls into one "Worked through N steps" row, with the calls one click down, drawn as `TOOL_GROUP_DISPLAY` says; `"full"` keeps a card per call. |
+| `TOOL_GROUP_DISPLAY` | `"compact"` | How an opened step group draws its calls under `TOOL_DISPLAY = "grouped"`: `"compact"`, `"full"`, `"minimal"`, or `"inline"`. Rendered as the `data-tool-group-display` attribute. `"compact"` draws one row per call, with its arguments and result behind the row's own toggle; `"full"` draws the full card per call that an opened group drew before 0.61.0. A confirmation is a card of its own outside the group, so it keeps its arguments and buttons in every mode. Ignored under the other four values of `TOOL_DISPLAY`. |
 | `MESSAGE_ACTIONS` | `"copy,retry"` | Which per-message actions the sidebar offers, from `copy` / `retry` / `feedback`. Rendered as `data-message-actions`. Matches the component's own default from 0.31.0. The rating buttons fire an `ag-ui-feedback` event and store nothing by design, and nothing here listens for it. **Set `"copy,retry,feedback"` once you have wired your own listener on the sidebar element** — that is what this setting is for. The event's detail carries `content`, `rating`, `messageId` (the rated message's AG-UI id), `threadId`, and `runId` on a message that streamed live (absent on one restored from history). Key ratings by `threadId` and `messageId` together, never by `messageId` alone: from django-ag-ui 0.72.0 a fork keeps its source's message ids, and the sidebar mounts `fork/<run_id>/` whenever a step store is configured (see [Continuing a run](#continuing-a-run)), so one id can name a message in two threads and a rating keyed by it alone merges the fork's ratings with its source's. The pair holds across a reload with the browser's per-tab storage, and with a `conversation_store` from django-ag-ui 0.68.3 or later, which stores messages under the ids the run streamed. |
-| `THEME` | _unset_ | Web Component theme: up to two words, a theme name (`"quiet"`, the default, `"soft"`, `"ledger"`, `"classic"`) and/or a scheme (`"light"`, the default, `"dark"`, `"auto"`), such as `"soft dark"`. Rendered as the `theme` attribute; left off (component default, Quiet in the light scheme) when unset. The accent is not part of it: see [Colours](#colours). |
+| `THEME` | _unset_ | Web Component theme: up to two words, a theme name (`"quiet"`, the default, `"soft"`, `"ledger"`, `"classic"`) and/or a scheme (`"light"`, `"dark"`, `"auto"`), such as `"soft dark"`. Rendered as the `theme` attribute; left off (Quiet) when unset. Without `"light"` or `"dark"` the panel follows the admin's light and dark, its system preference and its theme toggle; either word pins the panel to that scheme. `"auto"` follows the admin too where it writes `html[data-theme]`, and the system where it does not. The accent is not part of it: see [Colours](#colours). |
 | `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |
 | `PLACEMENT` | _unset_ | Where the panel sits: `"sidebar"`, `"embedded"`, `"page"`, or the older `"bottom-left"`, `"side"` and `"full"`. Rendered as the `placement` attribute; left off for the default floating bottom-right. `"sidebar"` is a full-height docked panel that collapses to an icon rail (pair it with `SIDE`); `"page"` is a full-screen route with no collapsed state at all, and greets the signed-in user by name over an empty conversation, with the composer centred beneath (the name is the one the admin header welcomes them by; see [Admin wiring](admin-wiring.md)). The last three are no longer in the component's own documented four but still parse and still work. |
 | `TEXT_ANIMATION` | _unset_ | Incoming-text animation: `"none"`, `"fade"`, or `"word"`. Rendered as the `data-text-animation` attribute; left off (default `none`) when unset. |
 | `SIDE` | _unset_ | For `PLACEMENT="sidebar"`: which edge it docks to — `"left"` or `"right"`. Rendered as the `data-side` attribute; left off (component default, right) when unset. |
-| `THEME_TOGGLE` | `False` | Show the Web Component's built-in light⇄dark header toggle (it flips only the scheme word of `theme`, so `"soft"` becomes `"soft dark"`, and saves only that word). Rendered as the `data-theme-toggle` attribute. Off by default, since the admin's own theme usually governs. |
+| `THEME_TOGGLE` | `False` | Show the Web Component's built-in light⇄dark header toggle (it flips only the scheme word of `theme`, so `"soft"` becomes `"soft dark"`, and saves only that word). Rendered as the `data-theme-toggle` attribute. The saved word pins the panel as a `THEME` scheme word does: see [Colours](#colours). Off by default, since the panel already follows the admin's own toggle. |
 | `CHAT_SURFACE_TOOLS` | `True` | Whether the agent may move, minimise and restore its own panel -- four tools it calls to get out of the way of the page it is being asked about. Every move it makes is written into the transcript with an undo beside it. On by default, unlike `render_chart`: these reach the sidebar and nothing else, so the only cost is four tool definitions per request. `False` renders `data-chat-surface-tools="false"` and registers none of them, which is worth doing for a placement that owns its position and has no collapsed state. |
 | `START_OPEN` | `False` | Whether a corner placement opens on a first visit rather than resting at its launcher. Rendered as the `data-start-open` attribute. From web component 0.35.0 the panel rests as a bubble on a first visit; before that it opened itself, so set this to `True` to keep the old behaviour. A user's own collapse or expand outlives it -- this decides only the first visit, and the stored preference wins after. Does nothing under `"sidebar"`, `"embedded"` or `"page"`, which have no collapsed state to rest in. |
-| `LAUNCHER_DRAG` | `True` | Whether users may move the sidebar: drag the collapsed bubble around the screen, and drag the open panel by its header. `False` renders `data-launcher-drag="false"` and pins it where your CSS puts it. A docked `PLACEMENT` already fixes the position, so this is for the floating one. |
+| `COLLAPSE_TO` | _unset_ | What a collapsed panel becomes. `"bar"` draws a strip along the bottom of the window in place of the round launcher, and the page makes room for it. Rendered as the `collapse-to` attribute; left off when unset, which leaves every placement as it is. `"bar"` is the only value, and any other reads as unset with no error. See [The bottom bar](#the-bottom-bar). |
+| `LAUNCHER_DRAG` | `True` | Whether users may move the sidebar: drag the collapsed bubble around the screen, and drag the open panel by its header. `False` renders `data-launcher-drag="false"` and pins it where your CSS puts it. A docked `PLACEMENT` already fixes the position, so this is for the floating one and for the panel above `COLLAPSE_TO`'s bar: see [The bottom bar](#the-bottom-bar). |
 | `ICON_URL` | _unset_ | URL of a header/launcher icon image. Rendered as the `data-icon-url` attribute; left off (icon-less) when unset. |
 | `STRINGS` | _unset_ | Localized UI-string overrides for the Web Component (a partial dict merged over its English defaults). Rendered as the `data-strings` attribute (serialized JSON). Wrap values in `gettext_lazy` so the sidebar follows the admin's active language; left off when unset. |
 | `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
@@ -36,7 +38,8 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 DJANGO_ADMIN_AGENT = {
     "TITLE": "Acme Copilot",
     "AUTO_CONFIRM": False,
-    "TOOL_DISPLAY": "full",
+    "TOOL_DISPLAY": "grouped",
+    "TOOL_GROUP_DISPLAY": "full",
     "THEME": "soft auto",
     "DENSITY": "compact",
 }
@@ -57,15 +60,16 @@ DJANGO_ADMIN_AGENT = {
 
 ### Presentation
 
-`TOOL_DISPLAY`, `THEME`, `DENSITY`, `PLACEMENT`, and `TEXT_ANIMATION` all flow
-straight through `build_sidebar_context()` onto the `<ag-ui-chat>` element as
+`TOOL_DISPLAY`, `TOOL_GROUP_DISPLAY`, `THEME`, `DENSITY`, `PLACEMENT`,
+`TEXT_ANIMATION`, and `COLLAPSE_TO` all flow straight through `build_sidebar_context()` onto the `<ag-ui-chat>` element as
 attributes; the Web Component reads them. Their accepted values mirror the
 component's own attribute values:
 
 | Setting | Attribute | Values | Default |
 | --- | --- | --- | --- |
 | `TOOL_DISPLAY` | `data-tool-display` | `grouped` · `inline` · `minimal` · `compact` · `full` | `grouped` |
-| `THEME` | `theme` | a name `quiet` · `soft` · `ledger` · `classic`, a scheme `light` · `dark` · `auto`, or one of each | _component default (Quiet, light)_ |
+| `TOOL_GROUP_DISPLAY` | `data-tool-group-display` | `compact` · `full` · `minimal` · `inline` | `compact` |
+| `THEME` | `theme` | a name `quiet` · `soft` · `ledger` · `classic`, a scheme `light` · `dark` · `auto`, or one of each | _component default (Quiet), in the admin's scheme_ |
 | `DENSITY` | `density` | `comfortable` · `compact` | _component default_ |
 | `PLACEMENT` | `placement` | `sidebar` · `embedded` · `page` · `bottom-left` · `side` · `full` | _floating bottom-right_ |
 | `TEXT_ANIMATION` | `data-text-animation` | `none` · `fade` · `word` | `none` |
@@ -73,33 +77,87 @@ component's own attribute values:
 | `LAUNCHER_DRAG` | `data-launcher-drag` | `True` · `False` | `True` |
 | `START_OPEN` | `data-start-open` | `True` · `False` | `False` |
 | `CHAT_SURFACE_TOOLS` | `data-chat-surface-tools` | `True` · `False` | `True` |
+| `COLLAPSE_TO` | `collapse-to` | `bar` | _component default, the round launcher_ |
 
 `THEME_TOGGLE` adds the Web Component's built-in light⇄dark header toggle (it
-flips only the scheme word of `theme` and saves only that word) — off by default, since the admin's own theme
-usually governs.
+flips only the scheme word of `theme` and saves only that word) — off by default,
+since the panel already follows the admin's own toggle.
 
 `LAUNCHER_DRAG` is the one that reads inverted: it is `True` by default, and
 setting it to `False` is what emits an attribute. It governs **both** ways the
 sidebar can be moved — dragging the collapsed bubble anywhere on screen, and
 dragging the open panel by its header — so a layout that places the sidebar
 deliberately turns off one setting rather than fighting two gestures. A docked
-`PLACEMENT` fixes the position on its own; this is for the floating default. `TOOL_DISPLAY` always renders (it defaults to `"grouped"`); the other four are
-rendered only when set, so leaving them unset keeps the component's own
-defaults. `data-slash-commands="true"` is always emitted, enabling the skill
-palette.
+`PLACEMENT` fixes the position on its own; this is for the floating default.
+
+`TOOL_DISPLAY` and `TOOL_GROUP_DISPLAY` always render, since each has a default
+of its own (`"grouped"` and `"compact"`). `THEME`, `DENSITY`, `PLACEMENT`,
+`TEXT_ANIMATION` and `COLLAPSE_TO` render only when set, so leaving them unset
+keeps the component's own defaults. `data-slash-commands="true"` is always
+emitted, enabling the skill palette.
+
+### The bottom bar
+
+`COLLAPSE_TO = "bar"` replaces the round launcher with a strip along the bottom of
+the window, showing the title, the unread badge, a running mark and the history
+button. The title button opens the panel; the rest of the strip is not a control.
+The panel rises from the bar's right end, or its left end under `"bottom-left"`, and
+`"side"` and `"full"` keep their own shape and stop at the bar. It replaces the
+launcher only, so it applies to the default corner placement, `"bottom-left"`,
+`"side"` and `"full"`; `"sidebar"` keeps its rail, `"embedded"` its header, and
+`"page"` has no collapsed state, so under those three it does nothing, to the panel
+or to the page.
+
+The component's other value, `"none"`, is not offered: it hides the collapsed
+panel for a control of the host's to bring back, and the admin has no such
+control, so the panel could not be reopened.
+
+The bar is fixed over the page, and the component writes no CSS of the host's, so
+the sidebar makes the room. `admin_agent.js` writes the height to
+`--django-admin-agent-bar-height` on the root element, along with a
+`data-django-admin-agent-bar` attribute, and `admin_agent.css` uses them to:
+
+- give `#content` a bottom margin, so the page's last row scrolls clear of the bar;
+- give the nav a bottom padding, so its last row does too;
+- under Django Unfold, lift the rows it pins to the window's foot. See
+  [Unfold & vanilla support](unfold.md#the-bottom-bar-under-unfold).
+
+These rules are wrapped in `:where()`, like the rest of the sheet, so any unlayered
+rule of your own beats them. A rule in a cascade layer loses to them whatever its
+specificity, which is how the cascade treats every unlayered rule. A rule wrapped in
+`:where()` too has no weight either, so it wins only if it comes after the sheet, which
+is linked from the body. Without `COLLAPSE_TO`, and under a placement that draws no bar, neither
+the attribute nor the property is written, and the page keeps its own margins.
+
+The height goes to 0 when nothing of the bar is left to clear: on a phone's width
+while the open panel covers it, and while a project's CSS sizes the panel to fill
+the window. The page gets the room back, and in the filled case the header's
+minimise control is the way back to the bar.
+
+A footer of your own below `#content` stays under the bar, since the sheet does not
+know it is there. Pad it with the same property, which is unset without the bar:
+
+```css title="static/admin/css/custom.css"
+#my-footer {
+  padding-bottom: var(--django-admin-agent-bar-height, 0px);
+}
+```
+
+`LAUNCHER_DRAG` decides what the open panel does above the bar. With it on, the
+default, the panel moves by its header and remembers its spot. With it off, the
+panel stays on its dock at the bar's end. The bar itself never moves.
 
 ### Colours
 
 The sidebar links one stylesheet of its own,
 `django_admin_agent/admin_agent.css`, which maps three of the component's tokens
-onto Django admin's and sets a fourth, the keyboard focus outline:
+onto Django admin's:
 
 | Token | Set to | Why |
 | --- | --- | --- |
 | `--ag-ui-accent` | `var(--primary)` | The panel takes the admin's brand colour. |
 | `--ag-ui-highlight-ring-color` | `var(--link-fg)` | The rings the agent draws around page elements sit on the page, where the light `--primary` is 2.41:1 against white; `--link-fg` is Django's colour for text on that background (4.85:1 light, 11.36:1 dark). |
 | `--ag-ui-font` | `var(--font-family-primary)` | The admin's font rather than the theme's own stack. |
-| `--ag-ui-ring` | `CanvasText` | The focus outline on a folded tool-call row. The component draws it from the accent at 55%, which falls under 3:1 on the panel with either admin primary (1.58:1 light, 1.38:1 dark on a dark panel); `CanvasText` follows the panel's scheme, black on a light panel and white on a dark one. |
 
 Each `var()` resolves at the element, so the colours follow Django's own light
 and dark styles, both the `prefers-color-scheme` ones and the admin's theme
@@ -107,9 +165,31 @@ toggle (`html[data-theme]`), with no script involved. Text on the accent is left
 to the component, which picks black or white by the accent's luminance: black on
 the light primary (8.70:1), white on the dark one (9.35:1).
 
-The panel's own scheme is still `THEME`: it does not follow the admin's toggle,
-so with `THEME` unset the panel stays light on a dark admin page, in the dark
-primary.
+The panel's own light and dark follow the admin's too: Django's
+`prefers-color-scheme` styles and its theme toggle, again with no script. The
+same stylesheet sets the element's `color-scheme` from the `html[data-theme]`
+that Django's theme script writes, `"dark"`, or `"auto"` under a dark system
+preference. An admin that empties its `dark-mode-vars` block has no theme
+script and no `data-theme`, so it keeps a light panel, as its pages stay light.
+The exception is `THEME = "auto"`: with nothing to follow it means the system
+preference, as it did before 0.61.0, so on a dark system that admin gets a dark
+panel on a light page.
+
+A scheme word pins the panel. With `THEME = "light"` the panel stays light on
+a dark admin page, in the dark primary, which is how this package behaved
+before 0.61.0; `"dark"` keeps it dark on a light one. `"auto"` is not a pin:
+the component reads it as the system preference alone, and wherever the admin
+writes `html[data-theme]` the sidebar makes it follow the admin, toggle included.
+On Django 4.2 and 5.0 the admin's theme
+script writes `html[data-theme]` once the window has loaded, so on a dark admin
+the panel draws light until then; from 5.1 it is dark from the first paint.
+
+`THEME_TOGGLE`'s button pins in the same way. Its first press saves a scheme
+word, so from then on that user's panel stops following the admin's toggle,
+on every page and visit, for good in that browser. The button only ever writes
+`light` or `dark`: pressing it again changes which word is saved, and the panel
+stays pinned to it. Turning `THEME_TOGGLE` off stops the pin, because the saved
+word is read only while the button is on.
 
 To use colours of your own, target the element in your admin CSS. The
 stylesheet's rule is wrapped in `:where()`, so it has no specificity and any
@@ -129,9 +209,11 @@ reaches the sidebar. Set the ring token there too: the rings read the chat's
 
 Django Unfold defines none of `--primary`, `--link-fg` or
 `--font-family-primary`. There those three declarations are invalid when the
-browser computes them and the component keeps its own Quiet colours and font
-(the focus outline still takes `CanvasText`);
-set the tokens on the element as above to give it Unfold's.
+browser computes them and the component keeps its own Quiet colours and font;
+set the tokens on the element as above to give it Unfold's. Unfold's dark mode
+writes no `html[data-theme]` either, since it keeps its theme in Alpine. So there
+the panel stays light with `THEME` unset or naming only a theme, `"auto"` follows
+the system rather than Unfold's own toggle, and `"dark"` pins it dark.
 
 ### Skills
 
@@ -258,7 +340,10 @@ what the deps are, and the binding happens either way. What yours must carry
 itself is the request for `service_specs=`: a spec callable is handed
 `call_context["request"]`, so build the deps with
 `call_context={"request": request}` as the default factory does, or every spec
-behind the sidebar sees `request=None`. If you drive the tools
+behind the sidebar sees `request=None`. A Validator declaring `call_context` is
+also read with `request` `None` when the toolset is built (django-spec-agents
+0.12.0 and later), so guard `call_context["request"] is not None` before reading
+it, or the endpoint raises as a run starts. If you drive the tools
 from somewhere other than the endpoint (a management command, a bespoke agent
 loop, a test), bind it yourself, because a tool with no acting request refuses
 rather than guessing:

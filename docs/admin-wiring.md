@@ -14,8 +14,10 @@ navigate, and the two attachment paths.
 | `title` | `DJANGO_ADMIN_AGENT["TITLE"]` | The chat panel header. |
 | `auto_confirm` | `DJANGO_ADMIN_AGENT["AUTO_CONFIRM"]` | Surfaced to the component as `autoConfirm`. |
 | `tool_display` | `DJANGO_ADMIN_AGENT["TOOL_DISPLAY"]` | The `data-tool-display` attribute (`grouped` / `inline` / `minimal` / `compact` / `full`; default `grouped`). |
+| `tool_group_display` | `DJANGO_ADMIN_AGENT["TOOL_GROUP_DISPLAY"]` | The `data-tool-group-display` attribute (`compact` / `full` / `minimal` / `inline`; default `compact`): how an opened step group draws its calls. |
 | `theme`, `density`, `placement`, `text_animation` | the matching `DJANGO_ADMIN_AGENT` keys | Themeable presentation attributes (`theme` / `density` / `placement` / `data-text-animation`), rendered only when set. See [Configuration → Presentation](configuration.md#presentation). |
 | `theme_toggle` | `DJANGO_ADMIN_AGENT["THEME_TOGGLE"]` | The `data-theme-toggle` attribute — opts into the built-in light⇄dark header toggle, which flips only the scheme word of `theme` (off by default). |
+| `collapse_to` | `DJANGO_ADMIN_AGENT["COLLAPSE_TO"]` | The `collapse-to` attribute (`bar`), rendered only when set. See [Configuration → The bottom bar](configuration.md#the-bottom-bar). |
 | `launcher_drag` | `DJANGO_ADMIN_AGENT["LAUNCHER_DRAG"]` | The `data-launcher-drag` attribute, rendered as `"false"` only when dragging is turned off — it governs both the collapsed bubble and the open panel's header. |
 | `side` | `DJANGO_ADMIN_AGENT["SIDE"]` | The `data-side` attribute for `placement="sidebar"` (`left` / `right`), rendered only when set. |
 | `icon_url` | `DJANGO_ADMIN_AGENT["ICON_URL"]` | The `data-icon-url` attribute (header/launcher icon), rendered only when set. |
@@ -38,10 +40,11 @@ identical whichever you choose.
 ## The sidebar template
 
 `templates/django_admin_agent/sidebar.html` renders the `<ag-ui-chat>` custom
-element with the endpoint, title, auto-confirm, tool-display, and admin-base
-data attributes (plus `data-slash-commands="true"`, and the optional `theme` /
-`density` / `placement` / `data-text-animation` attributes when their settings
-are set, plus `data-tools-url` when the catalog endpoint is mounted); embeds the
+element with the endpoint, title, auto-confirm, tool-display, tool-group-display
+and admin-base data attributes (plus `data-slash-commands="true"`, and the
+optional `theme` / `density` / `placement` / `data-text-animation` / `collapse-to`
+attributes when their settings are set, plus `data-tools-url` when the catalog
+endpoint is mounted); embeds the
 route map and the skill catalog as two `json_script` blocks
 (`#django-admin-agent-routes`, `#django-admin-agent-skills`); and loads the
 bootstrap module. The bootstrap (`static/django_admin_agent/admin_agent.js`)
@@ -55,7 +58,10 @@ then:
 4. Reads the embedded skill catalog and calls `el.setSkills(...)`, and sets
    `el.skillContext` to a provider that derives `{path}` / `{selected_ids}`
    placeholder values from the current page.
-5. Calls `registerAdminTools(el)` to register the
+5. Under `collapse-to="bar"`, publishes the bar's height for the sidebar's
+   stylesheet, so the page makes room for it. See
+   [Configuration → The bottom bar](configuration.md#the-bottom-bar).
+6. Calls `registerAdminTools(el)` to register the
    [frontend tools](tools.md#frontend-tools).
 
 Server-tool card labels are **not** embedded — the component fetches them from
@@ -65,8 +71,8 @@ Server-tool card labels are **not** embedded — the component fetches them from
 [catalog]: https://artui.github.io/django-ag-ui/concepts/#tool-metadata-catalog
 
 The themeable attributes (`theme` / `density` / `placement` /
-`data-text-animation`) and `data-tool-display` are read by the Web Component
-itself; this template is the seam where the `DJANGO_ADMIN_AGENT` settings become
+`data-text-animation`), `data-tool-display`, `data-tool-group-display` and
+`collapse-to` are read by the Web Component itself; this template is the seam where the `DJANGO_ADMIN_AGENT` settings become
 element attributes.
 
 ## The route map

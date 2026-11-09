@@ -346,8 +346,9 @@ e2e = [
 DJANGO_SETTINGS_MODULE = "tests.conftest_settings"
 asyncio_mode = "auto"
 # The default suite is the fast, 100%-covered unit tests. The browser e2e
-# suite (tests/e2e) runs separately via `make test-e2e` with its own settings.
-addopts = "--cov=django_admin_agent --cov-report=term-missing --cov-fail-under=100 --ignore=tests/e2e"
+# suites (tests/e2e and, under Django Unfold, tests/e2e_unfold) run separately
+# via `make test-e2e`, each with its own settings.
+addopts = "--cov=django_admin_agent --cov-report=term-missing --cov-fail-under=100 --ignore=tests/e2e --ignore=tests/e2e_unfold"
 testpaths = ["tests"]
 markers = ["e2e: browser end-to-end tests (Playwright + live server)"]
 
@@ -409,7 +410,7 @@ line-ending = "auto"
 root = ["./django_admin_agent"]
 
 [tool.bumpversion]
-current_version = "0.60.0"
+current_version = "0.61.0"
 allow_dirty = false
 commit = false
 tag = false

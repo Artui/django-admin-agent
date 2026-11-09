@@ -246,6 +246,33 @@ def test_tag_pins_the_sidebar_when_dragging_is_turned_off() -> None:
     assert 'data-launcher-drag="false"' in rendered
 
 
+def test_an_opened_step_group_draws_compact_rows_by_default() -> None:
+    assert 'data-tool-group-display="compact"' in _render()
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"TOOL_GROUP_DISPLAY": "full"})
+def test_a_project_can_ask_for_full_cards_in_an_opened_group() -> None:
+    rendered = _render()
+    assert 'data-tool-group-display="full"' in rendered
+    assert 'data-tool-group-display="compact"' not in rendered
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"COLLAPSE_TO": "bar"})
+def test_tag_collapses_the_sidebar_to_the_bar_when_asked() -> None:
+    assert 'collapse-to="bar"' in _render()
+
+
+def test_the_sidebar_renders_no_collapse_to_by_default() -> None:
+    # Absent rather than "auto": the attribute nobody set leaves every placement
+    # where the component puts it.
+    assert "collapse-to" not in _render()
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"COLLAPSE_TO": "none"})
+def test_tag_never_hides_the_panel_it_has_no_control_to_reopen() -> None:
+    assert "collapse-to" not in _render()
+
+
 @override_settings(DJANGO_ADMIN_AGENT={"START_OPEN": True})
 def test_tag_opens_the_sidebar_on_a_first_visit_when_asked() -> None:
     """The way back to the behaviour web component 0.35.0 changed.
