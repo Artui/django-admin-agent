@@ -271,7 +271,10 @@ what the deps are, and the binding happens either way. What yours must carry
 itself is the request for `service_specs=`: a spec callable is handed
 `call_context["request"]`, so build the deps with
 `call_context={"request": request}` as the default factory does, or every spec
-behind the sidebar sees `request=None`. If you drive the tools
+behind the sidebar sees `request=None`. A Validator declaring `call_context` is
+also read with `request` `None` when the toolset is built (django-spec-agents
+0.12.0 and later), so guard `call_context["request"] is not None` before reading
+it, or the endpoint raises as a run starts. If you drive the tools
 from somewhere other than the endpoint (a management command, a bespoke agent
 loop, a test), bind it yourself, because a tool with no acting request refuses
 rather than guessing:

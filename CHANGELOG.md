@@ -20,44 +20,91 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   admin's toggle until they press it back. An admin with its dark mode taken
   out (an empty `dark-mode-vars` block) and Django Unfold keep a light panel.
 - **The step group's focus outline is the component's again.** The sidebar's
-  stylesheet no longer sets `--ag-ui-ring: CanvasText`. Web component 0.48.0
-  mixes the ring from the accent and the panel's ink, which measures 7.44:1 to
-  13.97:1 against the panel with the admin's primaries in every pairing of
-  `THEME` and the admin's scheme, over the 3:1 a focus indicator needs, and
-  keeps the admin's brand tint where `CanvasText` drew black or white. The e2e
-  test that measures it fails on the 0.47.0 bundle without the old line.
-- **Vendors `@artooi/ag-ui-web-component` 0.48.0 (was 0.47.0).**
+  stylesheet no longer sets `--ag-ui-ring: CanvasText`. From 0.48.0 the web
+  component mixes the ring from the accent and the panel's ink, which measures
+  7.44:1 to 13.97:1 against the panel on 0.50.1 with the admin's primaries in
+  every pairing of `THEME` and the admin's scheme, over the 3:1 a focus indicator
+  needs, and keeps the admin's brand tint where `CanvasText` drew black or white.
+  The e2e test that measures it fails on the 0.47.0 bundle without the old line.
+- **Vendors `@artooi/ag-ui-web-component` 0.50.1 (was 0.47.0).** One record of
+  the host opt-ins across 0.48.0, 0.49.0, 0.50.0 and 0.50.1, each checked.
 
-  The host opt-ins in 0.48.0, each checked:
-  - **The theme toggle reads the drawn scheme.** Its first press on a panel
-    following a dark admin now gives a light panel, where 0.47.0 wrote `dark`
-    over a dark panel; an e2e test holds it and fails on the 0.47.0 bundle. A
-    `light` or `dark` word in `THEME` also now holds against a project rule
-    that sets `color-scheme` on the element. Nothing owed.
-  - **The rings hold 3:1.** The focus outline is the entry above. The field
-    highlight ring's new fallback applies only when no ring colour is set,
-    and the stylesheet sets `--ag-ui-highlight-ring-color` to `--link-fg`, so
-    the rings the agent draws in the page are unchanged. Nothing owed.
-  - **`data-tool-group-display`, the step group's inner mode, is not exposed
-    yet.** Absent, an opened group draws its calls as `full` cards, as it did
-    on 0.47.0. A setting for it is a later release.
-  - **`collapse-to`, `anchor` and `--ag-ui-anchor-gap` are not exposed yet.**
-    Absent, `collapse-to` reads as `auto` and every placement stays as it was.
-    A bottom bar needs the page padded by the bar's height (`barHeight`, the
-    `ag-ui-bar-height` event), and `none` needs an admin control to anchor to;
-    both are a later release.
-  - **The chat surface tools' new wording reaches the sidebar**, which turns
-    them on by default (`CHAT_SURFACE_TOOLS`): `minimise_chat` no longer
-    promises a launcher, and `read_chat_surface` reports `collapseTo`. No
-    prompt or test here quotes the old text. Nothing owed.
-  - **`--ag-ui-font: inherit` is no longer advised.** The stylesheet already
-    sets `var(--font-family-primary)`, the route the component now documents.
-  - The `@ag-ui` 1.0.4 refresh, the `newChat()` and `switchThread()` fixes
-    (nothing here calls either), the collapsed embedded slot, the dragged
-    size, the history drawer's rejection and the empty arguments box are on
-    the component's own path and owe nothing.
-  - **The browser floor holds** at Chrome 123, Firefox 120 and Safari 17.5:
-    0.48.0 adds no CSS or DOM feature newer than `light-dark()`.
+  What reaches the sidebar, with nothing owed:
+  - **The theme toggle reads the drawn scheme** (0.48.0). Its first press on a
+    panel following a dark admin now gives a light panel, where 0.47.0 wrote
+    `dark` over a dark panel; an e2e test holds it and fails on the 0.47.0
+    bundle. A `light` or `dark` word in `THEME` also now holds against a
+    project rule that sets `color-scheme` on the element.
+  - **The rings hold 3:1** (0.48.0). The focus outline is the entry above. The
+    field highlight ring's new fallback applies only when no ring colour is
+    set, and the stylesheet sets `--ag-ui-highlight-ring-color` to `--link-fg`,
+    so the rings the agent draws in the page are unchanged.
+  - **The chat surface tools' answers**, which the sidebar turns on by default
+    (`CHAT_SURFACE_TOOLS`). `minimise_chat` no longer promises a launcher and
+    `read_chat_surface` reports `collapseTo` (0.48.0). `draggable` now reports
+    the page's setting for every placement, whether this panel moves stays in
+    `movable`, and a refused `move_chat` names the placement (0.50.0). No prompt
+    or test here quotes the old text.
+  - **A moved corner panel** (0.50.0, 0.50.1). A panel moved by its header, its
+    launcher, `move_chat` or a resize grip now fills a phone's screen with no
+    stray offset and gets its place back on a wider window, and it remembers the
+    corner a grip moved. Under `LAUNCHER_DRAG = False`, a panel moved before the
+    setting went on rests where the project's CSS puts it from the next window
+    resize or reopen, which is what the setting promises.
+  - **`--ag-ui-font: inherit` is no longer advised** (0.48.0). The stylesheet
+    already sets `var(--font-family-primary)`, the route the component documents.
+
+  What needs a setting the sidebar does not have yet, so nothing changes:
+  - **`data-tool-group-display`, the step group's inner mode** (0.48.0). Absent,
+    an opened group draws its calls as `full` cards, as it did on 0.47.0.
+  - **`collapse-to`, `anchor` and `--ag-ui-anchor-gap`** (0.48.0). The sidebar
+    renders no `collapse-to`, so it reads as `auto` and every placement stays as
+    it was. That also puts out of reach the docked panel that moves (0.49.0) and
+    a filled docked panel losing its bar and grips (0.50.1), both of which apply
+    only under `bar` or `none`. A bottom bar needs the page padded by the bar's
+    height, and `none` needs an admin control to anchor to: both are a later
+    release.
+
+  What needs a token the stylesheet does not set, so nothing changes. It sets
+  `--ag-ui-accent`, `--ag-ui-font` and `--ag-ui-highlight-ring-color`, and no
+  `::part()` rule:
+  - **The header buttons and step group colours** (`--ag-ui-header-fg`,
+    `--ag-ui-header-btn-hover`, `--ag-ui-tool-fg`; 0.49.0, 0.50.0).
+  - **A host's own size and insets** (`--ag-ui-width`, `--ag-ui-height`,
+    `--ag-ui-inset`, the `--ag-ui-viewport-inset-*` tokens; 0.50.0, 0.50.1). A
+    project that writes them in its own CSS gets the fixes and owes nothing.
+
+  **The limits 0.50.1 records for a host.** Those about a fed bar height, a
+  filled box, a fixed `--ag-ui-inset`, `--ag-ui-edge-gutter`, `barHeight` and
+  grips under a fill all need `collapse-to` or a token the sidebar does not set.
+  Those about a hidden host need the element hidden, and the template mounts it
+  shown with nothing here hiding it. The one about a stored spot removed after a
+  mount needs a script removing it, and nothing here writes the component's
+  storage. One limit the sidebar does reach: **a keyboard press on the launcher
+  leaves focus on the page's body** once the panel opens, on a phone's width and
+  a desktop's. Measured in Chromium with the same result on the 0.47.0 bundle, so
+  this release does not change it.
+
+  On the component's own path, owing nothing: the `@ag-ui` 1.0.4 refresh, the
+  `newChat()` and `switchThread()` fixes (nothing here calls either), the
+  collapsed embedded slot, the dragged size, the history drawer's rejection, the
+  empty arguments box, and the undo after a surface change.
+
+  **The browser floor holds** at Chrome 123, Firefox 120 and Safari 17.5. The one
+  newer feature in 0.50.1 is relative colour syntax in the header button's hover
+  square, behind its own `@supports`, with a fallback the component documents for
+  Firefox 120 to 127 and Safari 17.5 and 17.6.
+- **The lock holds the family's current releases**: django-spec-agents 0.12.0,
+  django-spec-mcp 0.11.0 and django-service-specs 0.30.0 (0.60.0 shipped with
+  0.10.0, 0.9.0 and 0.27.0), with django-ag-ui still 0.74.0. No floor moves:
+  nothing here needs what they add, and nothing here read
+  `RegisteredSpec.agent_contract`, which the kernel removed in 0.28.0. A project
+  whose `service_specs=` Validator declares `call_context` has one thing to check
+  when it installs these. From django-spec-agents 0.12.0 the Validator is also
+  read with `request` `None` when the toolset is built, so reading
+  `call_context["request"].user` past a `None` check makes the sidebar's endpoint
+  raise as a run starts. Guard the request too; a guarded Validator still gets the
+  real request at the call.
 
 ### Documentation
 
