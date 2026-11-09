@@ -15,7 +15,8 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | --- | --- | --- |
 | `TITLE` | `"Admin Copilot"` | Header text shown on the sidebar chat panel. |
 | `AUTO_CONFIRM` | `False` | When `True`, destructive frontend tools run without the confirmation modal. Passed to the Web Component as `autoConfirm`. |
-| `TOOL_DISPLAY` | `"grouped"` | How tool calls are drawn: `"grouped"`, `"inline"`, `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. `"grouped"` folds a run's consecutive calls into one "Worked through N steps" row, with the full cards one click down; `"full"` keeps a card per call. |
+| `TOOL_DISPLAY` | `"grouped"` | How tool calls are drawn: `"grouped"`, `"inline"`, `"minimal"`, `"compact"`, or `"full"`. Rendered as the `data-tool-display` attribute. `"grouped"` folds a run's consecutive calls into one "Worked through N steps" row, with the calls one click down, drawn as `TOOL_GROUP_DISPLAY` says; `"full"` keeps a card per call. |
+| `TOOL_GROUP_DISPLAY` | `"compact"` | How an opened step group draws its calls under `TOOL_DISPLAY = "grouped"`: `"compact"`, `"full"`, `"minimal"`, or `"inline"`. Rendered as the `data-tool-group-display` attribute. `"compact"` draws one row per call, with its arguments and result behind the row's own toggle; `"full"` draws the full card per call that an opened group drew before 0.61.0. A confirmation is a card of its own outside the group, so it keeps its arguments and buttons in every mode. Ignored under the other four values of `TOOL_DISPLAY`. |
 | `MESSAGE_ACTIONS` | `"copy,retry"` | Which per-message actions the sidebar offers, from `copy` / `retry` / `feedback`. Rendered as `data-message-actions`. Matches the component's own default from 0.31.0. The rating buttons fire an `ag-ui-feedback` event and store nothing by design, and nothing here listens for it. **Set `"copy,retry,feedback"` once you have wired your own listener on the sidebar element** — that is what this setting is for. The event's detail carries `content`, `rating`, `messageId` (the rated message's AG-UI id), `threadId`, and `runId` on a message that streamed live (absent on one restored from history). Key ratings by `threadId` and `messageId` together, never by `messageId` alone: from django-ag-ui 0.72.0 a fork keeps its source's message ids, and the sidebar mounts `fork/<run_id>/` whenever a step store is configured (see [Continuing a run](#continuing-a-run)), so one id can name a message in two threads and a rating keyed by it alone merges the fork's ratings with its source's. The pair holds across a reload with the browser's per-tab storage, and with a `conversation_store` from django-ag-ui 0.68.3 or later, which stores messages under the ids the run streamed. |
 | `THEME` | _unset_ | Web Component theme: up to two words, a theme name (`"quiet"`, the default, `"soft"`, `"ledger"`, `"classic"`) and/or a scheme (`"light"`, `"dark"`, `"auto"`), such as `"soft dark"`. Rendered as the `theme` attribute; left off (Quiet) when unset. Without `"light"` or `"dark"` the panel follows the admin's light and dark, its system preference and its theme toggle; either word pins the panel to that scheme. `"auto"` follows the admin too where it writes `html[data-theme]`, and the system where it does not. The accent is not part of it: see [Colours](#colours). |
 | `DENSITY` | _unset_ | Layout density: `"comfortable"` or `"compact"`. Rendered as the `density` attribute; left off when unset. |
@@ -25,7 +26,8 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `THEME_TOGGLE` | `False` | Show the Web Component's built-in light⇄dark header toggle (it flips only the scheme word of `theme`, so `"soft"` becomes `"soft dark"`, and saves only that word). Rendered as the `data-theme-toggle` attribute. The saved word pins the panel as a `THEME` scheme word does: see [Colours](#colours). Off by default, since the panel already follows the admin's own toggle. |
 | `CHAT_SURFACE_TOOLS` | `True` | Whether the agent may move, minimise and restore its own panel -- four tools it calls to get out of the way of the page it is being asked about. Every move it makes is written into the transcript with an undo beside it. On by default, unlike `render_chart`: these reach the sidebar and nothing else, so the only cost is four tool definitions per request. `False` renders `data-chat-surface-tools="false"` and registers none of them, which is worth doing for a placement that owns its position and has no collapsed state. |
 | `START_OPEN` | `False` | Whether a corner placement opens on a first visit rather than resting at its launcher. Rendered as the `data-start-open` attribute. From web component 0.35.0 the panel rests as a bubble on a first visit; before that it opened itself, so set this to `True` to keep the old behaviour. A user's own collapse or expand outlives it -- this decides only the first visit, and the stored preference wins after. Does nothing under `"sidebar"`, `"embedded"` or `"page"`, which have no collapsed state to rest in. |
-| `LAUNCHER_DRAG` | `True` | Whether users may move the sidebar: drag the collapsed bubble around the screen, and drag the open panel by its header. `False` renders `data-launcher-drag="false"` and pins it where your CSS puts it. A docked `PLACEMENT` already fixes the position, so this is for the floating one. |
+| `COLLAPSE_TO` | _unset_ | What a collapsed panel becomes. `"bar"` draws a strip along the bottom of the window in place of the round launcher, and the page makes room for it. Rendered as the `collapse-to` attribute; left off when unset, which leaves every placement as it is. `"bar"` is the only value, and any other reads as unset with no error. See [The bottom bar](#the-bottom-bar). |
+| `LAUNCHER_DRAG` | `True` | Whether users may move the sidebar: drag the collapsed bubble around the screen, and drag the open panel by its header. `False` renders `data-launcher-drag="false"` and pins it where your CSS puts it. A docked `PLACEMENT` already fixes the position, so this is for the floating one and for the panel above `COLLAPSE_TO`'s bar: see [The bottom bar](#the-bottom-bar). |
 | `ICON_URL` | _unset_ | URL of a header/launcher icon image. Rendered as the `data-icon-url` attribute; left off (icon-less) when unset. |
 | `STRINGS` | _unset_ | Localized UI-string overrides for the Web Component (a partial dict merged over its English defaults). Rendered as the `data-strings` attribute (serialized JSON). Wrap values in `gettext_lazy` so the sidebar follows the admin's active language; left off when unset. |
 | `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
@@ -36,7 +38,8 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 DJANGO_ADMIN_AGENT = {
     "TITLE": "Acme Copilot",
     "AUTO_CONFIRM": False,
-    "TOOL_DISPLAY": "full",
+    "TOOL_DISPLAY": "grouped",
+    "TOOL_GROUP_DISPLAY": "full",
     "THEME": "soft auto",
     "DENSITY": "compact",
 }
@@ -57,14 +60,15 @@ DJANGO_ADMIN_AGENT = {
 
 ### Presentation
 
-`TOOL_DISPLAY`, `THEME`, `DENSITY`, `PLACEMENT`, and `TEXT_ANIMATION` all flow
-straight through `build_sidebar_context()` onto the `<ag-ui-chat>` element as
+`TOOL_DISPLAY`, `TOOL_GROUP_DISPLAY`, `THEME`, `DENSITY`, `PLACEMENT`,
+`TEXT_ANIMATION`, and `COLLAPSE_TO` all flow straight through `build_sidebar_context()` onto the `<ag-ui-chat>` element as
 attributes; the Web Component reads them. Their accepted values mirror the
 component's own attribute values:
 
 | Setting | Attribute | Values | Default |
 | --- | --- | --- | --- |
 | `TOOL_DISPLAY` | `data-tool-display` | `grouped` · `inline` · `minimal` · `compact` · `full` | `grouped` |
+| `TOOL_GROUP_DISPLAY` | `data-tool-group-display` | `compact` · `full` · `minimal` · `inline` | `compact` |
 | `THEME` | `theme` | a name `quiet` · `soft` · `ledger` · `classic`, a scheme `light` · `dark` · `auto`, or one of each | _component default (Quiet), in the admin's scheme_ |
 | `DENSITY` | `density` | `comfortable` · `compact` | _component default_ |
 | `PLACEMENT` | `placement` | `sidebar` · `embedded` · `page` · `bottom-left` · `side` · `full` | _floating bottom-right_ |
@@ -73,6 +77,7 @@ component's own attribute values:
 | `LAUNCHER_DRAG` | `data-launcher-drag` | `True` · `False` | `True` |
 | `START_OPEN` | `data-start-open` | `True` · `False` | `False` |
 | `CHAT_SURFACE_TOOLS` | `data-chat-surface-tools` | `True` · `False` | `True` |
+| `COLLAPSE_TO` | `collapse-to` | `bar` | _component default, the round launcher_ |
 
 `THEME_TOGGLE` adds the Web Component's built-in light⇄dark header toggle (it
 flips only the scheme word of `theme` and saves only that word) — off by default,
@@ -83,10 +88,58 @@ setting it to `False` is what emits an attribute. It governs **both** ways the
 sidebar can be moved — dragging the collapsed bubble anywhere on screen, and
 dragging the open panel by its header — so a layout that places the sidebar
 deliberately turns off one setting rather than fighting two gestures. A docked
-`PLACEMENT` fixes the position on its own; this is for the floating default. `TOOL_DISPLAY` always renders (it defaults to `"grouped"`); the other four are
-rendered only when set, so leaving them unset keeps the component's own
-defaults. `data-slash-commands="true"` is always emitted, enabling the skill
-palette.
+`PLACEMENT` fixes the position on its own; this is for the floating default.
+
+`TOOL_DISPLAY` and `TOOL_GROUP_DISPLAY` always render, since each has a default
+of its own (`"grouped"` and `"compact"`). `THEME`, `DENSITY`, `PLACEMENT`,
+`TEXT_ANIMATION` and `COLLAPSE_TO` render only when set, so leaving them unset
+keeps the component's own defaults. `data-slash-commands="true"` is always
+emitted, enabling the skill palette.
+
+### The bottom bar
+
+`COLLAPSE_TO = "bar"` replaces the round launcher with a strip along the bottom of
+the window, showing the title, the unread badge, a running mark and the history
+button. Pressing the strip opens the panel, which rises from the bar's right end.
+It replaces the launcher only, so it applies to the default corner placement,
+`"bottom-left"`, `"side"` and `"full"`; `"sidebar"` keeps its rail, `"embedded"`
+its header, and `"page"` has no collapsed state.
+
+The component's other value, `"none"`, is not offered: it hides the collapsed
+panel for a control of the host's to bring back, and the admin has no such
+control, so the panel could not be reopened.
+
+The bar is fixed over the page, and the component writes no CSS of the host's, so
+the sidebar makes the room. `admin_agent.js` writes the height to
+`--django-admin-agent-bar-height` on the root element, along with a
+`data-django-admin-agent-bar` attribute, and `admin_agent.css` uses them to:
+
+- give `#content` a bottom margin, so the page's last row scrolls clear of the bar;
+- give the nav a bottom padding, so its last row does too;
+- under Django Unfold, lift the rows it pins to the window's foot. See
+  [Unfold & vanilla support](unfold.md#the-bottom-bar-under-unfold).
+
+These rules are wrapped in `:where()`, like the rest of the sheet, so any rule of
+your own beats them. Without `COLLAPSE_TO` neither the attribute nor the property
+is written, and the page keeps its own margins.
+
+The height goes to 0 when nothing of the bar is left to clear: on a phone's width
+while the open panel covers it, and while a project's CSS sizes the panel to fill
+the window. The page gets the room back, and in the filled case the header's
+minimise control is the way back to the bar.
+
+A footer of your own below `#content` stays under the bar, since the sheet does not
+know it is there. Pad it with the same property, which is unset without the bar:
+
+```css title="static/admin/css/custom.css"
+#my-footer {
+  padding-bottom: var(--django-admin-agent-bar-height, 0px);
+}
+```
+
+`LAUNCHER_DRAG` decides what the open panel does above the bar. With it on, the
+default, the panel moves by its header and remembers its spot. With it off, the
+panel stays on its dock at the bar's right end. The bar itself never moves.
 
 ### Colours
 

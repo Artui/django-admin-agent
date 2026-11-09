@@ -104,6 +104,12 @@ def _decision(messages: Sequence[ModelMessage], info: AgentInfo) -> tuple[str, s
         if "count_model" not in returned:
             return ("tool", "count_model", _AUTHOR_ARGS)
         return ("text", f"Counted the authors. {_tool_result(messages, 'count_model')}", "")
+    # A tool that asks first: the fallback click is registered destructive, so the
+    # run stops at its confirmation until the test answers it.
+    if "press" in text and "click_dom_element" in offered:
+        if "click_dom_element" not in returned:
+            return ("tool", "click_dom_element", '{"selector_or_label": "#nothing-here"}')
+        return ("text", "Left the page alone.", "")
     if ("move" in text or "out of the way" in text) and "move_chat" in offered:
         if "move_chat" not in returned:
             return ("tool", "move_chat", '{"corner": "top-left"}')

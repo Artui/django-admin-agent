@@ -9,8 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.61.0] — 2026-11-09
 
+### Added
+
+- **`COLLAPSE_TO = "bar"` collapses the sidebar into a strip along the bottom of
+  the window**, in place of the round launcher, with the title, the unread badge,
+  a running mark and the history button. Rendered as `collapse-to` only when set,
+  so unset leaves every placement as it is. It applies to the default corner
+  placement, `"bottom-left"`, `"side"` and `"full"`. `"bar"` is the only value and
+  any other reads as unset, since the component's `"none"` needs a control of the
+  host's to reopen the panel and the admin has none.
+
+  The bar is fixed over the page, so the page makes room. `admin_agent.js`
+  publishes the bar's height as `--django-admin-agent-bar-height` on the root, and
+  `admin_agent.css` gives `#content` a bottom margin and the nav a bottom padding,
+  in rules any project rule beats. It writes no component token. A project's own
+  footer below `#content` stays under the bar, and pads itself with that property.
+  `LAUNCHER_DRAG` decides what the open panel does above the bar: it moves by its
+  header and remembers its spot, or with the setting off stays on its dock.
+
+  **Under Django Unfold the sheet reaches further than a margin**, because no
+  margin lifts the rows Unfold pins to the window's foot. It sets `bottom` on
+  selectors that read Unfold's Tailwind class names, so it depends on those names
+  and on Unfold's sheet being in cascade layers. The suite runs 0.110.1; the Unfold
+  guide says what 0.81.0 and 0.40.0 did, and what was not run.
+
 ### Changed
 
+- **An opened step group draws a row per call, not a full card.** The new
+  `TOOL_GROUP_DISPLAY` setting defaults to `"compact"`, so every project on the
+  grouped `TOOL_DISPLAY`, which is the default, sees this. A call's arguments move
+  behind the toggle its result was already behind, so a row is one line, 27px where
+  a card was 137px. `TOOL_GROUP_DISPLAY = "full"` is the way back. `"minimal"` and `"inline"` are there too, and the value is ignored
+  under the other four `TOOL_DISPLAY` values. A refused call still reads as failed
+  on the group's head and its row, with the reason one click further down. A
+  confirmation is a card of its own outside the group, with its arguments and
+  buttons on screen as before.
 - **The panel follows the admin's light and dark.** With `THEME` unset, naming
   only a theme (`"soft"`), or `"auto"`, a dark admin page now gets a dark
   panel: the sidebar's stylesheet sets the element's `color-scheme` from
@@ -63,16 +96,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **`--ag-ui-font: inherit` is no longer advised** (0.48.0). The stylesheet
     already sets `var(--font-family-primary)`, the route the component documents.
 
-  What needs a setting the sidebar does not have yet, so nothing changes:
-  - **`data-tool-group-display`, the step group's inner mode** (0.48.0). Absent,
-    an opened group draws its calls as `full` cards, as it did on 0.47.0.
-  - **`collapse-to`, `anchor` and `--ag-ui-anchor-gap`** (0.48.0). The sidebar
-    renders no `collapse-to`, so it reads as `auto` and every placement stays as
-    it was. That also puts out of reach the docked panel that moves (0.49.0) and
-    a filled docked panel losing its bar and grips (0.50.1), both of which apply
-    only under `bar` or `none`. A bottom bar needs the page padded by the bar's
-    height, and `none` needs an admin control to anchor to: both are a later
-    release.
+  What the two new settings above turn on:
+  - **`data-tool-group-display`, the step group's inner mode** (0.48.0), by
+    `TOOL_GROUP_DISPLAY`.
+  - **`collapse-to="bar"`** (0.48.0), by `COLLAPSE_TO`. With it comes the docked
+    panel that moves (0.49.0), and a filled docked panel losing its bar and grips
+    (0.50.1), where the page gets the room back.
+
+  What the sidebar still does not offer: **`collapse-to="none"`, `anchor` and
+  `--ag-ui-anchor-gap`** (0.48.0), which need an admin control to anchor to.
 
   What needs a token the stylesheet does not set, so nothing changes. It sets
   `--ag-ui-accent`, `--ag-ui-font` and `--ag-ui-highlight-ring-color`, and no
@@ -88,16 +120,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `--ag-ui-inset`, the `--ag-ui-viewport-inset-*` tokens; 0.50.0, 0.50.1). A
     project that writes them in its own CSS gets the fixes and owes nothing.
 
-  **The limits 0.50.1 records for a host.** Those about a fed bar height, a
-  filled box, a fixed `--ag-ui-inset`, `--ag-ui-edge-gutter`, `barHeight` and
-  grips under a fill all need `collapse-to` or a token the sidebar does not set.
-  Those about a hidden host need the element hidden, and the template mounts it
-  shown with nothing here hiding it. The one about a stored spot removed after a
-  mount needs a script removing it, and nothing here writes the component's
-  storage. One limit the sidebar does reach: **a keyboard press on the launcher
-  leaves focus on the page's body** once the panel opens, on a phone's width and
-  a desktop's. Measured in Chromium with the same result on the 0.47.0 bundle, so
-  this release does not change it.
+  **The limits 0.50.1 records for a host.** Those about a fed bar height do not
+  apply: the sidebar writes the bar's height only to its own property, never to a
+  component token. Those about a filled box, a fixed `--ag-ui-inset` and
+  `--ag-ui-edge-gutter` need a token the sidebar does not set. A reload of a filled
+  panel reports the bar's height and then 0, and the page follows both. Those about
+  a hidden host need the element hidden. The template mounts it shown, but a project
+  that mounts it in Unfold's `branding` block gets it hidden at a 1280px window, so
+  the Unfold guide now gives a mount that works. The one about a
+  stored spot removed after a mount needs a script removing it, and nothing here
+  writes the component's storage.
+
+  One limit the sidebar does reach: **a keyboard press can leave focus on the page's
+  body** once the panel opens. On the round launcher that holds at a phone's width
+  and a desktop's, measured in Chromium with the same result on the 0.47.0 bundle.
+  On the bar it holds at a phone's width and while a project's CSS fills the window;
+  at a desktop's width with no fill, focus stays on the bar's launcher.
 
   On the component's own path, owing nothing: the `@ag-ui` 1.0.4 refresh, the
   `newChat()` and `switchThread()` fixes (nothing here calls either), the

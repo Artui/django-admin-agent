@@ -4,6 +4,12 @@ import pytest
 
 
 @pytest.fixture
+def admin_user_pk(admin_page, django_user_model):  # noqa: ANN001, ANN201
+    """The primary key of the superuser ``admin_page`` signed in."""
+    return django_user_model.objects.get(username="admin").pk
+
+
+@pytest.fixture
 def admin_page(live_server, page, django_user_model):  # noqa: ANN001, ANN201
     """A Playwright page logged into the live Unfold admin as a superuser."""
     django_user_model.objects.create_superuser("admin", "admin@example.com", "password")

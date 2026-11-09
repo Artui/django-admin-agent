@@ -113,6 +113,9 @@ admin base URL, and route map), so the admin site does not need swapping. See
 [Configuration](configuration.md) for the theming, tool-display, and skills
 settings.
 
+Under Django Unfold the `branding` block is hidden below its `xl` breakpoint, so
+use the mount in [Unfold & vanilla support](unfold.md#mounting-the-sidebar).
+
 ### Option B — `SidebarAdminSite`
 
 If you prefer to swap the admin site, subclass (or instantiate)

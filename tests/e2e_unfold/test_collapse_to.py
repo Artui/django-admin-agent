@@ -9,6 +9,8 @@ tall too, with the user menu at its foot.
 from __future__ import annotations
 
 import pytest
+from django.contrib.admin.models import CHANGE, LogEntry
+from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 
 from tests.testapp.models import Author
@@ -84,6 +86,52 @@ def test_the_bulk_actions_come_clear_of_the_bar(admin_page, live_server):  # noq
     admin_page.locator("#changelist-actions-wrapper").wait_for(state="visible")
 
     _assert_clear(admin_page, BULK_ACTIONS)
+
+
+@override_settings(DJANGO_ADMIN_AGENT=SETTINGS)
+def test_a_page_with_no_pinned_row_ends_clear_of_the_bar(admin_page, live_server, admin_user_pk):  # noqa: ANN001, ANN201
+    """An object's history pins nothing to the foot, so only the page's margin lifts it."""
+    _authors(1)
+    author = Author.objects.get()
+    LogEntry.objects.bulk_create(
+        [
+            LogEntry(
+                user_id=admin_user_pk,
+                content_type=ContentType.objects.get_for_model(Author),
+                object_id=str(author.pk),
+                object_repr=str(author),
+                action_flag=CHANGE,
+                change_message=f"Change {n}",
+            )
+            for n in range(40)
+        ]
+    )
+    _open(admin_page, live_server, f"/admin/testapp/author/{author.pk}/history/")
+
+    state = admin_page.evaluate(
+        """(selector) => {
+          window.scrollTo(0, document.documentElement.scrollHeight);
+          const chat = document.querySelector(selector);
+          const bar = chat.shadowRoot.querySelector('[part~="bar"]').getBoundingClientRect();
+          const drawn = [...document.querySelectorAll("#content *")].filter(
+            (el) => el.children.length === 0 && el.textContent.trim() !== ""
+              && el.getBoundingClientRect().height > 0,
+          );
+          const last = drawn[drawn.length - 1];
+          return {
+            barTop: bar.top,
+            last: last.textContent.trim(),
+            lastBottom: last.getBoundingClientRect().bottom,
+            contentBottom: document.getElementById("content").getBoundingClientRect().bottom,
+            scrolled: document.documentElement.scrollHeight > innerHeight,
+          };
+        }""",
+        CHAT,
+    )
+
+    assert state["scrolled"] is True, state
+    assert state["lastBottom"] <= state["barTop"], state
+    assert state["contentBottom"] <= state["barTop"], state
 
 
 @override_settings(DJANGO_ADMIN_AGENT=SETTINGS)

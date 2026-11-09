@@ -3,8 +3,36 @@
 The sidebar works against **vanilla Django admin** and **[Django
 Unfold](https://github.com/unfoldadmin/django-unfold)** through a single shared
 DOM driver. There is no Python dependency on Unfold: the package never imports
-it at module load, and the only Unfold-specific code is a runtime-detected
-JavaScript shim in the browser.
+it at module load. The Unfold-specific code is a runtime-detected JavaScript shim
+in the browser and, under `COLLAPSE_TO = "bar"`, a few rules in the sidebar's
+stylesheet.
+
+## Mounting the sidebar
+
+The installation guide's mount puts the tag in the `branding` block. Under Unfold
+that block sits in a container hidden below its `xl` breakpoint, so the sidebar
+would be mounted and invisible at a window of 1280px and shown at 1500px. Mount it
+in the `base` block instead:
+
+```django title="templates/admin/base_site.html"
+{% extends "admin/base.html" %}
+{% load django_admin_agent %}
+
+{% block branding %}
+{% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block base %}
+{{ block.super }}
+{% django_admin_agent_sidebar %}
+{% endblock %}
+```
+
+Unfold's dashboard, `admin/index.html`, extends `admin/base.html` rather than
+`base_site.html`, so with this mount the dashboard has no sidebar. Unfold's change
+list and change form override the `footer` block, so that block does not reach
+them either. Measured on Unfold 0.110.1. The include's path is that version's;
+0.40.0 has no such template.
 
 ## Why one driver covers both
 
@@ -45,21 +73,58 @@ of the three, so under Unfold the panel keeps the component's own Quiet colours
 and font. To give it Unfold's, set the tokens on the element in your own CSS; see
 [Configuration → Colours](configuration.md#colours).
 
+## The bottom bar under Unfold
+
+`COLLAPSE_TO = "bar"` works under Unfold, and the sidebar makes room for the bar as
+it does on Django's admin ([Configuration → The bottom bar](configuration.md#the-bottom-bar)).
+A margin on the page is not enough here, because Unfold pins its save row, its
+pagination row and its bulk actions to the foot of the window. So under the bar the
+stylesheet also sets `bottom` on elements it finds **by Unfold's Tailwind class
+names**, and gives `#nav-sidebar-inner` a shorter minimum height:
+
+| Selector | What it lifts | When |
+| --- | --- | --- |
+| `[class~="fixed"][class~="lg:bottom-0"]` | The bulk actions | Always |
+| `[class~="lg:sticky"][class~="lg:bottom-0"]` | The save row, the pagination row | From 64rem wide |
+
+These reach further than a page margin and depend on names Unfold can change in any
+release. If it renames one, the row it named goes back under the bar, and nothing
+else breaks. They have no specificity, so they rely on Unfold's stylesheet being in
+cascade layers, which any unlayered rule beats. The sidebar's other rules have no
+specificity either, and any rule of your own beats all of them.
+
+**Only Chromium was measured, and the suite holds one version.** What each version
+did under the bar:
+
+| Unfold | Django | Result |
+| --- | --- | --- |
+| 0.110.1, the version `tests/e2e_unfold` runs | 6.1 | Every row clear of the bar, at any scroll. |
+| 0.81.0, run once by hand | 5.2 | The save and pagination rows and the nav are clear. The bulk actions use `lg:bottom-[64px]`, which no selector reads: they stay clear of the bar, but lie over the lifted pagination row while rows are selected. |
+| 0.40.0, run once by hand | 5.2 | Its stylesheet has no layers, and the margin and the nav's padding still apply, so a page's last row comes clear. **Its save row is pinned under class names no selector reads, so the bar covers the Save button**, at `[646,684]` against the bar's top at 659 on a short form that does not scroll. Do not use the bar on this version without lifting that row yourself. |
+
+Versions in between, Firefox and Safari have not been run. Below 0.110.1, expect
+the page's margin to hold, and check every row your version pins to the foot,
+the Save button first. A project on another version can lift such a row itself with
+`--django-admin-agent-bar-height`, which is unset without the bar.
+
 ## The end-to-end suite
 
-Behaviour against a live admin is verified by a browser end-to-end suite under
-`tests/e2e/`, driven by Playwright against a live server. It is **separate** from
-the unit suite (which `make test` runs with the 100% coverage gate) and is **not**
-part of the default test run — it exercises the JS bundle and the server over
-HTTP, so it has its own settings and no coverage gate.
+Behaviour against a live admin is verified by two browser end-to-end suites, driven
+by Playwright against a live server: `tests/e2e/` on Django's admin, and
+`tests/e2e_unfold/` with Unfold in front of it, since one process holds one settings
+module. They are **separate** from
+the unit suite (which `make test` runs with the 100% coverage gate) and are **not**
+part of the default test run: they exercise the JS bundle and the server over
+HTTP, so they have their own settings and no coverage gate.
 
-Run it with:
+Run both with:
 
 ```bash
 make test-e2e
 ```
 
-The suite logs into the live admin as a superuser, then asserts that:
+`tests/e2e/` logs into the live admin as a superuser, then asserts, among other
+things, that:
 
 - the `<ag-ui-chat>` sidebar renders and its chat shell is visible on admin
   pages;
@@ -72,6 +137,7 @@ The suite logs into the live admin as a superuser, then asserts that:
   `--primary`, `--link-fg` and `--font-family-primary`, in the light and dark
   schemes and under the admin's theme toggle.
 
-The e2e settings install `django-unfold` (via the `e2e` dependency group), so
-the shim can be exercised alongside vanilla admin. `make test-e2e` requires a
-browser (Playwright) and is excluded from the default `make test`.
+`tests/e2e_unfold/` runs the Unfold version in `uv.lock`, from the `e2e` dependency
+group, and covers the bottom bar only. No browser test exercises the shim's tab
+activation or its Go button. `make test-e2e` requires a browser (Playwright) and is
+excluded from the default `make test`.
