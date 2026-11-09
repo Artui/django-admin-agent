@@ -64,9 +64,13 @@ def test_the_inner_mode_means_nothing_outside_the_grouped_display(  # noqa: ANN2
         with override_settings(DJANGO_ADMIN_AGENT=config):
             admin_page.goto(f"{live_server.url}/admin/testapp/author/")
             send_message(admin_page, "how many authors are there?")
+            # The second page restores the first turn, so wait for this turn's message:
+            # without the filter a fast run stops at the restored one and measures it,
+            # and a slow one finds two and fails.
             expect(
                 admin_page.locator(
-                    "ag-ui-chat .message--assistant", has_text="Counted the authors."
+                    "ag-ui-chat .message--assistant:not(.message--restored)",
+                    has_text="Counted the authors.",
                 ),
             ).to_be_visible(timeout=15000)
             expect(admin_page.locator(f"{GROUP} .tool-group-head")).to_have_count(0)
