@@ -134,11 +134,7 @@ def test_staff_without_model_permission_gets_nothing(
     call: Any,
     kwargs: dict[str, Any],
 ) -> None:
-    """The finding's own scenario: staff, no model permissions, full DB read.
-
-    Every one of the four is refused for a model this user cannot open in the
-    admin — including the schema, which is a map of where the rows are.
-    """
+    """The finding's own scenario: staff, no model permissions, full DB read."""
     Author.objects.create(name="Secret")
     user = make_staff_user("support")
 
@@ -162,12 +158,7 @@ def test_rows_come_from_the_model_admin_queryset(
     as_superuser: Any,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A project narrowing a changelist narrows the agent by the same act.
-
-    Per-tenant and per-owner scoping is written as a ``get_queryset`` override,
-    so reading through the default manager instead is how the sidebar ends up
-    with rows the admin would never show.
-    """
+    """A project narrowing a changelist narrows the agent by the same act."""
     author = Author.objects.create(name="Eli")
     Book.objects.create(title="mine", author=author)
     Book.objects.create(title="theirs", author=author)
@@ -184,11 +175,7 @@ def test_rows_come_from_the_model_admin_queryset(
 
 
 def test_a_model_outside_the_admin_is_unreachable_even_for_a_superuser(as_superuser: Any) -> None:
-    """``sessions.Session`` is nobody's changelist, so it is nobody's query.
-
-    The admin registry is the scope: a model the project never registered is
-    one no staff user can open in the admin, whatever their permissions.
-    """
+    """``sessions.Session`` is nobody's changelist, so it is nobody's query."""
     with pytest.raises(PermissionDenied, match="not readable by this user"):
         query_model("sessions", "Session")
 
@@ -258,8 +245,7 @@ def test_a_relation_walk_onto_a_redacted_field_is_refused_too(as_superuser: Any)
     author = Author.objects.create(name="Eli")
     Book.objects.create(title="A", author=author)
     with pytest.raises(ValueError, match="redacted field"):
-        # Not a real field here; what is pinned is that the walk is inspected
-        # segment by segment rather than only at the head of the lookup.
+        # The walk is inspected segment by segment, not only at the head of the lookup.
         query_model("testapp", "Book", filter={"author__api_token__startswith": "t"})
 
 
