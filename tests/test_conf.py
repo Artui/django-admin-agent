@@ -15,10 +15,7 @@ def test_defaults_when_setting_absent() -> None:
     assert config.tool_display == "grouped"
     # Compact, not the component's own full: an opened group is one row a call.
     assert config.tool_group_display == "compact"
-    # Unset, so every placement stays as it is.
     assert config.collapse_to is None
-    # Not merely a default: dropping ``feedback`` is what stops the sidebar
-    # showing two rating buttons whose event nothing in this package listens for.
     assert config.message_actions == "copy,retry"
     assert "feedback" not in config.message_actions
     assert config.skills is None
@@ -29,15 +26,8 @@ def test_defaults_when_setting_absent() -> None:
     assert config.strings is None
     assert config.icon_url is None
     assert config.side is None
-    # On by default, because the component's own default is on: a project that
-    # says nothing gets a sidebar its users can move.
     assert config.launcher_drag is True
-    # Off by default, matching the component from 0.35.0: an admin page arrives
-    # with the chat as a bubble rather than a panel over the changelist someone
-    # came to read. Before that the panel opened itself on every first visit.
     assert config.start_open is False
-    # On by default, unlike the agent-facing chart route: these four move this
-    # sidebar and nothing else, so the surface they widen reaches no data.
     assert config.chat_surface_tools is True
     assert config.theme_toggle is False
     assert config.shell_field_redaction is True
@@ -112,11 +102,6 @@ def test_chat_surface_tools_coerced_to_bool() -> None:
 
 @pytest.mark.parametrize("value", ["none", "auto", "BAR", "", True, None])
 def test_collapse_to_treats_anything_but_bar_as_unset(value: object) -> None:
-    """Nothing here raises on a bad setting, and a bad value reads as the default.
-
-    ``"none"`` is the one that matters. The component honours it by hiding the
-    collapsed panel for a host control to bring back, and the admin has no such
-    control, so passing it through would leave a panel nobody can reopen.
-    """
+    """Nothing here raises on a bad setting, and a bad value reads as the default."""
     with override_settings(DJANGO_ADMIN_AGENT={"COLLAPSE_TO": value}):
         assert get_settings().collapse_to is None

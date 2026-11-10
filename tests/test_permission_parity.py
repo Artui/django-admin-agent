@@ -1,12 +1,3 @@
-"""The endpoint's half of permission parity: who the tools answer as.
-
-A server-side tool is a plain callable — pydantic-ai hands it the arguments the
-model chose and nothing about who asked — so the acting request has to arrive
-by another route. These pin that route: the endpoint's own per-run hook binds
-it, a project's ``deps_factory`` cannot displace the binding, and the tools
-downstream then answer as that user and no other.
-"""
-
 from __future__ import annotations
 
 from typing import Any
@@ -39,8 +30,7 @@ def test_the_run_hook_binds_the_acting_request_and_builds_the_default_deps(
     assert ACTING_REQUEST.get() is request
     assert deps.user is superuser
     assert deps.ip_address == request.META.get("REMOTE_ADDR")
-    # django-ag-ui's default carries the request here for the spec toolset, and
-    # this replaces that default, so it carries it too.
+    # django-ag-ui's default carries the request here for the spec toolset.
     assert deps.call_context == {"request": request}
 
 
@@ -58,12 +48,7 @@ def test_a_projects_own_deps_factory_still_gets_the_binding(superuser: Any) -> N
 def test_the_mounted_endpoint_binds_the_request_the_transport_hands_it(
     superuser: Any,
 ) -> None:
-    """Through the transport's own dispatch, not our factory called directly.
-
-    ``DjangoAGUIView._build_deps`` is what runs per request; this asserts the
-    factory is installed where that dispatch will find it, and that a tool
-    called afterwards answers as the bound user.
-    """
+    """Through the transport's own dispatch, not our factory called directly."""
     Author.objects.create(name="Bea")
     request = request_for(superuser)
 
@@ -77,11 +62,7 @@ def test_the_mounted_endpoint_binds_the_request_the_transport_hands_it(
 def test_a_staff_user_without_permissions_gets_nothing_through_the_endpoint(
     make_staff_user: Any,
 ) -> None:
-    """The finding's scenario, driven the way a request drives it.
-
-    Support staff hold ``is_staff`` and no model permissions; before this, the
-    same sidebar answered "every user" with every row of every table.
-    """
+    """The finding's scenario, driven the way a request drives it."""
     Author.objects.create(name="Bea")
     user = make_staff_user("support")
 

@@ -33,8 +33,7 @@ def test_urls_is_the_namespaced_triple() -> None:
 
 
 def test_default_mount_is_endpoint_and_tools_only() -> None:
-    # No stores configured (settings default to Null), so only the agent
-    # endpoint + tool catalog mount — the persistence sub-views stay off.
+    # No stores configured (settings default to Null).
     patterns = _patterns(AdminAgentServer())
     assert [p.name for p in patterns] == ["endpoint", "tools"]
     endpoint, tools = patterns
@@ -125,9 +124,7 @@ def test_mcp_server_reaches_the_spec_mcp_bridge_without_a_warning() -> None:
 
 
 def test_the_removed_drf_mcp_server_keyword_is_refused() -> None:
-    # Removed rather than kept as an alias: a djangorestframework-mcp-server
-    # handed in would otherwise reach a transport with no bridge for it. The
-    # keyword falls through ``**kwargs``, and the transport is what refuses it.
+    # Removed rather than kept as an alias.
     with pytest.raises(TypeError, match="drf_mcp_server"):
         AdminAgentServer(drf_mcp_server=_ServerStub())
 

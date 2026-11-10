@@ -1,19 +1,3 @@
-"""Every django-ag-ui import comes from the top-level package.
-
-``django_ag_ui/__init__.py`` is the surface django-ag-ui documents and keeps;
-everything under it is that package's private arrangement, free to move in a
-minor release. This package declares no upper bound on django-ag-ui -- the
-deliberate policy recorded in ``CLAUDE.md`` -- so a submodule that moves does
-not resolve to an older version, it just stops importing.
-
-The failure is worse than it sounds because it happens at import time. The
-sidebar's context builder is reached by ``{% django_admin_agent_sidebar %}`` and
-by ``SidebarAdminSite.each_context``, so a renamed submodule does not degrade the
-chat panel -- it raises ``ImportError`` and every admin page answers 500. And
-since nothing about it is a behaviour change upstream, django-ag-ui has no way
-to know it broke a consumer.
-"""
-
 from __future__ import annotations
 
 import re
