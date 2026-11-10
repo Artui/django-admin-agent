@@ -31,16 +31,7 @@ ACTING_REQUEST: ContextVar[HttpRequest | None] = ContextVar(
 
 
 def resolve_model(app_label: str, model: str) -> type[Model]:
-    """Look up a model class by ``app_label`` + ``model``.
-
-    Resolution only. Whether the acting user may *see* that model is a separate
-    question, answered by
-    [`visible_model_admin`][django_admin_agent.tools.utils.visible_model_admin].
-
-    Raises:
-        LookupError: when the model is not installed; the message names
-            both parts so the agent can self-correct.
-    """
+    """Look up a model class by ``app_label`` + ``model``."""
     try:
         return apps.get_model(app_label, model)
     except LookupError as e:
@@ -48,14 +39,7 @@ def resolve_model(app_label: str, model: str) -> type[Model]:
 
 
 def require_acting_request() -> HttpRequest:
-    """The admin request this tool call is acting for.
-
-    Raises:
-        PermissionDenied: when nothing is bound. Every model-reading tool
-            answers as the acting staff user's own admin would, so without a
-            request there is no user to answer as, and the only safe answer is
-            none at all.
-    """
+    """The admin request this tool call is acting for."""
     request = ACTING_REQUEST.get()
     if request is None:
         raise PermissionDenied(
@@ -67,12 +51,7 @@ def require_acting_request() -> HttpRequest:
 
 
 def model_in_scope(model_cls: type[Model]) -> bool:
-    """Whether ``MODEL_SCOPE`` lets the sidebar touch this model at all.
-
-    Unset (the default) means the admin registry is the only scope. A list
-    narrows further, and can only ever narrow: an entry is an ``app_label`` or
-    an ``app_label.ModelName``, matched case-insensitively.
-    """
+    """Whether ``MODEL_SCOPE`` lets the sidebar touch this model at all."""
     scope = get_settings().model_scope
     if scope is None:
         return True
@@ -82,15 +61,7 @@ def model_in_scope(model_cls: type[Model]) -> bool:
 
 
 def visible_model_admin(model_cls: type[Model]) -> Any | None:
-    """The ``ModelAdmin`` the acting user may see ``model_cls`` through, or ``None``.
-
-    This is the whole authorization rule, in one place, and it is the admin's
-    own: a model reaches the agent when the project registered it with the admin
-    site, ``MODEL_SCOPE`` admits it, and the registered ``ModelAdmin`` grants the
-    acting user view permission — which is `has_perm` over ``view_`` / ``change_``
-    plus whatever the project overrode. A model absent from the admin is one the
-    staff user cannot open in the admin either, so the agent does not open it.
-    """
+    """The ``ModelAdmin`` the acting user may see ``model_cls`` through, or ``None``."""
     request = require_acting_request()
     if not model_in_scope(model_cls):
         return None
@@ -101,11 +72,7 @@ def visible_model_admin(model_cls: type[Model]) -> Any | None:
 
 
 def to_json_safe(value: Any) -> Any:
-    """Coerce a Python value into something ``json.dumps`` accepts.
-
-    Routes through ``DjangoJSONEncoder`` so dates, UUIDs, Decimals,
-    durations, and lazy translations flatten to canonical string forms.
-    """
+    """Coerce a Python value into something ``json.dumps`` accepts."""
     return json.loads(json.dumps(value, cls=DjangoJSONEncoder))
 
 

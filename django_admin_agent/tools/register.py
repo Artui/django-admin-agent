@@ -7,11 +7,7 @@ from django_admin_agent.tools.shell.register import register_shell_tools
 
 
 def register_admin_tools(registry: ToolRegistry) -> None:
-    """Register the full server-side admin tool set on ``registry``.
-
-    Combines the read-only ``shell.*`` (ORM) and ``introspect.*``
-    (Django + admin introspection) tools.
-    """
+    """Register the full server-side admin tool set on ``registry``."""
     register_shell_tools(registry)
     register_introspect_tools(registry)
 
