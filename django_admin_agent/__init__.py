@@ -1,5 +1,3 @@
-"""An always-present chat-agent sidebar in the Django admin."""
-
 from django_admin_agent.admin_agent_server import AdminAgentServer
 from django_admin_agent.staff_required import staff_required
 from django_admin_agent.tools.admin_queryset import admin_queryset

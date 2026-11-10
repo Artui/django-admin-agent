@@ -9,13 +9,7 @@ from django_admin_agent.admin.utils import admin_url
 
 
 def build_route_map() -> list[dict[str, Any]]:
-    """Build the agent's navigable-route manifest from the admin registry.
-
-    One changelist route (and one add route, when available) per registered
-    model, shaped for the Web Component's ``routeMap`` — ``{id, path, title,
-    group}``. The agent calls ``list_routes`` to discover destinations and
-    ``navigate_to_route`` to jump to one, instead of guessing admin URLs.
-    """
+    """Build the agent's navigable-route manifest from the admin registry."""
     routes: list[dict[str, Any]] = []
     for model_cls in admin.site._registry:
         meta = model_cls._meta
@@ -43,8 +37,6 @@ def build_route_map() -> list[dict[str, Any]]:
         if change is not None:
             routes.append(
                 {
-                    # A dynamic route: `:pk` is filled by navigate_to_route's
-                    # `params` (the Web Component substitutes path segments).
                     "id": f"{meta.app_label}.{meta.model_name}.change",
                     "path": change,
                     "title": f"Edit {meta.verbose_name}",
