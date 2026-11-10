@@ -1,10 +1,3 @@
-"""Two admin-agent servers mounted in one project.
-
-The scenario ``DJANGO_ADMIN_AGENT["URL_NAMESPACE"]`` could not express: it named
-exactly one server, though CLAUDE.md has always said a project may mount more
-than one sidebar.
-"""
-
 from __future__ import annotations
 
 from django.contrib import admin
