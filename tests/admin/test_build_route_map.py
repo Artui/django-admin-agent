@@ -30,6 +30,5 @@ def test_route_map_has_a_dynamic_change_route_per_model() -> None:
 
 @override_settings(ROOT_URLCONF="tests.admin.urls_no_admin")
 def test_route_map_is_empty_when_admin_urls_are_unmounted() -> None:
-    # Models are still registered, but their admin URLs don't reverse, so every
-    # route is skipped.
+    # Models are still registered, but their admin URLs don't reverse, so every route is skipped.
     assert build_route_map() == []

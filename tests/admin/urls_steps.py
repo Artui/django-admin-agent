@@ -1,14 +1,3 @@
-"""URLconf mounting an :class:`~django_admin_agent.AdminAgentServer` with a step store.
-
-Exercises ``build_sidebar_context`` when durable step persistence is on, so the
-run index (``runs``) mounts and ``runs_url`` resolves instead of ``None``.
-
-The factory is a stand-in rather than the reference ``DefaultStepStore``: URL
-mounting only tests that a step store was *configured*, and the real store
-needs the ``[harness]`` extra this package doesn't install — the same reasoning
-as the dummy attachment store in ``urls_full``.
-"""
-
 from __future__ import annotations
 
 from typing import Any
