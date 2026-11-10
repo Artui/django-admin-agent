@@ -50,8 +50,6 @@ def list_signals() -> list[dict[str, Any]]:
     """
     out: list[dict[str, Any]] = []
     for name, signal in _KNOWN.items():
-        # ``Signal.receivers`` rows put the receiver (weak or strong) at
-        # index 1; later elements differ across Django versions.
         receivers = [_describe_receiver(entry[1]) for entry in signal.receivers]
         out.append(
             {"signal": name, "receiver_count": len(receivers), "receivers": receivers},
