@@ -1,14 +1,3 @@
-"""The frontend tool handlers, exercised in a real browser.
-
-``admin_tools.js`` is JavaScript running in the admin page, so nothing in the
-Python suite can execute it — a static read of the file would only assert that
-some text is present, not that a URL is refused. These load the module in the
-live admin, register its tools onto a stub element, and call the handlers
-directly, which is the only place their behaviour actually exists.
-
-Run with ``make test-e2e``.
-"""
-
 from __future__ import annotations
 
 import pytest
@@ -53,14 +42,7 @@ def _call_tool(page, name, args):  # noqa: ANN001, ANN202
     ],
 )
 def test_navigate_to_refuses_a_url_off_this_origin(admin_page, live_server, url):  # noqa: ANN001, ANN201
-    """The exfiltration path: injected row content steering the browser.
-
-    A `javascript:` URL handed to location.assign evaluates in this document's
-    origin, under the staff session; an off-origin https URL carries whatever
-    the agent put in the query string somewhere else. Neither is a page a staff
-    user could have clicked to, and the tool is registered non-destructive, so
-    no confirmation card stands between the model and either one.
-    """
+    """The exfiltration path: injected row content steering the browser."""
     admin_page.goto(f"{live_server.url}/admin/")
     url_before = admin_page.url
 
@@ -92,13 +74,7 @@ def test_click_dom_element_reports_a_miss_instead_of_throwing_a_syntax_error(  #
     admin_page,  # noqa: ANN001
     live_server,  # noqa: ANN001
 ):
-    """A label containing a double quote used to escape the selector string.
-
-    The querySelector attempt is guarded, but the aria-label lookup after it
-    interpolated the value into `[aria-label="…"]` outside that guard, so the
-    value below threw an uncaught SyntaxError the tool loop could not correct
-    from, instead of the self-correcting "no element matched" message.
-    """
+    """A label containing a double quote used to escape the selector string."""
     admin_page.goto(f"{live_server.url}/admin/")
 
     outcome = _call_tool(admin_page, "click_dom_element", {"selector_or_label": 'a"b'})

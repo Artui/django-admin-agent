@@ -11,12 +11,8 @@ pytestmark = [pytest.mark.e2e, pytest.mark.django_db(transaction=True)]
 def test_sidebar_renders_on_admin_pages(admin_page, live_server):  # noqa: ANN001, ANN201
     admin_page.goto(f"{live_server.url}/admin/")
     expect(admin_page.locator("ag-ui-chat#django-admin-agent")).to_be_attached()
-    # It arrives at its launcher, which is the component's own behaviour for a
-    # corner placement from 0.35.0 and the right one here: nobody opens a
-    # changelist wanting a panel over it.
+    # It arrives at its launcher.
     expect(admin_page.locator("ag-ui-chat .launcher")).to_be_visible()
-    # ...and opening it is one click, which is what proves the vendored bundle
-    # defined the custom element and the chat shell rendered.
     open_sidebar(admin_page)
 
 
@@ -39,15 +35,9 @@ def test_navigating_tool_reloads_and_the_run_resumes(admin_page, live_server):  
 
     # The navigating tool reloaded the browser to the changelist...
     admin_page.wait_for_url("**/admin/testapp/author/", timeout=15000)
-    # ...and the resumable loop completed the call on the new page: the
-    # rehydrated chat shows the final assistant message.
     expect(
         admin_page.locator("ag-ui-chat .message--assistant", has_text="Opened the authors list."),
     ).to_be_visible(timeout=15000)
-    # ...and its card says it finished. The run resuming proves the landed page
-    # answered the call; it does not prove the card was told. Before web
-    # component 0.41.2 it was not, and the sweep that closes any card still
-    # open when a run ends marked this one "not finished".
     card = admin_page.locator("ag-ui-chat .tool-call")
     expect(card).to_have_count(1)
     expect(card).to_have_attribute("data-status", "done")

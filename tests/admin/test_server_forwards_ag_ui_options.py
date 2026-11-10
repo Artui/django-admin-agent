@@ -1,17 +1,3 @@
-"""``AdminAgentServer`` must keep forwarding everything ``AGUIServer`` accepts.
-
-A wrapper that re-declares a wrapped constructor is a second place every new
-option has to be added, and **nothing in lint, types or coverage can see the
-omission**: the wrapper compiles, the suite passes, and the option is simply
-absent. That has already happened once in this ecosystem — nine keywords added
-to ``SpecToolset`` reached ``SpecCapability`` not at all, including the one
-escape hatch its own upgrade notes pointed people at.
-
-This is the same shape, one layer up, and it is the last unguarded wrapper of
-the three. It stays cheap because the forwarding is ``**kwargs``: the test only
-has to prove nobody has narrowed it.
-"""
-
 from __future__ import annotations
 
 import inspect
@@ -56,12 +42,7 @@ def test_every_ag_ui_keyword_still_reaches_the_server() -> None:
 
 
 def test_the_newest_ag_ui_options_are_reachable() -> None:
-    """A live check, not just a signature one — the options actually land.
-
-    Named explicitly because these are the ones added since this wrapper was
-    last touched: if forwarding regressed, a signature test alone could still
-    pass while construction failed.
-    """
+    """A live check, not just a signature one — the options actually land."""
     server = AdminAgentServer(
         model_for_request=lambda request: "anthropic:claude-sonnet-4.6",
         instructions_for_request=lambda request: "Be terse.",
@@ -79,9 +60,6 @@ def test_the_admin_overrides_are_the_secure_ones() -> None:
 
     assert admin_params["require_authenticated"].default is True
     assert admin_params["csrf_exempt"].default is False
-    # The sidebar is cookie-authenticated inside the Django admin, so CSRF is
-    # enforced rather than exempt — the opposite of the transport's default,
-    # which is right for header-authenticated AG-UI clients.
     assert admin_params["authorize"].default is not None
 
 

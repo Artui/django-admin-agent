@@ -1,16 +1,3 @@
-"""``COLLAPSE_TO="bar"`` under Django Unfold, whose foot is not Django's.
-
-From its ``lg`` breakpoint Unfold pins its save row, its pagination row and its
-bulk actions to the foot of the window, so a margin on the page lifts none of them:
-without their own offset the bar lies over the Save button at any scroll. Below it
-the two rows are in the flow at the end of ``#main``, after ``#content``, where they
-need a margin of their own. Its nav's inner box is a window tall too, with the user
-menu at its foot.
-
-``uv.lock`` resolves two Unfolds, 0.110.1 from Python 3.12 and 0.91.0 below it, so
-these hold on both. ``docs/unfold.md`` says where the two differ.
-"""
-
 from __future__ import annotations
 
 import pytest
@@ -191,12 +178,7 @@ def test_below_the_breakpoint_a_row_in_the_flow_comes_clear_of_the_bar(  # noqa:
     width,  # noqa: ANN001
     height,  # noqa: ANN001
 ):
-    """Below ``lg`` the row follows ``#content``, so its margin is what lifts it.
-
-    The offset stays gated: on ``position: relative`` it would shift the row over the
-    one above and leave the room where it was. On a form short enough not to scroll,
-    the room is what brings a Save button under the bar back into reach.
-    """
+    """Below ``lg`` the row follows ``#content``, so its margin is what lifts it."""
     _authors()
     path = (
         "/admin/testapp/author/"
@@ -237,10 +219,7 @@ def test_below_the_breakpoint_the_bulk_actions_are_where_the_guide_says(  # noqa
     live_server,  # noqa: ANN001
     width,  # noqa: ANN001
 ):
-    """Clear where the row carries the class the sheet reads, and under the bar where not.
-
-    0.91.0 and 0.81.0 use ``lg:bottom-[64px]``, which no selector reads.
-    """
+    """Clear where the row carries the class the sheet reads, and under the bar where not."""
     _authors(3)
     _open(admin_page, live_server, "/admin/testapp/author/", width=width, height=844)
 
@@ -273,12 +252,7 @@ def test_an_unlayered_project_rule_beats_each_rule_the_sheet_adds(  # noqa: ANN2
     property_name,  # noqa: ANN001
     width,  # noqa: ANN001
 ):
-    """The least weight a rule can have, one type selector, wins against none.
-
-    The sheet is linked from the body, after anything in the head, so a rule of no
-    weight at all would lose on order. Dropping ``:where()`` from the sheet's rule
-    gives it more than this one has.
-    """
+    """The least weight a rule can have, one type selector, wins against none."""
     _authors()
     _open(admin_page, live_server, "/admin/testapp/author/", width=width)
 
@@ -295,10 +269,7 @@ def test_without_the_bar_a_layered_project_rule_keeps_its_value(  # noqa: ANN201
     property_name,  # noqa: ANN001
     width,  # noqa: ANN001
 ):
-    """A rule of the sheet's out of its scope would compute to nothing and still win.
-
-    An unlayered rule beats any layered one, and an Unfold project's Tailwind is layered.
-    """
+    """A rule of the sheet's out of its scope would compute to nothing and still win."""
     _authors()
     admin_page.set_viewport_size({"width": width, "height": 700})
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")

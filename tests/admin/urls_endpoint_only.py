@@ -1,11 +1,3 @@
-"""URLconf mounting only the agent endpoint (namespaced) — NOT the tool catalog.
-
-Exercises ``build_sidebar_context``'s ``tools_url`` fallback (``None``) for an
-endpoint mounted by hand rather than via :class:`~django_admin_agent.AdminAgentServer`
-(which also mounts the catalog). The endpoint name must still resolve —
-``build_sidebar_context`` reverses ``<namespace>:endpoint`` unconditionally.
-"""
-
 from __future__ import annotations
 
 from django.urls import path

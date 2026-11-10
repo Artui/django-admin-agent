@@ -1,17 +1,3 @@
-"""Starting a new chat must not destroy the conversation it left.
-
-A host-visible guarantee, not a version assertion: whatever the sidebar vendors,
-pressing the header's new-chat button is how a user starts a second
-conversation, and it must not be how they lose the first one.
-
-The sidebar is squarely in the blast radius of getting this wrong. The template
-sets ``data-threads-url`` whenever a conversation store is mounted, and against a
-component that cleared the active thread on its way to the next id, that
-attribute turned the press into a ``DELETE`` -- the conversation was gone from
-the history drawer *and* from the server, by the same affordance a user reaches
-for to keep it.
-"""
-
 from __future__ import annotations
 
 import pytest

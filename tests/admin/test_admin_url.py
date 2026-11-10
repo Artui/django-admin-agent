@@ -1,5 +1,3 @@
-"""The shared admin-URL helper, and the rule that there is only one of it."""
-
 from __future__ import annotations
 
 import inspect
@@ -24,18 +22,13 @@ def test_admin_url_reverses_a_registered_action() -> None:
 
 
 def test_admin_url_returns_none_when_the_action_has_no_route() -> None:
-    """``NoReverseMatch`` is the ordinary answer, not an error: the caller drops
-    the entry rather than emitting a route the agent cannot navigate to."""
+    """``NoReverseMatch`` is the ordinary answer, not an error."""
     author = next(m for m in admin.site._registry if m._meta.model_name == "author")
     assert admin_url(author._meta, "teleport") is None
 
 
 def test_the_admin_package_defines_the_helper_once() -> None:
-    """A cross-file helper lives in ``utils.py`` -- the repo's structural rule 3,
-    and the reason for it is right here: two copies of an admin-URL reverser
-    drift, and then two tools the agent uses interchangeably report different
-    URLs for the same action with nothing to notice.
-    """
+    """A cross-file helper lives in ``utils.py`` -- the repo's structural rule 3."""
     package_root = _ADMIN_PACKAGE.parent
     copies = [
         str(path.relative_to(package_root))
@@ -49,17 +42,7 @@ def test_the_admin_package_defines_the_helper_once() -> None:
 
 @pytest.mark.django_db
 def test_both_url_producers_agree_for_every_registered_model(superuser: Any) -> None:
-    """The divergence the shared helper exists to prevent, asserted end to end.
-
-    ``build_route_map`` and ``list_admin_models`` are two answers to "where does
-    this model live in the admin", and the agent navigates by whichever it
-    happened to ask. They have to give the same answer.
-
-    Acting as a superuser because ``list_admin_models`` now answers as the
-    request's user: the comparison is about URL shape, and a superuser is the one
-    principal for whom the listing is the full registry, so nothing is filtered
-    out of the comparison by permissions.
-    """
+    """The divergence the shared helper exists to prevent, asserted end to end."""
     routes = {r["id"]: r["path"] for r in build_route_map()}
     with acting_as(superuser):
         entries = list(list_admin_models())

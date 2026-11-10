@@ -1,21 +1,3 @@
-"""What the re-vendored web component actually gives an admin, in a real browser.
-
-A re-vendor is not an adoption. The bundle is a build artefact from another
-repository, and swapping it changes what every admin using this package sees
-without a line of Python moving -- so the question worth answering here is not
-"did the file change" (``tests/test_vendored_bundle.py`` covers that) but "did
-the capability reach the sidebar".
-
-These are deliberately about *this* package's configuration rather than the
-component's own behaviour, which its suite already covers. The sidebar leaves
-``placement`` unset unless a project sets ``PLACEMENT``, so the default admin
-gets the floating panel -- and that is the placement the resize grips and the
-draggable launcher apply to. A project that docks the sidebar gets neither, by
-the component's own rules, which is why the placement is asserted first.
-
-Run with ``make test-e2e``.
-"""
-
 from __future__ import annotations
 
 import pytest
@@ -64,10 +46,7 @@ def test_the_sidebar_defaults_to_the_placement_these_affordances_need(admin_page
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
     chat = admin_page.locator("ag-ui-chat#django-admin-agent")
 
-    # Unset, not "floating": the template omits the attribute entirely when no
-    # PLACEMENT is configured, and the component's default is the floating
-    # panel. Asserting the absence is what would catch a template that started
-    # emitting a docked default.
+    # Unset, not "floating": the template omits the attribute when no PLACEMENT is set.
     expect(chat).not_to_have_attribute("placement", "sidebar")
     assert chat.get_attribute("placement") is None
 
@@ -87,18 +66,12 @@ def test_the_collapsed_launcher_can_be_moved_and_the_panel_opens_where_it_lands(
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
     chat = admin_page.locator("ag-ui-chat#django-admin-agent")
 
-    # No collapse step: a corner placement arrives at its launcher from web
-    # component 0.35.0, which is the state this test was reaching for anyway.
+    # No collapse step: a corner placement arrives at its launcher from web component 0.35.0.
     launcher = chat.locator(".launcher")
     expect(launcher).to_be_visible()
-    # The launcher settles into its resting scale, and a box read mid-
-    # transition is a scaled one.
     admin_page.wait_for_timeout(500)
 
     start = admin_page.evaluate(_LAUNCHER_BOX)
-    # Real mouse input rather than synthesised events: the drag threshold, the
-    # click the browser fires at the end of it, and the pointer capture are all
-    # things only the browser produces.
     admin_page.mouse.move(start["x"] + start["size"] / 2, start["y"] + start["size"] / 2)
     admin_page.mouse.down()
     admin_page.mouse.move(160, 160, steps=8)
@@ -107,16 +80,13 @@ def test_the_collapsed_launcher_can_be_moved_and_the_panel_opens_where_it_lands(
 
     moved = admin_page.evaluate(_LAUNCHER_BOX)
     assert moved["x"] < start["x"], "the launcher did not follow the drag"
-    # Dropped near the top left, so the room is down and to the right.
     expect(chat).to_have_attribute("data-expand-corner", "top-left")
 
-    # And the drag's own click must not have counted as a press on the button.
     expect(launcher).to_be_visible()
     launcher.click()
     expect(chat.locator(".chat")).to_be_visible()
     panel = chat.bounding_box()
     assert panel is not None
-    # The panel opens from the launcher's own corner, running down and right.
     assert panel["x"] == pytest.approx(moved["x"], abs=1)
     assert panel["y"] == pytest.approx(moved["y"], abs=1)
     assert panel["x"] + panel["width"] > moved["x"] + moved["size"]
@@ -157,23 +127,13 @@ _MEASURE_TABLE = """
 
 
 def test_a_wide_table_scrolls_in_the_sidebar(admin_page, live_server):  # noqa: ANN001, ANN201
-    """The vendored stylesheet's table rule, exercised where admins meet it.
-
-    The component's own suite covers this, but the bundle is a build artefact
-    from another repository: what this asserts is that the *vendored* bytes carry
-    the fix, which is the only question this package can answer. Before it, a
-    seven-column header rendered one letter per line at 162px tall and the
-    table's own `overflow-x: auto` had nothing to scroll.
-    """
+    """The vendored stylesheet's table rule, exercised where admins meet it."""
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
 
     measured = admin_page.evaluate(_MEASURE_TABLE)
 
     assert measured["scrolls"], "the table absorbed the width instead of scrolling"
-    # One letter per line took this past 160px; a line of text is well under 60.
     assert measured["headerHeight"] < 60
-    # The declaration that caused it, as the cell computes it. `break-word` here
-    # is the legacy "break anywhere", and min-content follows it.
     assert measured["cellWordBreak"] == "normal"
 
 
@@ -190,12 +150,7 @@ _HEADER_BOX = """
 
 
 def test_the_open_panel_can_be_moved_by_its_header(admin_page, live_server):  # noqa: ANN001, ANN201
-    """A chat sitting over the changelist it is being asked about can be moved.
-
-    Until this bundle the panel could only be moved by collapsing it first and
-    dragging the bubble, which is the affordance an admin reaches for least when
-    the panel is in the way of the row they are reading.
-    """
+    """A chat sitting over the changelist it is being asked about can be moved."""
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
     chat = open_sidebar(admin_page)
     before = chat.bounding_box()
@@ -212,20 +167,13 @@ def test_the_open_panel_can_be_moved_by_its_header(admin_page, live_server):  # 
     assert after is not None
     assert after["x"] - before["x"] == pytest.approx(-200, abs=1)
     assert after["y"] - before["y"] == pytest.approx(-80, abs=1)
-    # The size is untouched: this is a move, and the grips are what resize.
     assert after["width"] == pytest.approx(before["width"], abs=1)
     assert after["height"] == pytest.approx(before["height"], abs=1)
 
 
 @override_settings(DJANGO_ADMIN_AGENT={"LAUNCHER_DRAG": False})
 def test_a_project_can_pin_the_sidebar_where_its_layout_puts_it(admin_page, live_server):  # noqa: ANN001, ANN201
-    """`LAUNCHER_DRAG=False` stops both gestures, not one.
-
-    The component's attribute governed only the collapsed bubble until 0.34.0
-    and now governs the header drag too, so the assertion worth making here is
-    that the panel stays put -- an admin layout that places the sidebar
-    deliberately is not served by an opt-out that only covers half of it.
-    """
+    """`LAUNCHER_DRAG=False` stops both gestures, not one."""
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
     chat = admin_page.locator("ag-ui-chat#django-admin-agent")
     expect(chat).to_have_attribute("data-launcher-drag", "false")
@@ -246,12 +194,7 @@ def test_a_project_can_pin_the_sidebar_where_its_layout_puts_it(admin_page, live
 
 
 def test_the_launcher_travels_with_a_panel_moved_by_its_header(admin_page, live_server):  # noqa: ANN001, ANN201
-    """The bubble the sidebar collapses into goes exactly as far as the panel.
-
-    One widget being moved rather than two things being placed -- an admin who
-    drags the panel out of the way and then collapses it has to find the bubble
-    where the panel was, not across the screen from it.
-    """
+    """The bubble the sidebar collapses into goes exactly as far as the panel."""
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
     open_sidebar(admin_page)
     before = admin_page.evaluate(_LAUNCHER_BOX)
@@ -291,18 +234,7 @@ _MEASURE_CHART = """
 
 
 def test_a_chart_stops_at_its_own_width_in_a_widened_sidebar(admin_page, live_server):  # noqa: ANN001, ANN201
-    """Widening the sidebar does not resize the chart already in it.
-
-    The drawing used to be scaled to whatever width its block had, so an admin
-    who dragged the panel wider got the chart magnified with it -- 3.25x type in
-    a 1100px panel, and a figure tall enough to push the answer it belonged to
-    off the screen. Both halves of the fix are asserted, because they are
-    separate: the cap that stops it stretching, and the one-unit-per-pixel
-    geometry that stops it being magnified.
-
-    Driven through the pushed-activity route, so what is measured is the chart
-    an admin actually gets rather than a drawing this test made.
-    """
+    """Widening the sidebar does not resize the chart already in it."""
     admin_page.set_viewport_size({"width": 1400, "height": 900})
     admin_page.goto(f"{live_server.url}/admin/")
     send_message(admin_page, "chart the authors")
@@ -312,27 +244,15 @@ def test_a_chart_stops_at_its_own_width_in_a_widened_sidebar(admin_page, live_se
     narrow = admin_page.evaluate(_MEASURE_CHART, 420)
 
     assert wide["panel"] == pytest.approx(1100, abs=2)
-    # Capped at its own width rather than filling the panel, the way a message
-    # bubble caps rather than stretching to the transcript's full width.
     assert wide["width"] == pytest.approx(480, abs=1)
     assert wide["height"] == pytest.approx(220, abs=1)
-    # And drawn one unit per pixel at both sizes, which is what keeps a 10px
-    # axis label 10px whatever the panel is doing.
     assert wide["scale"] == pytest.approx(1, abs=0.05)
     assert narrow["scale"] == pytest.approx(1, abs=0.05)
     assert narrow["width"] < wide["width"]
 
 
 def test_the_agent_can_move_its_own_panel_off_the_page(admin_page, live_server):  # noqa: ANN001, ANN201
-    """The one problem a chat pinned to its own tab never has.
-
-    This sidebar sits on top of the changelist it is being asked about, so
-    "move aside so I can see that row" is a sentence the agent should be able
-    to act on rather than apologise for. Driven end to end -- the scripted
-    model calls `move_chat`, the component moves itself, and the transcript
-    says so -- because the wiring is four lines of bootstrap and a factory, and
-    every part of that chain is somewhere a mistake would be invisible.
-    """
+    """The one problem a chat pinned to its own tab never has."""
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
     open_sidebar(admin_page)
     chat = admin_page.locator("ag-ui-chat#django-admin-agent")
@@ -348,24 +268,15 @@ def test_the_agent_can_move_its_own_panel_off_the_page(admin_page, live_server):
 
     after = chat.bounding_box()
     assert after is not None
-    # Sent to the top-left, so it travelled up and left from the resting corner.
     assert after["x"] < before["x"], "the panel did not move"
     assert after["y"] < before["y"], "the panel did not move"
-    # And it said so, with the way back beside it: a panel that rearranges
-    # itself silently is worse than one that stays in the way.
     expect(chat.locator(".run-notice--surface")).to_be_visible()
     expect(chat.locator(".run-notice-undo")).to_be_visible()
 
 
 @override_settings(DJANGO_ADMIN_AGENT={"CHAT_SURFACE_TOOLS": False})
 def test_a_project_can_keep_the_panel_tools_out_of_every_request(admin_page, live_server):  # noqa: ANN001, ANN201
-    """Off means not registered, not registered-and-refusing.
-
-    The cost these carry is four tool definitions in each request, so a project
-    turning them off has to stop them being sent rather than have them decline.
-    The agent falls back to its ordinary answer, which is what proves the tool
-    was never there to call.
-    """
+    """Off means not registered, not registered-and-refusing."""
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
     open_sidebar(admin_page)
     chat = admin_page.locator("ag-ui-chat#django-admin-agent")
@@ -387,14 +298,7 @@ def test_a_project_can_keep_the_panel_tools_out_of_every_request(admin_page, liv
 
 @override_settings(DJANGO_ADMIN_AGENT={"PLACEMENT": "page"})
 def test_a_full_page_chat_greets_the_admin_by_the_header_name(live_server, page, django_user_model):  # noqa: ANN001, ANN201
-    """The greeting needs a name only the host knows, and the sidebar supplies it.
-
-    Without ``user-name`` the component still greets, as *Hello there*, so the
-    assertion worth making is on the name. The account has a first name that
-    differs from its username, so a sidebar sending the username would fail
-    here rather than pass, and the header is read in the same test so the two
-    names are compared rather than assumed to agree.
-    """
+    """The greeting needs a name only the host knows, and the sidebar supplies it."""
     django_user_model.objects.create_superuser(
         "ada.l", "ada@example.com", "password", first_name="Ada"
     )

@@ -33,12 +33,7 @@ def test_list_models_all_and_filtered(as_superuser: Any) -> None:
 
 @pytest.mark.django_db
 def test_list_models_shows_only_what_the_user_could_open(make_staff_user: Any) -> None:
-    """The admin index's own answer, not the app registry's.
-
-    ``list_models`` used to enumerate every installed model, which handed a
-    prompt-injected agent the whole schema as a target list regardless of who
-    was driving.
-    """
+    """The admin index's own answer, not the app registry's."""
     user = make_staff_user("reader", perms=("testapp.view_author",))
     with acting_as(user):
         assert {r["model"] for r in list_models(app_label="testapp")} == {"Author"}

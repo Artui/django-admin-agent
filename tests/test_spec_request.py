@@ -1,11 +1,3 @@
-"""A ``service_specs=`` spec behind the sidebar reads the request it ran on.
-
-The sidebar's deps replace django-ag-ui's default, and the spec toolset reads
-the request from ``AgentDeps.call_context``. The deps record holding it is
-asserted in ``test_permission_parity``; this drives a whole run, so it also
-fails if the toolset stops reading the key the deps are built with.
-"""
-
 from __future__ import annotations
 
 import json
@@ -76,8 +68,7 @@ async def test_a_spec_callable_behind_the_sidebar_reads_the_run_s_request(
     )
 
     assert "RUN_FINISHED" in body
-    # Without the request in the admin's deps the seed is ``None``, and a
-    # callable reading ``request.user`` fails mid-run.
+    # Without the request in the admin's deps the seed is ``None``.
     assert seen == [request]
 
 

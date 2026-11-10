@@ -11,7 +11,7 @@ def test_default_redacts_denylisted_field_names() -> None:
     out = redact_sensitive_fields(dict(_ROW))
     assert out["password"] == REDACTED
     assert out["api_token"] == REDACTED  # matches ``token``
-    assert out["name"] == "Bea"  # untouched
+    assert out["name"] == "Bea"
     assert out["email"] == "b@x.com"
 
 
@@ -30,12 +30,7 @@ def test_custom_pattern_overrides_the_builtin() -> None:
 
 
 def test_the_denylist_covers_the_names_that_used_to_slip_through() -> None:
-    """Names the audit-shaped miss list called out, minus the ambiguous ones.
-
-    ``otp`` and ``pin`` are deliberately absent: they ride inside ordinary words
-    (``shipping``, ``spinner``), and a match no longer only masks a value — it
-    also refuses a filter on it, so a false positive now costs a query.
-    """
+    """Names the audit-shaped miss list called out, minus the ambiguous ones."""
     row = {
         "passwd": "x",
         "passphrase": "x",
@@ -44,7 +39,6 @@ def test_the_denylist_covers_the_names_that_used_to_slip_through() -> None:
         "signature": "x",
         "ssn": "x",
         "session_data": "x",
-        # Not matched, and that is the point of the honesty note below.
         "pw": "x",
         "shipping": "x",
     }
@@ -63,12 +57,7 @@ def test_the_denylist_covers_the_names_that_used_to_slip_through() -> None:
 
 
 def test_the_docstring_no_longer_promises_what_the_pass_cannot_deliver() -> None:
-    """It used to say a password hash "never streams to a third-party model".
-
-    It did not: a ``filter`` read the value back through the row count, and a
-    name denylist cannot see a secret it is not named after. The guarantee is
-    gone and what replaced it says which of the two jobs this actually does.
-    """
+    """It used to say a password hash "never streams to a third-party model"."""
     doc = redact_sensitive_fields.__doc__ or ""
 
     assert "never streams to a third-party model" not in doc

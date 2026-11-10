@@ -1,12 +1,3 @@
-"""Shared fixtures for driving the tools as a particular admin user.
-
-Every tool that reads a model answers as the staff user whose request is bound
-for the call, so a test that wants rows back has to say who is asking. These
-build the three interesting kinds of asker: a superuser, a staff user holding
-named permissions, and a staff user holding none — the last being the one the
-authorization tests are written around.
-"""
-
 from __future__ import annotations
 
 from collections.abc import Callable, Iterator

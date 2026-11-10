@@ -1,11 +1,3 @@
-"""URLconf mounting a fully-configured :class:`~django_admin_agent.AdminAgentServer`.
-
-Exercises ``build_sidebar_context`` when the conversation / attachment /
-transcription sub-views are mounted (stores configured), so ``threads_url`` /
-``attachments_url`` / ``transcribe_url`` resolve instead of falling back to
-``None``.
-"""
-
 from __future__ import annotations
 
 from django.contrib import admin

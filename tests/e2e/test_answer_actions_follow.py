@@ -1,12 +1,3 @@
-"""Where the transcript rests once a run has ended.
-
-The row of Retry and Copy under the last answer is added after the answer itself
-has been followed, so a transcript pinned to its foot used to stop one row short of
-it: 32px in the admin, with Retry and Copy under the composer until the reader
-scrolled. The geometry only exists under a real layout, so it is measured here in
-Chromium, against the list's own box rather than a flag.
-"""
-
 from __future__ import annotations
 
 import pytest
@@ -55,7 +46,6 @@ def test_the_last_answers_action_row_is_inside_the_transcript_when_a_run_ends(  
 ):
     """Retry and Copy are reachable without scrolling, and the foot is at most 4px away."""
     admin_page.goto(f"{live_server.url}/admin/testapp/author/")
-    # Open the panel first: the transcript is measured, and a collapsed one has no box.
     send_message(admin_page, "how many authors are there?")
     final = admin_page.locator(
         "ag-ui-chat .message--assistant:not(.message--restored)",
@@ -64,8 +54,6 @@ def test_the_last_answers_action_row_is_inside_the_transcript_when_a_run_ends(  
     expect(final).to_be_visible(timeout=15000)
 
     assert admin_page.evaluate(_FILL_THE_TRANSCRIPT) is True
-    # The fill leaves the list wherever it was; a reader who sends the next message
-    # is at the foot, which is the state the follower keeps.
     send_message(admin_page, "how many authors are there now?")
     expect(
         admin_page.locator("ag-ui-chat .message-actions"),
@@ -73,7 +61,6 @@ def test_the_last_answers_action_row_is_inside_the_transcript_when_a_run_ends(  
     expect(admin_page.locator("ag-ui-chat .message--assistant").last).to_contain_text(
         "Counted the authors.",
     )
-    # Let the scroll that follows the row settle before reading the geometry.
     admin_page.wait_for_timeout(300)
 
     measured = admin_page.evaluate(_MEASURE)

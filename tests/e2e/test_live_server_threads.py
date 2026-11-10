@@ -1,19 +1,3 @@
-"""The live server's threads must not share one database connection.
-
-The sidebar's page load fires the tool list and the thread list at the same
-moment, and the live server answers each on its own thread. On an in-memory
-sqlite database Django hands every server thread the *same* connection (a second
-one would open a different, empty database), and two threads driving one sqlite
-connection corrupt each other's reads: a session lookup comes back empty (the
-request looks anonymous and answers 401) or raises
-``sqlite3.InterfaceError`` (500). That made the browser suite fail
-intermittently in CI, in whichever test loaded a page at the wrong moment.
-
-These two tests pin the cause and the symptom separately, so a settings change
-that reintroduces the shared connection fails here, with its reason, instead of
-as a flake in whichever browser test happened to load a page at that moment.
-"""
-
 from __future__ import annotations
 
 import urllib.error
@@ -35,10 +19,7 @@ _PATHS = ("/admin-agent/tools/", "/admin-agent/threads/", "/admin/")
 
 
 def test_server_threads_do_not_share_a_connection(live_server):  # noqa: ANN001, ANN201
-    # The cause, stated directly. ``connections_override`` is what pytest-django
-    # fills for an in-memory sqlite database and only for that, so it is empty
-    # exactly when each server thread opens its own connection. Without this
-    # the test below could only fail by timing.
+    # The cause, stated directly.
     assert live_server.thread.connections_override == {}
 
 

@@ -1,12 +1,3 @@
-"""A deterministic Pydantic-AI model that scripts tool calls for e2e flows.
-
-It inspects the conversation (the latest user prompt + which tools have already
-returned) and emits the next action, so a browser test drives a real agent run
-without a network LLM. Stateless — it derives the step from message history,
-which makes it work across the separate runs of a navigating-tool round-trip.
-The AG-UI adapter streams, so a ``stream_function`` is provided too.
-"""
-
 from __future__ import annotations
 
 import json
@@ -53,14 +44,7 @@ def _returned_tools(messages: Sequence[ModelMessage]) -> set[str]:
 
 
 def _tool_result(messages: Sequence[ModelMessage], tool_name: str) -> str:
-    """What ``tool_name`` last returned, verbatim.
-
-    Relayed into the reply so a browser test can read the tool's own answer off
-    the page. Without it a refused tool and a successful one produce the same
-    sentence: the failure policy turns a raising tool into an ordinary tool
-    return carrying the error, so the script's next step looks identical either
-    way.
-    """
+    """What ``tool_name`` last returned, verbatim."""
     for message in reversed(messages):
         for part in getattr(message, "parts", []):
             if isinstance(part, ToolReturnPart) and part.tool_name == tool_name:
@@ -69,14 +53,7 @@ def _tool_result(messages: Sequence[ModelMessage], tool_name: str) -> str:
 
 
 def _offered(info: AgentInfo) -> set[str]:
-    """The tool names this run was actually given.
-
-    A real model only calls what it was offered, and a script that ignores the
-    list is not standing in for one: it would call a frontend tool a project
-    had turned off, the run would fail on an unknown tool, and a test asserting
-    "the tool is not registered" would be reading a crash rather than an
-    absence.
-    """
+    """The tool names this run was actually given."""
     return {tool.name for tool in info.function_tools}
 
 
@@ -88,14 +65,7 @@ def _decision(messages: Sequence[ModelMessage], info: AgentInfo) -> tuple[str, s
     if "chart" in text:
         if "chart_authors" not in returned:
             return ("tool", "chart_authors", "{}")
-        # The reply the tool handed back, repeated as the model would repeat it:
-        # the assistant claims a chart is on screen, so the test can assert that
-        # the claim and the transcript agree.
         return ("text", CHART_REPLY, "")
-    # A tool call the server refuses, as a model makes one when it guesses a
-    # name: ``count_model`` raises for a model that is not installed, and the
-    # failure policy hands that back as a tool failure rather than ending the
-    # run. Checked before the count branch below, which "how many" also opens.
     if "widgets" in text:
         if "count_model" not in returned:
             return ("tool", "count_model", _MISSING_MODEL_ARGS)
@@ -104,8 +74,6 @@ def _decision(messages: Sequence[ModelMessage], info: AgentInfo) -> tuple[str, s
         if "count_model" not in returned:
             return ("tool", "count_model", _AUTHOR_ARGS)
         return ("text", f"Counted the authors. {_tool_result(messages, 'count_model')}", "")
-    # A tool that asks first: the fallback click is registered destructive, so the
-    # run stops at its confirmation until the test answers it.
     if "press" in text and "click_dom_element" in offered:
         if "click_dom_element" not in returned:
             return ("tool", "click_dom_element", '{"selector_or_label": "#nothing-here"}')

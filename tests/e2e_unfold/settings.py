@@ -1,5 +1,3 @@
-"""The browser suite's settings with Django Unfold in front of the admin."""
-
 from __future__ import annotations
 
 from pathlib import Path

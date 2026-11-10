@@ -1,10 +1,3 @@
-"""What an opened step group draws its calls as.
-
-``data-tool-group-display`` is read by the component's stylesheet, so the markup
-proves only that it was written. A section hidden or shown in a real browser is
-what a staff user meets when they open "Worked through 1 step".
-"""
-
 from __future__ import annotations
 
 import pytest
@@ -40,8 +33,7 @@ def test_an_opened_group_draws_a_row_per_call_by_default(admin_page, live_server
     assert call.bounding_box()["height"] == pytest.approx(27, abs=3)
 
 
-# The component draws a value it does not know as full, and nothing here reads it
-# on the way through, so a typo costs the compact row and nothing else.
+# The component draws a value it does not know as full.
 @pytest.mark.parametrize("value", ["full", "not-a-mode"])
 def test_full_draws_the_cards_an_opened_group_drew_before(admin_page, live_server, value):  # noqa: ANN001, ANN201
     with override_settings(DJANGO_ADMIN_AGENT={"TOOL_GROUP_DISPLAY": value}):
@@ -64,9 +56,7 @@ def test_the_inner_mode_means_nothing_outside_the_grouped_display(  # noqa: ANN2
         with override_settings(DJANGO_ADMIN_AGENT=config):
             admin_page.goto(f"{live_server.url}/admin/testapp/author/")
             send_message(admin_page, "how many authors are there?")
-            # The second page restores the first turn, so wait for this turn's message:
-            # without the filter a fast run stops at the restored one and measures it,
-            # and a slow one finds two and fails.
+            # The second page restores the first turn, so wait for this turn's message.
             expect(
                 admin_page.locator(
                     "ag-ui-chat .message--assistant:not(.message--restored)",
@@ -80,11 +70,7 @@ def test_the_inner_mode_means_nothing_outside_the_grouped_display(  # noqa: ANN2
 
 
 def test_a_refused_call_still_says_why_from_its_row_by_default(admin_page, live_server):  # noqa: ANN001, ANN201
-    """The row is where a staff user learns an action did not happen.
-
-    A compact row is one line, 27px where a full card is 137px, so the refusal has
-    to read on that line and its reason has to be one click further down.
-    """
+    """The row is where a staff user learns an action did not happen."""
     admin_page.goto(f"{live_server.url}/admin/")
     send_message(admin_page, "how many widgets are there?")
     expect(
@@ -112,11 +98,7 @@ def test_a_confirmation_keeps_its_arguments_and_buttons_on_screen_in_every_mode(
     live_server,  # noqa: ANN001
     group_display,  # noqa: ANN001
 ):
-    """A compact row folds a call's arguments, which a confirmation is asking about.
-
-    A frontend tool's confirmation is a card of its own that ends the step group,
-    so the inner mode has to leave it alone.
-    """
+    """A compact row folds a call's arguments, which a confirmation is asking about."""
     with override_settings(DJANGO_ADMIN_AGENT={"TOOL_GROUP_DISPLAY": group_display}):
         admin_page.goto(f"{live_server.url}/admin/")
         send_message(admin_page, "press the button")

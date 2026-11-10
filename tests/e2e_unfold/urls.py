@@ -1,5 +1,3 @@
-"""An Unfold admin site over the test app, behind the sidebar's usual mount."""
-
 from __future__ import annotations
 
 from django.contrib import admin

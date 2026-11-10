@@ -1,20 +1,3 @@
-"""CI runs the two gates that can see the vendored bundle.
-
-Every other job in ``tests.yml`` is Python, and the bundle is JavaScript. So a
-bundle that fails to mount -- truncated past the size floor, an ESM export
-renamed under the sidebar's import, a capability quietly dropped -- leaves the
-unit suite, the version grep, the size check and the element-marker check all
-green, and the sidebar is dead on every admin page until a human runs
-``make test-e2e`` or a user reports it.
-
-That is not a hypothetical: the vendored component sat two minors behind with
-every pushed chart discarded in silence, and because the discard settles the
-tool call successfully, the model told users a chart was on screen. No gate here
-could have known. These assert the two that now can, and that both are required
-rather than advisory -- a job nobody blocks on is a job that goes red and stays
-red.
-"""
-
 from __future__ import annotations
 
 from pathlib import Path
@@ -46,8 +29,5 @@ def test_the_job_blocks_the_merge_gate(job: str) -> None:
 
 
 def test_the_browser_job_installs_a_browser() -> None:
-    """Playwright's browsers are not pip-installable, so ``uv sync`` gets the
-    library and none of what it drives. Without this step the job fails on a
-    missing executable, which is a red build for the wrong reason -- and the
-    fastest way to end up deleting the job that was about to find something."""
+    """Playwright's browsers are not pip-installable."""
     assert _runs("e2e", "playwright install")
