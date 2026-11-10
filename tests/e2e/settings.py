@@ -1,5 +1,3 @@
-"""Django settings for the browser e2e suite (live admin + sidebar)."""
-
 from __future__ import annotations
 
 import os
