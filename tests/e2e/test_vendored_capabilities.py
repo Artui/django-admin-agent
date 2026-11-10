@@ -137,9 +137,12 @@ _MEASURE_TABLE = """
   bubble.className = 'message message--assistant';
   bubble.innerHTML =
     '<table><thead><tr><th>Line item</th><th>Draw request</th><th>Condition</th>' +
-    '<th>Status</th><th>Amount requested</th><th>Amount approved</th><th>Inspector</th></tr></thead>' +
-    '<tbody><tr><td>Foundation waterproofing</td><td>DR-2026-0184</td><td>Pending lien waiver</td>' +
-    '<td>Awaiting inspection</td><td>$184,500.00</td><td>$172,300.00</td><td>M. Okonkwo</td></tr></tbody></table>';
+    '<th>Status</th><th>Amount requested</th><th>Amount approved</th>' +
+    '<th>Inspector</th></tr></thead>' +
+    '<tbody><tr><td>Foundation waterproofing</td><td>DR-2026-0184</td>' +
+    '<td>Pending lien waiver</td>' +
+    '<td>Awaiting inspection</td><td>$184,500.00</td><td>$172,300.00</td>' +
+    '<td>M. Okonkwo</td></tr></tbody></table>';
   group.appendChild(bubble);
   messages.appendChild(group);
   const table = bubble.querySelector('table');

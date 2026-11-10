@@ -71,7 +71,8 @@ _NAV_FOOT = """(selector) => {
   const rows = [...nav.querySelectorAll("tr")];
   const box = rows[rows.length - 1].getBoundingClientRect();
   const bar = chat.shadowRoot.querySelector('[part~="bar"]').getBoundingClientRect();
-  return { barTop: bar.top, rowBottom: box.bottom, navScrolls: nav.scrollHeight > nav.clientHeight };
+  return { barTop: bar.top, rowBottom: box.bottom,
+    navScrolls: nav.scrollHeight > nav.clientHeight };
 }"""
 
 
@@ -367,7 +368,8 @@ def test_a_placement_that_never_draws_the_bar_leaves_the_page_untouched(  # noqa
         admin_page.set_viewport_size({"width": 1280, "height": 700})
         admin_page.goto(f"{live_server.url}/admin/testapp/author/")
         admin_page.wait_for_function(
-            "(s) => { const c = document.querySelector(s); return c && c.barHeight !== undefined; }",
+            "(s) => { const c = document.querySelector(s); "
+            "return c && c.barHeight !== undefined; }",
             arg=CHAT,
         )
 
