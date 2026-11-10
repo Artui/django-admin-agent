@@ -1,16 +1,3 @@
-"""The sidebar takes Django admin's own colours, in both of the admin's schemes.
-
-Read off the computed style in a real browser because the claim is about the
-cascade: ``var(--primary)`` has to resolve *at the element*, so that Django's
-``prefers-color-scheme`` styles and its ``html[data-theme]`` toggle reach the
-panel without this package watching either. A rendered template proves only
-that a ``<link>`` was written.
-
-The expected values are read from the page rather than written here, so the
-test follows whatever the installed Django ships; the light and dark values are
-asserted to differ so that a token stuck on one scheme cannot pass.
-"""
-
 from __future__ import annotations
 
 import re
@@ -84,12 +71,7 @@ def test_the_accent_ring_and_font_follow_the_admin_in_each_scheme(admin_page, li
 
 
 def test_the_admin_theme_toggle_reaches_the_sidebar(admin_page, live_server):  # noqa: ANN001, ANN201
-    """The admin's own toggle, under a light system scheme.
-
-    ``html[data-theme="dark"]`` is the selector Django's toggle writes, and it
-    is a different rule from the media query: a sidebar that only followed
-    ``prefers-color-scheme`` would stay light here.
-    """
+    """The admin's own toggle, under a light system scheme."""
     page = _open_admin(admin_page, live_server)
     page.emulate_media(color_scheme="light")
     light = _tokens(page)
@@ -103,15 +85,7 @@ def test_the_admin_theme_toggle_reaches_the_sidebar(admin_page, live_server):  #
 
 
 def test_a_project_rule_on_the_element_wins(admin_page, live_server):  # noqa: ANN001, ANN201
-    """The sidebar's rule has no specificity, so the plainest override wins.
-
-    A bare ``ag-ui-chat`` selector is the least a project would write, and it
-    is written where Django's ``extrastyle`` block puts a project's CSS: in the
-    head, ahead of the sidebar's link in the body. Placed there, source order
-    is on the sidebar's side, so the project's rule wins only by specificity:
-    it loses to the id selector the shipped rule would be without ``:where()``,
-    and to a bare ``ag-ui-chat`` one.
-    """
+    """The sidebar's rule has no specificity, so the plainest override wins."""
     page = _open_admin(admin_page, live_server)
     page.evaluate(
         """() => {
@@ -251,11 +225,7 @@ def test_the_folded_row_focus_outline_holds_three_to_one(admin_page, live_server
 
 
 def _open_under_csp(page, live_server, policy):  # noqa: ANN001, ANN202
-    """The changelist served with ``policy`` as its Content-Security-Policy.
-
-    Only the document gets the header, as Django's own CSP middleware would
-    send it; the static files it links are fetched untouched.
-    """
+    """The changelist served with ``policy`` as its Content-Security-Policy."""
     url = f"{live_server.url}/admin/testapp/author/"
 
     def with_policy(route):  # noqa: ANN001, ANN202
@@ -276,13 +246,7 @@ def test_the_sheet_loads_under_a_style_src_that_admits_the_admin_static_files(  
     admin_page,  # noqa: ANN001
     live_server,  # noqa: ANN001
 ):
-    """A linked sheet is what a strict ``style-src`` admits; an inline one is not.
-
-    ``'self'`` is the policy a project serving its admin's static files from
-    its own origin writes, and under it the accent still arrives. ``'none'`` is
-    the control: it refuses the sheet too, so an accent that survived it would
-    mean the header never reached the page and the first half proved nothing.
-    """
+    """A linked sheet is what a strict ``style-src`` admits; an inline one is not."""
     admitted = _open_under_csp(admin_page, live_server, "style-src 'self'")
     assert admitted["primary"], admitted
     assert admitted["accent"] == admitted["primary"], admitted
@@ -319,8 +283,7 @@ _PANEL = """(selector) => {
 
 def _panel_is_dark(page):  # noqa: ANN001, ANN202
     rgb = page.evaluate(_PANEL, CHAT)
-    # Quiet's two backgrounds are #ffffff and #161618; the midpoint of the
-    # luminance scale separates them with room for any theme's tint.
+    # Quiet's two backgrounds are #ffffff and #161618.
     return _contrast(rgb, (0, 0, 0)) < _contrast(rgb, (255, 255, 255))
 
 
@@ -339,11 +302,7 @@ def _open_panel(page, live_server, scheme, theme=None, toggle=False):  # noqa: A
 @pytest.mark.parametrize("theme", [None, "soft", "auto"])
 @pytest.mark.parametrize("scheme", ["light", "dark"])
 def test_the_panel_follows_the_admin_scheme(admin_page, live_server, theme, scheme):  # noqa: ANN001, ANN201
-    """THEME unset, a theme name alone, or "auto": the panel is the admin's scheme.
-
-    "auto" is in the list because the component reads it as the operating
-    system's preference, which is the admin's only while its toggle is on auto.
-    """
+    """THEME unset, a theme name alone, or "auto": the panel is the admin's scheme."""
     page = _open_panel(admin_page, live_server, scheme, theme)
 
     _assert_follows_the_page(_tokens(page))
@@ -352,12 +311,7 @@ def test_the_panel_follows_the_admin_scheme(admin_page, live_server, theme, sche
 
 @pytest.mark.parametrize("theme", [None, "auto"])
 def test_the_panel_follows_the_admin_toggle(admin_page, live_server, theme):  # noqa: ANN001, ANN201
-    """Django's toggle is a different rule from the media query, both ways.
-
-    Dark under a light system is the case a panel following only
-    prefers-color-scheme gets wrong; light under a dark system is the one the
-    component's own "auto" gets wrong.
-    """
+    """Django's toggle is a different rule from the media query, both ways."""
     page = _open_panel(admin_page, live_server, "light", theme)
     page.evaluate("document.documentElement.dataset.theme = 'dark'")
     assert _panel_is_dark(page)
@@ -368,12 +322,7 @@ def test_the_panel_follows_the_admin_toggle(admin_page, live_server, theme):  # 
 
 
 def test_an_admin_without_its_theme_script_keeps_a_light_panel(admin_page, live_server):  # noqa: ANN001, ANN201
-    """No ``data-theme`` on html is an admin whose dark-mode-vars block is empty.
-
-    Django's theme script writes the attribute on every page, so its absence
-    means the project took dark mode out; the panel then stays light even under
-    a dark system preference, rather than turning dark on an always-light admin.
-    """
+    """No ``data-theme`` on html is an admin whose dark-mode-vars block is empty."""
     page = _open_panel(admin_page, live_server, "dark")
     assert _panel_is_dark(page)
 
@@ -389,12 +338,7 @@ def test_auto_follows_the_system_where_the_admin_writes_no_data_theme(  # noqa: 
     theme,  # noqa: ANN001
     scheme,  # noqa: ANN001
 ):
-    """With nothing to follow, "auto" is the component's: the system's preference.
-
-    Unfold is the case that asked for it: it writes no ``data-theme``, so this is
-    the way to a panel that is dark when the system is. On an admin with its dark
-    mode taken out, it is a dark panel on a light page, as before 0.61.0.
-    """
+    """With nothing to follow, "auto" is the component's: the system's preference."""
     page = _open_panel(admin_page, live_server, scheme, theme)
     page.evaluate("delete document.documentElement.dataset.theme")
     assert _panel_is_dark(page) is (scheme == "dark")
@@ -405,14 +349,7 @@ def test_auto_follows_the_system_where_the_admin_writes_no_data_theme(  # noqa: 
     [("light", False), ("soft light", False), ("dark", True), ("code", True)],
 )
 def test_a_scheme_word_in_theme_pins_the_panel(admin_page, live_server, theme, dark):  # noqa: ANN001, ANN201
-    """THEME="light" on a dark admin stays light, and the other way round.
-
-    The accent still follows the admin while the panel's scheme is pinned.
-    "code" is a theme with no light half, so it counts as a pin. Its own tokens
-    paint a dark background whatever the scheme, so for it the background
-    cannot tell; the host's resolved color-scheme can, and it is what every
-    light-dark() token still reads.
-    """
+    """THEME="light" on a dark admin stays light, and the other way round."""
     admin_scheme = "light" if dark else "dark"
     page = _open_panel(admin_page, live_server, admin_scheme, theme)
     assert _panel_is_dark(page) is dark
@@ -450,12 +387,7 @@ def test_a_project_rule_on_the_element_beats_the_scheme_rules(  # noqa: ANN201
 
 
 def test_the_header_toggle_pins_until_it_is_turned_off(admin_page, live_server):  # noqa: ANN001, ANN201
-    """The toggle saves a scheme word, and a saved word pins as THEME's does.
-
-    It only ever writes "light" or "dark", so pressing it back changes the word
-    and leaves the pin. Only the button reads the word: with it off, the panel
-    follows the admin again.
-    """
+    """The toggle saves a scheme word, and a saved word pins as THEME's does."""
     page = _open_panel(admin_page, live_server, "light", toggle=True)
     chat = page.locator(CHAT)
     toggle = chat.locator(".header-btn--theme")
@@ -471,7 +403,6 @@ def test_the_header_toggle_pins_until_it_is_turned_off(admin_page, live_server):
     page.evaluate("document.documentElement.dataset.theme = 'dark'")
     assert not _panel_is_dark(page)
 
-    # The saved word outlives the page: a reload still pins.
     with override_settings(DJANGO_ADMIN_AGENT={"THEME_TOGGLE": True}):
         page.reload()
         expect(chat).to_be_attached()
@@ -489,12 +420,7 @@ def test_the_header_toggle_pins_until_it_is_turned_off(admin_page, live_server):
 
 
 def test_with_theme_light_the_panel_stays_light_on_a_dark_admin(admin_page, live_server):  # noqa: ANN001, ANN201
-    """The accent follows the admin into the dark; a pinned scheme does not.
-
-    Until 0.61.0 this held with THEME unset. The panel now follows the admin
-    by default, so the claim belongs to the explicit pin, which is the way
-    back to the old behaviour.
-    """
+    """The accent follows the admin into the dark; a pinned scheme does not."""
     page = _open_panel(admin_page, live_server, "dark", "light")
     tokens = _tokens(page)
 

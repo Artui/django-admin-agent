@@ -1,15 +1,3 @@
-"""``COLLAPSE_TO="bar"``: the bar stands in for the launcher and the page makes room.
-
-The component draws the bar fixed over the page and writes no CSS of the host's,
-so everything a test could read off the markup would pass with the admin's last
-row under the bar. These measure the page in a browser. The cases that move the
-bar's height are here too, since the page has to give the room back: a phone,
-where the open panel covers the bar, and a panel a project sizes to fill the
-window, where the bar goes.
-
-Unfold's rows are in ``tests/e2e_unfold``, under its own settings.
-"""
-
 from __future__ import annotations
 
 import pytest
@@ -106,8 +94,7 @@ def test_the_bar_stands_in_for_the_launcher_along_the_foot_of_the_window(admin_p
     assert state["collapsed"] is True
     assert state["barHeight"] > 0
     assert state["barBox"] == [0, 700 - state["barHeight"], 1280, 700], state
-    # The published height, and only that. Fed into the component's own inset it
-    # can flip the bar it is measuring.
+    # The published height, and only that.
     assert state["published"] == f"{state['barHeight']}px"
     assert state["rootInset"] == ""
     assert state["chatInset"] == ""
@@ -229,12 +216,7 @@ def test_a_reload_makes_room_again_whichever_state_it_comes_back_in(admin_page, 
 
 @override_settings(DJANGO_ADMIN_AGENT=BAR_SETTINGS)
 def test_the_room_is_made_under_a_strict_style_src(admin_page, live_server):  # noqa: ANN001, ANN201
-    """A property set through the CSSOM is what ``style-src`` admits, unlike a style attribute.
-
-    ``'none'`` is the control: it refuses the sheet that turns the property into
-    room, so a margin that survived it would mean the header never reached the
-    page and the first half proved nothing.
-    """
+    """A property set through the CSSOM is what ``style-src`` admits, unlike a style attribute."""
     url = f"{live_server.url}/admin/testapp/author/"
 
     def under(policy):  # noqa: ANN001, ANN202
@@ -271,12 +253,7 @@ def test_an_unlayered_project_rule_beats_the_room_the_sidebar_makes(  # noqa: AN
     row,  # noqa: ANN001
     property_name,  # noqa: ANN001
 ):
-    """The least weight a rule can have, one type selector, wins against none.
-
-    The sheet is linked from the body, after anything in the head, so a rule of no
-    weight at all would lose on order. Dropping ``:where()`` from the sheet's rule
-    gives it more than this one has.
-    """
+    """The least weight a rule can have, one type selector, wins against none."""
     _open_bar(admin_page, live_server)
 
     admin_page.add_style_tag(content=f"html :where({row}) {{ {property_name}: 7px; }}")
@@ -327,8 +304,6 @@ def test_without_the_bar_the_page_and_the_launcher_stay_as_they_are(
             "sizing": "content-box",
         }
 
-        # A rule of the sheet's out of its scope would compute to nothing and still
-        # win, since an unlayered rule beats any layered one. Zero alone cannot tell.
         admin_page.add_style_tag(
             content="""@layer mine {
               #content { margin-bottom: 9px; }
