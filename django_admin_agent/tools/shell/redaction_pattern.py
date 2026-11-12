@@ -17,7 +17,12 @@ _DEFAULT_PATTERN = re.compile(
 
 
 def redaction_pattern() -> re.Pattern[str] | None:
-    """The active field-name redaction pattern, or ``None`` when disabled."""
+    """The active field-name redaction pattern, or ``None`` when disabled.
+
+    Governed by ``DJANGO_ADMIN_AGENT["SHELL_FIELD_REDACTION"]``: ``True``
+    (default) uses the built-in denylist, ``False`` turns redaction off, and a
+    regex ``str`` replaces the denylist with your own.
+    """
     setting: bool | str = get_settings().shell_field_redaction
     if setting is False:
         return None

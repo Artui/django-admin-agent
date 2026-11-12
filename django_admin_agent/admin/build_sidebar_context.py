@@ -18,7 +18,26 @@ _BUNDLE_PATH = "django_admin_agent/admin_agent.js"
 def build_sidebar_context(
     namespace: str = DEFAULT_URL_NAMESPACE, *, user: Any = None
 ) -> dict[str, Any]:
-    """Build the context the sidebar template needs."""
+    """Build the context the sidebar template needs.
+
+    Reverses the AG-UI endpoint URL, resolves the bootstrap module's static URL,
+    reads the title / auto-confirm flag from settings, and resolves the admin
+    index URL so the frontend ``nav.*`` tools can build changelist / changeform
+    URLs without reversing named routes in the browser. Shared by the
+    ``{% django_admin_agent_sidebar %}`` template tag and the
+    [`SidebarAdminSite`][django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite]
+    ``each_context`` hook.
+
+    Args:
+        namespace: The mounted
+            [`AdminAgentServer`][django_admin_agent.admin_agent_server.AdminAgentServer]
+            to reverse against — the one it was constructed with. An argument
+            rather than a setting, because a project may mount more than one
+            sidebar.
+        user: The signed-in principal, used to scope the stored conversation to
+            them and to name them in the greeting a full-page chat shows.
+            Optional, and ``None`` reproduces the previous behaviour exactly.
+    """
     config = get_settings()
     attachments_url = _attachments_url(namespace)
     attachment_max_bytes, attachment_accept = _attachment_limits(attachments_url)
