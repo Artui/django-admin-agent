@@ -10,7 +10,12 @@ _SETTING_NAME = "DJANGO_ADMIN_AGENT"
 
 @dataclass(frozen=True)
 class AdminAgentSettings:
-    """Snapshot of the user-configurable ``DJANGO_ADMIN_AGENT`` settings."""
+    """Snapshot of the user-configurable ``DJANGO_ADMIN_AGENT`` settings.
+
+    Built fresh on every read so test overrides take effect immediately.
+    The agent model itself is configured separately via ``django-ag-ui``'s
+    ``DJANGO_AG_UI["MODEL"]``.
+    """
 
     title: str
     """Header text shown on the sidebar chat panel."""

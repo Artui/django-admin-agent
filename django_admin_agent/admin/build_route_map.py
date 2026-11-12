@@ -9,7 +9,13 @@ from django_admin_agent.admin.utils import admin_url
 
 
 def build_route_map() -> list[dict[str, Any]]:
-    """Build the agent's navigable-route manifest from the admin registry."""
+    """Build the agent's navigable-route manifest from the admin registry.
+
+    One changelist route (and one add route, when available) per registered
+    model, shaped for the Web Component's ``routeMap`` — ``{id, path, title,
+    group}``. The agent calls ``list_routes`` to discover destinations and
+    ``navigate_to_route`` to jump to one, instead of guessing admin URLs.
+    """
     routes: list[dict[str, Any]] = []
     for model_cls in admin.site._registry:
         meta = model_cls._meta
