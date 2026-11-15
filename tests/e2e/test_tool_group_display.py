@@ -70,7 +70,7 @@ def test_the_inner_mode_means_nothing_outside_the_grouped_display(  # noqa: ANN2
 
 
 def test_a_refused_call_still_says_why_from_its_row_by_default(admin_page, live_server):  # noqa: ANN001, ANN201
-    """The row is where a staff user learns an action did not happen."""
+    """The group head says it failed; a one-step group draws no second head on its row."""
     admin_page.goto(f"{live_server.url}/admin/")
     send_message(admin_page, "how many widgets are there?")
     expect(
@@ -82,7 +82,6 @@ def test_a_refused_call_still_says_why_from_its_row_by_default(admin_page, live_
     row = admin_page.locator(f"{GROUP} .tool-call")
     expect(row).to_be_visible()
     expect(row).to_have_attribute("data-status", "error")
-    expect(row.get_by_text("error", exact=False).first).to_be_visible()
     reason = row.locator(".tool-call-section").last
     expect(reason).to_be_hidden()
 

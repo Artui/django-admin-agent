@@ -105,7 +105,7 @@ def test_a_project_rule_on_the_element_wins(admin_page, live_server):  # noqa: A
 # calls for ``click_element``, and it rings the target before the click.
 _DRAWN_RING = """async () => {
   const src = document.querySelector('script[type=module][src*="admin_agent"]').src;
-  const bundle = await import(new URL("ag-ui-web-component.bundle.js", src).href);
+  const bundle = await import(new URL("agents-web-components.bundle.js", src).href);
   const target = document.createElement("button");
   target.type = "button";
   target.textContent = "ring";

@@ -11,7 +11,7 @@ agent runtime under `django-ag-ui`, as a declared dependency of its own:
 - **`django-ag-ui`** — the Django ↔ Pydantic-AI ↔ AG-UI bridge. Provides
   `ToolRegistry`, the `@tool` decorator, `DjangoAGUIView`, `AGUIServer`, the
   audit logger. This package *builds on* those; it does not reimplement them.
-- **`@artooi/ag-ui-web-component`** — the `<ag-ui-chat>` Web Component. We
+- **`@artooi/agents-web-components`** — the `<ag-ui-chat>` Web Component. We
   vendor its built bundle into `django_admin_agent/static/django_admin_agent/`
   and load it from the admin templates.
 
@@ -41,16 +41,16 @@ django-ag-ui = { path = "../django-ag-ui", editable = true }
 
 ### The vendored web-component bundle
 
-`django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js` is
+`django_admin_agent/static/django_admin_agent/agents-web-components.bundle.js` is
 a **build artefact**, not hand-written — it is esbuild's minified output from
-`@artooi/ag-ui-web-component` (TypeScript source), with `@ag-ui/*` inlined.
+`@artooi/agents-web-components` (TypeScript source), with `@ag-ui/*` inlined.
 
 The bundle is **version-pinned** in the `Makefile` (`WEB_COMPONENT_VERSION`) and
 the **committed file is the artefact**. The release verifies; it does not
 substitute:
 
 - **Adoption** is `make vendor-bundle-release`, which `npm pack`s
-  `@artooi/ag-ui-web-component@$(WEB_COMPONENT_VERSION)` and writes its built
+  `@artooi/agents-web-components@$(WEB_COMPONENT_VERSION)` and writes its built
   bundle into the tree. Run by a human bumping the pin, and the result is
   committed.
 - **Release and CI** run `make vendor-bundle-verify`, which fetches the same
@@ -61,7 +61,7 @@ substitute:
   executed — a local `make vendor-bundle` tree passed every gate, because the
   only check was a grep for the version string the local build also carries.
 - **Dev** uses `make vendor-bundle` to copy from the sibling
-  `../ag-ui-web-component/dist/` checkout. Convenient for working on both at
+  `../agents-web-components/dist/` checkout. Convenient for working on both at
   once, and it makes the tree disagree with the pin — `vendor-bundle-verify` is
   what stops that landing.
 

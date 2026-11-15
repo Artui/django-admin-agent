@@ -1,5 +1,5 @@
 site_name: django-admin-agent
-site_description: An always-present chat-agent sidebar in the Django admin, built on django-ag-ui and the ag-ui-web-component chat element.
+site_description: An always-present chat-agent sidebar in the Django admin, built on django-ag-ui and the agents-web-components chat element.
 site_url: https://artui.github.io/django-admin-agent/
 repo_url: https://github.com/Artui/django-admin-agent
 repo_name: Artui/django-admin-agent

@@ -7,6 +7,104 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.62.0] — 2026-11-15
+
+### Added
+
+- **The composer's place chip names the admin page the user is on, and the
+  agent is told the same.** `admin_agent.js` sets the component's `getPlace`
+  from the admin's own breadcrumbs: the last crumb is the label and the one
+  before it the detail, with the path as the href. A change form reads as the
+  object over its model (`Ada Lovelace`, `Authors`), an add form as `Add author`,
+  a changelist as the model over its app, and the index, which draws no
+  breadcrumbs, as the site header. The same read goes out with every run as the
+  component's `place` context entry, and the chip's eye toggle withholds it. It
+  reads both Django 6's list and the earlier `›`-separated block. A page with
+  neither breadcrumbs nor the index's dashboard (another admin skin, a custom
+  template, and Django Unfold, which draws its own header) leaves `getPlace`
+  unset, so the route map stands in there as before and names the page kind.
+  Under `COLLAPSE_TO = "bar"` the collapsed bar shows the same place. **The
+  object's name now reaches the model**, on any change form, `MODEL_SCOPE` or
+  not, where the route map sent only `Edit <model>`. It is the text the staff
+  user has on screen, and the chip's eye toggle withholds it for the page.
+
+### Changed
+
+- **The vendored web component is `@artooi/agents-web-components` 0.2.1, the
+  successor of `@artooi/ag-ui-web-component` (was 0.50.2).** The bundle is now
+  `django_admin_agent/static/django_admin_agent/agents-web-components.bundle.js`,
+  `WEB_COMPONENT_PKG` and `WEB_COMPONENT_VERSION` in the `Makefile` name the new
+  package, and `admin_agent.js` calls `defineChat()` where it called
+  `defineAgUiChat()`. The markup keeps `<ag-ui-chat>`, its parts and the
+  `--ag-ui-*` tokens, so a project's styles carry over. **A project script that
+  imports `ag-ui-web-component.bundle.js` by its static path must import
+  `agents-web-components.bundle.js`**, and one that called `defineAgUiChat`,
+  `registerStateHook`, `createStateHookTools` or `annotatedMessages` uses
+  `defineChat`, `registerPageState`, `createPageStateTools` or `messages`.
+- **The first deploy forgets the open thread once.** The component's storage keys
+  moved from `ag-ui-chat` to `agents-web-components`, so each user's open
+  conversation in the tab and the saved collapsed state, theme, panel size and
+  dock position start fresh after the upgrade. Server-backed threads under
+  `THREADS_URL` are still listed.
+
+  The host opt-in pass between the pins, the old package's 0.51.0 to 0.54.0 and
+  the new one's 0.1.0 to 0.2.1, each checked:
+
+  Adopted here:
+  - **`getPlace`** (0.51.0), the entry above. Without it the route map would
+    have stood in, naming only the page kind (`Edit author`).
+
+  What reaches the sidebar with nothing owed:
+  - **The place in the collapsed bar** (0.51.0) follows the chip. On a phone it
+    takes the strip's right side, so the title button sits nearer the middle.
+  - **A one-step tool group names its call once** (0.51.0): its row draws no
+    second head, so a refused call's `error` mark is on the group's head
+    (`1 failed`) and its reason one click down, as before.
+  - **The conversation list groups rows by age and titles a thread from its first
+    send** (0.51.0); the list shows both with no setting.
+  - **A dragged size belongs to its placement and unseen answers are counted per
+    thread** (0.52.0).
+  - **A maximize control in the header** (0.53.0) on every corner, docked and
+    column panel, `PLACEMENT = "sidebar"` included; a project hides it with
+    `ag-ui-chat::part(maximize-button) { display: none }` and sizes it with
+    `--ag-ui-maximized-width` and, for a corner panel, `--ag-ui-maximized-height`.
+  - **A sidebar's collapse control points into its edge** (0.54.0) under
+    `PLACEMENT = "sidebar"`, and the header glyphs are drawn rather than typed.
+    The template passes no `data-collapse-icon`, so the old chevron is a
+    project's own script away.
+  - **A reasoning block reads `Thought for 4s`** (0.54.0).
+  - **A failed run's bubble says what happened by the error's code** (0.2.0), and
+    an over-long thread or run id, refused before the stream opens, offers a new
+    conversation (0.2.0, 0.2.1). django-ag-ui sends the codes from 0.76.0; on an
+    earlier release within the floor the bubble keeps the server's message. The
+    admin sets nothing.
+  - **A project's `STRINGS` table that translates the panel** has seventeen new
+    keys to cover: `placeShared`, `placeWithheld`, `placeStopSharing`,
+    `placeShareAgain`, `threadsToday`, `threadsPreviousWeek`, `threadsOlder`,
+    `maximize`, `restore`, `thoughtFor`, `runErrorTimedOut`,
+    `runErrorInterrupted`, `runErrorFailed`, `runErrorNewChat`, `usageBoth`,
+    `usageInput` and `usageOutput`. It drops `noResult`, which the component
+    removed (0.1.0) and nothing drew; a key it leaves out shows in English.
+  - **`defineChat()` throws when another class holds `<ag-ui-chat>`** (0.1.0),
+    so a page that also loads the old bundle's element fails loudly at load.
+  - **A run the server cancelled ends as a stop** (0.2.1): no usage line, its
+    tool calls not run. Nothing here listens to `ag-ui-run-finished`.
+  - **`ag-ui-run-finished` reports an `outcome`** (0.51.0), and the page-moved
+    refusal names `read_page` only in a round that offered it (0.51.0).
+
+  Available and not adopted, a project's choice:
+  - **`show-usage`** (0.2.0), the token line under a finished turn, needs
+    django-ag-ui's `INCLUDE_USAGE` on the server as well. No setting here passes
+    the attribute, so a project sets it from its own script.
+  - **`data-threads-search`** (0.51.0), when the conversation list's search box
+    shows; absent keeps the eight-conversation threshold.
+  - **`title-text="auto"`** (0.51.0), the thread's own title in the header:
+    `TITLE = "auto"` passes it through.
+  - **`dockWidth` and `--ag-ui-min-page-width`** (0.51.0, 0.53.0), for a page
+    pushed aside by a docked sidebar, and **`anchor-side` and `openThreads({
+    anchor })`** (0.51.0, 0.53.0), for a panel opened from a host button the
+    admin does not have.
+
 ## [0.61.1] — 2026-11-09
 
 ### Fixed
@@ -2723,7 +2821,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.61.1...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.62.0...HEAD
+[0.62.0]: https://github.com/Artui/django-admin-agent/compare/v0.61.1...v0.62.0
 [0.61.1]: https://github.com/Artui/django-admin-agent/compare/v0.61.0...v0.61.1
 [0.61.0]: https://github.com/Artui/django-admin-agent/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/Artui/django-admin-agent/compare/v0.59.0...v0.60.0

@@ -191,9 +191,9 @@ person to install this package meets it.
 
 ## The vendored web-component bundle
 
-`django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js` is
+`django_admin_agent/static/django_admin_agent/agents-web-components.bundle.js` is
 a **build artefact** — esbuild's minified output from
-`@artooi/ag-ui-web-component`, with `@ag-ui/*` inlined. It is *not* hand-written
+`@artooi/agents-web-components`, with `@ag-ui/*` inlined. It is *not* hand-written
 and should not be edited.
 
 The bundle version is pinned in the `Makefile` (`WEB_COMPONENT_VERSION`), and
@@ -229,6 +229,25 @@ document.querySelector("ag-ui-chat#django-admin-agent").enableCharts(["tool"]);
 Run it any time after the page loads; it redraws charts already in the restored
 transcript.
 
+### The place chip
+
+The composer shows where the user is in the admin, and each run tells the agent
+the same, as the component's `place` context entry. The sidebar reads it from the
+admin's breadcrumbs: the last crumb (the object on a change form, the model on a
+changelist) over the one before it. The index, which has no breadcrumbs, names
+the site. On a page with neither, as under another admin skin, the route map
+stands in and names the page kind; Django Unfold, which draws its own header
+rather than Django's breadcrumbs, is such a skin. The place names the object on
+screen, so the model sees that object's name on any change form. The chip's eye
+toggle withholds the place for as long as the user stays on it. To read the
+place differently, set `getPlace` after the page loads and redraw the chip:
+
+```js
+const chat = document.querySelector("ag-ui-chat#django-admin-agent");
+chat.getPlace = () => ({ label: document.title, href: location.pathname });
+chat.refreshPlace();
+```
+
 ### The agent moving its own panel
 
 The sidebar sits over the changelist or changeform it is discussing, which is
@@ -263,7 +282,7 @@ can dim everything else with a scrim, and run a gradient around the ring:
 ```js
 import {
   showHighlightOverlay,
-} from "/static/django_admin_agent/ag-ui-web-component.bundle.js";
+} from "/static/django_admin_agent/agents-web-components.bundle.js";
 
 const dismiss = showHighlightOverlay(document.querySelector("#result_list"), {
   scrim: true,

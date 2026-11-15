@@ -16,7 +16,7 @@ animations and a confirmation modal on anything destructive.
 
 It builds on [`django-ag-ui`](https://github.com/Artui/django-ag-ui) (the
 Django ↔ [Pydantic-AI](https://ai.pydantic.dev) ↔ [AG-UI](https://docs.ag-ui.com)
-bridge) and ships the [`@artooi/ag-ui-web-component`](https://github.com/Artui/ag-ui-web-component)
+bridge) and ships the [`@artooi/agents-web-components`](https://github.com/Artui/agents-web-components)
 `<ag-ui-chat>` element vendored as a static bundle — there's no separate npm
 install. Works with the vanilla Django admin and with
 [Django Unfold](https://github.com/unfoldadmin/django-unfold).
@@ -37,7 +37,7 @@ install. Works with the vanilla Django admin and with
   density, placement, text animation, and tool-call display mode from
   `DJANGO_ADMIN_AGENT`, and surface a catalog of one-click skills as composer
   chips and a `/`-command palette. Built on `django-ag-ui>=0.74.0` and the matching
-  `@artooi/ag-ui-web-component`.
+  `@artooi/agents-web-components`.
 - **Voice & model thoughts** — set `DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]` to add a
   mic to the composer (server-side transcription), and a reasoning model's
   streamed chain-of-thought renders in a collapsible "thoughts" region. Both ride

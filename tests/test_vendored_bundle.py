@@ -8,7 +8,11 @@ import pytest
 _ROOT = Path(__file__).resolve().parent.parent
 _MAKEFILE = _ROOT / "Makefile"
 _BUNDLE = (
-    _ROOT / "django_admin_agent" / "static" / "django_admin_agent" / "ag-ui-web-component.bundle.js"
+    _ROOT
+    / "django_admin_agent"
+    / "static"
+    / "django_admin_agent"
+    / "agents-web-components.bundle.js"
 )
 
 

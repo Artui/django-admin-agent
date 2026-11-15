@@ -393,6 +393,25 @@ _PANEL_ENDS = """(selector) => {
 }"""
 
 
+# The middle of the widest stretch of strip between its controls; the place text
+# can push the title button to the centre of a phone's strip.
+_EMPTY_STRIP_X = """(selector) => {
+  const bar = document.querySelector(selector).shadowRoot.querySelector('[part~="bar"]');
+  const box = bar.getBoundingClientRect();
+  let edges = [box.left];
+  for (const kid of bar.children) {
+    const r = kid.getBoundingClientRect();
+    if (r.width > 0) edges.push(r.left, r.right);
+  }
+  edges.push(box.right);
+  let best = [0, 0];
+  for (let i = 0; i < edges.length; i += 2) {
+    if (edges[i + 1] - edges[i] > best[1] - best[0]) best = [edges[i], edges[i + 1]];
+  }
+  return (best[0] + best[1]) / 2;
+}"""
+
+
 @pytest.mark.parametrize(
     ("placement", "width"),
     [(None, 1280), (None, 390), ("bottom-left", 1280), ("bottom-left", 390)],
@@ -410,7 +429,8 @@ def test_the_title_opens_the_panel_at_the_end_of_the_bar_its_placement_keeps(  #
         chat = admin_page.locator(CHAT)
 
         # The strip itself is not the control: only its title button opens the panel.
-        admin_page.mouse.click(width / 2, state["barBox"][1] + state["barHeight"] / 2)
+        x = admin_page.evaluate(_EMPTY_STRIP_X, CHAT)
+        admin_page.mouse.click(x, state["barBox"][1] + state["barHeight"] / 2)
         admin_page.wait_for_timeout(200)
         assert chat.get_attribute("collapsed") is not None
 
