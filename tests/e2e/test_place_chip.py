@@ -25,6 +25,13 @@ _OLD_CRUMBS = """() => {
 }"""
 
 
+# The docs' recipe for a project's own place.
+_LATE_PLACE = """() => {
+  const chat = document.querySelector("ag-ui-chat#django-admin-agent");
+  chat.getPlace = () => ({ label: "Late place", href: location.pathname });
+  chat.refreshPlace();
+}"""
+
 # A page drawn without breadcrumbs, as a custom template or another admin skin may be.
 _NO_CRUMBS = """new MutationObserver((records) => {
   for (const node of document.querySelectorAll(".breadcrumbs")) node.remove();
@@ -73,7 +80,16 @@ def test_a_changelist_names_the_model(admin_page, live_server):  # noqa: ANN001,
     label, _ = _chip(admin_page)
 
     expect(label).to_have_text("Authors")
-    assert _sent_place(admin_page)["label"] == "Authors"
+    place = _sent_place(admin_page)
+    assert (place["label"], place["detail"]) == ("Authors", "Testapp"), place
+
+
+def test_an_add_form_names_the_model_it_adds_to(admin_page, live_server):  # noqa: ANN001, ANN201
+    admin_page.goto(f"{live_server.url}/admin/testapp/author/add/")
+    label, detail = _chip(admin_page)
+
+    expect(label).to_have_text("Add author")
+    expect(detail).to_have_text("Authors")
 
 
 def test_the_index_names_the_site(admin_page, live_server):  # noqa: ANN001, ANN201
@@ -95,6 +111,18 @@ def test_the_older_breadcrumb_markup_reads_the_same(admin_page, live_server):  #
     label, detail = _chip(admin_page)
     expect(label).to_have_text("Ada Lovelace")
     expect(detail).to_have_text("Authors")
+    place = _sent_place(admin_page)
+    assert (place["label"], place["detail"]) == ("Ada Lovelace", "Authors"), place
+
+
+def test_a_late_get_place_redraws_the_chip_on_refresh(admin_page, live_server):  # noqa: ANN001, ANN201
+    admin_page.goto(f"{live_server.url}/admin/testapp/author/")
+    expect(admin_page.locator(CHAT)).to_be_attached()
+
+    admin_page.evaluate(_LATE_PLACE)
+
+    label, _ = _chip(admin_page)
+    expect(label).to_have_text("Late place")
 
 
 def test_a_page_with_no_breadcrumbs_falls_back_to_the_route_map(admin_page, live_server):  # noqa: ANN001, ANN201

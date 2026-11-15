@@ -236,15 +236,16 @@ the same, as the component's `place` context entry. The sidebar reads it from th
 admin's breadcrumbs: the last crumb (the object on a change form, the model on a
 changelist) over the one before it. The index, which has no breadcrumbs, names
 the site. On a page with neither, as under another admin skin, the route map
-stands in and names the page kind. The chip's eye toggle withholds the place for
-as long as the user stays on it. To read the place differently, set `getPlace`
-after the page loads:
+stands in and names the page kind; Django Unfold, which draws its own header
+rather than Django's breadcrumbs, is such a skin. The place names the object on
+screen, so the model sees that object's name on any change form. The chip's eye
+toggle withholds the place for as long as the user stays on it. To read the
+place differently, set `getPlace` after the page loads and redraw the chip:
 
 ```js
-document.querySelector("ag-ui-chat#django-admin-agent").getPlace = () => ({
-  label: document.title,
-  href: location.pathname,
-});
+const chat = document.querySelector("ag-ui-chat#django-admin-agent");
+chat.getPlace = () => ({ label: document.title, href: location.pathname });
+chat.refreshPlace();
 ```
 
 ### The agent moving its own panel

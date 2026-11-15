@@ -21,9 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   component's `place` context entry, and the chip's eye toggle withholds it. It
   reads both Django 6's list and the earlier `›`-separated block. A page with
   neither breadcrumbs nor the index's dashboard (another admin skin, a custom
-  template) leaves `getPlace` unset, so the route map stands in there as before
-  and names the page kind. Under `COLLAPSE_TO = "bar"` the collapsed bar shows the
-  same place.
+  template, and Django Unfold, which draws its own header) leaves `getPlace`
+  unset, so the route map stands in there as before and names the page kind.
+  Under `COLLAPSE_TO = "bar"` the collapsed bar shows the same place. **The
+  object's name now reaches the model**, on any change form, `MODEL_SCOPE` or
+  not, where the route map sent only `Edit <model>`. It is the text the staff
+  user has on screen, and the chip's eye toggle withholds it for the page.
 
 ### Changed
 
@@ -61,18 +64,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     send** (0.51.0); the list shows both with no setting.
   - **A dragged size belongs to its placement and unseen answers are counted per
     thread** (0.52.0).
-  - **A maximize control in the header** (0.53.0) on every corner and docked
-    panel; a project hides it with `ag-ui-chat::part(maximize-button) { display:
-    none }`.
+  - **A maximize control in the header** (0.53.0) on every corner, docked and
+    column panel, `PLACEMENT = "sidebar"` included; a project hides it with
+    `ag-ui-chat::part(maximize-button) { display: none }` and sizes it with
+    `--ag-ui-maximized-width` and `--ag-ui-maximized-height`.
   - **A sidebar's collapse control points into its edge** (0.54.0) under
     `PLACEMENT = "sidebar"`, and the header glyphs are drawn rather than typed.
-  - **A reasoning block reads `Thought for 4s`** (0.54.0). A project's `STRINGS`
-    table that translates the panel adds `thoughtFor`, and drops `noResult`,
-    which the component removed (0.1.0) and nothing drew.
+    The template passes no `data-collapse-icon`, so the old chevron is a
+    project's own script away.
+  - **A reasoning block reads `Thought for 4s`** (0.54.0).
   - **A failed run's bubble says what happened by the error's code** (0.2.0), and
     an over-long thread or run id, refused before the stream opens, offers a new
-    conversation (0.2.0, 0.2.1). django-ag-ui sends both codes; the admin sets
-    nothing.
+    conversation (0.2.0, 0.2.1). django-ag-ui sends the codes from 0.76.0; on an
+    earlier release within the floor the bubble keeps the server's message. The
+    admin sets nothing.
+  - **A project's `STRINGS` table that translates the panel** has seventeen new
+    keys to cover: `placeShared`, `placeWithheld`, `placeStopSharing`,
+    `placeShareAgain`, `threadsToday`, `threadsPreviousWeek`, `threadsOlder`,
+    `maximize`, `restore`, `thoughtFor`, `runErrorTimedOut`,
+    `runErrorInterrupted`, `runErrorFailed`, `runErrorNewChat`, `usageBoth`,
+    `usageInput` and `usageOutput`. It drops `noResult`, which the component
+    removed (0.1.0) and nothing drew; a key it leaves out shows in English.
+  - **`defineChat()` throws when another class holds `<ag-ui-chat>`** (0.1.0),
+    so a page that also loads the old bundle's element fails loudly at load.
   - **A run the server cancelled ends as a stop** (0.2.1): no usage line, its
     tool calls not run. Nothing here listens to `ag-ui-run-finished`.
   - **`ag-ui-run-finished` reports an `outcome`** (0.51.0), and the page-moved
@@ -80,7 +94,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   Available and not adopted, a project's choice:
   - **`show-usage`** (0.2.0), the token line under a finished turn, needs
-    django-ag-ui's `include_usage` on the server as well; a project sets both.
+    django-ag-ui's `include_usage` on the server as well. No setting here passes
+    the attribute, so a project sets it from its own script.
+  - **`data-threads-search`** (0.51.0), when the conversation list's search box
+    shows; absent keeps the eight-conversation threshold.
   - **`title-text="auto"`** (0.51.0), the thread's own title in the header:
     `TITLE = "auto"` passes it through.
   - **`dockWidth` and `--ag-ui-min-page-width`** (0.51.0, 0.53.0), for a page
