@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="An always-present chat-agent sidebar in the Django admin, built on django-ag-ui and the ag-ui-web-component chat element.">
+        <meta name="description" content="An always-present chat-agent sidebar in the Django admin, built on django-ag-ui and the agents-web-components chat element.">
       
       
       
@@ -479,6 +479,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#the-place-chip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The place chip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#the-agent-moving-its-own-panel" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -798,6 +809,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#the-place-chip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The place chip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#the-agent-moving-its-own-panel" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -996,9 +1018,9 @@ ASGI one that also serves static files:</p>
 which is why this only bites in development — the environment where the first
 person to install this package meets it.</p>
 <h2 id="the-vendored-web-component-bundle">The vendored web-component bundle<a class="headerlink" href="#the-vendored-web-component-bundle" title="Permanent link">&para;</a></h2>
-<p><code>django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js</code> is
+<p><code>django_admin_agent/static/django_admin_agent/agents-web-components.bundle.js</code> is
 a <strong>build artefact</strong> — esbuild's minified output from
-<code>@artooi/ag-ui-web-component</code>, with <code>@ag-ui/*</code> inlined. It is <em>not</em> hand-written
+<code>@artooi/agents-web-components</code>, with <code>@ag-ui/*</code> inlined. It is <em>not</em> hand-written
 and should not be edited.</p>
 <p>The bundle version is pinned in the <code>Makefile</code> (<code>WEB_COMPONENT_VERSION</code>), and
 the <strong>committed file is the artefact</strong>: CI checks it byte-for-byte against the
@@ -1025,6 +1047,21 @@ the numbers it drew — is left to you, because it widens what the agent can do:
 </span></code></pre></div>
 <p>Run it any time after the page loads; it redraws charts already in the restored
 transcript.</p>
+<h3 id="the-place-chip">The place chip<a class="headerlink" href="#the-place-chip" title="Permanent link">&para;</a></h3>
+<p>The composer shows where the user is in the admin, and each run tells the agent
+the same, as the component's <code>place</code> context entry. The sidebar reads it from the
+admin's breadcrumbs: the last crumb (the object on a change form, the model on a
+changelist) over the one before it. The index, which has no breadcrumbs, names
+the site. On a page with neither, as under another admin skin, the route map
+stands in and names the page kind; Django Unfold, which draws its own header
+rather than Django's breadcrumbs, is such a skin. The place names the object on
+screen, so the model sees that object's name on any change form. The chip's eye
+toggle withholds the place for as long as the user stays on it. To read the
+place differently, set <code>getPlace</code> after the page loads and redraw the chip:</p>
+<div class="language-js highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"ag-ui-chat#django-admin-agent"</span><span class="p">);</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nx">chat</span><span class="p">.</span><span class="nx">getPlace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">title</span><span class="p">,</span><span class="w"> </span><span class="nx">href</span><span class="o">:</span><span class="w"> </span><span class="nx">location</span><span class="p">.</span><span class="nx">pathname</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nx">chat</span><span class="p">.</span><span class="nx">refreshPlace</span><span class="p">();</span>
+</span></code></pre></div>
 <h3 id="the-agent-moving-its-own-panel">The agent moving its own panel<a class="headerlink" href="#the-agent-moving-its-own-panel" title="Permanent link">&para;</a></h3>
 <p>The sidebar sits over the changelist or changeform it is discussing, which is
 the one problem a chat pinned to its own tab never has. The agent has four
@@ -1037,7 +1074,7 @@ just above, and the difference is what the widened surface can reach. A chart
 tool draws whatever the agent decides to draw; these move this sidebar and
 nothing else. They read no model, change no row, and touch no data. The cost is
 four tool definitions in each request, and that is what the setting is for:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"CHAT_SURFACE_TOOLS"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"CHAT_SURFACE_TOOLS"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
 </span></code></pre></div>
 <p>Worth turning off for a <code>PLACEMENT</code> that owns its own position and has no
 collapsed state, since there the tools can only ever answer that they did
@@ -1048,15 +1085,15 @@ instead.</p>
 <p><code>showHighlightOverlay</code> rings an element from an overlay drawn outside it, so a
 target is not restyled and nothing in your admin templates has to cooperate. It
 can dim everything else with a scrim, and run a gradient around the ring:</p>
-<div class="language-js highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nx">showHighlightOverlay</span><span class="p">,</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"/static/django_admin_agent/ag-ui-web-component.bundle.js"</span><span class="p">;</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">dismiss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">showHighlightOverlay</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#result_list"</span><span class="p">),</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span><span class="nx">scrim</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="nx">gradient</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">});</span>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="c1">// Call dismiss() to take it down -- it does not retire itself.</span>
+<div class="language-js highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nx">showHighlightOverlay</span><span class="p">,</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"/static/django_admin_agent/agents-web-components.bundle.js"</span><span class="p">;</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">dismiss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">showHighlightOverlay</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#result_list"</span><span class="p">),</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="nx">scrim</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">  </span><span class="nx">gradient</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="p">});</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="c1">// Call dismiss() to take it down -- it does not retire itself.</span>
 </span></code></pre></div>
 <p>Its ring takes <code>--ag-ui-highlight-ring-color</code> from the sidebar element, which the
 sidebar's stylesheet sets to the admin's <code>--link-fg</code>, ahead of the target's own
