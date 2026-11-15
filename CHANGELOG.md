@@ -67,7 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **A maximize control in the header** (0.53.0) on every corner, docked and
     column panel, `PLACEMENT = "sidebar"` included; a project hides it with
     `ag-ui-chat::part(maximize-button) { display: none }` and sizes it with
-    `--ag-ui-maximized-width` and `--ag-ui-maximized-height`.
+    `--ag-ui-maximized-width` and, for a corner panel, `--ag-ui-maximized-height`.
   - **A sidebar's collapse control points into its edge** (0.54.0) under
     `PLACEMENT = "sidebar"`, and the header glyphs are drawn rather than typed.
     The template passes no `data-collapse-icon`, so the old chevron is a
@@ -94,7 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   Available and not adopted, a project's choice:
   - **`show-usage`** (0.2.0), the token line under a finished turn, needs
-    django-ag-ui's `include_usage` on the server as well. No setting here passes
+    django-ag-ui's `INCLUDE_USAGE` on the server as well. No setting here passes
     the attribute, so a project sets it from its own script.
   - **`data-threads-search`** (0.51.0), when the conversation list's search box
     shows; absent keeps the eight-conversation threshold.
