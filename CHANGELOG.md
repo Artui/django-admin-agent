@@ -52,7 +52,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     have stood in, naming only the page kind (`Edit author`).
 
   What reaches the sidebar with nothing owed:
-  - **The place in the collapsed bar** (0.51.0) follows the chip.
+  - **The place in the collapsed bar** (0.51.0) follows the chip. On a phone it
+    takes the strip's right side, so the title button sits nearer the middle.
+  - **A one-step tool group names its call once** (0.51.0): its row draws no
+    second head, so a refused call's `error` mark is on the group's head
+    (`1 failed`) and its reason one click down, as before.
   - **The conversation list groups rows by age and titles a thread from its first
     send** (0.51.0); the list shows both with no setting.
   - **A dragged size belongs to its placement and unseen answers are counted per
