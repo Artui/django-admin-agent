@@ -12,7 +12,7 @@ It is the admin-facing consumer in a three-package stack:
   `ToolRegistry`, the `@tool` decorator, `ToolCategory`, the async
   `DjangoAGUIView`, `AGUIServer`, and the audit-logger machinery. This package
   *builds on* those; it does not reimplement the transport or the agent loop.
-- **`@artooi/ag-ui-web-component`** — the framework-free `<ag-ui-chat>` Web
+- **`@artooi/agents-web-components`** — the framework-free `<ag-ui-chat>` Web
   Component. Its built bundle is vendored into
   `django_admin_agent/static/django_admin_agent/` and loaded from the admin
   templates. It owns the chat UI, the DOM-driver primitives, the

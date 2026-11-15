@@ -66,9 +66,9 @@ docs-build:
 # a release verifies that the two agree and refuses to publish otherwise, so a
 # published wheel ships exactly the bytes that were reviewed, tested and driven
 # in a browser here.
-WEB_COMPONENT_PKG := @artooi/ag-ui-web-component
-WEB_COMPONENT_VERSION := 0.50.2
-BUNDLE_DEST := django_admin_agent/static/django_admin_agent/ag-ui-web-component.bundle.js
+WEB_COMPONENT_PKG := @artooi/agents-web-components
+WEB_COMPONENT_VERSION := 0.2.1
+BUNDLE_DEST := django_admin_agent/static/django_admin_agent/agents-web-components.bundle.js
 
 # Fetch the pinned published component into a tmpdir and normalise its bundle
 # to `$$tmp/pinned.js`, exactly as both vendor paths below want it: the
@@ -79,16 +79,16 @@ define fetch_pinned_bundle
 	tmp="$$(mktemp -d)"; \
 	( cd "$$tmp" && npm pack "$(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION)" >/dev/null ); \
 	tar -xzf "$$tmp"/*.tgz -C "$$tmp"; \
-	sed -e '/sourceMappingURL/d' "$$tmp/package/dist/ag-ui-web-component.bundle.js" > "$$tmp/pinned.js"
+	sed -e '/sourceMappingURL/d' "$$tmp/package/dist/agents-web-components.bundle.js" > "$$tmp/pinned.js"
 endef
 
 # Dev: copy the locally-built bundle from the sibling checkout (run
-# `make build` in ../ag-ui-web-component first). Convenient, may drift — the
+# `make build` in ../agents-web-components first). Convenient, may drift — the
 # release re-vendor is the authoritative refresh.
 vendor-bundle:
-	cp ../ag-ui-web-component/dist/ag-ui-web-component.bundle.js $(BUNDLE_DEST)
+	cp ../agents-web-components/dist/agents-web-components.bundle.js $(BUNDLE_DEST)
 	sed -e '/sourceMappingURL/d' "$(BUNDLE_DEST)" > "$(BUNDLE_DEST).tmp" && mv "$(BUNDLE_DEST).tmp" "$(BUNDLE_DEST)"
-	@echo "Vendored ag-ui-web-component.bundle.js from the sibling checkout (dev)."
+	@echo "Vendored agents-web-components.bundle.js from the sibling checkout (dev)."
 
 # Adoption: fetch the PINNED published version and write it into the tree. Run
 # by a human bumping WEB_COMPONENT_VERSION above, and the result is COMMITTED.

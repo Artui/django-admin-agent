@@ -30,7 +30,7 @@ import {
   selectControl,
   setControlValue,
   toggleCheckbox,
-} from "./ag-ui-web-component.bundle.js";
+} from "./agents-web-components.bundle.js";
 import { activateTabForField, revealActionButton } from "./unfold_shim.js";
 
 const SUBMIT_NAMES = {

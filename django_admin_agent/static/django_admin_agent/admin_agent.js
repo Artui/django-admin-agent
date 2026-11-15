@@ -9,14 +9,15 @@
 //   - read the auto-confirm flag from the element's data attribute
 //   - register the admin-aware frontend tools (DOM driving) — see
 //     ./admin_tools.js
+//   - name the page, object or changelist the user is on (the place chip)
 //   - opt the surface in to server-pushed charts
 //   - let the agent move its own panel out of the way of the page
 //   - under COLLAPSE_TO="bar", make room for the bar in the page
 import {
   BAR_HEIGHT_EVENT,
   createChatSurfaceTools,
-  defineAgUiChat,
-} from "./ag-ui-web-component.bundle.js";
+  defineChat,
+} from "./agents-web-components.bundle.js";
 import { registerAdminTools } from "./admin_tools.js";
 
 function readCsrfToken() {
@@ -64,6 +65,52 @@ function skillContext() {
   };
 }
 
+// The admin's breadcrumbs as text, or null on a page that draws none. Django 6
+// draws them as a list; earlier releases as one block with › between crumbs.
+function readCrumbs() {
+  const node = document.querySelector(".breadcrumbs");
+  if (node === null) {
+    return null;
+  }
+  const items = node.querySelectorAll("li");
+  const texts =
+    items.length > 0
+      ? [...items].map((item) => item.textContent)
+      : node.textContent.split("\u203a");
+  return texts
+    .map((text) => text.replace(/\s+/g, " ").trim())
+    .filter((text) => text !== "");
+}
+
+// Where the user is, for the place chip and the `place` context entry: the last
+// crumb (the object, or the changelist's model) with the one before it as the
+// detail. The index draws no breadcrumbs, so it names the site.
+function readPlace() {
+  const href = window.location.pathname;
+  const crumbs = readCrumbs() ?? [];
+  if (crumbs.length > 0) {
+    const label = crumbs[crumbs.length - 1];
+    return crumbs.length > 1
+      ? { label, detail: crumbs[crumbs.length - 2], href }
+      : { label, href };
+  }
+  const site = document.getElementById("site-name");
+  if (document.body.classList.contains("dashboard") && site !== null) {
+    return { label: site.textContent.trim(), href };
+  }
+  return null;
+}
+
+// Set only where the page has something to read: the component's route map
+// stands in for the place only while `getPlace` is unset, so a page with no
+// breadcrumbs (another admin skin, a custom template) keeps that fallback.
+function placeSource() {
+  const readable =
+    document.querySelector(".breadcrumbs") !== null ||
+    document.body.classList.contains("dashboard");
+  return readable ? readPlace : null;
+}
+
 // The bar is fixed over the page and the component writes no CSS of the host's,
 // so this hands the height to the sidebar's stylesheet, which clears the page's
 // last row. A custom property on the root, because one set on the element would
@@ -91,7 +138,7 @@ function makeRoomForBar(el) {
 }
 
 function bootstrap() {
-  defineAgUiChat();
+  defineChat();
   const el = document.querySelector("ag-ui-chat#django-admin-agent");
   if (el === null) {
     return;
@@ -99,6 +146,7 @@ function bootstrap() {
   el.headers = { "X-CSRFToken": readCsrfToken() };
   el.autoConfirm = el.getAttribute("data-auto-confirm") === "true";
   el.routeMap = readRouteMap();
+  el.getPlace = placeSource();
   el.setSkills(readSkills());
   el.skillContext = skillContext;
   // Charts are off in the component until a host asks for them, and a chart

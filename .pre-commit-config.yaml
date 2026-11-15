@@ -47,7 +47,7 @@ repos:
         entry: '(?<![A-Za-z0-9])(SPEC|SURF|DISP|KEY|FILT|BULK|NEST|NAME|THINK|VOICE|THEME|WELL|PAGE|CARD|REST|I18N|CUST|TOOL|PAI|AUTHZ|CONF|AGH|OAS|WCH|HYG|ADOPT|ANNO|ASYNC|ERR|DUP|PROTO|SEC|VER|GATE|STATE|SESS|CTX|AUDIT|HITL|CODE|STEP|SHARE|SKILL|CAP|MOUNT|SAN|PF|PROV|SCH|LIFE|SUB|CI|DOC|EX|HOST|WIN|REL|CONV|COMM|LINT|PURGE|MCPX|A2A|ATT|ADMIN|MULTI|OFFK|QP|DEPS|CORE|NAV|TSET|MRTR|BOUND|CHAT|NICE|PRE|PIPE|EMIT|SEED|POOL)-\d|(?<![A-Za-z0-9])(Phase|Wave)\s\d'
         language: pygrep
         types: [text]
-        exclude: '^(\.pre-commit-config\.yaml|django_admin_agent/static/django_admin_agent/ag-ui-web-component\.bundle\.js)$'
+        exclude: '^(\.pre-commit-config\.yaml|django_admin_agent/static/django_admin_agent/agents-web-components\.bundle\.js)$'
 
       # Scoped to the package, because that is exactly what ty checks. Under
       # tests/ no checker reads either pragma, while an editor running mypy or
@@ -65,7 +65,7 @@ repos:
         entry: '⚠|⭐|⛔|✅|❌|❗|❓|⭕|⚡|☑|✔|✖|✨|❤|⏸|⏰|⌛|⁉|‼|️|\xf0\x9f[\x80-\xbf][\x80-\xbf]'
         language: pygrep
         types: [text]
-        exclude: '^(\.pre-commit-config\.yaml|django_admin_agent/static/django_admin_agent/ag-ui-web-component\.bundle\.js)$'
+        exclude: '^(\.pre-commit-config\.yaml|django_admin_agent/static/django_admin_agent/agents-web-components\.bundle\.js)$'
 
       # Structural rather than a pattern, so it is a script where the guards
       # above are pygrep. A merge or a rebase can rearrange this file without

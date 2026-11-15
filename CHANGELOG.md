@@ -7,6 +7,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **The composer's place chip names the admin page the user is on, and the
+  agent is told the same.** `admin_agent.js` sets the component's `getPlace`
+  from the admin's own breadcrumbs: the last crumb is the label and the one
+  before it the detail, with the path as the href. A change form reads as the
+  object over its model (`Ada Lovelace`, `Authors`), an add form as `Add author`,
+  a changelist as the model over its app, and the index, which draws no
+  breadcrumbs, as the site header. The same read goes out with every run as the
+  component's `place` context entry, and the chip's eye toggle withholds it. It
+  reads both Django 6's list and the earlier `›`-separated block. A page with
+  neither breadcrumbs nor the index's dashboard (another admin skin, a custom
+  template) leaves `getPlace` unset, so the route map stands in there as before
+  and names the page kind. Under `COLLAPSE_TO = "bar"` the collapsed bar shows the
+  same place.
+
+### Changed
+
+- **The vendored web component is `@artooi/agents-web-components` 0.2.1, the
+  successor of `@artooi/ag-ui-web-component` (was 0.50.2).** The bundle is now
+  `django_admin_agent/static/django_admin_agent/agents-web-components.bundle.js`,
+  `WEB_COMPONENT_PKG` and `WEB_COMPONENT_VERSION` in the `Makefile` name the new
+  package, and `admin_agent.js` calls `defineChat()` where it called
+  `defineAgUiChat()`. The markup keeps `<ag-ui-chat>`, its parts and the
+  `--ag-ui-*` tokens, so a project's styles carry over. **A project script that
+  imports `ag-ui-web-component.bundle.js` by its static path must import
+  `agents-web-components.bundle.js`**, and one that called `defineAgUiChat`,
+  `registerStateHook`, `createStateHookTools` or `annotatedMessages` uses
+  `defineChat`, `registerPageState`, `createPageStateTools` or `messages`.
+- **The first deploy forgets the open thread once.** The component's storage keys
+  moved from `ag-ui-chat` to `agents-web-components`, so each user's open
+  conversation in the tab and the saved collapsed state, theme, panel size and
+  dock position start fresh after the upgrade. Server-backed threads under
+  `THREADS_URL` are still listed.
+
+  The host opt-in pass between the pins, the old package's 0.51.0 to 0.54.0 and
+  the new one's 0.1.0 to 0.2.1, each checked:
+
+  Adopted here:
+  - **`getPlace`** (0.51.0), the entry above. Without it the route map would
+    have stood in, naming only the page kind (`Edit author`).
+
+  What reaches the sidebar with nothing owed:
+  - **The place in the collapsed bar** (0.51.0) follows the chip.
+  - **The conversation list groups rows by age and titles a thread from its first
+    send** (0.51.0); the list shows both with no setting.
+  - **A dragged size belongs to its placement and unseen answers are counted per
+    thread** (0.52.0).
+  - **A maximize control in the header** (0.53.0) on every corner and docked
+    panel; a project hides it with `ag-ui-chat::part(maximize-button) { display:
+    none }`.
+  - **A sidebar's collapse control points into its edge** (0.54.0) under
+    `PLACEMENT = "sidebar"`, and the header glyphs are drawn rather than typed.
+  - **A reasoning block reads `Thought for 4s`** (0.54.0). A project's `STRINGS`
+    table that translates the panel adds `thoughtFor`, and drops `noResult`,
+    which the component removed (0.1.0) and nothing drew.
+  - **A failed run's bubble says what happened by the error's code** (0.2.0), and
+    an over-long thread or run id, refused before the stream opens, offers a new
+    conversation (0.2.0, 0.2.1). django-ag-ui sends both codes; the admin sets
+    nothing.
+  - **A run the server cancelled ends as a stop** (0.2.1): no usage line, its
+    tool calls not run. Nothing here listens to `ag-ui-run-finished`.
+  - **`ag-ui-run-finished` reports an `outcome`** (0.51.0), and the page-moved
+    refusal names `read_page` only in a round that offered it (0.51.0).
+
+  Available and not adopted, a project's choice:
+  - **`show-usage`** (0.2.0), the token line under a finished turn, needs
+    django-ag-ui's `include_usage` on the server as well; a project sets both.
+  - **`title-text="auto"`** (0.51.0), the thread's own title in the header:
+    `TITLE = "auto"` passes it through.
+  - **`dockWidth` and `--ag-ui-min-page-width`** (0.51.0, 0.53.0), for a page
+    pushed aside by a docked sidebar, and **`anchor-side` and `openThreads({
+    anchor })`** (0.51.0, 0.53.0), for a panel opened from a host button the
+    admin does not have.
+
 ## [0.61.1] — 2026-11-09
 
 ### Fixed
