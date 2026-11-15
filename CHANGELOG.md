@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.62.0] — 2026-11-15
+
 ### Added
 
 - **The composer's place chip names the admin page the user is on, and the
@@ -2798,7 +2800,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.61.1...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.62.0...HEAD
+[0.62.0]: https://github.com/Artui/django-admin-agent/compare/v0.61.1...v0.62.0
 [0.61.1]: https://github.com/Artui/django-admin-agent/compare/v0.61.0...v0.61.1
 [0.61.0]: https://github.com/Artui/django-admin-agent/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/Artui/django-admin-agent/compare/v0.59.0...v0.60.0
