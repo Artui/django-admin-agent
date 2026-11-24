@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -438,6 +438,34 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#stored-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stored skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stored skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-modeladmin-for-the-skill-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A ModelAdmin for the skill model
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -561,6 +589,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#routines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Routines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#file-uploads" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -587,6 +626,17 @@
     <span class="md-ellipsis">
       
         mcp_server= and the [mcp] extra
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcp-apps-views" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MCP Apps views
       
     </span>
   </a>
@@ -796,6 +846,34 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#stored-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stored skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stored skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-modeladmin-for-the-skill-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A ModelAdmin for the skill model
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -919,6 +997,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#routines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Routines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#file-uploads" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -945,6 +1034,17 @@
     <span class="md-ellipsis">
       
         mcp_server= and the [mcp] extra
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcp-apps-views" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MCP Apps views
       
     </span>
   </a>
@@ -1090,9 +1190,19 @@ access, so test overrides and runtime changes take effect immediately.</p>
 <td>Override for the slash-command / chip catalog (a list of <code>Skill</code> dicts). Leave unset to use the built-in admin catalog. See <a href="#skills">Skills</a>.</td>
 </tr>
 <tr>
+<td><code>SKILL_EDITOR</code></td>
+<td><code>False</code></td>
+<td>Offer the editor for the caller's stored skills: <code>True</code> renders <code>data-skill-editor-url</code> and <code>data-skill-editor-button</code> when the mount serves the editor (<code>AdminAgentServer(skill_policy=..., skill_editor=True)</code>), and nothing without it. See <a href="#stored-skills">Stored skills</a>.</td>
+</tr>
+<tr>
 <td><code>SHELL_FIELD_REDACTION</code></td>
 <td><code>True</code></td>
 <td>Mask sensitive-<em>named</em> fields in <code>shell.*</code> output, and refuse to filter or order on them. <code>True</code> uses the built-in denylist; <code>False</code> disables both halves; a regex <code>str</code> replaces the pattern. See <a href="#sensitive-field-redaction">Sensitive-field redaction</a>.</td>
+</tr>
+<tr>
+<td><code>MCP_APPS_SANDBOX_PROXY_URL</code></td>
+<td><em>unset</em></td>
+<td>URL of the MCP Apps sandbox proxy page, on an origin other than the admin's. Set, the sidebar frames the view a bridged <code>mcp_server=</code> tool links, inside that proxy; unset, the component draws a notice in its place. See <a href="#mcp-apps-views">MCP Apps views</a>.</td>
 </tr>
 <tr>
 <td><code>MODEL_SCOPE</code></td>
@@ -1343,8 +1453,9 @@ the system rather than Unfold's own toggle, and <code>"dark"</code> pins it dark
 <p>The sidebar ships a small catalog of pre-defined prompts surfaced as <strong>chips</strong>
 above the composer and in the <code>/</code>-command <strong>palette</strong>. They are embedded into
 the page as a <code>json_script</code> block (<code>#django-admin-agent-skills</code>) and read by the
-bootstrap module, which calls <code>el.setSkills(...)</code>. This needs no server-side
-Skills endpoint — the catalog is purely client-side.</p>
+bootstrap module, which calls <code>el.setSkills(...)</code>. The built-in catalog needs no
+server-side Skills endpoint; the skills your users write are served by one, and
+the palette merges the two (see <a href="#stored-skills">Stored skills</a>).</p>
 <p>Each skill is a plain dict in the client <code>Skill</code> shape (camelCase-free here —
 the keys are <code>name</code>, <code>title</code>, <code>description</code>, <code>prompt</code>):</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
@@ -1354,9 +1465,11 @@ the keys are <code>name</code>, <code>title</code>, <code>description</code>, <c
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="s2">"prompt"</span><span class="p">:</span> <span class="s2">"Summarize what's shown on the current admin page."</span><span class="p">,</span>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>The built-in catalog (<code>django_admin_agent.admin.build_skills.build_skills()</code>)
-ships four placeholder-free skills: <strong>Summarize this page</strong>, <strong>Summarize this
-changelist</strong>, <strong>Draft a description</strong>, and <strong>Explain this model</strong>.</p>
+<p>Without <code>SKILLS</code> the sidebar ships four placeholder-free built-in skills:
+<strong>Summarize this page</strong>, <strong>Summarize this changelist</strong>, <strong>Draft a description</strong>,
+and <strong>Explain this model</strong>. <code>django_admin_agent.admin.build_skills.build_skills()</code>
+returns the catalog the sidebar embeds: the <code>SKILLS</code> setting when it is set,
+else those four.</p>
 <p>A skill <code>prompt</code> may contain <code>{placeholder}</code> tokens. The bootstrap module
 supplies a <code>skillContext</code> provider derived from the current admin page —
 <code>{path}</code> (the current pathname) and <code>{selected_ids}</code> (the comma-joined pks of
@@ -1376,6 +1489,68 @@ The built-in skills are placeholder-free so they work on any page.</p>
 </span></code></pre></div>
 <p>Setting <code>SKILLS</code> to an empty list (<code>[]</code>) ships no skills; leaving it unset uses
 the built-in catalog.</p>
+<h3 id="stored-skills">Stored skills<a class="headerlink" href="#stored-skills" title="Permanent link">&para;</a></h3>
+<p>Skills your users write are rows of your own model, a subclass of
+django-spec-agents' <code>AbstractSkill</code> whose <code>skill_policy()</code> says who sees and
+writes which (see django-ag-ui's User skills page for the model and the
+policy). Pass the policy to the mount, and <code>skill_editor=True</code> to serve the
+editor as well:</p>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminAgentServer</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">myapp.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Skill</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin/"</span><span class="p">,</span> <span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">path</span><span class="p">(</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="s2">"admin-agent/"</span><span class="p">,</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">skill_policy</span><span class="o">=</span><span class="n">Skill</span><span class="o">.</span><span class="n">skill_policy</span><span class="p">(),</span> <span class="n">skill_editor</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span><span class="p">,</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="p">),</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">]</span>
+</span></code></pre></div>
+<p>With the <code>skills/</code> catalog mounted, the sidebar renders <code>data-skills-url</code> and
+the <code>/</code> palette lists each caller's stored skills beside the built-ins. A pick
+sends <code>/name</code>, and the body loads on the server. The component merges its
+catalogs later winning by <code>name</code>: the stored catalog first, then the embedded
+one. A stored skill named like a built-in is therefore hidden by it, so
+reserve the built-in names in your policy:</p>
+<div class="language-python highlight"><span class="filename">myapp/skill_policy.py</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent.admin.build_skills</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_skills</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">SkillPolicy</span><span class="p">:</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="o">...</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">reserved_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="k">return</span> <span class="p">{</span><span class="n">skill</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">build_skills</span><span class="p">()}</span>
+</span></code></pre></div>
+<p>The editor is opt-in twice: the mount serves it and <code>SKILL_EDITOR</code> offers it.</p>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"SKILL_EDITOR"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+</span></code></pre></div>
+<p>It opens in the sidebar's panel, from a Skills button in the header and a
+Manage skills row at the foot of the <code>/</code> palette. Its writes carry the
+sidebar's <code>X-CSRFToken</code> header, so the editor's CSRF check passes without a
+<code>csrf_exempt</code>. An editor mounted for another client stays out of the admin
+while <code>SKILL_EDITOR</code> is unset.</p>
+<h4 id="a-modeladmin-for-the-skill-model">A ModelAdmin for the skill model<a class="headerlink" href="#a-modeladmin-for-the-skill-model" title="Permanent link">&para;</a></h4>
+<p><a class="autorefs autorefs-internal" title="SkillModelAdmin" href="../reference/#django_admin_agent.admin.skill_model_admin.SkillModelAdmin"><code>SkillModelAdmin</code></a>
+gives operators the rows in the admin with every write going through the
+model's policy, as the editor and the agent's tools do:</p>
+<div class="language-python highlight"><span class="filename">myapp/admin.py</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">admin</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent.admin.skill_model_admin</span><span class="w"> </span><span class="kn">import</span> <span class="n">SkillModelAdmin</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">myapp.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Skill</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Skill</span><span class="p">,</span> <span class="n">SkillModelAdmin</span><span class="p">)</span>
+</span></code></pre></div>
+<p>An add or change runs django-spec-agents' <code>create_skill</code> or <code>update_skill</code>,
+then <code>enable_skill</code> or <code>disable_skill</code> when the Enabled box changed, in one
+transaction. A broken rule (a name that is not kebab-case, an empty body, a
+name the policy reserves, a description or body its scanner flags) is an error
+on its field; a write <code>can_write</code> refuses is an error on the form, and nothing
+is saved. An add takes its scope (tenant, owner) from <code>policy.new_skill(request)</code>,
+so the form shows only the skill's own fields. A row <code>can_write</code> refuses is
+read-only and cannot be deleted, one at a time or in a bulk delete. The
+changelist lists every row of the model; override <code>get_queryset</code> to narrow it.
+The skill is written while the form validates, so in a subclass with inlines a
+failing inline leaves the skill saved.</p>
 <h2 id="access-control">Access control<a class="headerlink" href="#access-control" title="Permanent link">&para;</a></h2>
 <p>There are <strong>two gates</strong>, and they answer different questions. The endpoint gate
 decides who may talk to the agent at all. The permission gate decides what the
@@ -1392,16 +1567,16 @@ authenticated, active <strong>staff</strong> user, and the agent endpoint is CSR
 <li><code>csrf_exempt=False</code> (default) → the agent POST is CSRF-checked; the sidebar
   bootstrap already sends the token.</li>
 </ul>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminAgentServer</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin/"</span><span class="p">,</span> <span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="c1"># Locked to staff by default; tighten or relax deliberately:</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">path</span><span class="p">(</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="s2">"admin-agent/"</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">authorize</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_superuser</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="p">),</span>  <span class="c1"># superusers only</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="c1"># path("admin-agent/", AdminAgentServer(require_authenticated=False, authorize=None).urls),  # fully open (not advised)</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">]</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminAgentServer</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin/"</span><span class="p">,</span> <span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="c1"># Locked to staff by default; tighten or relax deliberately:</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">path</span><span class="p">(</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        <span class="s2">"admin-agent/"</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">authorize</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_superuser</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="p">),</span>  <span class="c1"># superusers only</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="c1"># path("admin-agent/", AdminAgentServer(require_authenticated=False, authorize=None).urls),  # fully open (not advised)</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="p">]</span>
 </span></code></pre></div>
 <p>The default <code>authorize</code> gate is <a href="../reference/"><code>staff_required</code></a>, importable from
 <code>django_admin_agent</code> if you want to compose it. Without it an unauthenticated
@@ -1453,21 +1628,21 @@ it, or the endpoint raises as a run starts. If you drive the tools
 from somewhere other than the endpoint (a management command, a bespoke agent
 loop, a test), bind it yourself, because a tool with no acting request refuses
 rather than guessing:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">bind_acting_request</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent.tools.shell.query_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">query_model</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">with</span> <span class="n">bind_acting_request</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">rows</span> <span class="o">=</span> <span class="n">query_model</span><span class="p">(</span><span class="s2">"shop"</span><span class="p">,</span> <span class="s2">"Order"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">bind_acting_request</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent.tools.shell.query_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">query_model</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">with</span> <span class="n">bind_acting_request</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">rows</span> <span class="o">=</span> <span class="n">query_model</span><span class="p">(</span><span class="s2">"shop"</span><span class="p">,</span> <span class="s2">"Order"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="model_scope"><code>MODEL_SCOPE</code><a class="headerlink" href="#model_scope" title="Permanent link">&para;</a></h3>
 <p>The admin registry is the default scope, which suits a site whose admin <em>is</em> the
 surface you want the sidebar to have. When the admin is broader than that,
 <code>MODEL_SCOPE</code> narrows it — and only narrows it; it can never grant a user a
 model their permissions deny:</p>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="c1"># Everything in the shop app, plus auth.User, and nothing else.</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="s2">"MODEL_SCOPE"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"shop"</span><span class="p">,</span> <span class="s2">"auth.User"</span><span class="p">],</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="c1"># Everything in the shop app, plus auth.User, and nothing else.</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="s2">"MODEL_SCOPE"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"shop"</span><span class="p">,</span> <span class="s2">"auth.User"</span><span class="p">],</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="sensitive-field-redaction">Sensitive-field redaction<a class="headerlink" href="#sensitive-field-redaction" title="Permanent link">&para;</a></h3>
 <p>Redaction is <strong>data minimisation, not access control</strong>. What a user may read at
@@ -1541,7 +1716,7 @@ redacted-field lookup is the one you are most likely to meet: it raises
 <code>ValueError</code>, so the full explanation goes to your log and audit trail and
 the user sees only that the tool failed. If you would rather the agent could
 say <em>"that filter reads a redacted field"</em>, turn it on:</p>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"TOOL_FAILURE"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"INCLUDE_DETAIL"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"TOOL_FAILURE"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"INCLUDE_DETAIL"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
 </span></code></pre></div>
 </div>
 <h2 id="inherited-django_ag_ui">Inherited <code>DJANGO_AG_UI</code><a class="headerlink" href="#inherited-django_ag_ui" title="Permanent link">&para;</a></h2>
@@ -1579,9 +1754,9 @@ relevant to the admin sidebar:</p>
 </tr>
 </tbody>
 </table>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="s2">"MODEL"</span><span class="p">:</span> <span class="s2">"anthropic:claude-sonnet-4.6"</span><span class="p">,</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="s2">"MODEL"</span><span class="p">:</span> <span class="s2">"anthropic:claude-sonnet-4.6"</span><span class="p">,</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="p">}</span>
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Collaborators are constructor arguments, not settings</p>
@@ -1594,7 +1769,7 @@ present</strong> rather than silently ignoring it: <code>CONVERSATION_STORE</cod
 <code>DRF_MCP_SERVER</code>, <code>SERVICE_SPECS</code>, <code>AGENT_FACTORY</code>, <code>TOOLSETS</code>,
 <code>CAPABILITIES</code>, <code>PROVIDER</code>. If an older guide had you set any of these,
 move them to the constructor:</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">conversation_store</span><span class="o">=</span><span class="n">DjangoSessionConversationStore</span><span class="p">())</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">conversation_store</span><span class="o">=</span><span class="n">DjangoSessionConversationStore</span><span class="p">())</span>
 </span></code></pre></div>
 </div>
 <h3 id="conversation-persistence-and-the-reload-model">Conversation persistence and the reload model<a class="headerlink" href="#conversation-persistence-and-the-reload-model" title="Permanent link">&para;</a></h3>
@@ -1617,9 +1792,9 @@ authenticated staff user, so sessions always exist —
 <code>DjangoSessionConversationStore</code> is the natural choice (no migration, per-user
 durability). Passing no store keeps the server stateless; the client store still
 provides single-tab continuity.</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_spec_agents</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoSessionConversationStore</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">conversation_store</span><span class="o">=</span><span class="n">DjangoSessionConversationStore</span><span class="p">())</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_spec_agents</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoSessionConversationStore</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">conversation_store</span><span class="o">=</span><span class="n">DjangoSessionConversationStore</span><span class="p">())</span>
 </span></code></pre></div>
 <p>For <strong>durable, cross-device</strong> history, opt into the reference store instead: add
 <code>"django_spec_agents.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, and
@@ -1637,20 +1812,32 @@ sub-view isn't mounted</strong> and the drawer falls back to the client's per-ta
 <p>When a <strong>step store</strong> is configured, <code>AdminAgentServer</code> also mounts an
 owner-scoped run index at <code>&lt;prefix&gt;runs/</code> beside <code>resume/&lt;run_id&gt;/</code> and
 <code>fork/&lt;run_id&gt;/</code>, and the sidebar passes its URL to the Web Component as
-<code>data-runs-url</code> — so the sidebar header gains a ⭯ <em>Continue a run</em> panel.</p>
+<code>data-runs-url</code> — so the sidebar header gains a ⭯ <em>Continue a run</em> panel.
+With <code>THEME_TOGGLE</code> on as well the header holds six controls, and from web
+component 0.11.0 the theme toggle and <em>Continue a run</em> move into its More menu
+(the three dots), even on a wide panel.</p>
 <p>A run that stopped part-way (a crash, a closed tab) can then be picked up from
 its last server-side checkpoint rather than restarted: type the next turn, then
 <strong>Resume</strong> to carry on or <strong>Fork</strong> to branch without touching the original. Only
 runs the server marks continuable are offered — one that never reached a
 provider-valid boundary has no snapshot to seed from.</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_spec_agents.contrib.store.default_step_store</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultStepStore</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">step_store</span><span class="o">=</span><span class="n">DefaultStepStore</span><span class="p">)</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_spec_agents.contrib.store.default_step_store</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultStepStore</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">step_store</span><span class="o">=</span><span class="n">DefaultStepStore</span><span class="p">)</span>
 </span></code></pre></div>
 <p><code>DefaultStepStore</code>'s constructor <em>is</em> the <code>request -&gt; StepStore</code> factory the
 capability needs, so pass the class itself. Requires django-ag-ui's <code>[harness]</code>
 extra. <strong>Without a step store the sub-views aren't mounted</strong> and no panel
 appears.</p>
+<h3 id="routines">Routines<a class="headerlink" href="#routines" title="Permanent link">&para;</a></h3>
+<p>When <code>AdminAgentServer(routine_model=..., id=...)</code> is given a django-spec-agents
+<code>AbstractRoutine</code> subclass, django-ag-ui (0.86.0 or later) mounts its routines
+editor at <code>&lt;prefix&gt;routines/</code>, and the sidebar passes its URL to the Web
+Component as <code>data-routines-url</code>: the header gains a Routines view of the staff
+user's scheduled prompts, and <em>Make this a routine</em> starts one from the
+conversation. The editor's writes carry the sidebar's CSRF header. <strong>Without a
+routine model the route isn't mounted</strong> and no Routines control appears. See
+django-ag-ui's <a href="https://artui.github.io/django-ag-ui/routines/">Routines</a>.</p>
 <h3 id="file-uploads">File uploads<a class="headerlink" href="#file-uploads" title="Permanent link">&para;</a></h3>
 <p>When an attachment store is configured, <code>AdminAgentServer</code> mounts an owner-scoped
 <strong>upload endpoint</strong> at <code>&lt;prefix&gt;attachments/</code> (<code>POST</code> upload) and
@@ -1663,20 +1850,20 @@ the agent reads their contents server-side via the built-in <code>read_attachmen
 mounted (no affordance). Turn them on by passing one. For <strong>durable,
 per-admin-user</strong> files, opt into the reference store: add
 <code>"django_spec_agents.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, then</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_spec_agents.contrib.store.default_attachment_store</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="n">DefaultAttachmentStore</span><span class="p">,</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="p">)</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">attachment_store</span><span class="o">=</span><span class="n">DefaultAttachmentStore</span><span class="p">())</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_spec_agents.contrib.store.default_attachment_store</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="n">DefaultAttachmentStore</span><span class="p">,</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="p">)</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">attachment_store</span><span class="o">=</span><span class="n">DefaultAttachmentStore</span><span class="p">())</span>
 </span></code></pre></div>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="c1"># Optional server-side guards. When uploads are mounted the admin sidebar</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="c1"># forwards these to the composer (data-attachment-max-bytes /</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="c1"># data-attachment-accept) so oversized or wrong-type files are rejected</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="c1"># before upload — the server stays authoritative:</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="s2">"ATTACHMENT_MAX_BYTES"</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
-</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="s2">"ATTACHMENT_ALLOWED_TYPES"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"image/png"</span><span class="p">,</span> <span class="s2">"image/jpeg"</span><span class="p">,</span> <span class="s2">"application/pdf"</span><span class="p">,</span> <span class="s2">"text/plain"</span><span class="p">],</span>
-</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="c1"># Optional server-side guards. When uploads are mounted the admin sidebar</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="c1"># forwards these to the composer (data-attachment-max-bytes /</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="c1"># data-attachment-accept) so oversized or wrong-type files are rejected</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    <span class="c1"># before upload — the server stays authoritative:</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="s2">"ATTACHMENT_MAX_BYTES"</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="s2">"ATTACHMENT_ALLOWED_TYPES"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"image/png"</span><span class="p">,</span> <span class="s2">"image/jpeg"</span><span class="p">,</span> <span class="s2">"application/pdf"</span><span class="p">,</span> <span class="s2">"text/plain"</span><span class="p">],</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>The reference store keeps bytes in Django <code>Storage</code> (filesystem by default; point
 <code>STORAGES</code>/<code>DEFAULT_FILE_STORAGE</code> at S3/GCS for production) and metadata in a row,
@@ -1694,11 +1881,11 @@ mounted (no mic affordance); enable it by pointing
 <code>DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]</code> at a backend — django-ag-ui ships an opt-in
 <code>OpenAITranscriptionBackend</code> over any OpenAI-compatible endpoint (the <code>[openai]</code>
 extra):</p>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="s2">"TRANSCRIPTION_BACKEND"</span><span class="p">:</span> <span class="p">(</span>
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>        <span class="s2">"django_ag_ui.contrib.transcription.openai_transcription_backend.OpenAITranscriptionBackend"</span>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="p">),</span>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="s2">"TRANSCRIPTION_BACKEND"</span><span class="p">:</span> <span class="p">(</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>        <span class="s2">"django_ag_ui.contrib.transcription.openai_transcription_backend.OpenAITranscriptionBackend"</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="p">),</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Pass an explicit backend with <code>AdminAgentServer(transcription_backend=...)</code> to override.
 Model <strong>reasoning</strong> needs no admin wiring: the sidebar renders a streamed
@@ -1734,12 +1921,12 @@ transport applies. The argument is forwarded to django-ag-ui's
 which imports the bridge lazily, so the dependency is never loaded unless the
 argument is given. It is that direction only: nothing here serves the admin's
 own tools over MCP.</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminAgentServer</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">myproject.mcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">mcp_server</span>  <span class="c1"># your django-spec-mcp MCPServer</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin-agent/"</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">mcp_server</span><span class="o">=</span><span class="n">mcp_server</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="p">]</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminAgentServer</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">myproject.mcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">mcp_server</span>  <span class="c1"># your django-spec-mcp MCPServer</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin-agent/"</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">mcp_server</span><span class="o">=</span><span class="n">mcp_server</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="p">]</span>
 </span></code></pre></div>
 <p>It is a constructor argument rather than a setting, like every other
 collaborator: <code>DRF_MCP_SERVER</code> in <code>DJANGO_AG_UI</code> is refused with
@@ -1793,6 +1980,33 @@ absent.</p>
 <p>Nothing there is a weaker gate than the call itself: the affordance is enforced
 when the tool runs, so a call made from a listing a moment out of date is still
 refused, with the <code>code</code>, as above.</p>
+<h3 id="mcp-apps-views">MCP Apps views<a class="headerlink" href="#mcp-apps-views" title="Permanent link">&para;</a></h3>
+<p>A tool on the bridged server can come with a view: an HTML resource the
+<a href="https://github.com/modelcontextprotocol/ext-apps">MCP Apps</a> extension draws
+beside the tool's result. Every <code>AdminAgentServer</code> mounts django-ag-ui's
+<code>&lt;prefix&gt;mcp-apps/</code> relay, through which a view reads its HTML and calls its
+server's tools as the request's user, and the sidebar vendors the web
+component's <code>./mcp-apps</code> entry beside its main bundle. <strong>The views stay off
+until you serve a sandbox proxy</strong>, because the alternative, a <code>srcdoc</code> frame,
+inherits the admin's CSP and a strict <code>script-src</code> leaves it blank:</p>
+<ol>
+<li>Serve the vendored <code>django_admin_agent/static/django_admin_agent/sandbox-proxy.html</code>,
+   unchanged, on a second origin (one the admin's own origin is not), with no CSP
+   header of its own.</li>
+<li>Let the admin's <code>frame-src</code> reach that origin.</li>
+<li>Name the page's URL in the setting:</li>
+</ol>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    <span class="s2">"MCP_APPS_SANDBOX_PROXY_URL"</span><span class="p">:</span> <span class="s2">"https://sandbox.example.com/sandbox-proxy.html"</span><span class="p">,</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>A view never acts unseen: each <code>tools/call</code> and <code>ui/message</code> it sends waits for a
+confirmation card under its frame, worded by the component's <code>mcpAppConfirmTool</code>
+and <code>mcpAppConfirmMessage</code> strings, which <code>STRINGS</code> translates. A URL on the
+admin's own origin is refused in the browser with a console warning, and the
+notice stays. A remote pydantic-ai <code>MCPToolset</code> among <code>toolsets=</code> needs an
+explicit <code>id=</code> for its views to reach it; see django-ag-ui's
+<a href="https://artui.github.io/django-ag-ui/mcp-apps/">MCP Apps views</a>.</p>
 
 
 
@@ -1851,7 +2065,7 @@ refused, with the <code>code</code>, as above.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>

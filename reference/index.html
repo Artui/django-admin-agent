@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -754,6 +754,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.skill_editor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        skill_editor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#django_admin_agent.conf.AdminAgentSettings.theme" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -907,6 +918,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.mcp_apps_sandbox_proxy_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mcp_apps_sandbox_proxy_url
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -961,6 +983,17 @@
     <span class="md-ellipsis">
       
         build_skills
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#django_admin_agent.admin.skill_model_admin.SkillModelAdmin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SkillModelAdmin
       
     </span>
   </a>
@@ -1494,6 +1527,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.skill_editor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        skill_editor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#django_admin_agent.conf.AdminAgentSettings.theme" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1647,6 +1691,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#django_admin_agent.conf.AdminAgentSettings.mcp_apps_sandbox_proxy_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mcp_apps_sandbox_proxy_url
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1701,6 +1756,17 @@
     <span class="md-ellipsis">
       
         build_skills
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#django_admin_agent.admin.skill_model_admin.SkillModelAdmin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SkillModelAdmin
       
     </span>
   </a>
@@ -2853,6 +2919,35 @@ uses the built-in admin catalog
 
 
 
+<h3 id="django_admin_agent.conf.AdminAgentSettings.skill_editor" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">skill_editor</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.skill_editor" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">skill_editor</span><span class="p">:</span> <span class="nb">bool</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Whether the sidebar offers the editor for the caller's stored skills.</p>
+<p><code>True</code> renders <code>data-skill-editor-url</code> and <code>data-skill-editor-button</code>
+when the mount serves the editor, which is
+<code>AdminAgentServer(skill_policy=..., skill_editor=True)</code>; without that
+route this renders nothing. Defaults to <code>False</code>: an editor mounted for
+another client stays out of the admin until a project asks for it here.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
 <h3 id="django_admin_agent.conf.AdminAgentSettings.theme" class="doc doc-heading">
             <span class="doc doc-object-name doc-attribute-name">theme</span>
 
@@ -3288,6 +3383,39 @@ matched case-insensitively:</p>
 
 </div>
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="django_admin_agent.conf.AdminAgentSettings.mcp_apps_sandbox_proxy_url" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">mcp_apps_sandbox_proxy_url</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#django_admin_agent.conf.AdminAgentSettings.mcp_apps_sandbox_proxy_url" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">mcp_apps_sandbox_proxy_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The URL of the MCP Apps sandbox proxy page, on an origin other than the
+admin's. Set, the sidebar shows the view a bridged <code>mcp_server=</code> tool links
+(<code>data-mcp-apps-proxy-url</code>), framed in that proxy. <code>None</code> (default) keeps
+the notice the component draws in its place.</p>
+<p>The proxy is required, not a preference: the component would otherwise frame
+the view as <code>srcdoc</code>, which inherits the admin's CSP, and a strict
+<code>script-src</code> leaves it blank. Serve the vendored
+<code>django_admin_agent/sandbox-proxy.html</code> as is on the second origin, with no
+CSP header of its own, and let the admin's <code>frame-src</code> reach it. A URL on
+the admin's own origin is refused in the browser, with a console warning.</p>
+
+    </div>
+
+</div>
+
 
 
 
@@ -3439,8 +3567,57 @@ group}</code>. The agent calls <code>list_routes</code> to discover destinations
 
     <div class="doc doc-contents first">
 
-        <p>The built-in admin skill catalog (client <code>Skill</code> dicts).</p>
+        <p>The sidebar's embedded skill catalog: the <code>SKILLS</code> setting, else the four built-ins.</p>
 
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="django_admin_agent.admin.skill_model_admin.SkillModelAdmin" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">SkillModelAdmin</span>
+
+
+<a href="#django_admin_agent.admin.skill_model_admin.SkillModelAdmin" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="django.contrib.admin.ModelAdmin">ModelAdmin</span></code></p>
+
+
+
+        <p>The admin for a consumer's <code>AbstractSkill</code> model; every write goes through its policy.</p>
+<p>An add takes its scope from <code>policy.new_skill</code>; a row <code>can_write</code> refuses is read-only.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
 
     </div>
 
@@ -4014,7 +4191,7 @@ admin — including one that is not registered there at all.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>

@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -814,8 +814,18 @@ navigate, and the two attachment paths.</p>
 </tr>
 <tr>
 <td><code>skills</code></td>
-<td><code>DJANGO_ADMIN_AGENT["SKILLS"]</code> or <code>build_skills()</code></td>
+<td><code>build_skills()</code>: <code>DJANGO_ADMIN_AGENT["SKILLS"]</code>, else the built-ins</td>
 <td>The skill catalog (chips + <code>/</code>-command palette), embedded as a <code>json_script</code>. See <a href="../configuration/#skills">Configuration → Skills</a>.</td>
+</tr>
+<tr>
+<td><code>skills_url</code></td>
+<td><code>reverse("&lt;namespace&gt;:skills")</code> (or <code>None</code>)</td>
+<td>URL of the stored-skill catalog, rendered as <code>data-skills-url</code>; the palette merges it under the embedded catalog. <code>None</code> when the mount has no <code>skill_policy</code> or skill registry. See <a href="../configuration/#stored-skills">Configuration → Stored skills</a>.</td>
+</tr>
+<tr>
+<td><code>skill_editor_url</code></td>
+<td><code>reverse("&lt;namespace&gt;:skill_editor")</code> with <code>DJANGO_ADMIN_AGENT["SKILL_EDITOR"]</code> (or <code>None</code>)</td>
+<td>URL of the stored-skill editor, rendered as <code>data-skill-editor-url</code> with <code>data-skill-editor-button</code>. <code>None</code> unless the setting is on and the mount serves the editor.</td>
 </tr>
 <tr>
 <td><code>tools_url</code></td>
@@ -841,6 +851,16 @@ navigate, and the two attachment paths.</p>
 <td><code>transcribe_url</code></td>
 <td><code>reverse("&lt;namespace&gt;:transcribe")</code> (or <code>None</code>)</td>
 <td>URL of the transcription endpoint, rendered as <code>data-transcribe-url</code>; the mic button posts audio to it. <code>None</code> when no transcription backend is configured (the sub-view is unmounted).</td>
+</tr>
+<tr>
+<td><code>routines_url</code></td>
+<td><code>reverse("&lt;namespace&gt;:routines")</code> (or <code>None</code>)</td>
+<td>URL of the routines editor, rendered as <code>data-routines-url</code>; the header's Routines view reads and writes it. <code>None</code> when no <code>routine_model</code> was passed (the sub-view is unmounted).</td>
+</tr>
+<tr>
+<td><code>mcp_apps_url</code>, <code>mcp_apps_proxy_url</code></td>
+<td><code>reverse("&lt;namespace&gt;:mcp_apps")</code> (or <code>None</code>) and <code>DJANGO_ADMIN_AGENT["MCP_APPS_SANDBOX_PROXY_URL"]</code></td>
+<td>Rendered together as <code>data-mcp-apps-url</code> and <code>data-mcp-apps-proxy-url</code> only when both are set; the bootstrap then registers the vendored MCP Apps entry. See <a href="../configuration/#mcp-apps-views">Configuration → MCP Apps views</a>.</td>
 </tr>
 <tr>
 <td><code>user_key</code></td>
@@ -1026,7 +1046,7 @@ module load.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>
