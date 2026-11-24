@@ -340,6 +340,8 @@ is saved. An add takes its scope (tenant, owner) from `policy.new_skill(request)
 so the form shows only the skill's own fields. A row `can_write` refuses is
 read-only and cannot be deleted, one at a time or in a bulk delete. The
 changelist lists every row of the model; override `get_queryset` to narrow it.
+The skill is written while the form validates, so in a subclass with inlines a
+failing inline leaves the skill saved.
 
 ## Access control
 

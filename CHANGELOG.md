@@ -28,7 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`build_skills()` returns the catalog the sidebar embeds**: the `SKILLS` setting
   when it is set, else the four built-ins, where it used to return the built-ins
-  whatever the setting said.
+  whatever the setting said. It reads settings, so a `SKILLS` value can no longer
+  be built from it in `settings.py`; copy the built-ins you want to keep.
 
 ## [0.62.0] — 2026-11-15
 
