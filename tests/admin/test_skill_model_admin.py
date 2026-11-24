@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from typing import Any
+from unittest import mock
 
 import pytest
 from django.contrib import admin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
 from django.core.exceptions import ImproperlyConfigured
 from django.test import Client, RequestFactory
 from django_spec_agents.skills import SkillWriteRefusedError
@@ -187,3 +188,23 @@ def test_an_unbound_form_validates_without_writing(operator: User) -> None:
     form_class = admin.site._registry[Skill].get_form(request)
     assert form_class().errors == {}
     assert not Skill.objects.exists()
+
+
+def test_a_view_only_operator_cannot_change_or_delete_a_writable_row() -> None:
+    user = User.objects.create_user("viewer", "v@example.com", "pw", is_staff=True)
+    user.user_permissions.add(Permission.objects.get(codename="view_skill"))
+    viewer = Client()
+    viewer.force_login(user)
+    skill = _skill()
+    assert viewer.get(f"{_CHANGELIST}{skill.pk}/change/").context["has_change_permission"] is False
+    delete = viewer.post(f"{_CHANGELIST}{skill.pk}/delete/", {"post": "yes"})
+    assert delete.status_code == 403
+    assert Skill.objects.filter(pk=skill.pk).exists()
+
+
+def test_an_edit_that_keeps_a_skill_on_does_not_enable_it_again(client: Client) -> None:
+    skill = _skill()
+    with mock.patch("django_admin_agent.admin.skill_model_admin.enable_skill") as enable:
+        response = client.post(f"{_CHANGELIST}{skill.pk}/change/", _form(description="New."))
+    assert response.status_code == 302
+    enable.assert_not_called()

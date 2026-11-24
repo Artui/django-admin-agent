@@ -238,9 +238,11 @@ the keys are `name`, `title`, `description`, `prompt`):
 }
 ```
 
-The built-in catalog (`django_admin_agent.admin.build_skills.build_skills()`)
-ships four placeholder-free skills: **Summarize this page**, **Summarize this
-changelist**, **Draft a description**, and **Explain this model**.
+Without `SKILLS` the sidebar ships four placeholder-free built-in skills:
+**Summarize this page**, **Summarize this changelist**, **Draft a description**,
+and **Explain this model**. `django_admin_agent.admin.build_skills.build_skills()`
+returns the catalog the sidebar embeds: the `SKILLS` setting when it is set,
+else those four.
 
 A skill `prompt` may contain `{placeholder}` tokens. The bootstrap module
 supplies a `skillContext` provider derived from the current admin page —
