@@ -31,6 +31,7 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `ICON_URL` | _unset_ | URL of a header/launcher icon image. Rendered as the `data-icon-url` attribute; left off (icon-less) when unset. |
 | `STRINGS` | _unset_ | Localized UI-string overrides for the Web Component (a partial dict merged over its English defaults). Rendered as the `data-strings` attribute (serialized JSON). Wrap values in `gettext_lazy` so the sidebar follows the admin's active language; left off when unset. |
 | `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
+| `SKILL_EDITOR` | `False` | Offer the editor for the caller's stored skills: `True` renders `data-skill-editor-url` and `data-skill-editor-button` when the mount serves the editor (`AdminAgentServer(skill_policy=..., skill_editor=True)`), and nothing without it. See [Stored skills](#stored-skills). |
 | `SHELL_FIELD_REDACTION` | `True` | Mask sensitive-*named* fields in `shell.*` output, and refuse to filter or order on them. `True` uses the built-in denylist; `False` disables both halves; a regex `str` replaces the pattern. See [Sensitive-field redaction](#sensitive-field-redaction). |
 | `MODEL_SCOPE` | _unset_ | Narrow which models the tools may touch, below what the admin already allows. A list of `"app_label"` / `"app_label.ModelName"` entries. Unset means the admin registry is the scope. See [Access control](#access-control). |
 
@@ -220,8 +221,9 @@ the system rather than Unfold's own toggle, and `"dark"` pins it dark.
 The sidebar ships a small catalog of pre-defined prompts surfaced as **chips**
 above the composer and in the `/`-command **palette**. They are embedded into
 the page as a `json_script` block (`#django-admin-agent-skills`) and read by the
-bootstrap module, which calls `el.setSkills(...)`. This needs no server-side
-Skills endpoint — the catalog is purely client-side.
+bootstrap module, which calls `el.setSkills(...)`. The built-in catalog needs no
+server-side Skills endpoint; the skills your users write are served by one, and
+the palette merges the two (see [Stored skills](#stored-skills)).
 
 Each skill is a plain dict in the client `Skill` shape (camelCase-free here —
 the keys are `name`, `title`, `description`, `prompt`):
@@ -262,6 +264,82 @@ DJANGO_ADMIN_AGENT = {
 
 Setting `SKILLS` to an empty list (`[]`) ships no skills; leaving it unset uses
 the built-in catalog.
+
+### Stored skills
+
+Skills your users write are rows of your own model, a subclass of
+django-spec-agents' `AbstractSkill` whose `skill_policy()` says who sees and
+writes which (see django-ag-ui's User skills page for the model and the
+policy). Pass the policy to the mount, and `skill_editor=True` to serve the
+editor as well:
+
+```python title="urls.py"
+from django_admin_agent import AdminAgentServer
+from myapp.models import Skill
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path(
+        "admin-agent/",
+        AdminAgentServer(skill_policy=Skill.skill_policy(), skill_editor=True).urls,
+    ),
+]
+```
+
+With the `skills/` catalog mounted, the sidebar renders `data-skills-url` and
+the `/` palette lists each caller's stored skills beside the built-ins. A pick
+sends `/name`, and the body loads on the server. The component merges its
+catalogs later winning by `name`: the stored catalog first, then the embedded
+one. A stored skill named like a built-in is therefore hidden by it, so
+reserve the built-in names in your policy:
+
+```python title="myapp/skill_policy.py"
+from django_admin_agent.admin.build_skills import build_skills
+
+
+class SkillPolicy:
+    ...
+
+    def reserved_names(self, request):
+        return {skill["name"] for skill in build_skills()}
+```
+
+The editor is opt-in twice: the mount serves it and `SKILL_EDITOR` offers it.
+
+```python title="settings.py"
+DJANGO_ADMIN_AGENT = {"SKILL_EDITOR": True}
+```
+
+It opens in the sidebar's panel, from a Skills button in the header and a
+Manage skills row at the foot of the `/` palette. Its writes carry the
+sidebar's `X-CSRFToken` header, so the editor's CSRF check passes without a
+`csrf_exempt`. An editor mounted for another client stays out of the admin
+while `SKILL_EDITOR` is unset.
+
+#### A ModelAdmin for the skill model
+
+[`SkillModelAdmin`][django_admin_agent.admin.skill_model_admin.SkillModelAdmin]
+gives operators the rows in the admin with every write going through the
+model's policy, as the editor and the agent's tools do:
+
+```python title="myapp/admin.py"
+from django.contrib import admin
+from django_admin_agent.admin.skill_model_admin import SkillModelAdmin
+
+from myapp.models import Skill
+
+admin.site.register(Skill, SkillModelAdmin)
+```
+
+An add or change runs django-spec-agents' `create_skill` or `update_skill`,
+then `enable_skill` or `disable_skill` when the Enabled box changed, in one
+transaction. A broken rule (a name that is not kebab-case, an empty body, a
+name the policy reserves, a description or body its scanner flags) is an error
+on its field; a write `can_write` refuses is an error on the form, and nothing
+is saved. An add takes its scope (tenant, owner) from `policy.new_skill(request)`,
+so the form shows only the skill's own fields. A row `can_write` refuses is
+read-only and cannot be deleted, one at a time or in a bulk delete. The
+changelist lists every row of the model; override `get_queryset` to narrow it.
 
 ## Access control
 

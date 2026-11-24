@@ -19,6 +19,7 @@ def test_defaults_when_setting_absent() -> None:
     assert config.message_actions == "copy,retry"
     assert "feedback" not in config.message_actions
     assert config.skills is None
+    assert config.skill_editor is False
     assert config.theme is None
     assert config.density is None
     assert config.placement is None
@@ -42,6 +43,7 @@ def test_defaults_when_setting_absent() -> None:
         "TOOL_GROUP_DISPLAY": "minimal",
         "COLLAPSE_TO": "bar",
         "SKILLS": [{"name": "x", "title": "X", "prompt": "p"}],
+        "SKILL_EDITOR": True,
         "THEME": "dark",
         "DENSITY": "compact",
         "PLACEMENT": "sidebar",
@@ -65,6 +67,7 @@ def test_reads_overrides() -> None:
     assert config.tool_group_display == "minimal"
     assert config.collapse_to == "bar"
     assert config.skills == [{"name": "x", "title": "X", "prompt": "p"}]
+    assert config.skill_editor is True
     assert config.theme == "dark"
     assert config.density == "compact"
     assert config.placement == "sidebar"

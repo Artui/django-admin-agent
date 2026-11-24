@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from typing import Any
 
-# Default admin skill catalog — pre-defined prompts surfaced in the sidebar's
-# `/`-command palette. Plain dicts (the client `Skill` shape, camelCase keys)
-# embedded into the page via `data-skills`, so no server API is involved.
-# Prompts are placeholder-free so they work without a skill context; a project
-# can override the whole catalog via DJANGO_ADMIN_AGENT["SKILLS"].
+from django_admin_agent.conf import get_settings
 
 
 def build_skills() -> list[dict[str, Any]]:
-    """The built-in admin skill catalog (client `Skill` dicts)."""
+    """The sidebar's embedded skill catalog: the ``SKILLS`` setting, else the four built-ins."""
+    skills = get_settings().skills
+    if skills is not None:
+        return skills
     return [
         {
             "name": "summarize-page",

@@ -177,3 +177,31 @@ def test_an_unmounted_namespace_degrades_rather_than_raising() -> None:
     """A namespace that does not resolve leaves the optional URLs None."""
     context = build_sidebar_context("internal-agent")
     assert context["threads_url"] is None
+
+
+def test_no_skill_urls_without_a_skill_policy_on_the_mount() -> None:
+    context = build_sidebar_context()
+    assert context["skills_url"] is None
+    assert context["skill_editor_url"] is None
+
+
+@override_settings(ROOT_URLCONF="tests.admin.urls_skills")
+def test_stored_skills_reach_the_palette_once_the_catalog_is_mounted() -> None:
+    assert build_sidebar_context()["skills_url"] == "/admin-agent/skills/"
+
+
+@override_settings(ROOT_URLCONF="tests.admin.urls_skills")
+def test_a_mounted_editor_stays_hidden_without_the_setting() -> None:
+    assert build_sidebar_context()["skill_editor_url"] is None
+
+
+@override_settings(
+    ROOT_URLCONF="tests.admin.urls_skills", DJANGO_ADMIN_AGENT={"SKILL_EDITOR": True}
+)
+def test_the_setting_offers_the_mounted_editor() -> None:
+    assert build_sidebar_context()["skill_editor_url"] == "/admin-agent/skills/editor/"
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"SKILL_EDITOR": True})
+def test_the_setting_offers_nothing_when_the_editor_is_not_mounted() -> None:
+    assert build_sidebar_context()["skill_editor_url"] is None

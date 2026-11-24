@@ -347,3 +347,26 @@ def test_a_signed_out_visitor_gets_no_stylesheet() -> None:
 def test_a_two_word_theme_reaches_the_element_whole() -> None:
     """A theme name and a scheme are one attribute value, passed as written."""
     assert 'theme="soft dark"' in _render()
+
+
+def test_the_sidebar_carries_no_skill_urls_by_default() -> None:
+    rendered = _render()
+    assert "data-skills-url" not in rendered
+    assert "data-skill-editor" not in rendered
+
+
+@override_settings(ROOT_URLCONF="tests.admin.urls_skills")
+def test_the_sidebar_fetches_stored_skills_beside_the_built_ins() -> None:
+    rendered = _render()
+    assert 'data-skills-url="/admin-agent/skills/"' in rendered
+    assert 'id="django-admin-agent-skills"' in rendered
+    assert "data-skill-editor" not in rendered
+
+
+@override_settings(
+    ROOT_URLCONF="tests.admin.urls_skills", DJANGO_ADMIN_AGENT={"SKILL_EDITOR": True}
+)
+def test_the_opted_in_sidebar_offers_the_editor_and_its_header_button() -> None:
+    rendered = _render()
+    assert 'data-skill-editor-url="/admin-agent/skills/editor/"' in rendered
+    assert "data-skill-editor-button" in rendered

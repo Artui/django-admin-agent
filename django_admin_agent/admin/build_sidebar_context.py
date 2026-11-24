@@ -48,7 +48,9 @@ def build_sidebar_context(
         "tool_display": config.tool_display,
         "tool_group_display": config.tool_group_display,
         "message_actions": config.message_actions,
-        "skills": config.skills if config.skills is not None else build_skills(),
+        "skills": build_skills(),
+        "skills_url": _skills_url(namespace),
+        "skill_editor_url": _skill_editor_url(namespace) if config.skill_editor else None,
         "tools_url": _tools_url(namespace),
         "threads_url": _threads_url(namespace),
         "runs_url": _runs_url(namespace),
@@ -123,6 +125,22 @@ def _tools_url(namespace: str) -> str | None:
     """Resolve the tool-catalog URL the Web Component fetches, or ``None`` when unmounted."""
     try:
         return reverse(f"{namespace}:tools")
+    except NoReverseMatch:
+        return None
+
+
+def _skills_url(namespace: str) -> str | None:
+    """Resolve the stored-skill catalog the palette merges under the built-ins, or ``None``."""
+    try:
+        return reverse(f"{namespace}:skills")
+    except NoReverseMatch:
+        return None
+
+
+def _skill_editor_url(namespace: str) -> str | None:
+    """Resolve the stored-skill editor's list URL, or ``None`` when it is not mounted."""
+    try:
+        return reverse(f"{namespace}:skill_editor")
     except NoReverseMatch:
         return None
 

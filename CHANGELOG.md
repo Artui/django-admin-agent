@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Skills your users write reach the sidebar.** With a `skill_policy=` on
+  `AdminAgentServer`, the sidebar renders `data-skills-url` and the `/` palette
+  lists each caller's stored skills beside the built-in ones, which stay embedded
+  and win a shared name. The new `SKILL_EDITOR` setting (off by default) offers
+  the stored-skill editor in the panel, from a header Skills button and the
+  palette's Manage skills row, when the mount also passes `skill_editor=True`; its
+  writes carry the sidebar's CSRF header. See Configuration, Stored skills.
+- **`SkillModelAdmin`, a `ModelAdmin` for the skill model**
+  (`django_admin_agent.admin.skill_model_admin`). Every add and change goes through
+  the model's `skill_policy()` with django-spec-agents' `create_skill`,
+  `update_skill`, `enable_skill` and `disable_skill` in one transaction, so the
+  name rules, reserved names and the content scanner hold in the admin too, each
+  refusal shown on its field; a row the policy will not let the caller write is
+  read-only and cannot be deleted.
+
+### Changed
+
+- **`build_skills()` returns the catalog the sidebar embeds**: the `SKILLS` setting
+  when it is set, else the four built-ins, where it used to return the built-ins
+  whatever the setting said.
+
 ## [0.62.0] — 2026-11-15
 
 ### Added

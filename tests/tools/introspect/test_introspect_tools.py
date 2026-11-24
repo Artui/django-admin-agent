@@ -28,7 +28,7 @@ def test_list_installed_apps() -> None:
 @pytest.mark.django_db
 def test_list_models_all_and_filtered(as_superuser: Any) -> None:
     assert any(r["model"] == "Author" for r in list_models())
-    assert {r["model"] for r in list_models(app_label="testapp")} == {"Author", "Book"}
+    assert {r["model"] for r in list_models(app_label="testapp")} == {"Author", "Book", "Skill"}
 
 
 @pytest.mark.django_db

@@ -75,6 +75,15 @@ class AdminAgentSettings:
     uses the built-in admin catalog
     ([`build_skills`][django_admin_agent.admin.build_skills.build_skills])."""
 
+    skill_editor: bool
+    """Whether the sidebar offers the editor for the caller's stored skills.
+
+    ``True`` renders ``data-skill-editor-url`` and ``data-skill-editor-button``
+    when the mount serves the editor, which is
+    ``AdminAgentServer(skill_policy=..., skill_editor=True)``; without that
+    route this renders nothing. Defaults to ``False``: an editor mounted for
+    another client stays out of the admin until a project asks for it here."""
+
     theme: str | None
     """Web Component theme: up to two words, in any order, a theme name and a
     scheme. The names are ``"quiet"`` (the default), ``"soft"``, ``"ledger"``
@@ -227,6 +236,7 @@ def get_settings() -> AdminAgentSettings:
         tool_group_display=raw.get("TOOL_GROUP_DISPLAY", "compact"),
         message_actions=raw.get("MESSAGE_ACTIONS", "copy,retry"),
         skills=raw.get("SKILLS"),
+        skill_editor=bool(raw.get("SKILL_EDITOR", False)),
         theme=raw.get("THEME"),
         density=raw.get("DENSITY"),
         placement=raw.get("PLACEMENT"),

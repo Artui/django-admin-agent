@@ -52,6 +52,10 @@ that establish who that is and what they may read — see
 
 ::: django_admin_agent.admin.build_skills.build_skills
 
+::: django_admin_agent.admin.skill_model_admin.SkillModelAdmin
+    options:
+      members: false
+
 ::: django_admin_agent.admin.sidebar_admin_site.SidebarAdminSite
 
 ## Server-side tools
