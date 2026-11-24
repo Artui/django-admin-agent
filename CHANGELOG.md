@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     than five controls, so `THEME_TOGGLE` with a step store puts the toggle and
     Continue a run in the menu even on a wide panel;
   - a run the server cancelled ends as a stop rather than a finish;
+  - a failed run reads *The response failed. Try again in a moment.* where it read
+    *The run failed*;
   - the activities pydantic-ai sends are drawn, or deliberately left blank,
     rather than counted as unknown.
 
