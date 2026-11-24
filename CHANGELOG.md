@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **MCP Apps views, framed in a sandbox proxy the project serves.** A tool on the
+  bridged `mcp_server=` can come with an MCP Apps view, and the sidebar now
+  vendors the web component's `./mcp-apps` entry and its proxy page
+  (`django_admin_agent/sandbox-proxy.html`) beside the main bundle. The new
+  `MCP_APPS_SANDBOX_PROXY_URL` setting names the proxy page, served unchanged on
+  a second origin with no CSP header of its own. Set, the bootstrap registers the
+  entry against the `mcp-apps/` relay every `AdminAgentServer` mounts, rendered as
+  `data-mcp-apps-url` and `data-mcp-apps-proxy-url`. Unset, nothing is registered
+  and the component draws its notice, as before. There is no fallback without a
+  proxy, because a `srcdoc` frame inherits the admin's CSP and a strict
+  `script-src` leaves it blank. Each `tools/call` and `ui/message` a view sends
+  waits for a confirmation card, worded by the `mcpAppConfirmTool` and
+  `mcpAppConfirmMessage` strings, which `STRINGS` translates.
+- **Routines, when the mount has a routine model.** With
+  `AdminAgentServer(routine_model=..., id=...)` (django-ag-ui 0.86.0 or later),
+  the sidebar passes the routines editor's URL as `data-routines-url`. The header
+  then gains a Routines view of the staff user's scheduled prompts, and *Make
+  this a routine* is in its More menu. Without a routine model nothing changes.
+
+### Changed
+
+- **The vendored web component is 0.14.0, up from 0.2.1.** The adoption pass
+  over every release in between is in the pull request. What a staff user sees
+  without any setting changed:
+  - a tool call a reviewer model or a routine approved is marked on its card;
+  - from 0.11.0 the header folds the theme toggle, Skills, Continue a run and
+    History into a More menu when they do not fit, and always when there are more
+    than five controls, so `THEME_TOGGLE` with a step store puts the toggle and
+    Continue a run in the menu even on a wide panel;
+  - a run the server cancelled ends as a stop rather than a finish;
+  - the activities pydantic-ai sends are drawn, or deliberately left blank,
+    rather than counted as unknown.
+
+  `vendor-bundle-release` and `vendor-bundle-verify` now write and compare the
+  MCP Apps entry and the proxy page as well as the main bundle.
+- **django-ag-ui is floored at 0.80.0 and django-spec-agents at 0.20.1**, up from
+  0.74.0 and 0.6.2, and the `[mcp]` extra with them. 0.80.0 is the release that
+  mounts the `mcp-apps/` relay the views call through, and it requires
+  django-spec-agents 0.20.1.
+
 ## [0.62.0] — 2026-11-15
 
 ### Added

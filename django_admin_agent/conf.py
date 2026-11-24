@@ -216,6 +216,19 @@ class AdminAgentSettings:
 
     Reach for it when the admin is broad but the sidebar should not be."""
 
+    mcp_apps_sandbox_proxy_url: str | None
+    """The URL of the MCP Apps sandbox proxy page, on an origin other than the
+    admin's. Set, the sidebar shows the view a bridged ``mcp_server=`` tool links
+    (``data-mcp-apps-proxy-url``), framed in that proxy. ``None`` (default) keeps
+    the notice the component draws in its place.
+
+    The proxy is required, not a preference: the component would otherwise frame
+    the view as ``srcdoc``, which inherits the admin's CSP, and a strict
+    ``script-src`` leaves it blank. Serve the vendored
+    ``django_admin_agent/sandbox-proxy.html`` as is on the second origin, with no
+    CSP header of its own, and let the admin's ``frame-src`` reach it. A URL on
+    the admin's own origin is refused in the browser, with a console warning."""
+
 
 def get_settings() -> AdminAgentSettings:
     """Read the active ``DJANGO_ADMIN_AGENT`` settings dict."""
@@ -241,6 +254,7 @@ def get_settings() -> AdminAgentSettings:
         theme_toggle=bool(raw.get("THEME_TOGGLE", False)),
         shell_field_redaction=raw.get("SHELL_FIELD_REDACTION", True),
         model_scope=raw.get("MODEL_SCOPE"),
+        mcp_apps_sandbox_proxy_url=raw.get("MCP_APPS_SANDBOX_PROXY_URL") or None,
     )
 
 

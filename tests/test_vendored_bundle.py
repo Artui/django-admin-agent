@@ -7,13 +7,10 @@ import pytest
 
 _ROOT = Path(__file__).resolve().parent.parent
 _MAKEFILE = _ROOT / "Makefile"
-_BUNDLE = (
-    _ROOT
-    / "django_admin_agent"
-    / "static"
-    / "django_admin_agent"
-    / "agents-web-components.bundle.js"
-)
+_STATIC = _ROOT / "django_admin_agent" / "static" / "django_admin_agent"
+_BUNDLE = _STATIC / "agents-web-components.bundle.js"
+_MCP_APPS = _STATIC / "agents-web-components.mcp-apps.bundle.js"
+_PROXY = _STATIC / "sandbox-proxy.html"
 
 
 def _pinned_version() -> str:
@@ -80,3 +77,17 @@ def test_the_verify_target_compares_bytes_and_writes_nothing() -> None:
     recipe = _recipe("vendor-bundle-verify")
     assert "diff" in recipe
     assert "cp " not in recipe, "vendor-bundle-verify writes to the tree; it must only read it"
+
+
+def test_the_mcp_apps_entry_is_vendored_and_exports_its_register() -> None:
+    assert "as registerMcpApps}" in _MCP_APPS.read_text()
+
+
+def test_the_sandbox_proxy_page_is_vendored() -> None:
+    assert "sandbox-proxy-ready" in _PROXY.read_text()
+
+
+@pytest.mark.parametrize("dest", ["MCP_APPS_DEST", "PROXY_DEST"])
+def test_every_vendored_file_is_written_and_verified(dest: str) -> None:
+    assert f"$({dest})" in _recipe("vendor-bundle-release")
+    assert f"$({dest})" in _recipe("vendor-bundle-verify")

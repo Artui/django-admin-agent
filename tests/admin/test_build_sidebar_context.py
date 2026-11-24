@@ -177,3 +177,32 @@ def test_an_unmounted_namespace_degrades_rather_than_raising() -> None:
     """A namespace that does not resolve leaves the optional URLs None."""
     context = build_sidebar_context("internal-agent")
     assert context["threads_url"] is None
+
+
+def test_routines_url_is_none_without_a_routine_model() -> None:
+    assert build_sidebar_context()["routines_url"] is None
+
+
+@override_settings(ROOT_URLCONF="tests.admin.urls_routines")
+def test_routines_url_resolves_when_the_routines_editor_is_mounted() -> None:
+    assert build_sidebar_context()["routines_url"] == "/admin-agent/routines/"
+
+
+def test_mcp_apps_url_resolves_on_every_mount() -> None:
+    assert build_sidebar_context()["mcp_apps_url"] == "/admin-agent/mcp-apps/"
+
+
+@override_settings(ROOT_URLCONF="tests.admin.urls_endpoint_only")
+def test_mcp_apps_url_is_none_when_the_relay_is_not_mounted() -> None:
+    assert build_sidebar_context()["mcp_apps_url"] is None
+
+
+def test_mcp_apps_proxy_url_is_none_by_default() -> None:
+    assert build_sidebar_context()["mcp_apps_proxy_url"] is None
+
+
+@override_settings(
+    DJANGO_ADMIN_AGENT={"MCP_APPS_SANDBOX_PROXY_URL": "https://sandbox.example/proxy.html"}
+)
+def test_mcp_apps_proxy_url_comes_from_the_setting() -> None:
+    assert build_sidebar_context()["mcp_apps_proxy_url"] == "https://sandbox.example/proxy.html"
