@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.63.0] — 2026-11-24
+
 ### Added
 
 - **Skills your users write reach the sidebar.** With a `skill_policy=` on
@@ -2884,7 +2886,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.62.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.63.0...HEAD
+[0.63.0]: https://github.com/Artui/django-admin-agent/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/Artui/django-admin-agent/compare/v0.61.1...v0.62.0
 [0.61.1]: https://github.com/Artui/django-admin-agent/compare/v0.61.0...v0.61.1
 [0.61.0]: https://github.com/Artui/django-admin-agent/compare/v0.60.0...v0.61.0
