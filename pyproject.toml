@@ -164,7 +164,14 @@ dependencies = [
     # itself; it is taken so the transport that builds the bridge does not resolve
     # below the band the bridge needs.
     #
-    # The current floor is 0.74, the release that removed ``drf_mcp_server=``,
+    # The current floor is 0.80, the release that mounts the ``mcp-apps/`` route
+    # on every ``AGUIServer``. The sidebar registers the vendored MCP Apps entry
+    # against that route (``MCP_APPS_SANDBOX_PROXY_URL``), so a view a bridged
+    # ``mcp_server=`` tool links reaches its server only from here. 0.80 requires
+    # django-spec-agents 0.20.1, whose in-process bridge records the app call;
+    # the row below moves with it.
+    #
+    # 0.74 was the previous floor, the release that removed ``drf_mcp_server=``,
     # the alias 0.73 kept for one minor beside ``mcp_server=``. This package
     # removes its own copy of the alias and its ``[drf-mcp]`` extra in the same
     # release, so the transport it resolves agrees with it: a
@@ -252,7 +259,7 @@ dependencies = [
     # still satisfied the transport's own pydantic-ai-slim floor; an upgrader named
     # ``pydantic-ai-slim`` in the upgrade. 0.71 does move it: it requires
     # ``pydantic-ai-slim[ui]>=2.58``.
-    "django-ag-ui>=0.74.0",
+    "django-ag-ui>=0.80.0",
     # The one exception, and so a declared dependency rather than a transitive
     # one: ``AgentDeps`` is imported directly to bind the acting admin request
     # onto the run's deps, and django-ag-ui takes that type and hands it back
@@ -277,8 +284,9 @@ dependencies = [
     # a server refusing the acting user ends the run as a built-in tool's
     # refusal does. Below it the refusal was a failed call and the run went on,
     # which left the model free to try the next id and learn which rows exist
-    # from how the refusals differ.
-    "django-spec-agents>=0.6.2",
+    # from how the refusals differ. Raised to 0.20.1 with the row above, which
+    # requires it.
+    "django-spec-agents>=0.20.1",
 ]
 
 [project.optional-dependencies]
@@ -288,10 +296,10 @@ dependencies = [
 # here serves the admin's own tools over MCP. django-ag-ui's ``[mcp]`` extra is
 # what installs the bridge and django-spec-mcp, so this extra names it rather
 # than either package: the transport decides which spec-mcp its bridge reads.
-# Floored at 0.74.0 with the base dependency above, because one lock holds one
-# version: the release whose bridge ends the run on a permission refusal, through
-# django-spec-agents 0.6.2. 0.73.0 is the first taking ``mcp_server=``.
-mcp = ["django-ag-ui[mcp]>=0.74.0"]
+# Floored at 0.80.0 with the base dependency above, because one lock holds one
+# version: the release whose ``mcp-apps/`` route serves a bridged tool's view.
+# 0.73.0 is the first taking ``mcp_server=``.
+mcp = ["django-ag-ui[mcp]>=0.80.0"]
 
 [project.urls]
 Homepage = "https://github.com/Artui/django-admin-agent"

@@ -75,6 +75,9 @@ def build_sidebar_context(
         "route_map": build_route_map(),
         "user_key": _user_key(user),
         "user_name": _user_name(user),
+        "routines_url": _routines_url(namespace),
+        "mcp_apps_url": _mcp_apps_url(namespace),
+        "mcp_apps_proxy_url": config.mcp_apps_sandbox_proxy_url,
     }
 
 
@@ -173,6 +176,22 @@ def _transcribe_url(namespace: str) -> str | None:
     """Resolve the transcription URL the mic posts to, or ``None`` without a backend."""
     try:
         return reverse(f"{namespace}:transcribe")
+    except NoReverseMatch:
+        return None
+
+
+def _routines_url(namespace: str) -> str | None:
+    """Resolve the routines editor URL, or ``None`` when no ``routine_model`` was passed."""
+    try:
+        return reverse(f"{namespace}:routines")
+    except NoReverseMatch:
+        return None
+
+
+def _mcp_apps_url(namespace: str) -> str | None:
+    """Resolve the MCP Apps relay a framed view calls through, or ``None`` when unmounted."""
+    try:
+        return reverse(f"{namespace}:mcp_apps")
     except NoReverseMatch:
         return None
 

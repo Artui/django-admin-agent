@@ -40,6 +40,8 @@ template) still renders.
   {% if theme_toggle %}data-theme-toggle=""{% endif %}
   {% if user_key %}user-key="{{ user_key }}"{% endif %}
   {% if user_name %}user-name="{{ user_name }}"{% endif %}
+  {% if routines_url %}data-routines-url="{{ routines_url }}"{% endif %}
+  {% if mcp_apps_url and mcp_apps_proxy_url %}data-mcp-apps-url="{{ mcp_apps_url }}" data-mcp-apps-proxy-url="{{ mcp_apps_proxy_url }}"{% endif %}
   data-admin-base="{{ admin_base_url }}"></ag-ui-chat>
 {{ route_map|json_script:"django-admin-agent-routes" }}
 {{ skills|json_script:"django-admin-agent-skills" }}

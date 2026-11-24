@@ -33,6 +33,7 @@ def test_defaults_when_setting_absent() -> None:
     assert config.theme_toggle is False
     assert config.shell_field_redaction is True
     assert config.model_scope is None
+    assert config.mcp_apps_sandbox_proxy_url is None
 
 
 @override_settings(
@@ -57,6 +58,7 @@ def test_defaults_when_setting_absent() -> None:
         "THEME_TOGGLE": True,
         "SHELL_FIELD_REDACTION": r"^email$",
         "MODEL_SCOPE": ["shop", "auth.User"],
+        "MCP_APPS_SANDBOX_PROXY_URL": "https://sandbox.example/proxy.html",
     },
 )
 def test_reads_overrides() -> None:
@@ -81,6 +83,7 @@ def test_reads_overrides() -> None:
     assert config.theme_toggle is True
     assert config.shell_field_redaction == r"^email$"
     assert config.model_scope == ["shop", "auth.User"]
+    assert config.mcp_apps_sandbox_proxy_url == "https://sandbox.example/proxy.html"
 
 
 @override_settings(DJANGO_ADMIN_AGENT={"AUTO_CONFIRM": 1})
@@ -108,3 +111,8 @@ def test_collapse_to_treats_anything_but_bar_as_unset(value: object) -> None:
     """Nothing here raises on a bad setting, and a bad value reads as the default."""
     with override_settings(DJANGO_ADMIN_AGENT={"COLLAPSE_TO": value}):
         assert get_settings().collapse_to is None
+
+
+@override_settings(DJANGO_ADMIN_AGENT={"MCP_APPS_SANDBOX_PROXY_URL": ""})
+def test_a_blank_sandbox_proxy_url_is_unset() -> None:
+    assert get_settings().mcp_apps_sandbox_proxy_url is None

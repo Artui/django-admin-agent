@@ -33,6 +33,7 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
 | `SKILL_EDITOR` | `False` | Offer the editor for the caller's stored skills: `True` renders `data-skill-editor-url` and `data-skill-editor-button` when the mount serves the editor (`AdminAgentServer(skill_policy=..., skill_editor=True)`), and nothing without it. See [Stored skills](#stored-skills). |
 | `SHELL_FIELD_REDACTION` | `True` | Mask sensitive-*named* fields in `shell.*` output, and refuse to filter or order on them. `True` uses the built-in denylist; `False` disables both halves; a regex `str` replaces the pattern. See [Sensitive-field redaction](#sensitive-field-redaction). |
+| `MCP_APPS_SANDBOX_PROXY_URL` | _unset_ | URL of the MCP Apps sandbox proxy page, on an origin other than the admin's. Set, the sidebar frames the view a bridged `mcp_server=` tool links, inside that proxy; unset, the component draws a notice in its place. See [MCP Apps views](#mcp-apps-views). |
 | `MODEL_SCOPE` | _unset_ | Narrow which models the tools may touch, below what the admin already allows. A list of `"app_label"` / `"app_label.ModelName"` entries. Unset means the admin registry is the scope. See [Access control](#access-control). |
 
 ```python title="settings.py"
@@ -617,6 +618,9 @@ When a **step store** is configured, `AdminAgentServer` also mounts an
 owner-scoped run index at `<prefix>runs/` beside `resume/<run_id>/` and
 `fork/<run_id>/`, and the sidebar passes its URL to the Web Component as
 `data-runs-url` — so the sidebar header gains a ⭯ *Continue a run* panel.
+With `THEME_TOGGLE` on as well the header holds six controls, and from web
+component 0.11.0 the theme toggle and *Continue a run* move into its More menu
+(the three dots), even on a wide panel.
 
 A run that stopped part-way (a crash, a closed tab) can then be picked up from
 its last server-side checkpoint rather than restarted: type the next turn, then
@@ -634,6 +638,17 @@ AdminAgentServer(step_store=DefaultStepStore)
 capability needs, so pass the class itself. Requires django-ag-ui's `[harness]`
 extra. **Without a step store the sub-views aren't mounted** and no panel
 appears.
+
+### Routines
+
+When `AdminAgentServer(routine_model=..., id=...)` is given a django-spec-agents
+`AbstractRoutine` subclass, django-ag-ui (0.86.0 or later) mounts its routines
+editor at `<prefix>routines/`, and the sidebar passes its URL to the Web
+Component as `data-routines-url`: the header gains a Routines view of the staff
+user's scheduled prompts, and *Make this a routine* starts one from the
+conversation. The editor's writes carry the sidebar's CSRF header. **Without a
+routine model the route isn't mounted** and no Routines control appears. See
+django-ag-ui's [Routines](https://artui.github.io/django-ag-ui/routines/).
 
 ### File uploads
 
@@ -797,3 +812,34 @@ absent.
 Nothing there is a weaker gate than the call itself: the affordance is enforced
 when the tool runs, so a call made from a listing a moment out of date is still
 refused, with the `code`, as above.
+
+### MCP Apps views
+
+A tool on the bridged server can come with a view: an HTML resource the
+[MCP Apps](https://github.com/modelcontextprotocol/ext-apps) extension draws
+beside the tool's result. Every `AdminAgentServer` mounts django-ag-ui's
+`<prefix>mcp-apps/` relay, through which a view reads its HTML and calls its
+server's tools as the request's user, and the sidebar vendors the web
+component's `./mcp-apps` entry beside its main bundle. **The views stay off
+until you serve a sandbox proxy**, because the alternative, a `srcdoc` frame,
+inherits the admin's CSP and a strict `script-src` leaves it blank:
+
+1. Serve the vendored `django_admin_agent/static/django_admin_agent/sandbox-proxy.html`,
+   unchanged, on a second origin (one the admin's own origin is not), with no CSP
+   header of its own.
+2. Let the admin's `frame-src` reach that origin.
+3. Name the page's URL in the setting:
+
+```python title="settings.py"
+DJANGO_ADMIN_AGENT = {
+    "MCP_APPS_SANDBOX_PROXY_URL": "https://sandbox.example.com/sandbox-proxy.html",
+}
+```
+
+A view never acts unseen: each `tools/call` and `ui/message` it sends waits for a
+confirmation card under its frame, worded by the component's `mcpAppConfirmTool`
+and `mcpAppConfirmMessage` strings, which `STRINGS` translates. A URL on the
+admin's own origin is refused in the browser with a console warning, and the
+notice stays. A remote pydantic-ai `MCPToolset` among `toolsets=` needs an
+explicit `id=` for its views to reach it; see django-ag-ui's
+[MCP Apps views](https://artui.github.io/django-ag-ui/mcp-apps/).

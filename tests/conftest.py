@@ -14,12 +14,7 @@ from django_admin_agent.tools.utils import ACTING_REQUEST
 
 @pytest.fixture(autouse=True)
 def _no_acting_request_leaks() -> Iterator[None]:
-    """Start and end every test with nothing bound.
-
-    A test that binds without unbinding would otherwise hand the next test a
-    stale user, and the tests that assert an unbound call is refused would pass
-    or fail on ordering.
-    """
+    """Start and end every test unbound, so a leaked binding cannot decide another test."""
     token = ACTING_REQUEST.set(None)
     try:
         yield
@@ -43,10 +38,7 @@ def acting_as(user: Any) -> Iterator[Any]:
 
 @pytest.fixture
 def make_staff_user(django_user_model: Any) -> Callable[..., Any]:
-    """Build a staff user holding exactly the permissions named, and no others.
-
-    ``perms`` entries are ``"app_label.codename"``, e.g. ``"testapp.view_author"``.
-    """
+    """Build a staff user holding exactly the ``"app_label.codename"`` perms named."""
 
     def _make(username: str, *, perms: tuple[str, ...] = ()) -> Any:
         user = django_user_model.objects.create_user(username, password="pw", is_staff=True)

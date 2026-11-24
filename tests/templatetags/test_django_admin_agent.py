@@ -370,3 +370,35 @@ def test_the_opted_in_sidebar_offers_the_editor_and_its_header_button() -> None:
     rendered = _render()
     assert 'data-skill-editor-url="/admin-agent/skills/editor/"' in rendered
     assert "data-skill-editor-button" in rendered
+
+
+def test_the_sidebar_names_no_routines_without_a_routine_model() -> None:
+    assert "data-routines-url" not in _render()
+
+
+@override_settings(ROOT_URLCONF="tests.admin.urls_routines")
+def test_the_sidebar_names_the_routines_editor_when_mounted() -> None:
+    assert 'data-routines-url="/admin-agent/routines/"' in _render()
+
+
+def test_mcp_apps_views_stay_off_without_a_sandbox_proxy() -> None:
+    rendered = _render()
+    assert "data-mcp-apps-url" not in rendered
+    assert "data-mcp-apps-proxy-url" not in rendered
+
+
+@override_settings(
+    DJANGO_ADMIN_AGENT={"MCP_APPS_SANDBOX_PROXY_URL": "https://sandbox.example/proxy.html"}
+)
+def test_a_sandbox_proxy_turns_mcp_apps_views_on() -> None:
+    rendered = _render()
+    assert 'data-mcp-apps-url="/admin-agent/mcp-apps/"' in rendered
+    assert 'data-mcp-apps-proxy-url="https://sandbox.example/proxy.html"' in rendered
+
+
+@override_settings(
+    ROOT_URLCONF="tests.admin.urls_endpoint_only",
+    DJANGO_ADMIN_AGENT={"MCP_APPS_SANDBOX_PROXY_URL": "https://sandbox.example/proxy.html"},
+)
+def test_a_sandbox_proxy_without_the_relay_leaves_views_off() -> None:
+    assert "data-mcp-apps-proxy-url" not in _render()
