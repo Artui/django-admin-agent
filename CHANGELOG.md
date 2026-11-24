@@ -60,10 +60,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   `vendor-bundle-release` and `vendor-bundle-verify` now write and compare the
   MCP Apps entry and the proxy page as well as the main bundle.
-- **django-ag-ui is floored at 0.80.0 and django-spec-agents at 0.20.1**, up from
-  0.74.0 and 0.6.2, and the `[mcp]` extra with them. 0.80.0 is the release that
-  mounts the `mcp-apps/` relay the views call through, and it requires
-  django-spec-agents 0.20.1.
+- **django-ag-ui is floored at 0.85.0 and django-spec-agents at 0.24.0**, up from
+  0.74.0 and 0.6.2, and the `[mcp]` extra with them. 0.85.0 is the release whose
+  skill editor names the invalid field and runs the policy scanner, and it
+  requires django-spec-agents 0.24.0. The MCP Apps views need 0.80.0 or later,
+  the release that mounts the `mcp-apps/` relay they call through.
 - **`build_skills()` returns the catalog the sidebar embeds**: the `SKILLS` setting
   when it is set, else the four built-ins, where it used to return the built-ins
   whatever the setting said. It reads settings, so a `SKILLS` value can no longer
