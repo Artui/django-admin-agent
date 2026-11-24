@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from django.contrib import admin
 
-from tests.testapp.models import Author, Book
+from django_admin_agent.admin.skill_model_admin import SkillModelAdmin
+from tests.testapp.models import Author, Book, Skill
 
 
 class BookInline(admin.TabularInline):
@@ -35,3 +36,6 @@ class BookAdmin(admin.ModelAdmin):
         (None, {"fields": ("title", "author")}),
         ("Publishing", {"fields": ("published",)}),
     )
+
+
+admin.site.register(Skill, SkillModelAdmin)

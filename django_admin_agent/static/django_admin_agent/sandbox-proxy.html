@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MCP App view</title>
+<style>html,body{margin:0;height:100%}iframe{display:block;width:100%;height:100%;border:0}</style>
+</head>
+<body>
+<script>(()=>{var y=/[\s;'",]/;function c(n,t){let e=typeof n=="object"&&n!==null?n[t]:void 0;return Array.isArray(e)?e.filter(o=>typeof o=="string"&&o!==""&&!y.test(o)):[]}function s(n,t){return[n,...t].join(" ")}function l(n){let t={connectDomains:c(n,"connectDomains"),resourceDomains:c(n,"resourceDomains"),frameDomains:c(n,"frameDomains"),baseUriDomains:c(n,"baseUriDomains")},{connectDomains:e,resourceDomains:o,frameDomains:a,baseUriDomains:i}=t,r=["default-src 'none'",s("script-src",["'self'","'unsafe-inline'",...o]),s("style-src",["'self'","'unsafe-inline'",...o]),s("img-src",["'self'","data:",...o]),s("font-src",["'self'","data:",...o]),s("media-src",["'self'","data:",...o]),s("connect-src",e.length>0?e:["'none'"]),s("frame-src",a.length>0?a:["'none'"]),s("base-uri",i.length>0?i:["'self'"]),"object-src 'none'"].join("; ");return{domains:t,policy:r}}function u(n,t){let e=new DOMParser().parseFromString(n,"text/html"),o=e.createElement("meta");return o.setAttribute("http-equiv","Content-Security-Policy"),o.setAttribute("content",t),e.head.prepend(o),`<!doctype html>${e.documentElement.outerHTML}`}var g="ui/notifications/sandbox-proxy-ready",D="ui/notifications/sandbox-resource-ready",w="ui/notifications/sandbox-view-navigated";function f(n){let t=n.document,e=t.createElement("iframe");e.setAttribute("sandbox","allow-scripts"),e.title="MCP App view",t.body.append(e);let o=!1,a=!1,i=()=>{if(!a){a=!0;return}e.remove(),n.parent.postMessage({jsonrpc:"2.0",method:w,params:{}},"*")};n.addEventListener("message",r=>{let p=r.data;if(r.source===n.parent){let d=p;if(d?.method!==D){e.contentWindow?.postMessage(p,"*");return}let m=d.params;!o&&typeof m?.html=="string"&&(o=!0,e.addEventListener("load",i),e.srcdoc=u(m.html,l(m.csp).policy))}else r.source!==null&&r.source===e.contentWindow&&n.parent.postMessage(p,"*")}),n.parent.postMessage({jsonrpc:"2.0",method:g,params:{}},"*")}f(window);})();
+</script>
+</body>
+</html>

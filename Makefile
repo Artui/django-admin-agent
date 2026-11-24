@@ -67,8 +67,12 @@ docs-build:
 # published wheel ships exactly the bytes that were reviewed, tested and driven
 # in a browser here.
 WEB_COMPONENT_PKG := @artooi/agents-web-components
-WEB_COMPONENT_VERSION := 0.2.1
-BUNDLE_DEST := django_admin_agent/static/django_admin_agent/agents-web-components.bundle.js
+WEB_COMPONENT_VERSION := 0.14.0
+VENDOR_DIR := django_admin_agent/static/django_admin_agent
+BUNDLE_DEST := $(VENDOR_DIR)/agents-web-components.bundle.js
+# The MCP Apps entry and its sandbox proxy page, vendored from the same pin.
+MCP_APPS_DEST := $(VENDOR_DIR)/agents-web-components.mcp-apps.bundle.js
+PROXY_DEST := $(VENDOR_DIR)/sandbox-proxy.html
 
 # Fetch the pinned published component into a tmpdir and normalise its bundle
 # to `$$tmp/pinned.js`, exactly as both vendor paths below want it: the
@@ -79,7 +83,9 @@ define fetch_pinned_bundle
 	tmp="$$(mktemp -d)"; \
 	( cd "$$tmp" && npm pack "$(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION)" >/dev/null ); \
 	tar -xzf "$$tmp"/*.tgz -C "$$tmp"; \
-	sed -e '/sourceMappingURL/d' "$$tmp/package/dist/agents-web-components.bundle.js" > "$$tmp/pinned.js"
+	sed -e '/sourceMappingURL/d' "$$tmp/package/dist/agents-web-components.bundle.js" > "$$tmp/pinned.js"; \
+	sed -e '/sourceMappingURL/d' "$$tmp/package/dist/agents-web-components.mcp-apps.bundle.js" > "$$tmp/pinned-mcp-apps.js"; \
+	cp "$$tmp/package/dist/sandbox-proxy.html" "$$tmp/pinned-proxy.html"
 endef
 
 # Dev: copy the locally-built bundle from the sibling checkout (run
@@ -88,6 +94,8 @@ endef
 vendor-bundle:
 	cp ../agents-web-components/dist/agents-web-components.bundle.js $(BUNDLE_DEST)
 	sed -e '/sourceMappingURL/d' "$(BUNDLE_DEST)" > "$(BUNDLE_DEST).tmp" && mv "$(BUNDLE_DEST).tmp" "$(BUNDLE_DEST)"
+	sed -e '/sourceMappingURL/d' ../agents-web-components/dist/agents-web-components.mcp-apps.bundle.js > $(MCP_APPS_DEST)
+	cp ../agents-web-components/dist/sandbox-proxy.html $(PROXY_DEST)
 	@echo "Vendored agents-web-components.bundle.js from the sibling checkout (dev)."
 
 # Adoption: fetch the PINNED published version and write it into the tree. Run
@@ -96,6 +104,8 @@ vendor-bundle:
 vendor-bundle-release:
 	@set -e; $(fetch_pinned_bundle); \
 	cp "$$tmp/pinned.js" "$(BUNDLE_DEST)"; \
+	cp "$$tmp/pinned-mcp-apps.js" "$(MCP_APPS_DEST)"; \
+	cp "$$tmp/pinned-proxy.html" "$(PROXY_DEST)"; \
 	rm -rf "$$tmp"; \
 	echo "Vendored $(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION). Commit it, then run 'make test-e2e'."
 	@# Assert the artefact agrees with the pin, so a mis-fetch fails here rather
@@ -122,15 +132,18 @@ vendor-bundle-release:
 # a reviewer could read in the diff.
 vendor-bundle-verify:
 	@set -e; $(fetch_pinned_bundle); \
-	if ! diff -q "$$tmp/pinned.js" "$(BUNDLE_DEST)" >/dev/null 2>&1; then \
-		echo "ERROR: the committed bundle is NOT $(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION)."; \
-		echo "Run 'make vendor-bundle-release' and commit the result."; \
-		diff "$$tmp/pinned.js" "$(BUNDLE_DEST)" | head -5 || true; \
-		rm -rf "$$tmp"; \
-		exit 1; \
-	fi; \
+	for pair in "pinned.js:$(BUNDLE_DEST)" "pinned-mcp-apps.js:$(MCP_APPS_DEST)" "pinned-proxy.html:$(PROXY_DEST)"; do \
+		src="$$tmp/$${pair%%:*}"; dest="$${pair#*:}"; \
+		if ! diff -q "$$src" "$$dest" >/dev/null 2>&1; then \
+			echo "ERROR: the committed $$dest is NOT $(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION)."; \
+			echo "Run 'make vendor-bundle-release' and commit the result."; \
+			diff "$$src" "$$dest" | head -5 || true; \
+			rm -rf "$$tmp"; \
+			exit 1; \
+		fi; \
+	done; \
 	rm -rf "$$tmp"; \
-	echo "The committed bundle is byte-identical to $(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION)."
+	echo "The committed bundles are byte-identical to $(WEB_COMPONENT_PKG)@$(WEB_COMPONENT_VERSION)."
 
 release-bump:
 	@if [ -z "$(VERSION)" ]; then \

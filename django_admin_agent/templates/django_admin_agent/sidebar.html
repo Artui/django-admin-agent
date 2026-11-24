@@ -25,6 +25,8 @@ template) still renders.
   {% if strings_json %}data-strings="{{ strings_json }}"{% endif %}
   {% if icon_url %}data-icon-url="{{ icon_url }}"{% endif %}
   {% if tools_url %}data-tools-url="{{ tools_url }}"{% endif %}
+  {% if skills_url %}data-skills-url="{{ skills_url }}"{% endif %}
+  {% if skill_editor_url %}data-skill-editor-url="{{ skill_editor_url }}" data-skill-editor-button=""{% endif %}
   {% if threads_url %}data-threads-url="{{ threads_url }}"{% endif %}
   {% if runs_url %}data-runs-url="{{ runs_url }}"{% endif %}
   {% if attachments_url %}data-attachments-url="{{ attachments_url }}"{% endif %}
@@ -38,6 +40,8 @@ template) still renders.
   {% if theme_toggle %}data-theme-toggle=""{% endif %}
   {% if user_key %}user-key="{{ user_key }}"{% endif %}
   {% if user_name %}user-name="{{ user_name }}"{% endif %}
+  {% if routines_url %}data-routines-url="{{ routines_url }}"{% endif %}
+  {% if mcp_apps_url and mcp_apps_proxy_url %}data-mcp-apps-url="{{ mcp_apps_url }}" data-mcp-apps-proxy-url="{{ mcp_apps_proxy_url }}"{% endif %}
   data-admin-base="{{ admin_base_url }}"></ag-ui-chat>
 {{ route_map|json_script:"django-admin-agent-routes" }}
 {{ skills|json_script:"django-admin-agent-skills" }}

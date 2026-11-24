@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from django.conf import settings
 from django.db import models
+from django_spec_agents.skills import AbstractSkill, SkillPolicy
 
 
 class Author(models.Model):
@@ -23,3 +25,19 @@ class Book(models.Model):
         app_label = "testapp"
         indexes = [models.Index(fields=["title"], name="book_title_idx")]
         unique_together = (("title", "author"),)
+
+
+class Skill(AbstractSkill):
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name="+"
+    )
+    locked = models.BooleanField(default=False)
+
+    class Meta:
+        app_label = "testapp"
+
+    @classmethod
+    def skill_policy(cls) -> SkillPolicy[Skill]:
+        from tests.testapp.skill_policy import TestSkillPolicy
+
+        return TestSkillPolicy()

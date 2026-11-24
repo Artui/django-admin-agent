@@ -34,11 +34,7 @@ def send_message(page, text):  # noqa: ANN001, ANN201
 
 @pytest.fixture
 def limited_page(live_server, page, django_user_model):  # noqa: ANN001, ANN201
-    """A page logged into the live admin as staff holding no model permissions.
-
-    The shape the finding is written around: support staff who may enter the
-    admin and can see nothing inside it.
-    """
+    """A page logged into the live admin as staff holding no model permissions."""
     django_user_model.objects.create_user(
         "support", "support@example.com", "password", is_staff=True
     )

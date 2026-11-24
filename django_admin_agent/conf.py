@@ -75,6 +75,15 @@ class AdminAgentSettings:
     uses the built-in admin catalog
     ([`build_skills`][django_admin_agent.admin.build_skills.build_skills])."""
 
+    skill_editor: bool
+    """Whether the sidebar offers the editor for the caller's stored skills.
+
+    ``True`` renders ``data-skill-editor-url`` and ``data-skill-editor-button``
+    when the mount serves the editor, which is
+    ``AdminAgentServer(skill_policy=..., skill_editor=True)``; without that
+    route this renders nothing. Defaults to ``False``: an editor mounted for
+    another client stays out of the admin until a project asks for it here."""
+
     theme: str | None
     """Web Component theme: up to two words, in any order, a theme name and a
     scheme. The names are ``"quiet"`` (the default), ``"soft"``, ``"ledger"``
@@ -216,6 +225,19 @@ class AdminAgentSettings:
 
     Reach for it when the admin is broad but the sidebar should not be."""
 
+    mcp_apps_sandbox_proxy_url: str | None
+    """The URL of the MCP Apps sandbox proxy page, on an origin other than the
+    admin's. Set, the sidebar shows the view a bridged ``mcp_server=`` tool links
+    (``data-mcp-apps-proxy-url``), framed in that proxy. ``None`` (default) keeps
+    the notice the component draws in its place.
+
+    The proxy is required, not a preference: the component would otherwise frame
+    the view as ``srcdoc``, which inherits the admin's CSP, and a strict
+    ``script-src`` leaves it blank. Serve the vendored
+    ``django_admin_agent/sandbox-proxy.html`` as is on the second origin, with no
+    CSP header of its own, and let the admin's ``frame-src`` reach it. A URL on
+    the admin's own origin is refused in the browser, with a console warning."""
+
 
 def get_settings() -> AdminAgentSettings:
     """Read the active ``DJANGO_ADMIN_AGENT`` settings dict."""
@@ -227,6 +249,7 @@ def get_settings() -> AdminAgentSettings:
         tool_group_display=raw.get("TOOL_GROUP_DISPLAY", "compact"),
         message_actions=raw.get("MESSAGE_ACTIONS", "copy,retry"),
         skills=raw.get("SKILLS"),
+        skill_editor=bool(raw.get("SKILL_EDITOR", False)),
         theme=raw.get("THEME"),
         density=raw.get("DENSITY"),
         placement=raw.get("PLACEMENT"),
@@ -241,6 +264,7 @@ def get_settings() -> AdminAgentSettings:
         theme_toggle=bool(raw.get("THEME_TOGGLE", False)),
         shell_field_redaction=raw.get("SHELL_FIELD_REDACTION", True),
         model_scope=raw.get("MODEL_SCOPE"),
+        mcp_apps_sandbox_proxy_url=raw.get("MCP_APPS_SANDBOX_PROXY_URL") or None,
     )
 
 

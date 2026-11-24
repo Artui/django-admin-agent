@@ -36,7 +36,7 @@ install. Works with the vanilla Django admin and with
   configure the theme (Quiet / Soft / Ledger / Classic; light / dark / auto),
   density, placement, text animation, and tool-call display mode from
   `DJANGO_ADMIN_AGENT`, and surface a catalog of one-click skills as composer
-  chips and a `/`-command palette. Built on `django-ag-ui>=0.74.0` and the matching
+  chips and a `/`-command palette. Built on `django-ag-ui>=0.85.0` and the matching
   `@artooi/agents-web-components`.
 - **Voice & model thoughts** — set `DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]` to add a
   mic to the composer (server-side transcription), and a reasoning model's

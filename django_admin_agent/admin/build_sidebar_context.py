@@ -48,7 +48,9 @@ def build_sidebar_context(
         "tool_display": config.tool_display,
         "tool_group_display": config.tool_group_display,
         "message_actions": config.message_actions,
-        "skills": config.skills if config.skills is not None else build_skills(),
+        "skills": build_skills(),
+        "skills_url": _skills_url(namespace),
+        "skill_editor_url": _skill_editor_url(namespace) if config.skill_editor else None,
         "tools_url": _tools_url(namespace),
         "threads_url": _threads_url(namespace),
         "runs_url": _runs_url(namespace),
@@ -73,6 +75,9 @@ def build_sidebar_context(
         "route_map": build_route_map(),
         "user_key": _user_key(user),
         "user_name": _user_name(user),
+        "routines_url": _routines_url(namespace),
+        "mcp_apps_url": _mcp_apps_url(namespace),
+        "mcp_apps_proxy_url": config.mcp_apps_sandbox_proxy_url,
     }
 
 
@@ -127,6 +132,22 @@ def _tools_url(namespace: str) -> str | None:
         return None
 
 
+def _skills_url(namespace: str) -> str | None:
+    """Resolve the stored-skill catalog the palette merges under the built-ins, or ``None``."""
+    try:
+        return reverse(f"{namespace}:skills")
+    except NoReverseMatch:
+        return None
+
+
+def _skill_editor_url(namespace: str) -> str | None:
+    """Resolve the stored-skill editor's list URL, or ``None`` when it is not mounted."""
+    try:
+        return reverse(f"{namespace}:skill_editor")
+    except NoReverseMatch:
+        return None
+
+
 def _threads_url(namespace: str) -> str | None:
     """Resolve the thread-index URL the history drawer fetches, or ``None`` without a store."""
     try:
@@ -155,6 +176,22 @@ def _transcribe_url(namespace: str) -> str | None:
     """Resolve the transcription URL the mic posts to, or ``None`` without a backend."""
     try:
         return reverse(f"{namespace}:transcribe")
+    except NoReverseMatch:
+        return None
+
+
+def _routines_url(namespace: str) -> str | None:
+    """Resolve the routines editor URL, or ``None`` when no ``routine_model`` was passed."""
+    try:
+        return reverse(f"{namespace}:routines")
+    except NoReverseMatch:
+        return None
+
+
+def _mcp_apps_url(namespace: str) -> str | None:
+    """Resolve the MCP Apps relay a framed view calls through, or ``None`` when unmounted."""
+    try:
+        return reverse(f"{namespace}:mcp_apps")
     except NoReverseMatch:
         return None
 

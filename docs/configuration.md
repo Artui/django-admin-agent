@@ -31,7 +31,9 @@ Read by `django_admin_agent.conf.get_settings()` into a frozen
 | `ICON_URL` | _unset_ | URL of a header/launcher icon image. Rendered as the `data-icon-url` attribute; left off (icon-less) when unset. |
 | `STRINGS` | _unset_ | Localized UI-string overrides for the Web Component (a partial dict merged over its English defaults). Rendered as the `data-strings` attribute (serialized JSON). Wrap values in `gettext_lazy` so the sidebar follows the admin's active language; left off when unset. |
 | `SKILLS` | _unset_ | Override for the slash-command / chip catalog (a list of `Skill` dicts). Leave unset to use the built-in admin catalog. See [Skills](#skills). |
+| `SKILL_EDITOR` | `False` | Offer the editor for the caller's stored skills: `True` renders `data-skill-editor-url` and `data-skill-editor-button` when the mount serves the editor (`AdminAgentServer(skill_policy=..., skill_editor=True)`), and nothing without it. See [Stored skills](#stored-skills). |
 | `SHELL_FIELD_REDACTION` | `True` | Mask sensitive-*named* fields in `shell.*` output, and refuse to filter or order on them. `True` uses the built-in denylist; `False` disables both halves; a regex `str` replaces the pattern. See [Sensitive-field redaction](#sensitive-field-redaction). |
+| `MCP_APPS_SANDBOX_PROXY_URL` | _unset_ | URL of the MCP Apps sandbox proxy page, on an origin other than the admin's. Set, the sidebar frames the view a bridged `mcp_server=` tool links, inside that proxy; unset, the component draws a notice in its place. See [MCP Apps views](#mcp-apps-views). |
 | `MODEL_SCOPE` | _unset_ | Narrow which models the tools may touch, below what the admin already allows. A list of `"app_label"` / `"app_label.ModelName"` entries. Unset means the admin registry is the scope. See [Access control](#access-control). |
 
 ```python title="settings.py"
@@ -220,8 +222,9 @@ the system rather than Unfold's own toggle, and `"dark"` pins it dark.
 The sidebar ships a small catalog of pre-defined prompts surfaced as **chips**
 above the composer and in the `/`-command **palette**. They are embedded into
 the page as a `json_script` block (`#django-admin-agent-skills`) and read by the
-bootstrap module, which calls `el.setSkills(...)`. This needs no server-side
-Skills endpoint — the catalog is purely client-side.
+bootstrap module, which calls `el.setSkills(...)`. The built-in catalog needs no
+server-side Skills endpoint; the skills your users write are served by one, and
+the palette merges the two (see [Stored skills](#stored-skills)).
 
 Each skill is a plain dict in the client `Skill` shape (camelCase-free here —
 the keys are `name`, `title`, `description`, `prompt`):
@@ -235,9 +238,11 @@ the keys are `name`, `title`, `description`, `prompt`):
 }
 ```
 
-The built-in catalog (`django_admin_agent.admin.build_skills.build_skills()`)
-ships four placeholder-free skills: **Summarize this page**, **Summarize this
-changelist**, **Draft a description**, and **Explain this model**.
+Without `SKILLS` the sidebar ships four placeholder-free built-in skills:
+**Summarize this page**, **Summarize this changelist**, **Draft a description**,
+and **Explain this model**. `django_admin_agent.admin.build_skills.build_skills()`
+returns the catalog the sidebar embeds: the `SKILLS` setting when it is set,
+else those four.
 
 A skill `prompt` may contain `{placeholder}` tokens. The bootstrap module
 supplies a `skillContext` provider derived from the current admin page —
@@ -262,6 +267,84 @@ DJANGO_ADMIN_AGENT = {
 
 Setting `SKILLS` to an empty list (`[]`) ships no skills; leaving it unset uses
 the built-in catalog.
+
+### Stored skills
+
+Skills your users write are rows of your own model, a subclass of
+django-spec-agents' `AbstractSkill` whose `skill_policy()` says who sees and
+writes which (see django-ag-ui's User skills page for the model and the
+policy). Pass the policy to the mount, and `skill_editor=True` to serve the
+editor as well:
+
+```python title="urls.py"
+from django_admin_agent import AdminAgentServer
+from myapp.models import Skill
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path(
+        "admin-agent/",
+        AdminAgentServer(skill_policy=Skill.skill_policy(), skill_editor=True).urls,
+    ),
+]
+```
+
+With the `skills/` catalog mounted, the sidebar renders `data-skills-url` and
+the `/` palette lists each caller's stored skills beside the built-ins. A pick
+sends `/name`, and the body loads on the server. The component merges its
+catalogs later winning by `name`: the stored catalog first, then the embedded
+one. A stored skill named like a built-in is therefore hidden by it, so
+reserve the built-in names in your policy:
+
+```python title="myapp/skill_policy.py"
+from django_admin_agent.admin.build_skills import build_skills
+
+
+class SkillPolicy:
+    ...
+
+    def reserved_names(self, request):
+        return {skill["name"] for skill in build_skills()}
+```
+
+The editor is opt-in twice: the mount serves it and `SKILL_EDITOR` offers it.
+
+```python title="settings.py"
+DJANGO_ADMIN_AGENT = {"SKILL_EDITOR": True}
+```
+
+It opens in the sidebar's panel, from a Skills button in the header and a
+Manage skills row at the foot of the `/` palette. Its writes carry the
+sidebar's `X-CSRFToken` header, so the editor's CSRF check passes without a
+`csrf_exempt`. An editor mounted for another client stays out of the admin
+while `SKILL_EDITOR` is unset.
+
+#### A ModelAdmin for the skill model
+
+[`SkillModelAdmin`][django_admin_agent.admin.skill_model_admin.SkillModelAdmin]
+gives operators the rows in the admin with every write going through the
+model's policy, as the editor and the agent's tools do:
+
+```python title="myapp/admin.py"
+from django.contrib import admin
+from django_admin_agent.admin.skill_model_admin import SkillModelAdmin
+
+from myapp.models import Skill
+
+admin.site.register(Skill, SkillModelAdmin)
+```
+
+An add or change runs django-spec-agents' `create_skill` or `update_skill`,
+then `enable_skill` or `disable_skill` when the Enabled box changed, in one
+transaction. A broken rule (a name that is not kebab-case, an empty body, a
+name the policy reserves, a description or body its scanner flags) is an error
+on its field; a write `can_write` refuses is an error on the form, and nothing
+is saved. An add takes its scope (tenant, owner) from `policy.new_skill(request)`,
+so the form shows only the skill's own fields. A row `can_write` refuses is
+read-only and cannot be deleted, one at a time or in a bulk delete. The
+changelist lists every row of the model; override `get_queryset` to narrow it.
+The skill is written while the form validates, so in a subclass with inlines a
+failing inline leaves the skill saved.
 
 ## Access control
 
@@ -537,6 +620,9 @@ When a **step store** is configured, `AdminAgentServer` also mounts an
 owner-scoped run index at `<prefix>runs/` beside `resume/<run_id>/` and
 `fork/<run_id>/`, and the sidebar passes its URL to the Web Component as
 `data-runs-url` — so the sidebar header gains a ⭯ *Continue a run* panel.
+With `THEME_TOGGLE` on as well the header holds six controls, and from web
+component 0.11.0 the theme toggle and *Continue a run* move into its More menu
+(the three dots), even on a wide panel.
 
 A run that stopped part-way (a crash, a closed tab) can then be picked up from
 its last server-side checkpoint rather than restarted: type the next turn, then
@@ -554,6 +640,17 @@ AdminAgentServer(step_store=DefaultStepStore)
 capability needs, so pass the class itself. Requires django-ag-ui's `[harness]`
 extra. **Without a step store the sub-views aren't mounted** and no panel
 appears.
+
+### Routines
+
+When `AdminAgentServer(routine_model=..., id=...)` is given a django-spec-agents
+`AbstractRoutine` subclass, django-ag-ui (0.86.0 or later) mounts its routines
+editor at `<prefix>routines/`, and the sidebar passes its URL to the Web
+Component as `data-routines-url`: the header gains a Routines view of the staff
+user's scheduled prompts, and *Make this a routine* starts one from the
+conversation. The editor's writes carry the sidebar's CSRF header. **Without a
+routine model the route isn't mounted** and no Routines control appears. See
+django-ag-ui's [Routines](https://artui.github.io/django-ag-ui/routines/).
 
 ### File uploads
 
@@ -717,3 +814,34 @@ absent.
 Nothing there is a weaker gate than the call itself: the affordance is enforced
 when the tool runs, so a call made from a listing a moment out of date is still
 refused, with the `code`, as above.
+
+### MCP Apps views
+
+A tool on the bridged server can come with a view: an HTML resource the
+[MCP Apps](https://github.com/modelcontextprotocol/ext-apps) extension draws
+beside the tool's result. Every `AdminAgentServer` mounts django-ag-ui's
+`<prefix>mcp-apps/` relay, through which a view reads its HTML and calls its
+server's tools as the request's user, and the sidebar vendors the web
+component's `./mcp-apps` entry beside its main bundle. **The views stay off
+until you serve a sandbox proxy**, because the alternative, a `srcdoc` frame,
+inherits the admin's CSP and a strict `script-src` leaves it blank:
+
+1. Serve the vendored `django_admin_agent/static/django_admin_agent/sandbox-proxy.html`,
+   unchanged, on a second origin (one the admin's own origin is not), with no CSP
+   header of its own.
+2. Let the admin's `frame-src` reach that origin.
+3. Name the page's URL in the setting:
+
+```python title="settings.py"
+DJANGO_ADMIN_AGENT = {
+    "MCP_APPS_SANDBOX_PROXY_URL": "https://sandbox.example.com/sandbox-proxy.html",
+}
+```
+
+A view never acts unseen: each `tools/call` and `ui/message` it sends waits for a
+confirmation card under its frame, worded by the component's `mcpAppConfirmTool`
+and `mcpAppConfirmMessage` strings, which `STRINGS` translates. A URL on the
+admin's own origin is refused in the browser with a console warning, and the
+notice stays. A remote pydantic-ai `MCPToolset` among `toolsets=` needs an
+explicit `id=` for its views to reach it; see django-ag-ui's
+[MCP Apps views](https://artui.github.io/django-ag-ui/mcp-apps/).

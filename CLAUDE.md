@@ -24,7 +24,7 @@ The AG-UI stack design doc (`django-ag-ui-plan.md`) lives in the private ecosyst
 
 ## Local development
 
-`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.74.0` floor in
+`django-ag-ui` is resolved from PyPI via the `django-ag-ui>=0.85.0` floor in
 `pyproject.toml` (so CI, which has no sibling checkout, syncs cleanly). There is
 deliberately no upper bound — a one-minor ceiling over a package we ship
 ourselves is a release schedule, not a compatibility statement. What replaces
@@ -183,9 +183,9 @@ Change a rule here and change the config with it, or they drift apart again.
 | --- | --- | --- |
 | Python | 3.11 | 3.11–3.14 |
 | Django | 4.2 LTS | 4.2, 5.0, 5.1, 5.2, 6.0, 6.1 |
-| django-ag-ui | 0.74.0 | from PyPI (`>=0.74.0`, no ceiling) |
-| django-ag-ui[mcp] (`[mcp]` extra) | 0.74.0 | from PyPI (`>=0.74.0`, no ceiling) |
-| django-spec-agents | 0.6.2 | from PyPI (`>=0.6.2`, no ceiling) |
+| django-ag-ui | 0.85.0 | from PyPI (`>=0.85.0`, no ceiling) |
+| django-ag-ui[mcp] (`[mcp]` extra) | 0.85.0 | from PyPI (`>=0.85.0`, no ceiling) |
+| django-spec-agents | 0.24.0 | from PyPI (`>=0.24.0`, no ceiling) |
 | Django Unfold (supported, optional) | 0.40; the bottom bar's reach depends on the version, `docs/unfold.md` | the two `uv.lock` resolves, bottom bar only |
 | Browser (Chrome / Firefox / Safari) | 123 / 120 / 17.5 | latest Chromium in the e2e suite only |
 

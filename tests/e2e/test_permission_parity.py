@@ -34,6 +34,6 @@ def test_staff_without_model_permissions_gets_nothing(limited_page, live_server)
     expect(reply.first).to_be_visible(timeout=15000)
 
     text = reply.first.text_content() or ""
-    assert "The run failed" in text
+    assert "The response failed" in text
     assert "is not readable by this user" not in text
     assert "Counted the authors. 1" not in text

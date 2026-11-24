@@ -11,6 +11,7 @@
 //     ./admin_tools.js
 //   - name the page, object or changelist the user is on (the place chip)
 //   - opt the surface in to server-pushed charts
+//   - frame MCP Apps views, when the project serves a sandbox proxy
 //   - let the agent move its own panel out of the way of the page
 //   - under COLLAPSE_TO="bar", make room for the bar in the page
 import {
@@ -18,6 +19,7 @@ import {
   createChatSurfaceTools,
   defineChat,
 } from "./agents-web-components.bundle.js";
+import { registerMcpApps } from "./agents-web-components.mcp-apps.bundle.js";
 import { registerAdminTools } from "./admin_tools.js";
 
 function readCsrfToken() {
@@ -137,6 +139,23 @@ function makeRoomForBar(el) {
   publish();
 }
 
+// A view a bridged tool links, framed in the project's sandbox proxy. Only with
+// one: without it the component frames the view as srcdoc, which inherits the
+// admin's CSP, and a strict script-src leaves the frame blank. The component
+// refuses a proxy on the page's own origin; the notice then stays, with a warning.
+function frameMcpAppsViews(el) {
+  const url = el.getAttribute("data-mcp-apps-url");
+  const sandboxProxyUrl = el.getAttribute("data-mcp-apps-proxy-url");
+  if (!url || !sandboxProxyUrl) {
+    return;
+  }
+  try {
+    registerMcpApps(el, { url, sandboxProxyUrl });
+  } catch (error) {
+    console.warn("django-admin-agent: MCP Apps views stay off:", error);
+  }
+}
+
 function bootstrap() {
   defineChat();
   const el = document.querySelector("ag-ui-chat#django-admin-agent");
@@ -189,6 +208,7 @@ function bootstrap() {
     el.offerQuoteInPage(content);
   }
   makeRoomForBar(el);
+  frameMcpAppsViews(el);
   registerAdminTools(el);
   // Let the agent move the panel it is speaking from.
   //

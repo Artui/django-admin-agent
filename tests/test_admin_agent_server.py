@@ -32,11 +32,12 @@ def test_urls_is_the_namespaced_triple() -> None:
     assert isinstance(patterns, list)
 
 
-def test_default_mount_is_endpoint_and_tools_only() -> None:
+def test_default_mount_is_endpoint_tools_and_the_mcp_apps_relay() -> None:
     # No stores configured (settings default to Null).
     patterns = _patterns(AdminAgentServer())
-    assert [p.name for p in patterns] == ["endpoint", "tools"]
-    endpoint, tools = patterns
+    assert [p.name for p in patterns] == ["endpoint", "tools", "mcp_apps"]
+    endpoint, tools, mcp_apps = patterns
+    assert str(mcp_apps.pattern) == "mcp-apps/"
     assert isinstance(endpoint, URLPattern)
     assert str(endpoint.pattern) == ""
     assert isinstance(endpoint.callback, DjangoAGUIView)

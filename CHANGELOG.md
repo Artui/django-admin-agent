@@ -7,6 +7,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.63.0] — 2026-11-24
+
+### Added
+
+- **Skills your users write reach the sidebar.** With a `skill_policy=` on
+  `AdminAgentServer`, the sidebar renders `data-skills-url` and the `/` palette
+  lists each caller's stored skills beside the built-in ones, which stay embedded
+  and win a shared name. The new `SKILL_EDITOR` setting (off by default) offers
+  the stored-skill editor in the panel, from a header Skills button and the
+  palette's Manage skills row, when the mount also passes `skill_editor=True`; its
+  writes carry the sidebar's CSRF header. See Configuration, Stored skills.
+- **`SkillModelAdmin`, a `ModelAdmin` for the skill model**
+  (`django_admin_agent.admin.skill_model_admin`). Every add and change goes through
+  the model's `skill_policy()` with django-spec-agents' `create_skill`,
+  `update_skill`, `enable_skill` and `disable_skill` in one transaction, so the
+  name rules, reserved names and the content scanner hold in the admin too, each
+  refusal shown on its field; a row the policy will not let the caller write is
+  read-only and cannot be deleted.
+- **MCP Apps views, framed in a sandbox proxy the project serves.** A tool on the
+  bridged `mcp_server=` can come with an MCP Apps view, and the sidebar now
+  vendors the web component's `./mcp-apps` entry and its proxy page
+  (`django_admin_agent/sandbox-proxy.html`) beside the main bundle. The new
+  `MCP_APPS_SANDBOX_PROXY_URL` setting names the proxy page, served unchanged on
+  a second origin with no CSP header of its own. Set, the bootstrap registers the
+  entry against the `mcp-apps/` relay every `AdminAgentServer` mounts, rendered as
+  `data-mcp-apps-url` and `data-mcp-apps-proxy-url`. Unset, nothing is registered
+  and the component draws its notice, as before. There is no fallback without a
+  proxy, because a `srcdoc` frame inherits the admin's CSP and a strict
+  `script-src` leaves it blank. Each `tools/call` and `ui/message` a view sends
+  waits for a confirmation card, worded by the `mcpAppConfirmTool` and
+  `mcpAppConfirmMessage` strings, which `STRINGS` translates.
+- **Routines, when the mount has a routine model.** With
+  `AdminAgentServer(routine_model=..., id=...)` (django-ag-ui 0.86.0 or later),
+  the sidebar passes the routines editor's URL as `data-routines-url`. The header
+  then gains a Routines view of the staff user's scheduled prompts, and *Make
+  this a routine* is in its More menu. Without a routine model nothing changes.
+
+### Changed
+
+- **The vendored web component is 0.14.0, up from 0.2.1.** The adoption pass
+  over every release in between is in the pull request. What a staff user sees
+  without any setting changed:
+  - a tool call a reviewer model or a routine approved is marked on its card;
+  - from 0.11.0 the header folds the theme toggle, Skills, Continue a run and
+    History into a More menu when they do not fit, and always when there are more
+    than five controls, so `THEME_TOGGLE` with a step store puts the toggle and
+    Continue a run in the menu even on a wide panel;
+  - a run the server cancelled ends as a stop rather than a finish;
+  - a failed run reads *The response failed. Try again in a moment.* where it read
+    *The run failed*;
+  - the activities pydantic-ai sends are drawn, or deliberately left blank,
+    rather than counted as unknown.
+
+  `vendor-bundle-release` and `vendor-bundle-verify` now write and compare the
+  MCP Apps entry and the proxy page as well as the main bundle.
+- **django-ag-ui is floored at 0.85.0 and django-spec-agents at 0.24.0**, up from
+  0.74.0 and 0.6.2, and the `[mcp]` extra with them. 0.85.0 is the release whose
+  skill editor names the invalid field and runs the policy scanner, and it
+  requires django-spec-agents 0.24.0. The MCP Apps views need 0.80.0 or later,
+  the release that mounts the `mcp-apps/` relay they call through.
+- **`build_skills()` returns the catalog the sidebar embeds**: the `SKILLS` setting
+  when it is set, else the four built-ins, where it used to return the built-ins
+  whatever the setting said. It reads settings, so a `SKILLS` value can no longer
+  be built from it in `settings.py`; copy the built-ins you want to keep.
+
 ## [0.62.0] — 2026-11-15
 
 ### Added
@@ -2821,7 +2886,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.62.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.63.0...HEAD
+[0.63.0]: https://github.com/Artui/django-admin-agent/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/Artui/django-admin-agent/compare/v0.61.1...v0.62.0
 [0.61.1]: https://github.com/Artui/django-admin-agent/compare/v0.61.0...v0.61.1
 [0.61.0]: https://github.com/Artui/django-admin-agent/compare/v0.60.0...v0.61.0
