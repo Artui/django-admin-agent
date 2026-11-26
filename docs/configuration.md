@@ -646,6 +646,23 @@ capability needs, so pass the class itself. Requires django-ag-ui's `[harness]`
 extra. **Without a step store the sub-views aren't mounted** and no panel
 appears.
 
+### Delegated tasks
+
+When the agent delegates to a sub-agent through django-ag-ui's task control
+(0.90.0 and later), the sidebar draws the task's life on its row. With the
+chat-history drawer mounted (`data-threads-url`), a live task's row also offers
+**Steer**, **Answer** and **Cancel**. They post to the task routes django-ag-ui
+0.91.0 mounts when the server has a `run_store`, which `AdminAgentServer` passes
+through to it like any other `AGUIServer` argument. On an older server, or
+without a `run_store`, the controls still show and every press is refused, so
+hide them there:
+
+```css
+ag-ui-chat#django-admin-agent::part(subagent-controls) {
+  display: none;
+}
+```
+
 ### Routines
 
 When `AdminAgentServer(routine_model=..., id=...)` is given a django-spec-agents

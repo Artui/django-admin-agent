@@ -98,3 +98,28 @@ def test_click_dom_element_still_matches_an_aria_label(admin_page, live_server):
 
     assert outcome["result"]["ok"] is True
     assert admin_page.evaluate("() => window.__clicked") is True
+
+
+def test_click_dom_element_clicks_an_svg_link_which_has_no_click_method(  # noqa: ANN201
+    admin_page,  # noqa: ANN001
+    live_server,  # noqa: ANN001
+):
+    admin_page.goto(f"{live_server.url}/admin/")
+    admin_page.evaluate(
+        """() => {
+            const ns = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(ns, 'svg');
+            const link = document.createElementNS(ns, 'a');
+            link.id = 'svg-probe';
+            link.setAttribute('href', '#svg-landed');
+            link.appendChild(document.createElementNS(ns, 'text')).textContent = 'Chart';
+            link.addEventListener('click', () => { window.__svgClicked = true; });
+            svg.appendChild(link);
+            document.body.appendChild(svg);
+        }""",
+    )
+
+    outcome = _call_tool(admin_page, "click_dom_element", {"selector_or_label": "#svg-probe"})
+
+    assert outcome["result"]["ok"] is True
+    assert admin_page.evaluate("() => window.__svgClicked") is True
