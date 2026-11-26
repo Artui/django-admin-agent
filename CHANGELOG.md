@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.64.0] — 2026-11-26
+
+### Changed
+
+- **The vendored web component is 0.18.0, up from 0.14.0.** The adoption pass
+  over 0.15.0 to 0.18.0 is in the pull request; nothing in it needs a new
+  setting here. What a staff user sees without any setting changed, most of it once the
+  project runs django-ag-ui 0.90.0 or 0.91.0, which send what it draws:
+  - an answer carrying citations (0.90.0) shows a collapsed *Sources (n)*
+    list, and one a fallback model gave (0.91.0) reads *Answered by `<model>`*;
+  - a child session's report (0.91.0) draws as a card naming the child, and
+    the line that woke the parent is hidden;
+  - a delegated task's row draws its steps and, with a thread store, offers
+    Steer, Answer and Cancel, which only a django-ag-ui 0.91.0 server with a
+    run store accepts; elsewhere every press is refused, so a project delegating
+    on an older server hides them (Configuration, Delegated tasks);
+  - on 0.91.0, a stored-skill editor row whose policy defines
+    `scope(request, skill)` gains a *Personal* or *Company* badge, renamed with
+    `skillScope:<value>` in `STRINGS`;
+  - a thread never read shows as unread, so threads stored before the server
+    kept read marks light up once, and count toward the launcher's badge, until
+    each is opened;
+  - `click_dom_element` can click an SVG link, which has no `click()`.
+
 ## [0.63.0] — 2026-11-24
 
 ### Added
@@ -2886,7 +2910,8 @@ singleton sidebar, consumed by a template tag, and stays exactly where it is.
 - Optional `[mcp]` extra exposing the admin tools as an HTTP MCP server via
   `djangorestframework-mcp-server`.
 
-[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.63.0...HEAD
+[Unreleased]: https://github.com/Artui/django-admin-agent/compare/v0.64.0...HEAD
+[0.64.0]: https://github.com/Artui/django-admin-agent/compare/v0.63.0...v0.64.0
 [0.63.0]: https://github.com/Artui/django-admin-agent/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/Artui/django-admin-agent/compare/v0.61.1...v0.62.0
 [0.61.1]: https://github.com/Artui/django-admin-agent/compare/v0.61.0...v0.61.1

@@ -67,7 +67,7 @@ docs-build:
 # published wheel ships exactly the bytes that were reviewed, tested and driven
 # in a browser here.
 WEB_COMPONENT_PKG := @artooi/agents-web-components
-WEB_COMPONENT_VERSION := 0.14.0
+WEB_COMPONENT_VERSION := 0.18.0
 VENDOR_DIR := django_admin_agent/static/django_admin_agent
 BUNDLE_DEST := $(VENDOR_DIR)/agents-web-components.bundle.js
 # The MCP Apps entry and its sandbox proxy page, vendored from the same pin.
