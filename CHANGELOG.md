@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The vendored web component is 0.18.0, up from 0.14.0.** The adoption pass
+  over 0.15.0 to 0.18.0 is in the pull request; nothing in it needs a setting
+  here. What a staff user sees without any setting changed, most of it once the
+  project runs django-ag-ui 0.90.0 or 0.91.0, which send what it draws:
+  - an answer carrying citations (0.90.0) shows a collapsed *Sources (n)*
+    list, and one a fallback model gave (0.91.0) reads *Answered by `<model>`*;
+  - a child session's report (0.91.0) draws as a card naming the child, and
+    the line that woke the parent is hidden;
+  - a delegated task's row draws its steps and, with a thread store, offers
+    Steer, Answer and Cancel, which only a django-ag-ui 0.91.0 server with a
+    run store accepts; elsewhere every press is refused, so a project delegating
+    on an older server hides the `subagent-controls` part;
+  - on 0.91.0, a stored-skill editor row whose policy defines
+    `scope(request, skill)` gains a *Personal* or *Company* badge, renamed with
+    `skillScope:<value>` in `STRINGS`;
+  - a thread never read shows as unread, so threads stored before the server
+    kept read marks light up once, and count toward the launcher's badge, until
+    each is opened;
+  - `click_dom_element` can click an SVG link, which has no `click()`.
+
 ## [0.63.0] — 2026-11-24
 
 ### Added

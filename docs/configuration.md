@@ -319,6 +319,11 @@ sidebar's `X-CSRFToken` header, so the editor's CSRF check passes without a
 `csrf_exempt`. An editor mounted for another client stays out of the admin
 while `SKILL_EDITOR` is unset.
 
+A policy that defines `scope(request, skill)`, answering `"personal"` or
+`"shared"`, gives each editor row a *Personal* or *Company* badge. A scope of
+your own draws a badge only once `STRINGS` names it with a `skillScope:<value>`
+key, which also renames the two built-in labels.
+
 #### A ModelAdmin for the skill model
 
 [`SkillModelAdmin`][django_admin_agent.admin.skill_model_admin.SkillModelAdmin]
