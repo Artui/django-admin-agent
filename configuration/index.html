@@ -589,6 +589,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#delegated-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Delegated tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#routines" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -990,6 +1001,17 @@
     <span class="md-ellipsis">
       
         Continuing a run
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delegated-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Delegated tasks
       
     </span>
   </a>
@@ -1529,6 +1551,10 @@ Manage skills row at the foot of the <code>/</code> palette. Its writes carry th
 sidebar's <code>X-CSRFToken</code> header, so the editor's CSRF check passes without a
 <code>csrf_exempt</code>. An editor mounted for another client stays out of the admin
 while <code>SKILL_EDITOR</code> is unset.</p>
+<p>A policy that defines <code>scope(request, skill)</code>, answering <code>"personal"</code> or
+<code>"shared"</code>, gives each editor row a <em>Personal</em> or <em>Company</em> badge. A scope of
+your own draws a badge only once <code>STRINGS</code> names it with a <code>skillScope:&lt;value&gt;</code>
+key, which also renames the two built-in labels.</p>
 <h4 id="a-modeladmin-for-the-skill-model">A ModelAdmin for the skill model<a class="headerlink" href="#a-modeladmin-for-the-skill-model" title="Permanent link">&para;</a></h4>
 <p><a class="autorefs autorefs-internal" title="SkillModelAdmin" href="../reference/#django_admin_agent.admin.skill_model_admin.SkillModelAdmin"><code>SkillModelAdmin</code></a>
 gives operators the rows in the admin with every write going through the
@@ -1829,6 +1855,19 @@ provider-valid boundary has no snapshot to seed from.</p>
 capability needs, so pass the class itself. Requires django-ag-ui's <code>[harness]</code>
 extra. <strong>Without a step store the sub-views aren't mounted</strong> and no panel
 appears.</p>
+<h3 id="delegated-tasks">Delegated tasks<a class="headerlink" href="#delegated-tasks" title="Permanent link">&para;</a></h3>
+<p>When the agent delegates to a sub-agent through django-ag-ui's task control
+(0.90.0 and later), the sidebar draws the task's life on its row. With the
+chat-history drawer mounted (<code>data-threads-url</code>), a live task's row also offers
+<strong>Steer</strong>, <strong>Answer</strong> and <strong>Cancel</strong>. They post to the task routes django-ag-ui
+0.91.0 mounts when the server has a <code>run_store</code>, which <code>AdminAgentServer</code> passes
+through to it like any other <code>AGUIServer</code> argument. On an older server, or
+without a <code>run_store</code>, the controls still show and every press is refused, so
+hide them there:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="nt">ag-ui-chat</span><span class="p">#</span><span class="nn">django-admin-agent</span><span class="p">::</span><span class="nd">part</span><span class="o">(</span><span class="nt">subagent-controls</span><span class="o">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="k">display</span><span class="p">:</span><span class="w"> </span><span class="kc">none</span><span class="p">;</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="p">}</span>
+</span></code></pre></div>
 <h3 id="routines">Routines<a class="headerlink" href="#routines" title="Permanent link">&para;</a></h3>
 <p>When <code>AdminAgentServer(routine_model=..., id=...)</code> is given a django-spec-agents
 <code>AbstractRoutine</code> subclass, django-ag-ui (0.86.0 or later) mounts its routines
@@ -1850,20 +1889,20 @@ the agent reads their contents server-side via the built-in <code>read_attachmen
 mounted (no affordance). Turn them on by passing one. For <strong>durable,
 per-admin-user</strong> files, opt into the reference store: add
 <code>"django_spec_agents.contrib.store"</code> to <code>INSTALLED_APPS</code>, run <code>migrate</code>, then</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_spec_agents.contrib.store.default_attachment_store</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="n">DefaultAttachmentStore</span><span class="p">,</span>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="p">)</span>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
-</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">attachment_store</span><span class="o">=</span><span class="n">DefaultAttachmentStore</span><span class="p">())</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_spec_agents.contrib.store.default_attachment_store</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="n">DefaultAttachmentStore</span><span class="p">,</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="p">)</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">attachment_store</span><span class="o">=</span><span class="n">DefaultAttachmentStore</span><span class="p">())</span>
 </span></code></pre></div>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="c1"># Optional server-side guards. When uploads are mounted the admin sidebar</span>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="c1"># forwards these to the composer (data-attachment-max-bytes /</span>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="c1"># data-attachment-accept) so oversized or wrong-type files are rejected</span>
-</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    <span class="c1"># before upload — the server stays authoritative:</span>
-</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="s2">"ATTACHMENT_MAX_BYTES"</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
-</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="s2">"ATTACHMENT_ALLOWED_TYPES"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"image/png"</span><span class="p">,</span> <span class="s2">"image/jpeg"</span><span class="p">,</span> <span class="s2">"application/pdf"</span><span class="p">,</span> <span class="s2">"text/plain"</span><span class="p">],</span>
-</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="c1"># Optional server-side guards. When uploads are mounted the admin sidebar</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    <span class="c1"># forwards these to the composer (data-attachment-max-bytes /</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="c1"># data-attachment-accept) so oversized or wrong-type files are rejected</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    <span class="c1"># before upload — the server stays authoritative:</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>    <span class="s2">"ATTACHMENT_MAX_BYTES"</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>    <span class="s2">"ATTACHMENT_ALLOWED_TYPES"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"image/png"</span><span class="p">,</span> <span class="s2">"image/jpeg"</span><span class="p">,</span> <span class="s2">"application/pdf"</span><span class="p">,</span> <span class="s2">"text/plain"</span><span class="p">],</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>The reference store keeps bytes in Django <code>Storage</code> (filesystem by default; point
 <code>STORAGES</code>/<code>DEFAULT_FILE_STORAGE</code> at S3/GCS for production) and metadata in a row,
@@ -1881,11 +1920,11 @@ mounted (no mic affordance); enable it by pointing
 <code>DJANGO_AG_UI["TRANSCRIPTION_BACKEND"]</code> at a backend — django-ag-ui ships an opt-in
 <code>OpenAITranscriptionBackend</code> over any OpenAI-compatible endpoint (the <code>[openai]</code>
 extra):</p>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="s2">"TRANSCRIPTION_BACKEND"</span><span class="p">:</span> <span class="p">(</span>
-</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>        <span class="s2">"django_ag_ui.contrib.transcription.openai_transcription_backend.OpenAITranscriptionBackend"</span>
-</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="p">),</span>
-</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">DJANGO_AG_UI</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    <span class="s2">"TRANSCRIPTION_BACKEND"</span><span class="p">:</span> <span class="p">(</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>        <span class="s2">"django_ag_ui.contrib.transcription.openai_transcription_backend.OpenAITranscriptionBackend"</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    <span class="p">),</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Pass an explicit backend with <code>AdminAgentServer(transcription_backend=...)</code> to override.
 Model <strong>reasoning</strong> needs no admin wiring: the sidebar renders a streamed
@@ -1921,12 +1960,12 @@ transport applies. The argument is forwarded to django-ag-ui's
 which imports the bridge lazily, so the dependency is never loaded unless the
 argument is given. It is that direction only: nothing here serves the admin's
 own tools over MCP.</p>
-<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminAgentServer</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">myproject.mcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">mcp_server</span>  <span class="c1"># your django-spec-mcp MCPServer</span>
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
-</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin-agent/"</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">mcp_server</span><span class="o">=</span><span class="n">mcp_server</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
-</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="p">]</span>
+<div class="language-python highlight"><span class="filename">urls.py</span><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_admin_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdminAgentServer</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">myproject.mcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">mcp_server</span>  <span class="c1"># your django-spec-mcp MCPServer</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    <span class="n">path</span><span class="p">(</span><span class="s2">"admin-agent/"</span><span class="p">,</span> <span class="n">AdminAgentServer</span><span class="p">(</span><span class="n">mcp_server</span><span class="o">=</span><span class="n">mcp_server</span><span class="p">)</span><span class="o">.</span><span class="n">urls</span><span class="p">),</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="p">]</span>
 </span></code></pre></div>
 <p>It is a constructor argument rather than a setting, like every other
 collaborator: <code>DRF_MCP_SERVER</code> in <code>DJANGO_AG_UI</code> is refused with
@@ -1996,9 +2035,9 @@ inherits the admin's CSP and a strict <code>script-src</code> leaves it blank:</
 <li>Let the admin's <code>frame-src</code> reach that origin.</li>
 <li>Name the page's URL in the setting:</li>
 </ol>
-<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    <span class="s2">"MCP_APPS_SANDBOX_PROXY_URL"</span><span class="p">:</span> <span class="s2">"https://sandbox.example.com/sandbox-proxy.html"</span><span class="p">,</span>
-</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="p">}</span>
+<div class="language-python highlight"><span class="filename">settings.py</span><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">DJANGO_ADMIN_AGENT</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    <span class="s2">"MCP_APPS_SANDBOX_PROXY_URL"</span><span class="p">:</span> <span class="s2">"https://sandbox.example.com/sandbox-proxy.html"</span><span class="p">,</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>A view never acts unseen: each <code>tools/call</code> and <code>ui/message</code> it sends waits for a
 confirmation card under its frame, worded by the component's <code>mcpAppConfirmTool</code>
